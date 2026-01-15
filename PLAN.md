@@ -208,12 +208,79 @@ mat-sidenav {
 - [ ] Check preview URL
 
 ## Iteration 3: Supabase Setup
-- [ ] Create Supabase project
-- [ ] Install Supabase JS client
-- [ ] Configure environment variables
-- [ ] Create Supabase service wrapper
-- [ ] Test connection
-- [ ] Deploy & preview
+
+### 3.1 Create Supabase Project
+- [ ] Go to https://supabase.com
+- [ ] Sign in / create account
+- [ ] Click "New Project"
+- [ ] Enter project name (e.g., "angular-starter")
+- [ ] Set a database password (save this somewhere safe)
+- [ ] Select region closest to you
+- [ ] Click "Create new project"
+- [ ] Wait for project to provision (~2 minutes)
+
+### 3.2 Get API Credentials
+- [ ] Go to Project Settings → API
+- [ ] Copy the **Project URL** (e.g., `https://xxxxx.supabase.co`)
+- [ ] Copy the **anon public** key (safe to expose in frontend)
+
+### 3.3 Install Supabase JS Client
+- [ ] Run `npm install @supabase/supabase-js`
+
+### 3.4 Configure Environment Variables
+- [ ] Create `src/environments/environment.ts`
+- [ ] Create `src/environments/environment.prod.ts`
+- [ ] Add Supabase URL and anon key to both
+
+**environment.ts:**
+```typescript
+export const environment = {
+  production: false,
+  supabaseUrl: 'YOUR_PROJECT_URL',
+  supabaseAnonKey: 'YOUR_ANON_KEY'
+};
+```
+
+### 3.5 Create Supabase Service
+- [ ] Run `ng generate service core/supabase`
+- [ ] Initialize Supabase client in service
+
+**supabase.service.ts (or supabase.ts):**
+```typescript
+import { Injectable } from '@angular/core';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { environment } from '../../environments/environment';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class SupabaseService {
+  private supabase: SupabaseClient;
+
+  constructor() {
+    this.supabase = createClient(
+      environment.supabaseUrl,
+      environment.supabaseAnonKey
+    );
+  }
+
+  get client(): SupabaseClient {
+    return this.supabase;
+  }
+}
+```
+
+### 3.6 Test Connection
+- [ ] Inject SupabaseService into Dashboard component
+- [ ] Log client to console to verify initialization
+- [ ] Run `ng serve` and check browser console
+
+### 3.7 Push & Deploy
+- [ ] Run `git add .`
+- [ ] Run `git commit -m "Add Supabase integration"`
+- [ ] Run `git push`
+- [ ] Add environment variables to Vercel (Settings → Environment Variables)
+- [ ] Verify deployment
 
 ## Iteration 4: Authentication
 - [ ] Implement AuthService (register, login, logout)
