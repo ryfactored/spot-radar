@@ -75,11 +75,116 @@
 - [ ] Create `src/app/features/` folder
 - [ ] Create `src/app/layouts/` folder
 
+**Folder purposes:**
+| Folder | Purpose |
+|--------|---------|
+| `core/` | Singleton services, guards, interceptors (loaded once) |
+| `shared/` | Reusable components, directives, pipes (imported many times) |
+| `features/` | Feature modules like dashboard, profile, etc. (lazy-loaded) |
+| `layouts/` | Page layouts (shell with sidebar, auth layout, etc.) |
+
 ### 2.4 Create Shell Layout Component
 - [ ] Run `ng generate component layouts/shell --standalone`
 - [ ] Add Material imports (Toolbar, Sidenav, List, Icon, Button)
 - [ ] Create shell template with sidebar and toolbar
 - [ ] Add shell styles
+
+**What is a shell layout?**
+The "shell" is the main app wrapper that stays constant while inner content changes. It contains:
+- **Toolbar**: Top bar with menu button, app title, user actions
+- **Sidenav**: Collapsible sidebar for navigation
+- **Content area**: Where routed pages render via `<router-outlet>`
+
+**Note:** Angular 21 uses simplified filenames (e.g., `shell.ts` instead of `shell.component.ts`).
+
+**shell.ts:**
+```typescript
+import { Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatListModule } from '@angular/material/list';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+
+@Component({
+  selector: 'app-shell',
+  standalone: true,
+  imports: [
+    RouterOutlet,
+    MatToolbarModule,
+    MatSidenavModule,
+    MatListModule,
+    MatIconModule,
+    MatButtonModule,
+  ],
+  templateUrl: './shell.html',
+  styleUrl: './shell.scss'
+})
+export class Shell {
+  sidenavOpened = true;
+}
+```
+
+**shell.html:**
+```html
+<mat-sidenav-container class="shell-container">
+  <mat-sidenav #sidenav mode="side" [opened]="sidenavOpened">
+    <mat-nav-list>
+      <a mat-list-item routerLink="/dashboard">
+        <mat-icon matListItemIcon>dashboard</mat-icon>
+        <span matListItemTitle>Dashboard</span>
+      </a>
+      <a mat-list-item routerLink="/profile">
+        <mat-icon matListItemIcon>person</mat-icon>
+        <span matListItemTitle>Profile</span>
+      </a>
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <mat-toolbar color="primary">
+      <button mat-icon-button (click)="sidenav.toggle()">
+        <mat-icon>menu</mat-icon>
+      </button>
+      <span>Angular Starter</span>
+      <span class="spacer"></span>
+      <button mat-icon-button>
+        <mat-icon>account_circle</mat-icon>
+      </button>
+    </mat-toolbar>
+
+    <main class="content">
+      <router-outlet />
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>
+```
+
+**shell.scss:**
+```scss
+.shell-container {
+  height: 100vh;
+}
+
+mat-sidenav {
+  width: 250px;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.content {
+  padding: 20px;
+}
+```
+
+**Why these choices:**
+- `mode="side"` keeps sidenav always visible on desktop (vs `over` which overlays)
+- `#sidenav` template reference lets the toolbar button toggle it
+- `routerLink` for navigation (will work once routing is set up)
+- `.spacer` with `flex: 1 1 auto` pushes the user icon to the right
 
 ### 2.5 Create Dashboard Placeholder
 - [ ] Run `ng generate component features/dashboard --standalone`
