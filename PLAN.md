@@ -56,11 +56,51 @@
 - [ ] Copy URL for reference
 
 ## Iteration 2: Styling & Layout
-- [ ] Install Angular Material
-- [ ] Configure Material theming (light/dark)
-- [ ] Create app shell layout (header, sidebar, content)
-- [ ] Add responsive navigation
-- [ ] Deploy & preview
+
+### 2.1 Install Angular Material
+- [ ] Run `ng add @angular/material`
+- [ ] Select: Theme → Custom
+- [ ] Select: Typography → Yes
+- [ ] Select: Animations → Yes
+
+### 2.2 Configure Custom Theme
+- [ ] Edit `src/styles.scss` with custom light/dark theme
+- [ ] Define primary palette (indigo)
+- [ ] Define accent palette (pink)
+- [ ] Add `.dark-theme` class for dark mode
+
+### 2.3 Create Project Structure
+- [ ] Create `src/app/core/` folder
+- [ ] Create `src/app/shared/` folder
+- [ ] Create `src/app/features/` folder
+- [ ] Create `src/app/layouts/` folder
+
+### 2.4 Create Shell Layout Component
+- [ ] Run `ng generate component layouts/shell --standalone`
+- [ ] Add Material imports (Toolbar, Sidenav, List, Icon, Button)
+- [ ] Create shell template with sidebar and toolbar
+- [ ] Add shell styles
+
+### 2.5 Create Dashboard Placeholder
+- [ ] Run `ng generate component features/dashboard --standalone`
+
+### 2.6 Update Routing
+- [ ] Edit `src/app/app.routes.ts`
+- [ ] Add ShellComponent as parent route
+- [ ] Add lazy-loaded dashboard child route
+
+### 2.7 Verify Locally
+- [ ] Run `ng serve`
+- [ ] Open http://localhost:4200
+- [ ] Confirm shell layout displays (sidebar + toolbar)
+- [ ] Test sidebar toggle button
+
+### 2.8 Push & Deploy
+- [ ] Run `git add .`
+- [ ] Run `git commit -m "Add Angular Material and shell layout"`
+- [ ] Run `git push`
+- [ ] Verify Vercel auto-deploys
+- [ ] Check preview URL
 
 ## Iteration 3: Supabase Setup
 - [ ] Create Supabase project
