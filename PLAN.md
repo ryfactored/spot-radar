@@ -1,13 +1,59 @@
 # Angular 21 Starter Template - Iteration Guide
 
+---
+
+## Iteration 0: Prerequisites & Environment Setup
+
+### 0.1 Verify Node.js
+- [ ] Run `node --version`
+- [ ] Ensure Node.js 20.x or 22.x is installed
+- [ ] If not, install from https://nodejs.org
+
+### 0.2 Verify/Install Angular CLI
+- [ ] Run `ng version` to check current version
+- [ ] If not installed or not v21: `npm install -g @angular/cli@21`
+- [ ] Re-run `ng version` to confirm Angular CLI 21.x.x
+
+### 0.3 Verify Git
+- [ ] Run `git --version`
+- [ ] Ensure git is installed and configured
+
+### 0.4 Accounts Ready
+- [ ] GitHub account (you have this - repo exists)
+- [ ] Vercel account at https://vercel.com (sign up with GitHub)
+- [ ] Supabase account at https://supabase.com (for later iterations)
+
+---
+
 ## Iteration 1: Project Foundation
-- [ ] Create initial Angular 21 app
-- [ ] Configure project structure (core, shared, features, layouts)
-- [ ] Set up path aliases (@core, @shared, @features)
-- [ ] Add ESLint + Prettier
-- [ ] Push to GitHub
-- [ ] Deploy to Vercel
-- [ ] Preview & verify deployment works
+
+### 1.1 Create Angular App
+- [ ] Run `ng new angular-template --directory . --style scss --routing --ssr false`
+- [ ] Wait for installation to complete
+
+### 1.2 Verify Locally
+- [ ] Run `ng serve`
+- [ ] Open http://localhost:4200
+- [ ] Confirm Angular welcome page loads
+- [ ] Stop server with Ctrl+C
+
+### 1.3 Push to GitHub
+- [ ] Run `git add .`
+- [ ] Run `git commit -m "Initialize Angular 21 app"`
+- [ ] Run `git push`
+
+### 1.4 Deploy to Vercel
+- [ ] Go to https://vercel.com
+- [ ] Click "Add New Project"
+- [ ] Import `angular-template` repository
+- [ ] Accept auto-detected settings
+- [ ] Click "Deploy"
+- [ ] Wait for build to complete
+
+### 1.5 Preview
+- [ ] Open Vercel preview URL
+- [ ] Confirm Angular welcome page loads
+- [ ] Copy URL for reference
 
 ## Iteration 2: Styling & Layout
 - [ ] Install Angular Material
