@@ -283,12 +283,187 @@ export class SupabaseService {
 - [ ] Verify deployment
 
 ## Iteration 4: Authentication
-- [ ] Implement AuthService (register, login, logout)
-- [ ] Add email/password auth
-- [ ] Add Google OAuth
-- [ ] Add GitHub OAuth
-- [ ] Create auth guards (AuthGuard, GuestGuard)
-- [ ] Deploy & preview
+
+### 4.1 Create Auth Service
+- [ ] Run `ng generate service core/auth`
+- [ ] Implement signup, login, logout, and session methods
+
+**auth.ts:**
+```typescript
+import { Injectable, inject, signal } from '@angular/core';
+import { SupabaseService } from './supabase';
+import { User } from '@supabase/supabase-js';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class AuthService {
+  private supabase = inject(SupabaseService);
+
+  currentUser = signal<User | null>(null);
+  loading = signal(true);
+
+  constructor() {
+    this.loadUser();
+    this.supabase.client.auth.onAuthStateChange((event, session) => {
+      this.currentUser.set(session?.user ?? null);
+      this.loading.set(false);
+    });
+  }
+
+  private async loadUser() {
+    const { data } = await this.supabase.client.auth.getSession();
+    this.currentUser.set(data.session?.user ?? null);
+    this.loading.set(false);
+  }
+
+  async signUp(email: string, password: string) {
+    const { data, error } = await this.supabase.client.auth.signUp({
+      email,
+      password
+    });
+    if (error) throw error;
+    return data;
+  }
+
+  async signIn(email: string, password: string) {
+    const { data, error } = await this.supabase.client.auth.signInWithPassword({
+      email,
+      password
+    });
+    if (error) throw error;
+    return data;
+  }
+
+  async signInWithGoogle() {
+    const { data, error } = await this.supabase.client.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin }
+    });
+    if (error) throw error;
+    return data;
+  }
+
+  async signInWithGithub() {
+    const { data, error } = await this.supabase.client.auth.signInWithOAuth({
+      provider: 'github',
+      options: { redirectTo: window.location.origin }
+    });
+    if (error) throw error;
+    return data;
+  }
+
+  async signOut() {
+    const { error } = await this.supabase.client.auth.signOut();
+    if (error) throw error;
+  }
+}
+```
+
+### 4.2 Enable Auth Providers in Supabase
+- [ ] Go to Supabase Dashboard → Authentication → Providers
+- [ ] Email is enabled by default
+- [ ] Enable Google (requires Google Cloud OAuth credentials)
+- [ ] Enable GitHub (requires GitHub OAuth App)
+
+**For Google:**
+
+1. Go to https://console.cloud.google.com
+2. Create a new project (or select existing)
+   - Name it something generic like "my-apps" if you plan to reuse for multiple apps
+3. Go to **APIs & Services** → **Credentials**
+4. Click **Create Credentials** → **OAuth client ID**
+5. If prompted, configure the **OAuth consent screen** first:
+   - User type: **External**
+   - App name: your app name (users see this on sign-in screen)
+   - Support email: your email
+   - Developer contact email: your email
+   - Save (skip optional fields)
+6. Back to Credentials → **Create Credentials** → **OAuth client ID**
+7. Application type: **Web application**
+8. Name: anything (e.g., "Angular Starter")
+9. Authorized redirect URIs - add:
+   ```
+   https://YOUR_PROJECT_ID.supabase.co/auth/v1/callback
+   ```
+   (Find YOUR_PROJECT_ID in your Supabase project URL)
+10. Click **Create**
+11. Copy the **Client ID** and **Client Secret**
+12. Go to Supabase Dashboard → **Authentication** → **Providers**
+13. Find **Google** and enable it
+14. Paste your Client ID and Client Secret
+15. Save
+
+**For GitHub:**
+
+1. Go to https://github.com/settings/developers
+2. Click **OAuth Apps** → **New OAuth App**
+3. Fill in:
+   - Application name: your app name
+   - Homepage URL: your app URL (or `http://localhost:4200` for now)
+   - Authorization callback URL:
+     ```
+     https://YOUR_PROJECT_ID.supabase.co/auth/v1/callback
+     ```
+4. Click **Register application**
+5. Copy the **Client ID**
+6. Click **Generate a new client secret** and copy it
+7. Go to Supabase Dashboard → **Authentication** → **Providers**
+8. Find **GitHub** and enable it
+9. Paste your Client ID and Client Secret
+10. Save
+
+### 4.3 Create Auth Guard
+- [ ] Run `ng generate guard core/auth --functional`
+- [ ] Protect routes that require authentication
+
+**auth.guard.ts:**
+```typescript
+import { inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { AuthService } from './auth';
+
+export const authGuard = () => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+
+  if (auth.currentUser()) {
+    return true;
+  }
+  return router.parseUrl('/login');
+};
+```
+
+### 4.4 Create Guest Guard
+- [ ] Redirect logged-in users away from auth pages
+
+**guest.guard.ts:**
+```typescript
+import { inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { AuthService } from './auth';
+
+export const guestGuard = () => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+
+  if (!auth.currentUser()) {
+    return true;
+  }
+  return router.parseUrl('/dashboard');
+};
+```
+
+### 4.5 Test Auth Service
+- [ ] Inject AuthService into Dashboard
+- [ ] Add temporary signup/login buttons for testing
+- [ ] Verify auth flow works
+
+### 4.6 Push & Deploy
+- [ ] Run `git add .`
+- [ ] Run `git commit -m "Add authentication service and guards"`
+- [ ] Run `git push`
+- [ ] Verify deployment
 
 ## Iteration 5: Auth UI
 - [ ] Create auth layout
