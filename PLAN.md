@@ -26,6 +26,33 @@ Before writing code, we ensure all tools are installed and accounts are ready. S
 - [ ] Vercel account at https://vercel.com (sign up with GitHub)
 - [ ] Supabase account at https://supabase.com (for later iterations)
 
+### 0.5 VS Code Extensions
+Install these extensions for the best Angular development experience.
+
+**Essential:**
+| Extension | Purpose |
+|-----------|---------|
+| Angular Language Service | Autocomplete, errors in templates, go-to-definition |
+| ESLint | Linting and code quality |
+| Prettier | Consistent code formatting |
+
+**Highly Recommended:**
+| Extension | Purpose |
+|-----------|---------|
+| TypeScript Importer | Auto-imports when you type class names |
+| Auto Rename Tag | Rename opening tag, closing tag updates too |
+| GitLens | Blame annotations, history, powerful git features |
+| Error Lens | Shows errors inline instead of just underlines |
+
+**Nice to Have:**
+| Extension | Purpose |
+|-----------|---------|
+| Material Icon Theme | Better file icons (recognizes Angular files) |
+| Path Intellisense | Autocomplete for file paths |
+| Todo Tree | Finds all TODOs/FIXMEs in codebase |
+
+**Angular Language Service is the must-have** - without it, you get no help in templates.
+
 ---
 
 ## Iteration 1: Project Foundation
