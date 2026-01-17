@@ -1,4 +1,5 @@
 import { Injectable, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { SupabaseService } from './supabase';
 import { User } from '@supabase/supabase-js';
 
@@ -7,6 +8,7 @@ import { User } from '@supabase/supabase-js';
 })
 export class AuthService {
   private supabase = inject(SupabaseService);
+  private router = inject(Router);
 
   currentUser = signal<User | null>(null);
   loading = signal(true);
@@ -16,6 +18,11 @@ export class AuthService {
     this.supabase.client.auth.onAuthStateChange((event, session) => {
       this.currentUser.set(session?.user ?? null);
       this.loading.set(false);
+
+      // Auto-redirect on sign out
+      if (event === 'SIGNED_OUT') {
+        this.router.navigate(['/login']);
+      }
     });
   }
 

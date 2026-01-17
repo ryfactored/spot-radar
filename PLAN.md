@@ -4,6 +4,9 @@
 
 ## Iteration 0: Prerequisites & Environment Setup
 
+**Why this matters:**
+Before writing code, we ensure all tools are installed and accounts are ready. Skipping this leads to frustrating errors mid-development. This iteration is about setting up a solid foundation.
+
 ### 0.1 Verify Node.js
 - [ ] Run `node --version`
 - [ ] Ensure Node.js 20.x or 22.x is installed
@@ -26,6 +29,9 @@
 ---
 
 ## Iteration 1: Project Foundation
+
+**What we're building:**
+A fresh Angular 21 application with routing enabled and SCSS for styling. We'll deploy it immediately to establish a CI/CD pipeline from day one - every push auto-deploys. This "always deployable" approach catches issues early.
 
 ### 1.1 Create Angular App
 - [ ] Run `ng new angular-template --directory . --style scss --routing --ssr false`
@@ -56,6 +62,9 @@
 - [ ] Copy URL for reference
 
 ## Iteration 2: Styling & Layout
+
+**What we're building:**
+The visual foundation of the app. Angular Material provides pre-built, accessible UI components following Material Design. We'll create a "shell" layout (sidebar + toolbar) that wraps authenticated pages. This establishes the look and feel users will interact with throughout the app.
 
 ### 2.1 Install Angular Material
 - [ ] Run `ng add @angular/material`
@@ -209,6 +218,9 @@ mat-sidenav {
 
 ## Iteration 3: Supabase Setup
 
+**What we're building:**
+The backend connection. Supabase is a "Backend as a Service" that provides a PostgreSQL database, authentication, and real-time subscriptions out of the box. Instead of building our own server, we connect directly from Angular to Supabase's APIs. This dramatically speeds up development.
+
 ### 3.1 Create Supabase Project
 - [ ] Go to https://supabase.com
 - [ ] Sign in / create account
@@ -284,13 +296,20 @@ export class SupabaseService {
 
 ## Iteration 4: Authentication
 
+**What we're building:**
+User authentication - the ability to sign up, log in, and log out. Supabase Auth handles the heavy lifting (password hashing, session tokens, OAuth flows). We create an Angular service to wrap Supabase's auth methods, plus guards to protect routes. By the end, only logged-in users can access the dashboard.
+
 ### 4.1 Create Auth Service
 - [ ] Run `ng generate service core/auth`
 - [ ] Implement signup, login, logout, and session methods
 
+**What this service does:**
+A centralized place for all authentication logic. Uses Angular signals (`currentUser`, `loading`) for reactive state - components automatically update when auth state changes. Wraps Supabase auth methods so the rest of the app doesn't need to know about Supabase directly.
+
 **auth.ts:**
 ```typescript
 import { Injectable, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { SupabaseService } from './supabase';
 import { User } from '@supabase/supabase-js';
 
@@ -299,6 +318,7 @@ import { User } from '@supabase/supabase-js';
 })
 export class AuthService {
   private supabase = inject(SupabaseService);
+  private router = inject(Router);
 
   currentUser = signal<User | null>(null);
   loading = signal(true);
@@ -308,6 +328,11 @@ export class AuthService {
     this.supabase.client.auth.onAuthStateChange((event, session) => {
       this.currentUser.set(session?.user ?? null);
       this.loading.set(false);
+
+      // Auto-redirect on sign out - centralizes logout behavior
+      if (event === 'SIGNED_OUT') {
+        this.router.navigate(['/login']);
+      }
     });
   }
 
@@ -417,47 +442,118 @@ export class AuthService {
 - [ ] Run `ng generate guard core/auth --functional`
 - [ ] Protect routes that require authentication
 
-**auth.guard.ts:**
+**What guards do:**
+Guards are functions that run before a route loads. They decide "can this user access this page?" The authGuard checks if the user is logged in - if not, it redirects to /login. This protects dashboard and other authenticated pages.
+
+**RxJS Operators used in guards:**
+
+| Operator | What it does |
+|----------|--------------|
+| `toObservable()` | Converts an Angular signal to an RxJS observable stream |
+| `filter(fn)` | Only passes values that match condition (like Array.filter) |
+| `take(1)` | Takes first matching value then auto-unsubscribes |
+| `map(fn)` | Transforms the value into something else (like Array.map) |
+
+**How the guard flow works:**
+```
+Signal: loading = true → false
+                         ↓
+filter(!loading) ──────→ passes "false" through
+                         ↓
+take(1) ───────────────→ grabs it, stops listening
+                         ↓
+map() ─────────────────→ returns true (allow) or redirect URL
+```
+
+Without `take(1)`, the observable keeps listening forever. With it, we get a one-time auth check that cleans itself up.
+
+**auth-guard.ts:**
 ```typescript
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { filter, map, take } from 'rxjs';
 import { AuthService } from './auth';
 
 export const authGuard = () => {
   const auth = inject(AuthService);
   const router = inject(Router);
 
-  if (auth.currentUser()) {
-    return true;
-  }
-  return router.parseUrl('/login');
+  // Wait for auth to finish loading before checking user
+  // This prevents race conditions on OAuth redirects
+  return toObservable(auth.loading).pipe(
+    filter(loading => !loading),
+    take(1),
+    map(() => {
+      if (auth.currentUser()) {
+        return true;
+      }
+      return router.parseUrl('/login');
+    })
+  );
 };
 ```
 
 ### 4.4 Create Guest Guard
 - [ ] Redirect logged-in users away from auth pages
 
-**guest.guard.ts:**
+**Why a guest guard?**
+The opposite of authGuard. If a user is already logged in and tries to visit /login or /register, redirect them to /dashboard. No point showing login forms to someone already authenticated.
+
+**guest-guard.ts:**
 ```typescript
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { filter, map, take } from 'rxjs';
 import { AuthService } from './auth';
 
 export const guestGuard = () => {
   const auth = inject(AuthService);
   const router = inject(Router);
 
-  if (!auth.currentUser()) {
-    return true;
-  }
-  return router.parseUrl('/dashboard');
+  // Wait for auth to finish loading before checking user
+  return toObservable(auth.loading).pipe(
+    filter(loading => !loading),
+    take(1),
+    map(() => {
+      if (!auth.currentUser()) {
+        return true;
+      }
+      return router.parseUrl('/dashboard');
+    })
+  );
 };
 ```
 
 ### 4.5 Test Auth Service
 - [ ] Inject AuthService into Dashboard
 - [ ] Add temporary signup/login buttons for testing
+- [ ] Configure Supabase redirect URLs
 - [ ] Verify auth flow works
+
+**Configure Supabase Redirect URLs:**
+
+OAuth flow: Your app → Google → Supabase callback → **back to your app**
+
+Supabase needs to know where to redirect after auth completes.
+
+1. Go to Supabase Dashboard → **Authentication** → **URL Configuration**
+2. Set **Site URL** to your production URL:
+   ```
+   https://your-app.vercel.app
+   ```
+3. Add to **Redirect URLs** list:
+   ```
+   http://localhost:4200
+   https://your-app.vercel.app
+   ```
+4. Save
+
+The `window.location.origin` in AuthService automatically uses the correct URL for dev vs production:
+```typescript
+options: { redirectTo: window.location.origin }
+```
 
 ### 4.6 Push & Deploy
 - [ ] Run `git add .`
@@ -466,12 +562,381 @@ export const guestGuard = () => {
 - [ ] Verify deployment
 
 ## Iteration 5: Auth UI
-- [ ] Create auth layout
-- [ ] Build login page with form validation
-- [ ] Build register page
-- [ ] Build forgot password page
-- [ ] Handle OAuth callbacks
-- [ ] Deploy & preview
+
+**What we're building:**
+The user-facing authentication pages. We've built the auth service (backend logic) - now we need the login and register forms users actually interact with. We'll create a separate "auth layout" (simple centered card) distinct from the main shell layout, plus proper routing with guards applied.
+
+### 5.1 Create Auth Layout
+- [ ] Run `ng generate component layouts/auth-layout --standalone`
+- [ ] Simple centered layout for auth pages (no sidebar)
+
+**Why a separate layout?**
+The shell layout (sidebar + toolbar) is for authenticated users. Auth pages (login/register) need a simpler, centered design - no navigation since the user isn't logged in yet. Having two layouts lets us swap between them based on auth state.
+
+**auth-layout.ts:**
+```typescript
+import { Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
+
+@Component({
+  selector: 'app-auth-layout',
+  standalone: true,
+  imports: [RouterOutlet],
+  template: `
+    <div class="auth-container">
+      <div class="auth-card">
+        <h1 class="app-title">Angular Starter</h1>
+        <router-outlet />
+      </div>
+    </div>
+  `,
+  styles: `
+    .auth-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f5f5f5;
+    }
+    .auth-card {
+      background: white;
+      padding: 40px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 400px;
+    }
+    .app-title {
+      text-align: center;
+      margin-bottom: 24px;
+      color: #3f51b5;
+    }
+  `
+})
+export class AuthLayout {}
+```
+
+### 5.2 Create Login Page
+- [ ] Run `ng generate component features/auth/login --standalone`
+- [ ] Add email/password form with validation
+- [ ] Add Google sign-in button
+- [ ] Add link to register page
+
+**What this page does:**
+The login page is the entry point for returning users. It provides two auth methods:
+1. Email/password - traditional form-based login
+2. Google OAuth - one-click sign in (configured in Iteration 4)
+
+We use Angular Reactive Forms for validation (required fields, email format) and Material components for consistent styling.
+
+**login.ts:**
+```typescript
+import { Component, inject } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatDividerModule } from '@angular/material/divider';
+import { AuthService } from '../../../core/auth';
+
+@Component({
+  selector: 'app-login',
+  standalone: true,
+  imports: [
+    ReactiveFormsModule,
+    RouterLink,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatIconModule,
+    MatDividerModule,
+  ],
+  template: `
+    <h2>Sign In</h2>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Email</mat-label>
+        <input matInput formControlName="email" type="email">
+        @if (form.controls.email.hasError('required')) {
+          <mat-error>Email is required</mat-error>
+        }
+        @if (form.controls.email.hasError('email')) {
+          <mat-error>Invalid email format</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Password</mat-label>
+        <input matInput formControlName="password" type="password">
+        @if (form.controls.password.hasError('required')) {
+          <mat-error>Password is required</mat-error>
+        }
+      </mat-form-field>
+
+      @if (error) {
+        <p class="error">{{ error }}</p>
+      }
+
+      <button mat-raised-button color="primary" class="full-width" type="submit" [disabled]="loading">
+        {{ loading ? 'Signing in...' : 'Sign In' }}
+      </button>
+    </form>
+
+    <mat-divider class="divider"></mat-divider>
+
+    <button mat-stroked-button class="full-width google-btn" (click)="loginWithGoogle()">
+      <mat-icon>login</mat-icon>
+      Continue with Google
+    </button>
+
+    <p class="footer">
+      Don't have an account? <a routerLink="/register">Sign up</a>
+    </p>
+  `,
+  styles: `
+    h2 { text-align: center; margin-bottom: 24px; }
+    .full-width { width: 100%; }
+    mat-form-field { margin-bottom: 16px; }
+    .divider { margin: 24px 0; }
+    .google-btn { margin-bottom: 16px; }
+    .google-btn mat-icon { margin-right: 8px; }
+    .footer { text-align: center; margin-top: 16px; }
+    .error { color: #f44336; text-align: center; }
+  `
+})
+export class Login {
+  private fb = inject(FormBuilder);
+  private auth = inject(AuthService);
+  private router = inject(Router);
+
+  form = this.fb.nonNullable.group({
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', Validators.required],
+  });
+
+  loading = false;
+  error = '';
+
+  async onSubmit() {
+    if (this.form.invalid) return;
+
+    this.loading = true;
+    this.error = '';
+
+    try {
+      await this.auth.signIn(this.form.value.email!, this.form.value.password!);
+      this.router.navigate(['/dashboard']);
+    } catch (err: any) {
+      this.error = err.message || 'Login failed';
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  async loginWithGoogle() {
+    await this.auth.signInWithGoogle();
+  }
+}
+```
+
+### 5.3 Create Register Page
+- [ ] Run `ng generate component features/auth/register --standalone`
+- [ ] Add email/password form with confirm password
+- [ ] Add link to login page
+
+**What this page does:**
+The register page lets new users create an account with email/password. It includes:
+- Confirm password field to prevent typos
+- Password length validation (Supabase requires 6+ characters)
+- Success message telling users to check email (Supabase sends confirmation emails by default)
+
+After registration, Supabase handles email verification automatically.
+
+**register.ts:**
+```typescript
+import { Component, inject } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { AuthService } from '../../../core/auth';
+
+@Component({
+  selector: 'app-register',
+  standalone: true,
+  imports: [
+    ReactiveFormsModule,
+    RouterLink,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+  ],
+  template: `
+    <h2>Create Account</h2>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Email</mat-label>
+        <input matInput formControlName="email" type="email">
+        @if (form.controls.email.hasError('required')) {
+          <mat-error>Email is required</mat-error>
+        }
+        @if (form.controls.email.hasError('email')) {
+          <mat-error>Invalid email format</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Password</mat-label>
+        <input matInput formControlName="password" type="password">
+        @if (form.controls.password.hasError('required')) {
+          <mat-error>Password is required</mat-error>
+        }
+        @if (form.controls.password.hasError('minlength')) {
+          <mat-error>Password must be at least 6 characters</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Confirm Password</mat-label>
+        <input matInput formControlName="confirmPassword" type="password">
+        @if (form.controls.confirmPassword.hasError('required')) {
+          <mat-error>Please confirm your password</mat-error>
+        }
+      </mat-form-field>
+
+      @if (error) {
+        <p class="error">{{ error }}</p>
+      }
+
+      @if (success) {
+        <p class="success">{{ success }}</p>
+      }
+
+      <button mat-raised-button color="primary" class="full-width" type="submit" [disabled]="loading">
+        {{ loading ? 'Creating account...' : 'Sign Up' }}
+      </button>
+    </form>
+
+    <p class="footer">
+      Already have an account? <a routerLink="/login">Sign in</a>
+    </p>
+  `,
+  styles: `
+    h2 { text-align: center; margin-bottom: 24px; }
+    .full-width { width: 100%; }
+    mat-form-field { margin-bottom: 16px; }
+    .footer { text-align: center; margin-top: 16px; }
+    .error { color: #f44336; text-align: center; }
+    .success { color: #4caf50; text-align: center; }
+  `
+})
+export class Register {
+  private fb = inject(FormBuilder);
+  private auth = inject(AuthService);
+  private router = inject(Router);
+
+  form = this.fb.nonNullable.group({
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required, Validators.minLength(6)]],
+    confirmPassword: ['', Validators.required],
+  });
+
+  loading = false;
+  error = '';
+  success = '';
+
+  async onSubmit() {
+    if (this.form.invalid) return;
+
+    if (this.form.value.password !== this.form.value.confirmPassword) {
+      this.error = 'Passwords do not match';
+      return;
+    }
+
+    this.loading = true;
+    this.error = '';
+
+    try {
+      await this.auth.signUp(this.form.value.email!, this.form.value.password!);
+      this.success = 'Account created! Check your email to confirm.';
+    } catch (err: any) {
+      this.error = err.message || 'Registration failed';
+    } finally {
+      this.loading = false;
+    }
+  }
+}
+```
+
+### 5.4 Update Routing
+- [ ] Add auth layout with login/register routes
+- [ ] Apply guards to routes
+
+**What we're configuring:**
+The routing ties everything together:
+- Shell layout (with authGuard) wraps protected pages - only accessible when logged in
+- Auth layout (with guestGuard) wraps login/register - only accessible when logged out
+- Guards automatically redirect users to the right place based on auth state
+
+This creates a seamless flow: unauthenticated users always land on /login, and logging in takes them to /dashboard.
+
+**Updated app.routes.ts:**
+```typescript
+import { Routes } from '@angular/router';
+import { Shell } from './layouts/shell/shell';
+import { AuthLayout } from './layouts/auth-layout/auth-layout';
+import { authGuard } from './core/auth-guard';
+import { guestGuard } from './core/guest-guard';
+
+export const routes: Routes = [
+  {
+    path: '',
+    component: Shell,
+    canActivate: [authGuard],
+    children: [
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      {
+        path: 'dashboard',
+        loadComponent: () => import('./features/dashboard/dashboard').then(m => m.Dashboard)
+      }
+    ]
+  },
+  {
+    path: '',
+    component: AuthLayout,
+    canActivate: [guestGuard],
+    children: [
+      {
+        path: 'login',
+        loadComponent: () => import('./features/auth/login/login').then(m => m.Login)
+      },
+      {
+        path: 'register',
+        loadComponent: () => import('./features/auth/register/register').then(m => m.Register)
+      }
+    ]
+  }
+];
+```
+
+### 5.5 Test Auth Flow
+- [ ] Run `ng serve`
+- [ ] Verify redirect to /login when not authenticated
+- [ ] Test login with Google
+- [ ] Test login with email/password
+- [ ] Verify redirect to /dashboard after login
+- [ ] Test logout redirects to /login
+
+### 5.6 Push & Deploy
+- [ ] Run `git add .`
+- [ ] Run `git commit -m "Add auth UI with login and register pages"`
+- [ ] Run `git push`
+- [ ] Verify deployment
 
 ## Iteration 6: User Profile
 - [ ] Create profiles table in Supabase
