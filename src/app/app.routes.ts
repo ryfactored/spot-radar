@@ -13,9 +13,13 @@ export const routes: Routes = [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       {
         path: 'dashboard',
-        loadComponent: () => import('./features/dashboard/dashboard').then(m => m.Dashboard)
-      }
-    ]
+        loadComponent: () => import('./features/dashboard/dashboard').then((m) => m.Dashboard),
+      },
+      {
+        path: 'profile',
+        loadComponent: () => import('./features/profile/profile').then((m) => m.ProfileComponent),
+      },
+    ],
   },
   {
     path: '',
@@ -24,12 +28,12 @@ export const routes: Routes = [
     children: [
       {
         path: 'login',
-        loadComponent: () => import('./features/auth/login/login').then(m => m.Login)
+        loadComponent: () => import('./features/auth/login/login').then((m) => m.Login),
       },
       {
         path: 'register',
-        loadComponent: () => import('./features/auth/register/register').then(m => m.Register)
-      }
-    ]
-  }
+        loadComponent: () => import('./features/auth/register/register').then((m) => m.Register),
+      },
+    ],
+  },
 ];

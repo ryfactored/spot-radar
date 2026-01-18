@@ -131,12 +131,15 @@ The "shell" is the main app wrapper that stays constant while inner content chan
 - **Sidenav**: Collapsible sidebar for navigation
 - **Content area**: Where routed pages render via `<router-outlet>`
 
-**Note:** Angular 21 uses simplified filenames (e.g., `shell.ts` instead of `shell.component.ts`).
+**Note on Angular 21 naming:**
+- **Filenames** are simplified: `shell.ts` instead of `shell.component.ts`
+- **Class names** can still be descriptive: `ShellComponent`, `ProfileComponent`
+- This avoids naming conflicts (e.g., `Profile` interface vs `Profile` component)
 
 **shell.ts:**
 ```typescript
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { RouterOutlet, RouterLink } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
@@ -148,6 +151,7 @@ import { MatButtonModule } from '@angular/material/button';
   standalone: true,
   imports: [
     RouterOutlet,
+    RouterLink,      // Required for routerLink directives in template
     MatToolbarModule,
     MatSidenavModule,
     MatListModule,
@@ -280,7 +284,23 @@ export const environment = {
 };
 ```
 
-### 3.5 Create Supabase Service
+### 3.5 Create Supabase Error Constants
+- [ ] Create `src/app/core/supabase-errors.ts`
+
+**Why constants?**
+Avoid hardcoded strings scattered throughout the codebase. Named constants are self-documenting, easier to find, and prevent typos.
+
+**supabase-errors.ts:**
+```typescript
+export const SUPABASE_ERRORS = {
+  NO_ROWS_FOUND: 'PGRST116',
+  DUPLICATE_KEY: '23505',
+  FOREIGN_KEY_VIOLATION: '23503',
+  // Add more as needed
+} as const;
+```
+
+### 3.6 Create Supabase Service
 - [ ] Run `ng generate service core/supabase`
 - [ ] Initialize Supabase client in service
 
@@ -966,11 +986,373 @@ export const routes: Routes = [
 - [ ] Verify deployment
 
 ## Iteration 6: User Profile
-- [ ] Create profiles table in Supabase
-- [ ] Build profile view page
-- [ ] Build profile edit form
-- [ ] Add avatar upload
-- [ ] Deploy & preview
+
+**What we're building:**
+A user profile system. Supabase Auth gives us basic user info (email, id), but we need a `profiles` table to store additional data (display name, avatar, bio). We'll create the database table, a profile service, and UI pages to view/edit profile info.
+
+### 6.1 Create Profiles Table in Supabase
+- [ ] Go to Supabase Dashboard → SQL Editor
+- [ ] Run SQL to create profiles table
+- [ ] Set up Row Level Security (RLS) policies
+
+**Why a separate profiles table?**
+Supabase Auth stores authentication data (email, password hash, tokens). Custom user data (name, avatar, preferences) belongs in your own table, linked by user ID.
+
+**How Row Level Security (RLS) works:**
+
+RLS makes the database check permissions on every row, not just the table.
+
+Without RLS:
+```
+Anyone with the anon key can: SELECT * FROM profiles
+→ Gets ALL users' data 😱
+```
+
+With RLS:
+```
+Same query, but database checks each row against policy
+→ Only returns rows where auth.uid() = id (your data only) ✅
+```
+
+**Policy breakdown:**
+```sql
+CREATE POLICY "Users can read own profile"
+  ON profiles FOR SELECT
+  USING (auth.uid() = id);
+```
+
+| Part | Meaning |
+|------|---------|
+| `FOR SELECT` | This policy applies to read operations |
+| `USING (...)` | Condition that must be true for each row |
+| `auth.uid()` | Supabase function returning current user's ID (from JWT) |
+| `= id` | Compare to the `id` column in profiles table |
+
+**Visual example:**
+```
+profiles table:
+┌──────────────────────────┬─────────────┐
+│ id                       │ display_name│
+├──────────────────────────┼─────────────┤
+│ abc-123 (you)            │ You         │ ← auth.uid() = id ✅ returned
+│ def-456 (someone else)   │ User B      │ ← auth.uid() ≠ id ❌ hidden
+│ ghi-789 (someone else)   │ User C      │ ← auth.uid() ≠ id ❌ hidden
+└──────────────────────────┴─────────────┘
+```
+
+The anon key is safe because RLS ensures users only see their own data.
+
+**Run this SQL in Supabase:**
+```sql
+-- Create profiles table
+CREATE TABLE profiles (
+  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  email TEXT,
+  display_name TEXT,
+  avatar_url TEXT,
+  bio TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Enable Row Level Security
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+
+-- Policy: Users can read their own profile
+CREATE POLICY "Users can read own profile"
+  ON profiles FOR SELECT
+  USING (auth.uid() = id);
+
+-- Policy: Users can update their own profile
+CREATE POLICY "Users can update own profile"
+  ON profiles FOR UPDATE
+  USING (auth.uid() = id);
+
+-- Policy: Users can insert their own profile
+CREATE POLICY "Users can insert own profile"
+  ON profiles FOR INSERT
+  WITH CHECK (auth.uid() = id);
+
+-- Auto-create profile when user signs up
+CREATE OR REPLACE FUNCTION handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO profiles (id, email, display_name)
+  VALUES (
+    NEW.id,
+    NEW.email,
+    COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.email)
+  );
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Trigger to call function on signup
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION handle_new_user();
+```
+
+### 6.2 Create Profile Service
+- [ ] Run `ng generate service core/profile`
+- [ ] Add methods to get and update profile
+
+**profile.ts:**
+```typescript
+import { Injectable, inject } from '@angular/core';
+import { SupabaseService } from './supabase';
+import { AuthService } from './auth';
+import { SUPABASE_ERRORS } from './supabase-errors';
+
+export interface Profile {
+  id: string;
+  email: string;
+  display_name: string | null;
+  avatar_url: string | null;
+  bio: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class ProfileService {
+  private supabase = inject(SupabaseService);
+  private auth = inject(AuthService);
+
+  async getProfile(userId: string): Promise<Profile | null> {
+    const { data, error } = await this.supabase.client
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single();
+
+    // If no profile exists, create one
+    if (error?.code === SUPABASE_ERRORS.NO_ROWS_FOUND) {
+      return this.createProfile(userId);
+    }
+
+    if (error) throw error;
+    return data;
+  }
+
+  private async createProfile(userId: string): Promise<Profile> {
+    const user = this.auth.currentUser();
+    const email = user?.email || '';
+    const displayName = user?.user_metadata?.['full_name'] || email;
+
+    const { data, error } = await this.supabase.client
+      .from('profiles')
+      .insert({
+        id: userId,
+        email: email,
+        display_name: displayName,
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+
+  async updateProfile(userId: string, updates: Partial<Profile>): Promise<Profile> {
+    const { data, error } = await this.supabase.client
+      .from('profiles')
+      .update({ ...updates, updated_at: new Date().toISOString() })
+      .eq('id', userId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+}
+```
+
+**What changed:**
+- `getProfile` now checks for error code `PGRST116` (no rows found)
+- If no profile exists, it auto-creates one using data from the auth user
+- This handles users who signed up before the trigger was created
+
+### 6.3 Create Profile Page
+- [ ] Run `ng generate component features/profile --standalone`
+- [ ] Display current user profile info
+- [ ] Add edit form
+
+**What this page does:**
+Displays the user's profile with an editable form. Loads profile data on init, allows updates, and shows loading/error states.
+
+**profile.ts:**
+```typescript
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { AuthService } from '../../core/auth';
+import { ProfileService, Profile as UserProfile } from '../../core/profile';
+// ↑ Alias import avoids conflict between Profile interface and ProfileComponent class
+
+@Component({
+  selector: 'app-profile',
+  standalone: true,
+  imports: [
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatCardModule,
+    MatProgressSpinnerModule,
+  ],
+  template: `
+    <h1>Profile</h1>
+
+    @if (loading()) {
+      <mat-spinner diameter="40"></mat-spinner>
+    } @else if (error()) {
+      <p class="error">{{ error() }}</p>
+    } @else {
+      <mat-card>
+        <mat-card-content>
+          <form [formGroup]="form" (ngSubmit)="onSubmit()">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Email</mat-label>
+              <input matInput formControlName="email" readonly>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Display Name</mat-label>
+              <input matInput formControlName="display_name">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Bio</mat-label>
+              <textarea matInput formControlName="bio" rows="3"></textarea>
+            </mat-form-field>
+
+            @if (successMessage()) {
+              <p class="success">{{ successMessage() }}</p>
+            }
+
+            <button mat-raised-button color="primary" type="submit" [disabled]="saving()">
+              {{ saving() ? 'Saving...' : 'Save Changes' }}
+            </button>
+          </form>
+        </mat-card-content>
+      </mat-card>
+    }
+  `,
+  styles: `
+    .full-width { width: 100%; }
+    mat-form-field { margin-bottom: 16px; }
+    mat-card { max-width: 500px; }
+    .error { color: #f44336; }
+    .success { color: #4caf50; }
+  `
+})
+export class ProfileComponent implements OnInit {
+  private auth = inject(AuthService);
+  private profileService = inject(ProfileService);
+  private fb = inject(FormBuilder);
+
+  loading = signal(true);
+  saving = signal(false);
+  error = signal('');
+  successMessage = signal('');
+
+  form = this.fb.nonNullable.group({
+    email: [{ value: '', disabled: true }],
+    display_name: [''],
+    bio: [''],
+  });
+
+  async ngOnInit() {
+    const user = this.auth.currentUser();
+    if (!user) return;
+
+    try {
+      const profile = await this.profileService.getProfile(user.id);
+      if (profile) {
+        this.form.patchValue({
+          email: profile.email,
+          display_name: profile.display_name || '',
+          bio: profile.bio || '',
+        });
+      }
+    } catch (err: any) {
+      this.error.set(err.message || 'Failed to load profile');
+    } finally {
+      this.loading.set(false);
+    }
+  }
+
+  async onSubmit() {
+    const user = this.auth.currentUser();
+    if (!user) return;
+
+    this.saving.set(true);
+    this.successMessage.set('');
+
+    try {
+      await this.profileService.updateProfile(user.id, {
+        display_name: this.form.value.display_name,
+        bio: this.form.value.bio,
+      });
+      this.successMessage.set('Profile updated!');
+    } catch (err: any) {
+      this.error.set(err.message || 'Failed to save profile');
+    } finally {
+      this.saving.set(false);
+    }
+  }
+}
+```
+
+### 6.4 Add Profile Route
+- [ ] Add profile route to shell children
+- [ ] Update sidebar link
+
+**What we're doing:**
+Adding /profile as a protected route inside the shell layout, so logged-in users can access it from the sidebar.
+
+**Update app.routes.ts** - add profile to the shell children:
+```typescript
+{
+  path: '',
+  component: Shell,
+  canActivate: [authGuard],
+  children: [
+    { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+    {
+      path: 'dashboard',
+      loadComponent: () => import('./features/dashboard/dashboard').then((m) => m.Dashboard)
+    },
+    {
+      path: 'profile',
+      loadComponent: () => import('./features/profile/profile').then((m) => m.ProfileComponent)
+    }
+  ]
+}
+```
+
+**Note:** Class names use descriptive suffixes (`ProfileComponent`) to avoid conflicts with interfaces (`Profile`).
+
+The sidebar already has a profile link from when we created the shell - it should work now.
+
+### 6.5 Test Profile Flow
+- [ ] Login and navigate to /profile
+- [ ] Verify profile loads
+- [ ] Test updating display name and bio
+- [ ] Check data persists in Supabase
+
+### 6.6 Push & Deploy
+- [ ] Run `git add .`
+- [ ] Run `git commit -m "Add user profile feature"`
+- [ ] Run `git push`
+- [ ] Verify deployment
 
 ## Iteration 7: Shared Components
 - [ ] Create button component (variants)
