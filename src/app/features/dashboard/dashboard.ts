@@ -1,37 +1,37 @@
 import { Component, inject } from '@angular/core';
-  import { AuthService } from '../../core/auth';
-  import { MatButtonModule } from '@angular/material/button';
+import { MatButtonModule } from '@angular/material/button';
+import { AuthService } from '../../core/auth';
 
-  @Component({
-    selector: 'app-dashboard',
-    standalone: true,
-    imports: [MatButtonModule],
-    template: `
-      <h1>Dashboard</h1>
+@Component({
+  selector: 'app-dashboard',
+  standalone: true,
+  imports: [MatButtonModule],
+  template: `
+    <h1>Dashboard</h1>
 
-      @if (auth.currentUser()) {
-        <p>Logged in as: {{ auth.currentUser()?.email }}</p>
-        <button mat-raised-button (click)="logout()">Logout</button>
-      } @else {
-        <p>Not logged in</p>
-        <button mat-raised-button color="primary" (click)="loginWithGoogle()">
-          Sign in with Google
-        </button>
-      }
-    `
-  })
-  export class Dashboard {
-    auth = inject(AuthService);
-
-    async loginWithGoogle() {
-      try {
-        await this.auth.signInWithGoogle();
-      } catch (error) {
-        console.error('Login failed:', error);
-      }
+    @if (auth.currentUser()) {
+      <p>Logged in as: {{ auth.currentUser()?.email }}</p>
+      <button mat-raised-button (click)="logout()">Logout</button>
+    } @else {
+      <p>Not logged in</p>
+      <button mat-raised-button color="primary" (click)="loginWithGoogle()">
+        Sign in with Google
+      </button>
     }
+  `
+})
+export class Dashboard {
+  auth = inject(AuthService);
 
-    async logout() {
-      await this.auth.signOut();
+  async loginWithGoogle() {
+    try {
+      await this.auth.signInWithGoogle();
+    } catch (error) {
+      console.error('Login failed:', error);
     }
   }
+
+  async logout() {
+    await this.auth.signOut();
+  }
+}
