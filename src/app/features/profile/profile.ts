@@ -65,7 +65,7 @@ import { ProfileService, Profile as UserProfile } from '../../core/profile';
     .success { color: #4caf50; }
   `
 })
-export class ProfileComponent implements OnInit {
+export class Profile implements OnInit {
   private auth = inject(AuthService);
   private profileService = inject(ProfileService);
   private fb = inject(FormBuilder);

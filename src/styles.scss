@@ -36,3 +36,28 @@
     margin: 0;
     font-family: Roboto, "Helvetica Neue", sans-serif;
   }
+
+// Toast styling
+.toast-success .mdc-snackbar__surface {
+  background-color: #4caf50 !important;
+  color: white !important;
+}
+.toast-success .mat-mdc-button {
+  color: white !important;
+}
+
+.toast-error .mdc-snackbar__surface {
+  background-color: #f44336 !important;
+  color: white !important;
+}
+.toast-error .mat-mdc-button {
+  color: white !important;
+}
+
+.toast-info .mdc-snackbar__surface {
+  background-color: #2196f3 !important;
+  color: white !important;
+}
+.toast-info .mat-mdc-button {
+  color: white !important;
+}

@@ -133,8 +133,8 @@ The "shell" is the main app wrapper that stays constant while inner content chan
 
 **Note on Angular 21 naming:**
 - **Filenames** are simplified: `shell.ts` instead of `shell.component.ts`
-- **Class names** can still be descriptive: `ShellComponent`, `ProfileComponent`
-- This avoids naming conflicts (e.g., `Profile` interface vs `Profile` component)
+- **Class names** can still be descriptive: `ShellComponent`, `Profile`
+
 
 **shell.ts:**
 ```typescript
@@ -1194,7 +1194,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '../../core/auth';
 import { ProfileService, Profile as UserProfile } from '../../core/profile';
-// ↑ Alias import avoids conflict between Profile interface and ProfileComponent class
+// ↑ Alias import avoids conflict between Profile interface and Profile class
 
 @Component({
   selector: 'app-profile',
@@ -1253,7 +1253,7 @@ import { ProfileService, Profile as UserProfile } from '../../core/profile';
     .success { color: #4caf50; }
   `
 })
-export class ProfileComponent implements OnInit {
+export class Profile implements OnInit {
   private auth = inject(AuthService);
   private profileService = inject(ProfileService);
   private fb = inject(FormBuilder);
@@ -1332,13 +1332,13 @@ Adding /profile as a protected route inside the shell layout, so logged-in users
     },
     {
       path: 'profile',
-      loadComponent: () => import('./features/profile/profile').then((m) => m.ProfileComponent)
+      loadComponent: () => import('./features/profile/profile').then((m) => m.Profile)
     }
   ]
 }
 ```
 
-**Note:** Class names use descriptive suffixes (`ProfileComponent`) to avoid conflicts with interfaces (`Profile`).
+**Note:** Class names use descriptive suffixes (`Profile`) to avoid conflicts with interfaces (`Profile`).
 
 The sidebar already has a profile link from when we created the shell - it should work now.
 
@@ -1355,12 +1355,406 @@ The sidebar already has a profile link from when we created the shell - it shoul
 - [ ] Verify deployment
 
 ## Iteration 7: Shared Components
-- [ ] Create button component (variants)
-- [ ] Create input component (with validation)
-- [ ] Create card component
-- [ ] Create modal/dialog service
-- [ ] Create toast notification service
-- [ ] Deploy & preview
+
+**What we're building:**
+Reusable UI components that wrap Angular Material with app-specific defaults. Instead of repeating Material imports and configurations everywhere, we create thin wrappers that enforce consistency. Also includes utility services for common UX patterns like dialogs and toasts.
+
+### 7.1 Create Confirm Dialog Service
+- [ ] Create a reusable confirmation dialog for destructive actions
+
+**Why a dialog service?**
+Instead of importing MatDialog and configuring it everywhere, we create a service that provides a simple API: `confirm('Delete this?')` returns a promise.
+
+**Run:** `ng generate service shared/confirm-dialog`
+
+**confirm-dialog.ts:**
+```typescript
+import { Injectable, inject } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmDialog } from './confirm-dialog/confirm-dialog';
+
+export interface ConfirmDialogData {
+  title: string;
+  message: string;
+  confirmText?: string;
+  cancelText?: string;
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class ConfirmDialogService {
+  private dialog = inject(MatDialog);
+
+  confirm(data: ConfirmDialogData): Promise<boolean> {
+    const dialogRef = this.dialog.open(ConfirmDialog, {
+      width: '400px',
+      data: {
+        title: data.title,
+        message: data.message,
+        confirmText: data.confirmText || 'Confirm',
+        cancelText: data.cancelText || 'Cancel',
+      }
+    });
+
+    return new Promise((resolve) => {
+      dialogRef.afterClosed().subscribe((result) => {
+        resolve(result === true);
+      });
+    });
+  }
+}
+```
+
+### 7.2 Create Confirm Dialog Component
+- [ ] Run `ng generate component shared/confirm-dialog --standalone`
+
+**confirm-dialog.component.ts:**
+```typescript
+import { Component, inject } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { ConfirmDialogData } from '../confirm-dialog';
+
+@Component({
+  selector: 'app-confirm-dialog',
+  standalone: true,
+  imports: [MatDialogModule, MatButtonModule],
+  template: `
+    <h2 mat-dialog-title>{{ data.title }}</h2>
+    <mat-dialog-content>
+      <p>{{ data.message }}</p>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-button (click)="onCancel()">{{ data.cancelText }}</button>
+      <button mat-raised-button color="warn" (click)="onConfirm()">{{ data.confirmText }}</button>
+    </mat-dialog-actions>
+  `
+})
+export class ConfirmDialog {
+  data = inject<ConfirmDialogData>(MAT_DIALOG_DATA);
+  private dialogRef = inject(MatDialogRef<ConfirmDialog>);
+
+  onCancel() {
+    this.dialogRef.close(false);
+  }
+
+  onConfirm() {
+    this.dialogRef.close(true);
+  }
+}
+```
+
+### 7.3 Create Toast/Snackbar Service
+- [ ] Create a simple notification service for success/error messages
+
+**Why a toast service?**
+Wraps MatSnackBar with sensible defaults. Instead of configuring duration and position everywhere, just call `toast.success('Saved!')`.
+
+**Run:** `ng generate service shared/toast`
+
+**toast.ts:**
+```typescript
+import { Injectable, inject } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class ToastService {
+  private snackBar = inject(MatSnackBar);
+
+  success(message: string) {
+    this.snackBar.open(message, 'Close', {
+      duration: 3000,
+      panelClass: ['toast-success'],
+      horizontalPosition: 'end',
+      verticalPosition: 'top',
+    });
+  }
+
+  error(message: string) {
+    this.snackBar.open(message, 'Close', {
+      duration: 5000,
+      panelClass: ['toast-error'],
+      horizontalPosition: 'end',
+      verticalPosition: 'top',
+    });
+  }
+
+  info(message: string) {
+    this.snackBar.open(message, 'Close', {
+      duration: 3000,
+      horizontalPosition: 'end',
+      verticalPosition: 'top',
+    });
+  }
+}
+```
+
+**Add toast styles to `src/styles.scss`:**
+
+Note: CSS variables alone don't reliably override Angular Material's MDC snackbar styles. Direct class targeting with `!important` is required:
+
+```scss
+.toast-success .mdc-snackbar__surface {
+  background-color: #4caf50 !important;
+  color: white !important;
+}
+.toast-success .mat-mdc-button {
+  color: white !important;
+}
+
+.toast-error .mdc-snackbar__surface {
+  background-color: #f44336 !important;
+  color: white !important;
+}
+.toast-error .mat-mdc-button {
+  color: white !important;
+}
+
+.toast-info .mdc-snackbar__surface {
+  background-color: #2196f3 !important;
+  color: white !important;
+}
+.toast-info .mat-mdc-button {
+  color: white !important;
+}
+```
+
+### 7.4 Create Loading Spinner Component
+- [ ] Run `ng generate component shared/loading-spinner --standalone`
+
+**A reusable loading indicator with optional message.**
+
+**loading-spinner.ts:**
+```typescript
+import { Component, input } from '@angular/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
+@Component({
+  selector: 'app-loading-spinner',
+  standalone: true,
+  imports: [MatProgressSpinnerModule],
+  template: `
+    <div class="loading-container">
+      <mat-spinner [diameter]="diameter()"></mat-spinner>
+      @if (message()) {
+        <p>{{ message() }}</p>
+      }
+    </div>
+  `,
+  styles: `
+    .loading-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      padding: 24px;
+    }
+  `
+})
+export class LoadingSpinner {
+  diameter = input(40);
+  message = input<string>('');
+}
+```
+
+### 7.5 Create Empty State Component
+- [ ] Run `ng generate component shared/empty-state --standalone`
+
+**Displays a friendly message when lists are empty.**
+
+**empty-state.ts:**
+```typescript
+import { Component, input } from '@angular/core';
+import { MatIconModule } from '@angular/material/icon';
+
+@Component({
+  selector: 'app-empty-state',
+  standalone: true,
+  imports: [MatIconModule],
+  template: `
+    <div class="empty-state">
+      <mat-icon>{{ icon() }}</mat-icon>
+      <h3>{{ title() }}</h3>
+      @if (message()) {
+        <p>{{ message() }}</p>
+      }
+      <ng-content></ng-content>
+    </div>
+  `,
+  styles: `
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 48px 24px;
+      text-align: center;
+      color: #666;
+    }
+    mat-icon {
+      font-size: 64px;
+      width: 64px;
+      height: 64px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+    h3 { margin: 0 0 8px; }
+    p { margin: 0; }
+  `
+})
+export class EmptyState {
+  icon = input('inbox');
+  title = input('No items');
+  message = input('');
+}
+```
+
+### 7.6 Create Component Test Page
+- [ ] Create dedicated page to test and showcase shared components
+- [ ] Add route at `/components`
+- [ ] Add sidebar link
+
+**Why a separate test page?**
+Keep the dashboard clean for actual app functionality. A dedicated component test page serves as both a testing ground and a living style guide for the shared components.
+
+**Run:** `ng generate component features/component-test --standalone`
+
+**component-test.ts:**
+```typescript
+import { Component, inject } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { ConfirmDialogService } from '../../shared/confirm-dialog';
+import { ToastService } from '../../shared/toast';
+import { LoadingSpinner } from '../../shared/loading-spinner/loading-spinner';
+import { EmptyState } from '../../shared/empty-state/empty-state';
+
+@Component({
+  selector: 'app-component-test',
+  standalone: true,
+  imports: [MatButtonModule, MatCardModule, LoadingSpinner, EmptyState],
+  template: `
+    <h1>Shared Components</h1>
+    <p class="subtitle">Test page for shared UI components</p>
+
+    <mat-card class="section">
+      <mat-card-header>
+        <mat-card-title>Toast Notifications</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p>Display temporary notifications for user feedback.</p>
+        <div class="button-row">
+          <button mat-raised-button color="primary" (click)="showSuccess()">Success</button>
+          <button mat-raised-button color="warn" (click)="showError()">Error</button>
+          <button mat-raised-button (click)="showInfo()">Info</button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="section">
+      <mat-card-header>
+        <mat-card-title>Confirm Dialog</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p>Modal dialog for confirming destructive actions.</p>
+        <button mat-raised-button color="warn" (click)="showConfirm()">Delete Something</button>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="section">
+      <mat-card-header>
+        <mat-card-title>Loading Spinner</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <app-loading-spinner message="Loading data..." />
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="section">
+      <mat-card-header>
+        <mat-card-title>Empty State</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <app-empty-state
+          icon="folder_open"
+          title="No projects yet"
+          message="Create your first project to get started">
+        </app-empty-state>
+      </mat-card-content>
+    </mat-card>
+  `,
+  styles: `
+    .subtitle { color: #666; margin-bottom: 24px; }
+    .section { margin-bottom: 24px; max-width: 600px; }
+    .button-row { display: flex; gap: 12px; margin-top: 16px; }
+  `
+})
+export class ComponentTest {
+  private confirmDialog = inject(ConfirmDialogService);
+  private toast = inject(ToastService);
+
+  showSuccess() {
+    this.toast.success('Operation completed successfully!');
+  }
+
+  showError() {
+    this.toast.error('Something went wrong. Please try again.');
+  }
+
+  showInfo() {
+    this.toast.info('This is an informational message.');
+  }
+
+  async showConfirm() {
+    const confirmed = await this.confirmDialog.confirm({
+      title: 'Delete Item',
+      message: 'Are you sure you want to delete this item? This cannot be undone.',
+      confirmText: 'Delete',
+      cancelText: 'Cancel'
+    });
+
+    if (confirmed) {
+      this.toast.success('Item deleted!');
+    } else {
+      this.toast.info('Cancelled');
+    }
+  }
+}
+```
+
+**Add route to app.routes.ts** (inside Shell children):
+```typescript
+{
+  path: 'components',
+  loadComponent: () => import('./features/component-test/component-test').then((m) => m.ComponentTest),
+}
+```
+
+**Add sidebar link to shell.html:**
+```html
+<a mat-list-item routerLink="/components">
+  <mat-icon matListItemIcon>widgets</mat-icon>
+  <span matListItemTitle>Components</span>
+</a>
+```
+
+**Test checklist:**
+- [ ] Run `ng serve`
+- [ ] Navigate to `/components` from sidebar
+- [ ] Click "Success" → green notification appears top-right
+- [ ] Click "Error" → red notification appears top-right
+- [ ] Click "Info" → neutral notification appears
+- [ ] Click "Delete Something" → confirm dialog opens
+- [ ] Loading spinner displays with message
+- [ ] Empty state displays with icon, title, and message
+
+### 7.7 Push & Deploy
+- [ ] Run `git add .`
+- [ ] Run `git commit -m "Add shared components and services"`
+- [ ] Run `git push`
+- [ ] Verify deployment
 
 ## Iteration 8: CRUD Example Feature
 - [ ] Create example table in Supabase (e.g., "notes")
