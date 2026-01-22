@@ -2317,10 +2317,398 @@ export class NoteForm implements OnInit {
 - [ ] Verify deployment
 
 ## Iteration 9: State Management
-- [ ] Create signals-based auth store
-- [ ] Create example feature store
-- [ ] Add state persistence to localStorage
-- [ ] Deploy & preview
+
+**What we're building:**
+A structured approach to managing application state using Angular signals. We already use signals in AuthService - now we'll formalize the pattern with a preferences store that persists to localStorage. This gives users a consistent experience across sessions (theme preference, sidebar state, etc.).
+
+### 9.1 Create Preferences Service
+- [ ] Run `ng generate service core/preferences`
+- [ ] Store user preferences with localStorage persistence
+
+**What this service does:**
+Manages user preferences that should persist across sessions. Uses signals for reactivity and localStorage for persistence. The `effect()` function auto-saves to localStorage whenever preferences change.
+
+**preferences.ts:**
+```typescript
+import { Injectable, signal, effect } from '@angular/core';
+
+export interface UserPreferences {
+  theme: 'light' | 'dark';
+  sidenavOpened: boolean;
+}
+
+const STORAGE_KEY = 'user_preferences';
+
+const DEFAULT_PREFERENCES: UserPreferences = {
+  theme: 'light',
+  sidenavOpened: true,
+};
+
+@Injectable({
+  providedIn: 'root'
+})
+export class PreferencesService {
+  private preferences = signal<UserPreferences>(this.loadFromStorage());
+
+  // Expose individual preferences as readonly signals
+  readonly theme = () => this.preferences().theme;
+  readonly sidenavOpened = () => this.preferences().sidenavOpened;
+
+  constructor() {
+    // Auto-save to localStorage whenever preferences change
+    effect(() => {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(this.preferences()));
+    });
+  }
+
+  private loadFromStorage(): UserPreferences {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        return { ...DEFAULT_PREFERENCES, ...JSON.parse(stored) };
+      }
+    } catch {
+      // Invalid JSON, use defaults
+    }
+    return DEFAULT_PREFERENCES;
+  }
+
+  setTheme(theme: 'light' | 'dark') {
+    this.preferences.update(prefs => ({ ...prefs, theme }));
+  }
+
+  toggleTheme() {
+    this.preferences.update(prefs => ({
+      ...prefs,
+      theme: prefs.theme === 'light' ? 'dark' : 'light'
+    }));
+  }
+
+  setSidenavOpened(opened: boolean) {
+    this.preferences.update(prefs => ({ ...prefs, sidenavOpened: opened }));
+  }
+
+  toggleSidenav() {
+    this.preferences.update(prefs => ({
+      ...prefs,
+      sidenavOpened: !prefs.sidenavOpened
+    }));
+  }
+}
+```
+
+**Key concepts:**
+| Concept | Purpose |
+|---------|---------|
+| `signal()` | Creates reactive state that components can subscribe to |
+| `effect()` | Runs side effects when signals change (here: save to localStorage) |
+| `update()` | Updates signal value based on previous value (immutable pattern) |
+
+### 9.2 Apply Theme to Application
+- [ ] Update `app.component.ts` to apply theme class to body
+- [ ] Use the dark-theme class we defined in Iteration 2
+
+**What this does:**
+Watches the theme preference and applies the appropriate CSS class to the document body. The `effect()` runs whenever the theme signal changes.
+
+**Update app.component.ts:**
+```typescript
+import { Component, inject, effect } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
+import { PreferencesService } from './core/preferences';
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [RouterOutlet],
+  template: `<router-outlet />`,
+})
+export class AppComponent {
+  private preferences = inject(PreferencesService);
+
+  constructor() {
+    // Apply theme class to body whenever theme changes
+    effect(() => {
+      const theme = this.preferences.theme();
+      document.body.classList.toggle('dark-theme', theme === 'dark');
+    });
+  }
+}
+```
+
+### 9.3 Update Shell to Use Preferences
+- [ ] Wire up sidenav state to preferences
+- [ ] Add theme toggle button to toolbar
+
+**What this does:**
+The shell now remembers sidenav state across page reloads and provides a theme toggle button in the toolbar.
+
+**Update shell.ts:**
+```typescript
+import { Component, inject } from '@angular/core';
+import { RouterOutlet, RouterLink } from '@angular/router';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatListModule } from '@angular/material/list';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { PreferencesService } from '../../core/preferences';
+import { AuthService } from '../../core/auth';
+
+@Component({
+  selector: 'app-shell',
+  standalone: true,
+  imports: [
+    RouterOutlet,
+    RouterLink,
+    MatToolbarModule,
+    MatSidenavModule,
+    MatListModule,
+    MatIconModule,
+    MatButtonModule,
+    MatTooltipModule,
+  ],
+  templateUrl: './shell.html',
+  styleUrl: './shell.scss'
+})
+export class Shell {
+  preferences = inject(PreferencesService);
+  private auth = inject(AuthService);
+
+  toggleSidenav() {
+    this.preferences.toggleSidenav();
+  }
+
+  toggleTheme() {
+    this.preferences.toggleTheme();
+  }
+
+  async logout() {
+    await this.auth.signOut();
+  }
+}
+```
+
+**Update shell.html:**
+```html
+<mat-sidenav-container class="shell-container">
+  <mat-sidenav #sidenav mode="side" [opened]="preferences.sidenavOpened()">
+    <mat-nav-list>
+      <a mat-list-item routerLink="/dashboard">
+        <mat-icon matListItemIcon>dashboard</mat-icon>
+        <span matListItemTitle>Dashboard</span>
+      </a>
+      <a mat-list-item routerLink="/notes">
+        <mat-icon matListItemIcon>note</mat-icon>
+        <span matListItemTitle>Notes</span>
+      </a>
+      <a mat-list-item routerLink="/profile">
+        <mat-icon matListItemIcon>person</mat-icon>
+        <span matListItemTitle>Profile</span>
+      </a>
+      <a mat-list-item routerLink="/components">
+        <mat-icon matListItemIcon>widgets</mat-icon>
+        <span matListItemTitle>Components</span>
+      </a>
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <mat-toolbar color="primary">
+      <button mat-icon-button (click)="toggleSidenav()">
+        <mat-icon>menu</mat-icon>
+      </button>
+      <span>Angular Starter</span>
+      <span class="spacer"></span>
+      <button mat-icon-button (click)="toggleTheme()" [matTooltip]="preferences.theme() === 'light' ? 'Dark mode' : 'Light mode'">
+        <mat-icon>{{ preferences.theme() === 'light' ? 'dark_mode' : 'light_mode' }}</mat-icon>
+      </button>
+      <button mat-icon-button (click)="logout()" matTooltip="Logout">
+        <mat-icon>logout</mat-icon>
+      </button>
+    </mat-toolbar>
+
+    <main class="content">
+      <router-outlet />
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>
+```
+
+### 9.4 Create Notes Store (Optional Enhancement)
+- [ ] Create a store for caching notes data
+- [ ] Reduce API calls when navigating
+
+**What this does:**
+Caches notes in memory so navigating away and back doesn't require a new API call. This is optional but demonstrates the store pattern for feature-specific state.
+
+**features/notes/notes-store.ts:**
+```typescript
+import { Injectable, signal, computed } from '@angular/core';
+import { Note } from '../../core/notes';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class NotesStore {
+  private notes = signal<Note[]>([]);
+  private loading = signal(false);
+  private lastFetch = signal<Date | null>(null);
+  private totalCount = signal(0);
+  private pageSize = signal(10);
+  private page = signal(1);
+
+  // Public readonly access
+  readonly allNotes = this.notes.asReadonly();
+  readonly isLoading = this.loading.asReadonly();
+  readonly total = this.totalCount.asReadonly();
+  readonly currentPageSize = this.pageSize.asReadonly();
+  readonly currentPage = this.page.asReadonly();
+
+  // Computed values
+  readonly isEmpty = computed(() => this.notes().length === 0);
+
+  // Check if cache is stale (older than 5 minutes)
+  readonly isStale = computed(() => {
+    const last = this.lastFetch();
+    if (!last) return true;
+    const fiveMinutes = 5 * 60 * 1000;
+    return Date.now() - last.getTime() > fiveMinutes;
+  });
+
+  setNotes(notes: Note[], total: number, pageSize: number, page: number) {
+    this.notes.set(notes);
+    this.totalCount.set(total);
+    this.pageSize.set(pageSize);
+    this.page.set(page);
+    this.lastFetch.set(new Date());
+  }
+
+  addNote(note: Note) {
+    this.notes.update(notes => [note, ...notes]);
+    this.totalCount.update(count => count + 1);
+  }
+
+  updateNote(updated: Note) {
+    this.notes.update(notes =>
+      notes.map(n => n.id === updated.id ? updated : n)
+    );
+  }
+
+  removeNote(id: string) {
+    this.notes.update(notes => notes.filter(n => n.id !== id));
+    this.totalCount.update(count => count - 1);
+  }
+
+  setLoading(loading: boolean) {
+    this.loading.set(loading);
+  }
+
+  clear() {
+    this.notes.set([]);
+    this.lastFetch.set(null);
+  }
+}
+```
+
+**Integration with notes-list.ts:**
+
+```typescript
+// Add import
+import { NotesStore } from '../notes-store';
+
+// Inject store
+private store = inject(NotesStore);
+
+// Delegate to store instead of local signals
+notes = this.store.allNotes;
+loading = this.store.isLoading;
+totalCount = this.store.total;
+
+// Cache check in ngOnInit
+async ngOnInit() {
+  if (!this.store.isEmpty() && !this.store.isStale() && !this.searchQuery) {
+    this.pageSize = this.store.currentPageSize();
+    this.currentPage.set(this.store.currentPage());
+    return; // Use cached data
+  }
+  await this.loadNotes();
+}
+
+// Update loadNotes to use store
+async loadNotes() {
+  this.store.setLoading(true);
+  try {
+    const response = await this.notesService.list(
+      this.currentPage(),
+      this.pageSize,
+      this.searchQuery
+    );
+    this.store.setNotes(response.data, response.count, this.pageSize, this.currentPage());
+  } catch (err: any) {
+    this.toast.error(err.message || 'Failed to load notes');
+  } finally {
+    this.store.setLoading(false);
+  }
+}
+
+// Update deleteNote for optimistic update
+async deleteNote(note: Note) {
+  // ... confirm dialog ...
+  if (confirmed) {
+    try {
+      await this.notesService.delete(note.id);
+      this.store.removeNote(note.id);
+      this.toast.success('Note deleted');
+    } catch (err: any) {
+      this.toast.error(err.message || 'Failed to delete note');
+      this.loadNotes(); // Refetch on error
+    }
+  }
+}
+```
+
+**Integration with note-form.ts:**
+
+```typescript
+// Add import
+import { NotesStore } from '../notes-store';
+
+// Inject store
+private store = inject(NotesStore);
+
+// Update onSubmit to sync with store
+async onSubmit() {
+  // ... validation ...
+  try {
+    if (this.isEditMode() && this.noteId) {
+      const updated = await this.notesService.update(this.noteId, this.form.getRawValue());
+      this.store.updateNote(updated);
+      this.toast.success('Note updated');
+    } else {
+      const created = await this.notesService.create(this.form.getRawValue());
+      this.store.addNote(created);
+      this.toast.success('Note created');
+    }
+    this.router.navigate(['/notes']);
+  } catch (err: any) {
+    this.toast.error(err.message || 'Failed to save note');
+  }
+}
+```
+
+### 9.5 Test State Persistence
+- [ ] Run `ng serve`
+- [ ] Toggle dark mode → verify theme persists after refresh
+- [ ] Close sidenav → verify state persists after refresh
+- [ ] Check localStorage in DevTools (Application tab)
+
+### 9.6 Push & Deploy
+- [ ] Run `git add .`
+- [ ] Run `git commit -m "Add state management with preferences"`
+- [ ] Run `git push`
+- [ ] Verify deployment
 
 ## Iteration 10: Error Handling & UX
 - [ ] Add global error handler

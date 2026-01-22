@@ -34,6 +34,17 @@ import { RouterOutlet } from '@angular/router';
       margin-bottom: 24px;
       color: #3f51b5;
     }
+
+    :host-context(.dark-theme) .auth-container {
+      background: var(--mat-app-background-color, #1e1e1e);
+    }
+    :host-context(.dark-theme) .auth-card {
+      background: var(--mdc-elevated-card-container-color, #2d2d2d);
+      color: var(--mat-app-text-color, #fff);
+    }
+    :host-context(.dark-theme) .app-title {
+      color: #c5cae9;
+    }
   `
 })
 export class AuthLayout {}
