@@ -21,7 +21,21 @@ export const routes: Routes = [
       },
       {
         path: 'components',
-        loadComponent: () => import('./features/component-test/component-test').then((m) => m.ComponentTest),
+        loadComponent: () =>
+          import('./features/component-test/component-test').then((m) => m.ComponentTest),
+      },
+      {
+        path: 'notes',
+        loadComponent: () =>
+          import('./features/notes/notes-list/notes-list').then((m) => m.NotesList),
+      },
+      {
+        path: 'notes/new',
+        loadComponent: () => import('./features/notes/note-form/note-form').then((m) => m.NoteForm),
+      },
+      {
+        path: 'notes/:id/edit',
+        loadComponent: () => import('./features/notes/note-form/note-form').then((m) => m.NoteForm),
       },
     ],
   },

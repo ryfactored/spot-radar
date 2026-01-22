@@ -1757,13 +1757,564 @@ export class ComponentTest {
 - [ ] Verify deployment
 
 ## Iteration 8: CRUD Example Feature
-- [ ] Create example table in Supabase (e.g., "notes")
-- [ ] Build list view with pagination
-- [ ] Build create form
-- [ ] Build edit form
-- [ ] Add delete with confirmation
-- [ ] Add search/filter
-- [ ] Deploy & preview
+
+**What we're building:**
+A complete notes feature demonstrating all CRUD operations (Create, Read, Update, Delete). This serves as a reference pattern for any data-driven feature in the app. We'll use the shared components from Iteration 7 (toast notifications, confirm dialog, loading spinner, empty state) to create a polished user experience.
+
+### 8.1 Create Notes Table in Supabase
+- [ ] Go to Supabase Dashboard → SQL Editor
+- [ ] Run SQL to create notes table with RLS policies
+
+**Why notes?**
+Notes are simple enough to understand quickly but complex enough to demonstrate real patterns: user ownership, timestamps, text content, and ordering.
+
+**Run this SQL in Supabase:**
+```sql
+-- Create notes table
+CREATE TABLE notes (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  title TEXT NOT NULL,
+  content TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Create index for faster user queries
+CREATE INDEX notes_user_id_idx ON notes(user_id);
+
+-- Enable Row Level Security
+ALTER TABLE notes ENABLE ROW LEVEL SECURITY;
+
+-- Policy: Users can only read their own notes
+CREATE POLICY "Users can read own notes"
+  ON notes FOR SELECT
+  USING (auth.uid() = user_id);
+
+-- Policy: Users can insert their own notes
+CREATE POLICY "Users can insert own notes"
+  ON notes FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+-- Policy: Users can update their own notes
+CREATE POLICY "Users can update own notes"
+  ON notes FOR UPDATE
+  USING (auth.uid() = user_id);
+
+-- Policy: Users can delete their own notes
+CREATE POLICY "Users can delete own notes"
+  ON notes FOR DELETE
+  USING (auth.uid() = user_id);
+```
+
+### 8.2 Create Notes Service
+- [ ] Run `ng generate service core/notes`
+- [ ] Implement CRUD methods with pagination and search
+
+**What this service does:**
+Encapsulates all notes data operations. Returns typed data, handles errors, and provides pagination support. The `list` method supports both pagination and search filtering.
+
+**notes.ts:**
+```typescript
+import { Injectable, inject } from '@angular/core';
+import { SupabaseService } from './supabase';
+import { AuthService } from './auth';
+
+export interface Note {
+  id: string;
+  user_id: string;
+  title: string;
+  content: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface NotesResponse {
+  data: Note[];
+  count: number;
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class NotesService {
+  private supabase = inject(SupabaseService);
+  private auth = inject(AuthService);
+
+  async list(page = 1, pageSize = 10, search = ''): Promise<NotesResponse> {
+    const from = (page - 1) * pageSize;
+    const to = from + pageSize - 1;
+
+    let query = this.supabase.client
+      .from('notes')
+      .select('*', { count: 'exact' })
+      .order('created_at', { ascending: false })
+      .range(from, to);
+
+    if (search) {
+      query = query.ilike('title', `%${search}%`);
+    }
+
+    const { data, error, count } = await query;
+    if (error) throw error;
+    return { data: data || [], count: count || 0 };
+  }
+
+  async get(id: string): Promise<Note | null> {
+    const { data, error } = await this.supabase.client
+      .from('notes')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+
+  async create(note: { title: string; content?: string }): Promise<Note> {
+    const user = this.auth.currentUser();
+    if (!user) throw new Error('Not authenticated');
+
+    const { data, error } = await this.supabase.client
+      .from('notes')
+      .insert({
+        user_id: user.id,
+        title: note.title,
+        content: note.content || null,
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+
+  async update(id: string, updates: { title?: string; content?: string }): Promise<Note> {
+    const { data, error } = await this.supabase.client
+      .from('notes')
+      .update({ ...updates, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+
+  async delete(id: string): Promise<void> {
+    const { error } = await this.supabase.client
+      .from('notes')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+  }
+}
+```
+
+### 8.3 Create Notes List Component
+- [ ] Run `ng generate component features/notes/notes-list --standalone`
+- [ ] Display notes in a list/card layout
+- [ ] Add pagination controls
+- [ ] Add search input
+- [ ] Use empty state when no notes exist
+
+**What this component does:**
+The main notes page. Loads and displays notes with pagination, provides search filtering, and links to create/edit forms. Uses signals for reactive state management.
+
+**notes-list.ts:**
+```typescript
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { NotesService, Note } from '../../../core/notes';
+import { ToastService } from '../../../shared/toast';
+import { ConfirmDialogService } from '../../../shared/confirm-dialog';
+import { LoadingSpinner } from '../../../shared/loading-spinner/loading-spinner';
+import { EmptyState } from '../../../shared/empty-state/empty-state';
+
+@Component({
+  selector: 'app-notes-list',
+  standalone: true,
+  imports: [
+    DatePipe,
+    FormsModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatPaginatorModule,
+    LoadingSpinner,
+    EmptyState,
+  ],
+  template: `
+    <div class="header">
+      <h1>Notes</h1>
+      <button mat-raised-button color="primary" (click)="createNote()">
+        <mat-icon>add</mat-icon>
+        New Note
+      </button>
+    </div>
+
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Search notes</mat-label>
+      <input matInput [(ngModel)]="searchQuery" (keyup.enter)="search()" placeholder="Search by title...">
+      <button mat-icon-button matSuffix (click)="search()">
+        <mat-icon>search</mat-icon>
+      </button>
+    </mat-form-field>
+
+    @if (loading()) {
+      <app-loading-spinner message="Loading notes..." />
+    } @else if (notes().length === 0) {
+      <app-empty-state
+        icon="note"
+        title="No notes yet"
+        message="Create your first note to get started">
+        <button mat-raised-button color="primary" (click)="createNote()">
+          Create Note
+        </button>
+      </app-empty-state>
+    } @else {
+      <div class="notes-grid">
+        @for (note of notes(); track note.id) {
+          <mat-card class="note-card">
+            <mat-card-header>
+              <mat-card-title>{{ note.title }}</mat-card-title>
+              <mat-card-subtitle>{{ note.created_at | date:'medium' }}</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+              <p>{{ note.content || 'No content' }}</p>
+            </mat-card-content>
+            <mat-card-actions align="end">
+              <button mat-button (click)="editNote(note.id)">
+                <mat-icon>edit</mat-icon>
+                Edit
+              </button>
+              <button mat-button color="warn" (click)="deleteNote(note)">
+                <mat-icon>delete</mat-icon>
+                Delete
+              </button>
+            </mat-card-actions>
+          </mat-card>
+        }
+      </div>
+
+      <mat-paginator
+        [length]="totalCount()"
+        [pageSize]="pageSize"
+        [pageIndex]="currentPage() - 1"
+        [pageSizeOptions]="[5, 10, 25]"
+        (page)="onPageChange($event)"
+        showFirstLastButtons>
+      </mat-paginator>
+    }
+  `,
+  styles: `
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+    .search-field {
+      width: 100%;
+      max-width: 400px;
+      margin-bottom: 24px;
+    }
+    .notes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .note-card {
+      cursor: pointer;
+    }
+    .note-card mat-card-content p {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+    }
+  `
+})
+export class NotesList implements OnInit {
+  private notesService = inject(NotesService);
+  private router = inject(Router);
+  private toast = inject(ToastService);
+  private confirmDialog = inject(ConfirmDialogService);
+
+  notes = signal<Note[]>([]);
+  loading = signal(true);
+  totalCount = signal(0);
+  currentPage = signal(1);
+  pageSize = 10;
+  searchQuery = '';
+
+  async ngOnInit() {
+    await this.loadNotes();
+  }
+
+  async loadNotes() {
+    this.loading.set(true);
+    try {
+      const response = await this.notesService.list(
+        this.currentPage(),
+        this.pageSize,
+        this.searchQuery
+      );
+      this.notes.set(response.data);
+      this.totalCount.set(response.count);
+    } catch (err: any) {
+      this.toast.error(err.message || 'Failed to load notes');
+    } finally {
+      this.loading.set(false);
+    }
+  }
+
+  search() {
+    this.currentPage.set(1);
+    this.loadNotes();
+  }
+
+  onPageChange(event: PageEvent) {
+    this.currentPage.set(event.pageIndex + 1);
+    this.pageSize = event.pageSize;
+    this.loadNotes();
+  }
+
+  createNote() {
+    this.router.navigate(['/notes/new']);
+  }
+
+  editNote(id: string) {
+    this.router.navigate(['/notes', id, 'edit']);
+  }
+
+  async deleteNote(note: Note) {
+    const confirmed = await this.confirmDialog.confirm({
+      title: 'Delete Note',
+      message: `Are you sure you want to delete "${note.title}"? This cannot be undone.`,
+      confirmText: 'Delete',
+      cancelText: 'Cancel'
+    });
+
+    if (confirmed) {
+      try {
+        await this.notesService.delete(note.id);
+        this.toast.success('Note deleted');
+        this.loadNotes();
+      } catch (err: any) {
+        this.toast.error(err.message || 'Failed to delete note');
+      }
+    }
+  }
+}
+```
+
+### 8.4 Create Note Form Component
+- [ ] Run `ng generate component features/notes/note-form --standalone`
+- [ ] Handle both create and edit modes
+- [ ] Load existing note data for edit mode
+
+**What this component does:**
+A single form component that handles both creating new notes and editing existing ones. The route parameter determines the mode - if there's an `id`, it's edit mode.
+
+**note-form.ts:**
+```typescript
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { NotesService } from '../../../core/notes';
+import { ToastService } from '../../../shared/toast';
+import { LoadingSpinner } from '../../../shared/loading-spinner/loading-spinner';
+
+@Component({
+  selector: 'app-note-form',
+  standalone: true,
+  imports: [
+    ReactiveFormsModule,
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    LoadingSpinner,
+  ],
+  template: `
+    <h1>{{ isEditMode() ? 'Edit Note' : 'New Note' }}</h1>
+
+    @if (loading()) {
+      <app-loading-spinner message="Loading..." />
+    } @else {
+      <mat-card class="form-card">
+        <mat-card-content>
+          <form [formGroup]="form" (ngSubmit)="onSubmit()">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Title</mat-label>
+              <input matInput formControlName="title" placeholder="Enter note title">
+              @if (form.controls.title.hasError('required')) {
+                <mat-error>Title is required</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Content</mat-label>
+              <textarea matInput formControlName="content" rows="6" placeholder="Enter note content"></textarea>
+            </mat-form-field>
+
+            <div class="actions">
+              <button mat-button type="button" (click)="cancel()">Cancel</button>
+              <button mat-raised-button color="primary" type="submit" [disabled]="saving()">
+                {{ saving() ? 'Saving...' : (isEditMode() ? 'Update' : 'Create') }}
+              </button>
+            </div>
+          </form>
+        </mat-card-content>
+      </mat-card>
+    }
+  `,
+  styles: `
+    .form-card { max-width: 600px; }
+    .full-width { width: 100%; }
+    mat-form-field { margin-bottom: 16px; }
+    .actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 16px;
+    }
+  `
+})
+export class NoteForm implements OnInit {
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private fb = inject(FormBuilder);
+  private notesService = inject(NotesService);
+  private toast = inject(ToastService);
+
+  loading = signal(false);
+  saving = signal(false);
+  isEditMode = signal(false);
+  noteId: string | null = null;
+
+  form = this.fb.nonNullable.group({
+    title: ['', Validators.required],
+    content: [''],
+  });
+
+  async ngOnInit() {
+    this.noteId = this.route.snapshot.paramMap.get('id');
+
+    if (this.noteId) {
+      this.isEditMode.set(true);
+      await this.loadNote(this.noteId);
+    }
+  }
+
+  async loadNote(id: string) {
+    this.loading.set(true);
+    try {
+      const note = await this.notesService.get(id);
+      if (note) {
+        this.form.patchValue({
+          title: note.title,
+          content: note.content || '',
+        });
+      }
+    } catch (err: any) {
+      this.toast.error(err.message || 'Failed to load note');
+      this.router.navigate(['/notes']);
+    } finally {
+      this.loading.set(false);
+    }
+  }
+
+  async onSubmit() {
+    if (this.form.invalid) return;
+
+    this.saving.set(true);
+    try {
+      if (this.isEditMode() && this.noteId) {
+        await this.notesService.update(this.noteId, this.form.getRawValue());
+        this.toast.success('Note updated');
+      } else {
+        await this.notesService.create(this.form.getRawValue());
+        this.toast.success('Note created');
+      }
+      this.router.navigate(['/notes']);
+    } catch (err: any) {
+      this.toast.error(err.message || 'Failed to save note');
+    } finally {
+      this.saving.set(false);
+    }
+  }
+
+  cancel() {
+    this.router.navigate(['/notes']);
+  }
+}
+```
+
+### 8.5 Add Notes Routes
+- [ ] Add notes routes to app.routes.ts
+- [ ] Add notes link to shell sidebar
+
+**Update app.routes.ts** - add to Shell children:
+```typescript
+{
+  path: 'notes',
+  loadComponent: () => import('./features/notes/notes-list/notes-list').then(m => m.NotesList)
+},
+{
+  path: 'notes/new',
+  loadComponent: () => import('./features/notes/note-form/note-form').then(m => m.NoteForm)
+},
+{
+  path: 'notes/:id/edit',
+  loadComponent: () => import('./features/notes/note-form/note-form').then(m => m.NoteForm)
+},
+```
+
+**Add sidebar link to shell.html:**
+```html
+<a mat-list-item routerLink="/notes">
+  <mat-icon matListItemIcon>note</mat-icon>
+  <span matListItemTitle>Notes</span>
+</a>
+```
+
+### 8.6 Test CRUD Flow
+- [ ] Run `ng serve`
+- [ ] Navigate to `/notes` from sidebar
+- [ ] Verify empty state displays when no notes exist
+- [ ] Click "New Note" → create a note
+- [ ] Verify note appears in list
+- [ ] Click "Edit" → update the note
+- [ ] Verify changes persist
+- [ ] Click "Delete" → confirm deletion
+- [ ] Verify note is removed
+- [ ] Test search functionality
+- [ ] Test pagination (create 10+ notes)
+
+### 8.7 Push & Deploy
+- [ ] Run `git add .`
+- [ ] Run `git commit -m "Add notes CRUD feature"`
+- [ ] Run `git push`
+- [ ] Verify deployment
 
 ## Iteration 9: State Management
 - [ ] Create signals-based auth store
