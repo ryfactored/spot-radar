@@ -9,6 +9,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { NotesService, Note } from '../../../core/notes';
+import { NotesStore } from '../notes-store';
 import { ToastService } from '../../../shared/toast';
 import { ConfirmDialogService } from '../../../shared/confirm-dialog';
 import { LoadingSpinner } from '../../../shared/loading-spinner/loading-spinner';
@@ -124,35 +125,43 @@ import { EmptyState } from '../../../shared/empty-state/empty-state';
 })
 export class NotesList implements OnInit {
   private notesService = inject(NotesService);
+  private store = inject(NotesStore);
   private router = inject(Router);
   private toast = inject(ToastService);
   private confirmDialog = inject(ConfirmDialogService);
 
-  notes = signal<Note[]>([]);
-  loading = signal(true);
-  totalCount = signal(0);
+  // Delegate to store
+  notes = this.store.allNotes;
+  loading = this.store.isLoading;
+  totalCount = this.store.total;
+
   currentPage = signal(1);
   pageSize = 10;
   searchQuery = '';
 
   async ngOnInit() {
+    // Skip fetch if store has fresh data and no search
+    if (!this.store.isEmpty() && !this.store.isStale() && !this.searchQuery) {
+      this.pageSize = this.store.currentPageSize();
+      this.currentPage.set(this.store.currentPage());
+      return;
+    }
     await this.loadNotes();
   }
 
   async loadNotes() {
-    this.loading.set(true);
+    this.store.setLoading(true);
     try {
       const response = await this.notesService.list(
         this.currentPage(),
         this.pageSize,
         this.searchQuery
       );
-      this.notes.set(response.data);
-      this.totalCount.set(response.count);
+      this.store.setNotes(response.data, response.count, this.pageSize, this.currentPage());
     } catch (err: any) {
       this.toast.error(err.message || 'Failed to load notes');
     } finally {
-      this.loading.set(false);
+      this.store.setLoading(false);
     }
   }
 
@@ -186,10 +195,11 @@ export class NotesList implements OnInit {
     if (confirmed) {
       try {
         await this.notesService.delete(note.id);
+        this.store.removeNote(note.id);
         this.toast.success('Note deleted');
-        this.loadNotes();
       } catch (err: any) {
         this.toast.error(err.message || 'Failed to delete note');
+        this.loadNotes(); // Refetch on error
       }
     }
   }

@@ -1,9 +1,13 @@
 <mat-sidenav-container class="shell-container">
-  <mat-sidenav #sidenav mode="side" [opened]="sidenavOpened">
+  <mat-sidenav #sidenav mode="side" [opened]="preferences.sidenavOpened()">
     <mat-nav-list>
       <a mat-list-item routerLink="/dashboard">
         <mat-icon matListItemIcon>dashboard</mat-icon>
         <span matListItemTitle>Dashboard</span>
+      </a>
+      <a mat-list-item routerLink="/notes">
+        <mat-icon matListItemIcon>note</mat-icon>
+        <span matListItemTitle>Notes</span>
       </a>
       <a mat-list-item routerLink="/profile">
         <mat-icon matListItemIcon>person</mat-icon>
@@ -13,22 +17,21 @@
         <mat-icon matListItemIcon>widgets</mat-icon>
         <span matListItemTitle>Components</span>
       </a>
-      <a mat-list-item routerLink="/notes">
-        <mat-icon matListItemIcon>note</mat-icon>
-        <span matListItemTitle>Notes</span>
-      </a>
     </mat-nav-list>
   </mat-sidenav>
 
   <mat-sidenav-content>
     <mat-toolbar color="primary">
-      <button mat-icon-button (click)="sidenav.toggle()">
+      <button mat-icon-button (click)="toggleSidenav()">
         <mat-icon>menu</mat-icon>
       </button>
       <span>Angular Starter</span>
       <span class="spacer"></span>
-      <button mat-icon-button>
-        <mat-icon>account_circle</mat-icon>
+      <button mat-icon-button (click)="toggleTheme()" [matTooltip]="preferences.theme() === 'light' ? 'Dark mode' : 'Light mode'">
+        <mat-icon>{{ preferences.theme() === 'light' ? 'dark_mode' : 'light_mode' }}</mat-icon>
+      </button>
+      <button mat-icon-button (click)="logout()" matTooltip="Logout">
+        <mat-icon>logout</mat-icon>
       </button>
     </mat-toolbar>
 

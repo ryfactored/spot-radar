@@ -6,6 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { NotesService } from '../../../core/notes';
+import { NotesStore } from '../notes-store';
 import { ToastService } from '../../../shared/toast';
 import { LoadingSpinner } from '../../../shared/loading-spinner/loading-spinner';
 
@@ -70,6 +71,7 @@ export class NoteForm implements OnInit {
   private router = inject(Router);
   private fb = inject(FormBuilder);
   private notesService = inject(NotesService);
+  private store = inject(NotesStore);
   private toast = inject(ToastService);
 
   loading = signal(false);
@@ -115,10 +117,12 @@ export class NoteForm implements OnInit {
     this.saving.set(true);
     try {
       if (this.isEditMode() && this.noteId) {
-        await this.notesService.update(this.noteId, this.form.getRawValue());
+        const updated = await this.notesService.update(this.noteId, this.form.getRawValue());
+        this.store.updateNote(updated);
         this.toast.success('Note updated');
       } else {
-        await this.notesService.create(this.form.getRawValue());
+        const created = await this.notesService.create(this.form.getRawValue());
+        this.store.addNote(created);
         this.toast.success('Note created');
       }
       this.router.navigate(['/notes']);
