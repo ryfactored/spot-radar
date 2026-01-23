@@ -1,5 +1,5 @@
 import { Injectable, signal, computed } from '@angular/core';
-import { Note } from '../../core/notes';
+import { Note } from './notes';
 
 @Injectable({
   providedIn: 'root'
