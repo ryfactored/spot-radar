@@ -16,6 +16,15 @@ export interface NotesResponse {
   count: number;
 }
 
+/**
+ * Notes CRUD service using Supabase.
+ *
+ * Demonstrates the Supabase client pattern for database operations:
+ * - Row Level Security (RLS) ensures users only access their own notes
+ * - The user_id is set on insert; RLS policies handle authorization
+ * - Pagination via range() for efficient data loading
+ * - Search via ilike() for case-insensitive matching
+ */
 @Injectable({
   providedIn: 'root'
 })

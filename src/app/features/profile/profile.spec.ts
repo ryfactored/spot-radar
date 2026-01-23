@@ -5,7 +5,7 @@ import { signal } from '@angular/core';
 
 import { Profile } from './profile';
 import { AuthService } from '../../core/auth';
-import { ProfileService } from '../../core/profile';
+import { ProfileService } from './profile-service';
 
 describe('Profile', () => {
   let component: Profile;

@@ -12,6 +12,19 @@ const DEFAULT_PREFERENCES: UserPreferences = {
   sidenavOpened: true,
 };
 
+/**
+ * User preferences service with automatic localStorage persistence.
+ *
+ * Demonstrates the Angular effect() pattern for side effects:
+ * - The effect() automatically tracks signal dependencies
+ * - Runs whenever the preferences signal changes
+ * - Persists state to localStorage without manual subscriptions
+ *
+ * This pattern is ideal for:
+ * - Auto-saving form drafts
+ * - Syncing state with external systems
+ * - Analytics tracking
+ */
 @Injectable({
   providedIn: 'root'
 })

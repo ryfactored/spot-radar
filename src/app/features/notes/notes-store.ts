@@ -1,6 +1,21 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { Note } from './notes';
 
+/**
+ * Signal-based store for notes state management.
+ *
+ * This store demonstrates the Angular Signals pattern for managing application state:
+ * - Private writable signals for internal state
+ * - Public readonly signals for external consumption
+ * - Computed signals for derived state
+ * - Simple methods to update state immutably
+ *
+ * Benefits over RxJS-based stores:
+ * - No subscription management needed
+ * - Automatic dependency tracking
+ * - Synchronous reads (no async pipe required)
+ * - Better performance with fine-grained reactivity
+ */
 @Injectable({
   providedIn: 'root'
 })

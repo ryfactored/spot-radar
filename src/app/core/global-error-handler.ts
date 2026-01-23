@@ -1,6 +1,17 @@
 import { ErrorHandler, Injectable, inject, NgZone } from '@angular/core';
 import { ToastService } from '../shared/toast';
 
+/**
+ * Global error handler that catches unhandled exceptions.
+ *
+ * Provides centralized error handling for the entire application:
+ * - Logs errors for debugging
+ * - Displays user-friendly toast notifications
+ *
+ * Note: NgZone.run() is required because errors may occur outside
+ * Angular's zone, and UI updates need to be in-zone to trigger
+ * change detection.
+ */
 @Injectable()
 export class GlobalErrorHandler implements ErrorHandler {
   private toast = inject(ToastService);

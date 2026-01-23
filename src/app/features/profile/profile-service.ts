@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { SupabaseService } from './supabase';
-import { AuthService } from './auth';
-import { SUPABASE_ERRORS } from './supabase-errors';
+import { SupabaseService } from '../../core/supabase';
+import { AuthService } from '../../core/auth';
+import { SUPABASE_ERRORS } from '../../core/supabase-errors';
 
 export interface Profile {
   id: string;
