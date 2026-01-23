@@ -2,9 +2,8 @@ import { ApplicationConfig, ErrorHandler, provideBrowserGlobalErrorListeners } f
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
-import { GlobalErrorHandler } from './core/global-error-handler';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { httpErrorInterceptor } from './core/http-error-interceptor';
+import { GlobalErrorHandler, httpErrorInterceptor } from './core';
 
 /**
  * Application configuration using the standalone bootstrapping pattern.
