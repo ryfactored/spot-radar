@@ -2986,12 +2986,370 @@ imports: [
 - [ ] Verify deployment
 
 ## Iteration 11: Testing
-- [ ] Configure Jest
-- [ ] Write service tests (AuthService)
-- [ ] Write component tests
-- [ ] Write guard tests
-- [ ] Set up Playwright for E2E
-- [ ] Write basic auth flow E2E test
+
+**What we're building:**
+A comprehensive test suite covering services, components, and guards. Angular 21 uses the built-in `@angular/build:unit-test` runner with Vitest. We'll also set up Playwright for end-to-end testing.
+
+### 11.1 Understand Current Test Setup
+- [x] Run `ng test` to verify tests work
+- [x] Review angular.json test configuration
+- [x] Install `@angular/animations` if not present (required for `NoopAnimationsModule`)
+
+**Angular 21 testing:**
+- Uses `@angular/build:unit-test` builder (replaces Karma)
+- Vitest for assertions (NOT Jasmine)
+- Tests run via Vitest's test runner
+
+**Important:** The Angular CLI may still generate spec files with Jasmine syntax (`jasmine.createSpyObj`, `done()` callbacks). You must convert these to Vitest syntax:
+- `jasmine.createSpyObj()` → `vi.fn()`
+- `done()` callbacks → `async/await`
+- `jasmine.createSpy()` → `vi.fn()`
+
+**Install animations (if needed):**
+```bash
+npm install @angular/animations@21.1.0 --save --legacy-peer-deps
+```
+
+**Run existing tests:**
+```bash
+ng test
+```
+
+### 11.2 Write Service Tests (NotesService)
+- [x] Create `features/notes/notes.spec.ts`
+- [x] Mock Supabase client
+- [x] Test CRUD operations (15 tests)
+
+**Why test services?**
+Services contain business logic. Testing them ensures your data operations work correctly without needing the actual database.
+
+**notes.spec.ts:**
+```typescript
+import { TestBed } from '@angular/core/testing';
+import { signal } from '@angular/core';
+import { NotesService } from './notes';
+import { SupabaseService } from '../../core/supabase';
+import { AuthService } from '../../core/auth';
+
+describe('NotesService', () => {
+  let service: NotesService;
+
+  const mockUser = { id: 'user-123', email: 'test@test.com' };
+  const mockNote = {
+    id: 'note-1',
+    user_id: 'user-123',
+    title: 'Test Note',
+    content: 'Test content',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  };
+
+  beforeEach(() => {
+    // Create mock Supabase client using vi.fn()
+    const mockSupabaseClient = {
+      from: vi.fn().mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          order: vi.fn().mockReturnValue({
+            range: vi.fn().mockResolvedValue({ data: [mockNote], error: null, count: 1 }),
+          }),
+          eq: vi.fn().mockReturnValue({
+            single: vi.fn().mockResolvedValue({ data: mockNote, error: null }),
+          }),
+        }),
+        insert: vi.fn().mockReturnValue({
+          select: vi.fn().mockReturnValue({
+            single: vi.fn().mockResolvedValue({ data: mockNote, error: null }),
+          }),
+        }),
+        delete: vi.fn().mockReturnValue({
+          eq: vi.fn().mockResolvedValue({ error: null }),
+        }),
+      }),
+    };
+
+    const supabaseMock = { client: mockSupabaseClient };
+
+    const authMock = {
+      currentUser: signal(mockUser as any),
+    };
+
+    TestBed.configureTestingModule({
+      providers: [
+        NotesService,
+        { provide: SupabaseService, useValue: supabaseMock },
+        { provide: AuthService, useValue: authMock },
+      ],
+    });
+
+    service = TestBed.inject(NotesService);
+  });
+
+  it('should be created', () => {
+    expect(service).toBeTruthy();
+  });
+
+  it('should list notes', async () => {
+    const result = await service.list(1, 10, '');
+    expect(result.data.length).toBe(1);
+    expect(result.count).toBe(1);
+  });
+});
+```
+
+### 11.3 Write Component Tests (NotesList)
+- [x] Create `features/notes/notes-list/notes-list.spec.ts`
+- [x] Test component rendering
+- [x] Test user interactions (19 tests)
+
+**Why test components?**
+Ensures UI renders correctly and user interactions trigger expected behavior.
+
+**notes-list.spec.ts:**
+```typescript
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { signal } from '@angular/core';
+import { NotesList } from './notes-list';
+import { NotesService } from '../notes';
+import { NotesStore } from '../notes-store';
+import { ToastService } from '../../../shared/toast';
+import { ConfirmDialogService } from '../../../shared/confirm-dialog';
+
+describe('NotesList', () => {
+  let component: NotesList;
+  let fixture: ComponentFixture<NotesList>;
+
+  const mockNotes = [
+    { id: '1', user_id: 'u1', title: 'Note 1', content: 'Content 1', created_at: '', updated_at: '' },
+    { id: '2', user_id: 'u1', title: 'Note 2', content: 'Content 2', created_at: '', updated_at: '' },
+  ];
+
+  beforeEach(async () => {
+    const notesServiceMock = {
+      list: vi.fn().mockResolvedValue({ data: mockNotes, count: 2 }),
+      delete: vi.fn().mockResolvedValue(undefined),
+    };
+
+    const storeMock = {
+      allNotes: signal(mockNotes),
+      isLoading: signal(false),
+      total: signal(2),
+      currentPageSize: signal(10),
+      currentPage: signal(1),
+      isEmpty: vi.fn().mockReturnValue(false),
+      isStale: vi.fn().mockReturnValue(true),
+      setNotes: vi.fn(),
+      setLoading: vi.fn(),
+      removeNote: vi.fn(),
+    };
+
+    const toastMock = {
+      success: vi.fn(),
+      error: vi.fn(),
+    };
+
+    const confirmDialogMock = {
+      confirm: vi.fn().mockResolvedValue(true),
+    };
+
+    await TestBed.configureTestingModule({
+      imports: [NotesList, NoopAnimationsModule],
+      providers: [
+        provideRouter([]),
+        { provide: NotesService, useValue: notesServiceMock },
+        { provide: NotesStore, useValue: storeMock },
+        { provide: ToastService, useValue: toastMock },
+        { provide: ConfirmDialogService, useValue: confirmDialogMock },
+      ],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(NotesList);
+    component = fixture.componentInstance;
+    await fixture.whenStable();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+
+  it('should display notes', () => {
+    const cards = fixture.nativeElement.querySelectorAll('mat-card');
+    expect(cards.length).toBe(2);
+  });
+
+  it('should show note titles', () => {
+    const titles = fixture.nativeElement.querySelectorAll('mat-card-title');
+    expect(titles[0].textContent).toContain('Note 1');
+    expect(titles[1].textContent).toContain('Note 2');
+  });
+});
+```
+
+### 11.4 Write Guard Tests
+- [x] Create `core/auth-guard.spec.ts` (6 tests)
+- [x] Create `core/guest-guard.spec.ts` (6 tests)
+- [x] Test authenticated and unauthenticated scenarios
+
+**auth-guard.spec.ts:**
+```typescript
+import { TestBed } from '@angular/core/testing';
+import { Router, UrlTree } from '@angular/router';
+import { signal } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
+import { authGuard } from './auth-guard';
+import { AuthService } from './auth';
+
+describe('authGuard', () => {
+  function setupGuard(isAuthenticated: boolean) {
+    const authMock = {
+      currentUser: signal(isAuthenticated ? { id: '123' } as any : null),
+      loading: signal(false),
+    };
+
+    const routerMock = {
+      parseUrl: vi.fn().mockReturnValue({} as UrlTree),
+    };
+
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: AuthService, useValue: authMock },
+        { provide: Router, useValue: routerMock },
+      ],
+    });
+
+    return { authMock, routerMock };
+  }
+
+  it('should allow access when authenticated', async () => {
+    setupGuard(true);
+    const result$ = TestBed.runInInjectionContext(() => authGuard());
+
+    const result = await firstValueFrom(result$ as any);
+    expect(result).toBe(true);
+  });
+
+  it('should redirect to login when not authenticated', async () => {
+    const { routerMock } = setupGuard(false);
+
+    const result$ = TestBed.runInInjectionContext(() => authGuard());
+
+    await firstValueFrom(result$ as any);
+    expect(routerMock.parseUrl).toHaveBeenCalledWith('/login');
+  });
+});
+```
+
+### 11.5 Run and Verify Unit Tests
+- [x] Run `ng test`
+- [x] Fix any failing tests
+- [x] All 72 tests passing
+
+**Useful commands:**
+```bash
+ng test                    # Run tests in watch mode
+ng test --no-watch         # Run once and exit
+ng test --code-coverage    # Generate coverage report
+```
+
+### 11.6 Set Up Playwright for E2E
+- [x] Install Playwright
+- [x] Configure for Angular
+
+**Install Playwright:**
+```bash
+npm init playwright@latest
+```
+
+Choose these options:
+- TypeScript: Yes
+- Tests folder: e2e
+- GitHub Actions: No (or Yes if you want CI)
+- Install browsers: Yes
+
+**Update playwright.config.ts:**
+```typescript
+import { defineConfig, devices } from '@playwright/test';
+
+export default defineConfig({
+  testDir: './e2e',
+  fullyParallel: true,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  workers: process.env.CI ? 1 : undefined,
+  reporter: 'html',
+  use: {
+    baseURL: 'http://localhost:4200',
+    trace: 'on-first-retry',
+  },
+  projects: [
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+    },
+  ],
+  webServer: {
+    command: 'ng serve',
+    url: 'http://localhost:4200',
+    reuseExistingServer: !process.env.CI,
+  },
+});
+```
+
+### 11.7 Write E2E Tests
+- [x] Create `e2e/auth.spec.ts` (5 tests)
+- [x] Create `e2e/navigation.spec.ts` (5 tests)
+- [x] Test auth pages and guard redirects
+
+**e2e/auth.spec.ts** - Tests login/register pages display correctly:
+```typescript
+import { test, expect } from '@playwright/test';
+
+test.describe('Authentication', () => {
+  test('should display login page', async ({ page }) => {
+    await page.goto('/login');
+    await expect(page.locator('app-login h2')).toContainText(/sign in/i);
+    await expect(page.locator('input[type="email"]')).toBeVisible();
+    await expect(page.locator('input[type="password"]')).toBeVisible();
+  });
+
+  test('should show validation errors for empty form submission', async ({ page }) => {
+    await page.goto('/login');
+    await page.locator('button[type="submit"]').click();
+    await expect(page.locator('mat-error').first()).toBeVisible();
+  });
+});
+```
+
+**e2e/navigation.spec.ts** - Tests route guards redirect correctly:
+```typescript
+import { test, expect } from '@playwright/test';
+
+test.describe('Navigation', () => {
+  test('should redirect unauthenticated user from dashboard to login', async ({ page }) => {
+    await page.goto('/dashboard');
+    await expect(page).toHaveURL(/login/);
+  });
+
+  test('should allow guest access to login page', async ({ page }) => {
+    await page.goto('/login');
+    await expect(page).toHaveURL(/login/);
+  });
+});
+```
+
+**Run E2E tests:**
+```bash
+npm run e2e                   # Run all tests (headless)
+npm run e2e:ui                # Run with Playwright UI
+npx playwright test           # Also works directly
+npx playwright show-report    # View HTML test report
+```
+
+### 11.8 Push & Deploy
+- [ ] Commit changes
+- [ ] Push to remote
+- [ ] Verify deployment
 
 ## Iteration 12: Documentation & Polish
 - [ ] Write comprehensive README
