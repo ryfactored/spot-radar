@@ -2,10 +2,7 @@ import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
-import { ConfirmDialogService } from '../../shared/confirm-dialog/confirm-dialog-service';
-import { ToastService } from '../../shared/toast';
-import { LoadingSpinner } from '../../shared/loading-spinner/loading-spinner';
-import { EmptyState } from '../../shared/empty-state/empty-state';
+import { ConfirmDialogService, ToastService, LoadingSpinner, EmptyState } from '../../shared';
 
 @Component({
   selector: 'app-component-test',

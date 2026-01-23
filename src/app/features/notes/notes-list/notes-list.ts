@@ -8,12 +8,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { NotesService, Note } from '../notes';
+import { NotesService, type Note } from '../notes';
 import { NotesStore } from '../notes-store';
-import { ToastService } from '../../../shared/toast';
-import { ConfirmDialogService } from '../../../shared/confirm-dialog/confirm-dialog-service';
-import { EmptyState } from '../../../shared/empty-state/empty-state';
 import { NoteCardSkeleton } from '../note-card-skeleton';
+import { ToastService, ConfirmDialogService, EmptyState } from '../../../shared';
 
 @Component({
   selector: 'app-notes-list',
