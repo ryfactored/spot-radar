@@ -2711,11 +2711,279 @@ async onSubmit() {
 - [ ] Verify deployment
 
 ## Iteration 10: Error Handling & UX
-- [ ] Add global error handler
-- [ ] Create error boundary component
-- [ ] Add loading skeletons
-- [ ] Add empty state components
-- [ ] Deploy & preview
+
+**What we're building:**
+A polished error handling system that catches unexpected errors and displays user-friendly messages. We'll also add loading skeletons for a smoother perceived loading experience (instead of just spinners).
+
+### 10.1 Create Global Error Handler
+- [ ] Create custom ErrorHandler service
+- [ ] Display errors via toast notifications
+- [ ] Log errors for debugging
+
+**What this does:**
+Angular's ErrorHandler catches all uncaught exceptions. We override it to show a toast notification and log the error. This prevents the app from silently failing.
+
+**Run:** `ng generate service core/global-error-handler`
+
+**global-error-handler.ts:**
+```typescript
+import { ErrorHandler, Injectable, inject, NgZone } from '@angular/core';
+import { ToastService } from '../shared/toast';
+
+@Injectable()
+export class GlobalErrorHandler implements ErrorHandler {
+  private toast = inject(ToastService);
+  private zone = inject(NgZone);
+
+  handleError(error: unknown): void {
+    // Log error for debugging
+    console.error('Global error:', error);
+
+    // Extract message
+    let message = 'An unexpected error occurred';
+    if (error instanceof Error) {
+      message = error.message;
+    }
+
+    // Show toast (must run in Angular zone)
+    this.zone.run(() => {
+      this.toast.error(message);
+    });
+  }
+}
+```
+
+**Register in app.config.ts:**
+```typescript
+import { ErrorHandler } from '@angular/core';
+import { GlobalErrorHandler } from './core/global-error-handler';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    // ... existing providers
+    { provide: ErrorHandler, useClass: GlobalErrorHandler },
+  ]
+};
+```
+
+**Why NgZone?**
+Errors might occur outside Angular's change detection zone. `zone.run()` ensures the toast triggers UI updates properly.
+
+### 10.2 Create HTTP Error Interceptor
+- [ ] Create interceptor to handle HTTP errors consistently
+- [ ] Transform error responses into user-friendly messages
+
+**What this does:**
+Catches HTTP errors (401, 403, 404, 500, etc.) and transforms them into consistent error messages. Also handles auth expiration by redirecting to login.
+
+**Run:** `ng generate interceptor core/http-error --functional`
+
+**http-error.interceptor.ts:**
+```typescript
+import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
+import { inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { catchError, throwError } from 'rxjs';
+import { ToastService } from '../shared/toast';
+
+export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
+  const toast = inject(ToastService);
+  const router = inject(Router);
+
+  return next(req).pipe(
+    catchError((error: HttpErrorResponse) => {
+      let message = 'An error occurred';
+
+      switch (error.status) {
+        case 0:
+          message = 'Unable to connect to server';
+          break;
+        case 401:
+          message = 'Session expired. Please log in again.';
+          router.navigate(['/login']);
+          break;
+        case 403:
+          message = 'You do not have permission to perform this action';
+          break;
+        case 404:
+          message = 'The requested resource was not found';
+          break;
+        case 422:
+          message = error.error?.message || 'Validation error';
+          break;
+        case 500:
+          message = 'Server error. Please try again later.';
+          break;
+        default:
+          message = error.error?.message || error.message || message;
+      }
+
+      toast.error(message);
+      return throwError(() => new Error(message));
+    })
+  );
+};
+```
+
+**Register in app.config.ts:**
+```typescript
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { httpErrorInterceptor } from './core/http-error.interceptor';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideHttpClient(withInterceptors([httpErrorInterceptor])),
+    // ... other providers
+  ]
+};
+```
+
+### 10.3 Create Skeleton Loader Component
+- [ ] Run `ng generate component shared/skeleton --standalone`
+- [ ] Create flexible skeleton for text, cards, and avatars
+
+**What this does:**
+Skeleton loaders show placeholder shapes while content loads. They're better than spinners because they hint at the layout, reducing perceived load time.
+
+**skeleton.ts:**
+```typescript
+import { Component, input } from '@angular/core';
+import { NgStyle } from '@angular/common';
+
+@Component({
+  selector: 'app-skeleton',
+  standalone: true,
+  imports: [NgStyle],
+  template: `
+    <div
+      class="skeleton"
+      [ngStyle]="{
+        width: width(),
+        height: height(),
+        borderRadius: variant() === 'circle' ? '50%' : radius()
+      }">
+    </div>
+  `,
+  styles: `
+    .skeleton {
+      background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    :host-context(.dark-theme) .skeleton {
+      background: linear-gradient(90deg, #333 25%, #444 50%, #333 75%);
+      background-size: 200% 100%;
+    }
+  `
+})
+export class Skeleton {
+  width = input('100%');
+  height = input('1rem');
+  variant = input<'text' | 'rect' | 'circle'>('text');
+  radius = input('4px');
+}
+```
+
+**Usage examples:**
+```html
+<!-- Text line -->
+<app-skeleton width="80%" height="1rem" />
+
+<!-- Card placeholder -->
+<app-skeleton width="100%" height="200px" radius="8px" />
+
+<!-- Avatar -->
+<app-skeleton width="48px" height="48px" variant="circle" />
+```
+
+### 10.4 Create Note Card Skeleton
+- [ ] Run `ng generate component shared/note-card-skeleton --standalone`
+- [ ] Match the layout of actual note cards
+
+**note-card-skeleton.ts:**
+```typescript
+import { Component } from '@angular/core';
+import { MatCardModule } from '@angular/material/card';
+import { Skeleton } from '../skeleton/skeleton';
+
+@Component({
+  selector: 'app-note-card-skeleton',
+  standalone: true,
+  imports: [MatCardModule, Skeleton],
+  template: `
+    <mat-card class="skeleton-card">
+      <mat-card-header>
+        <app-skeleton width="60%" height="1.25rem" />
+        <app-skeleton width="40%" height="0.875rem" />
+      </mat-card-header>
+      <mat-card-content>
+        <app-skeleton width="100%" height="0.875rem" />
+        <app-skeleton width="90%" height="0.875rem" />
+        <app-skeleton width="70%" height="0.875rem" />
+      </mat-card-content>
+      <mat-card-actions>
+        <app-skeleton width="60px" height="36px" radius="4px" />
+        <app-skeleton width="70px" height="36px" radius="4px" />
+      </mat-card-actions>
+    </mat-card>
+  `,
+  styles: `
+    .skeleton-card {
+      mat-card-header { margin-bottom: 16px; }
+      mat-card-content app-skeleton { margin-bottom: 8px; }
+      mat-card-actions { display: flex; gap: 8px; justify-content: flex-end; }
+    }
+  `
+})
+export class NoteCardSkeleton {}
+```
+
+### 10.5 Update Notes List to Use Skeleton
+- [ ] Replace loading spinner with skeleton cards
+
+**Update notes-list.ts template:**
+```html
+@if (loading()) {
+  <div class="notes-grid">
+    @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+      <app-note-card-skeleton />
+    }
+  </div>
+} @else if (notes().length === 0) {
+  <!-- empty state -->
+} @else {
+  <!-- actual notes -->
+}
+```
+
+**Add import:**
+```typescript
+import { NoteCardSkeleton } from '../../../shared/note-card-skeleton/note-card-skeleton';
+
+// Add to imports array
+imports: [
+  // ... existing
+  NoteCardSkeleton,
+],
+```
+
+### 10.6 Test Error Handling
+- [ ] Run `ng serve`
+- [ ] Temporarily break an API call (wrong URL) → verify toast appears
+- [ ] Test HTTP error scenarios
+- [ ] Verify skeletons appear while loading notes
+
+### 10.7 Push & Deploy
+- [ ] Run `git add .`
+- [ ] Run `git commit -m "Add error handling and skeleton loaders"`
+- [ ] Run `git push`
+- [ ] Verify deployment
 
 ## Iteration 11: Testing
 - [ ] Configure Jest

@@ -31,6 +31,7 @@ import { EmptyState } from '../../shared/empty-state/empty-state';
           <button mat-raised-button color="primary" (click)="showSuccess()">Success</button>
           <button mat-raised-button color="warn" (click)="showError()">Error</button>
           <button mat-raised-button (click)="showInfo()">Info</button>
+          <button mat-raised-button color="accent" (click)="testError()">Throw Error</button>
         </div>
       </mat-card-content>
     </mat-card>
@@ -125,5 +126,9 @@ export class ComponentTest {
     } else {
       this.toast.info('Cancelled');
     }
+  }
+
+  testError() {
+    throw new Error('Test error!');
   }
 }

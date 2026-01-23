@@ -8,12 +8,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { NotesService, Note } from '../../../core/notes';
+import { NotesService, Note } from '../notes';
 import { NotesStore } from '../notes-store';
 import { ToastService } from '../../../shared/toast';
 import { ConfirmDialogService } from '../../../shared/confirm-dialog';
-import { LoadingSpinner } from '../../../shared/loading-spinner/loading-spinner';
 import { EmptyState } from '../../../shared/empty-state/empty-state';
+import { NoteCardSkeleton } from '../note-card-skeleton';
 
 @Component({
   selector: 'app-notes-list',
@@ -27,7 +27,7 @@ import { EmptyState } from '../../../shared/empty-state/empty-state';
     MatFormFieldModule,
     MatInputModule,
     MatPaginatorModule,
-    LoadingSpinner,
+    NoteCardSkeleton,
     EmptyState,
   ],
   template: `
@@ -41,22 +41,30 @@ import { EmptyState } from '../../../shared/empty-state/empty-state';
 
     <mat-form-field appearance="outline" class="search-field">
       <mat-label>Search notes</mat-label>
-      <input matInput [(ngModel)]="searchQuery" (keyup.enter)="search()" placeholder="Search by title...">
+      <input
+        matInput
+        [(ngModel)]="searchQuery"
+        (keyup.enter)="search()"
+        placeholder="Search by title..."
+      />
       <button mat-icon-button matSuffix (click)="search()">
         <mat-icon>search</mat-icon>
       </button>
     </mat-form-field>
 
     @if (loading()) {
-      <app-loading-spinner message="Loading notes..." />
+      <div class="notes-grid">
+        @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+          <app-note-card-skeleton />
+        }
+      </div>
     } @else if (notes().length === 0) {
       <app-empty-state
         icon="note"
         title="No notes yet"
-        message="Create your first note to get started">
-        <button mat-raised-button color="primary" (click)="createNote()">
-          Create Note
-        </button>
+        message="Create your first note to get started"
+      >
+        <button mat-raised-button color="primary" (click)="createNote()">Create Note</button>
       </app-empty-state>
     } @else {
       <div class="notes-grid">
@@ -64,7 +72,7 @@ import { EmptyState } from '../../../shared/empty-state/empty-state';
           <mat-card class="note-card">
             <mat-card-header>
               <mat-card-title>{{ note.title }}</mat-card-title>
-              <mat-card-subtitle>{{ note.created_at | date:'medium' }}</mat-card-subtitle>
+              <mat-card-subtitle>{{ note.created_at | date: 'medium' }}</mat-card-subtitle>
             </mat-card-header>
             <mat-card-content>
               <p>{{ note.content || 'No content' }}</p>
@@ -89,7 +97,8 @@ import { EmptyState } from '../../../shared/empty-state/empty-state';
         [pageIndex]="currentPage() - 1"
         [pageSizeOptions]="[5, 10, 25]"
         (page)="onPageChange($event)"
-        showFirstLastButtons>
+        showFirstLastButtons
+      >
       </mat-paginator>
     }
   `,
@@ -121,7 +130,7 @@ import { EmptyState } from '../../../shared/empty-state/empty-state';
       -webkit-line-clamp: 3;
       -webkit-box-orient: vertical;
     }
-  `
+  `,
 })
 export class NotesList implements OnInit {
   private notesService = inject(NotesService);
@@ -155,7 +164,7 @@ export class NotesList implements OnInit {
       const response = await this.notesService.list(
         this.currentPage(),
         this.pageSize,
-        this.searchQuery
+        this.searchQuery,
       );
       this.store.setNotes(response.data, response.count, this.pageSize, this.currentPage());
     } catch (err: any) {
@@ -189,7 +198,7 @@ export class NotesList implements OnInit {
       title: 'Delete Note',
       message: `Are you sure you want to delete "${note.title}"? This cannot be undone.`,
       confirmText: 'Delete',
-      cancelText: 'Cancel'
+      cancelText: 'Cancel',
     });
 
     if (confirmed) {
