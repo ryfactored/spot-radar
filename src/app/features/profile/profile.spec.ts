@@ -1,18 +1,40 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { signal } from '@angular/core';
 
-import { ProfileComponent } from './profile';
+import { Profile } from './profile';
+import { AuthService } from '../../core/auth';
+import { ProfileService } from '../../core/profile';
 
-describe('ProfileComponent', () => {
-  let component: ProfileComponent;
-  let fixture: ComponentFixture<ProfileComponent>;
+describe('Profile', () => {
+  let component: Profile;
+  let fixture: ComponentFixture<Profile>;
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [ProfileComponent]
-    })
-    .compileComponents();
+    const authMock = {
+      currentUser: signal({ id: 'user-123', email: 'test@test.com' }),
+    };
 
-    fixture = TestBed.createComponent(ProfileComponent);
+    const profileMock = {
+      getProfile: vi.fn().mockResolvedValue({
+        id: 'user-123',
+        email: 'test@test.com',
+        display_name: 'Test User',
+        bio: '',
+      }),
+    };
+
+    await TestBed.configureTestingModule({
+      imports: [Profile, NoopAnimationsModule],
+      providers: [
+        provideRouter([]),
+        { provide: AuthService, useValue: authMock },
+        { provide: ProfileService, useValue: profileMock },
+      ],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(Profile);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });
