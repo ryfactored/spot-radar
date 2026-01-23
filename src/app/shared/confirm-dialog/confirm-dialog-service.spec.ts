@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 
-import { ConfirmDialogService } from './confirm-dialog';
+import { ConfirmDialogService } from './confirm-dialog-service';
 
-describe('ConfirmDialog', () => {
+describe('ConfirmDialogService', () => {
   let service: ConfirmDialogService;
 
   beforeEach(() => {

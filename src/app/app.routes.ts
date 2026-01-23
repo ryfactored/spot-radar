@@ -4,6 +4,20 @@ import { AuthLayout } from './layouts/auth-layout/auth-layout';
 import { authGuard } from './core/auth-guard';
 import { guestGuard } from './core/guest-guard';
 
+/**
+ * Application routes with lazy-loaded feature components.
+ *
+ * Route structure:
+ * - Shell layout (authenticated): Dashboard, Profile, Notes
+ * - AuthLayout (guests only): Login, Register
+ *
+ * Guards prevent unauthorized access:
+ * - authGuard: Redirects to /login if not authenticated
+ * - guestGuard: Redirects to /dashboard if already authenticated
+ *
+ * Components are lazy-loaded using loadComponent() for optimal
+ * bundle splitting and faster initial load times.
+ */
 export const routes: Routes = [
   {
     path: '',

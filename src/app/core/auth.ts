@@ -3,6 +3,16 @@ import { Router } from '@angular/router';
 import { SupabaseService } from './supabase';
 import { User } from '@supabase/supabase-js';
 
+/**
+ * Authentication service using Supabase Auth.
+ *
+ * State is managed with Angular Signals for reactive updates:
+ * - currentUser: The authenticated user (null if signed out)
+ * - loading: True while restoring session on app init
+ *
+ * The onAuthStateChange listener automatically updates state and
+ * handles redirects when the user signs out.
+ */
 @Injectable({
   providedIn: 'root'
 })

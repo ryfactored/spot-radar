@@ -11,7 +11,7 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { NotesService, Note } from '../notes';
 import { NotesStore } from '../notes-store';
 import { ToastService } from '../../../shared/toast';
-import { ConfirmDialogService } from '../../../shared/confirm-dialog';
+import { ConfirmDialogService } from '../../../shared/confirm-dialog/confirm-dialog-service';
 import { EmptyState } from '../../../shared/empty-state/empty-state';
 import { NoteCardSkeleton } from '../note-card-skeleton';
 
