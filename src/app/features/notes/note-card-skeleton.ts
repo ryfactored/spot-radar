@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
-import { Skeleton } from '../../shared/skeleton/skeleton';
+import { Skeleton } from '@shared';
 
 @Component({
   selector: 'app-note-card-skeleton',

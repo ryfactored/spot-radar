@@ -7,8 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { NotesService } from '../notes';
 import { NotesStore } from '../notes-store';
-import { ToastService } from '../../../shared/toast';
-import { LoadingSpinner } from '../../../shared/loading-spinner/loading-spinner';
+import { ToastService, LoadingSpinner } from '@shared';
 
 @Component({
   selector: 'app-note-form',

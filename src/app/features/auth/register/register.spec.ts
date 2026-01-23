@@ -3,7 +3,7 @@ import { provideRouter } from '@angular/router';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 import { Register } from './register';
-import { AuthService } from '../../../core/auth';
+import { AuthService } from '@core';
 
 describe('Register', () => {
   let component: Register;

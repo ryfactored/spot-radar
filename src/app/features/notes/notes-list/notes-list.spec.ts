@@ -6,8 +6,7 @@ import { signal } from '@angular/core';
 import { NotesList } from './notes-list';
 import { NotesService, Note } from '../notes';
 import { NotesStore } from '../notes-store';
-import { ToastService } from '../../../shared/toast';
-import { ConfirmDialogService } from '../../../shared/confirm-dialog/confirm-dialog-service';
+import { ToastService, ConfirmDialogService } from '@shared';
 
 describe('NotesList', () => {
   let component: NotesList;

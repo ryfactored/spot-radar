@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { AuthService } from '../../core/auth';
+import { AuthService } from '@core';
 
 @Component({
   selector: 'app-dashboard',

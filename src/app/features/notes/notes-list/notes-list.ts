@@ -11,7 +11,7 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { NotesService, type Note } from '../notes';
 import { NotesStore } from '../notes-store';
 import { NoteCardSkeleton } from '../note-card-skeleton';
-import { ToastService, ConfirmDialogService, EmptyState } from '../../../shared';
+import { ToastService, ConfirmDialogService, EmptyState } from '@shared';
 
 @Component({
   selector: 'app-notes-list',

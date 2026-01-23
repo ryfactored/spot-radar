@@ -2,8 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 
 import { NotesService, Note } from './notes';
-import { SupabaseService } from '../../core/supabase';
-import { AuthService } from '../../core/auth';
+import { SupabaseService, AuthService } from '@core';
 
 describe('NotesService', () => {
   let service: NotesService;

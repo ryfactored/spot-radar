@@ -3,7 +3,7 @@ import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { GlobalErrorHandler, httpErrorInterceptor } from './core';
+import { GlobalErrorHandler, httpErrorInterceptor } from '@core';
 
 /**
  * Application configuration using the standalone bootstrapping pattern.
