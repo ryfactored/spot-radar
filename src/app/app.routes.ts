@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
-import { Shell, AuthLayout } from './layouts';
-import { authGuard, guestGuard } from './core';
+import { Shell, AuthLayout } from '@layouts';
+import { authGuard, guestGuard } from '@core';
 
 /**
  * Application routes with lazy-loaded feature components.

@@ -4,7 +4,7 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { signal } from '@angular/core';
 
 import { Profile } from './profile';
-import { AuthService } from '../../core/auth';
+import { AuthService } from '@core';
 import { ProfileService } from './profile-service';
 
 describe('Profile', () => {

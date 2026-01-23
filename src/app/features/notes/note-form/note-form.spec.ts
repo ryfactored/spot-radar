@@ -5,7 +5,7 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { NoteForm } from './note-form';
 import { NotesService } from '../notes';
 import { NotesStore } from '../notes-store';
-import { ToastService } from '../../../shared/toast';
+import { ToastService } from '@shared';
 
 describe('NoteForm', () => {
   let component: NoteForm;

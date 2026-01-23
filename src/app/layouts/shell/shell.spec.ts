@@ -4,8 +4,7 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { signal } from '@angular/core';
 
 import { Shell } from './shell';
-import { PreferencesService } from '../../core/preferences';
-import { AuthService } from '../../core/auth';
+import { PreferencesService, AuthService } from '@core';
 
 describe('Shell', () => {
   let component: Shell;

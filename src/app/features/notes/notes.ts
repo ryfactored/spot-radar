@@ -1,6 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { SupabaseService } from '../../core/supabase';
-import { AuthService } from '../../core/auth';
+import { SupabaseService, AuthService } from '@core';
 
 export interface Note {
   id: string;

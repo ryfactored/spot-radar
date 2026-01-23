@@ -6,8 +6,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { PreferencesService } from '../../core/preferences';
-import { AuthService } from '../../core/auth';
+import { PreferencesService, AuthService } from '@core';
 
 @Component({
   selector: 'app-shell',

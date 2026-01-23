@@ -174,6 +174,28 @@ All components are standalone (no NgModules). This is the modern Angular approac
 export class MyComponent { }
 ```
 
+### Path Aliases
+
+The project uses TypeScript path aliases for cleaner imports:
+
+| Alias | Path | Usage |
+|-------|------|-------|
+| `@core` | `src/app/core` | Services, guards, utilities |
+| `@shared` | `src/app/shared` | Shared components & services |
+| `@layouts` | `src/app/layouts` | Layout components |
+| `@features/*` | `src/app/features/*` | Feature modules |
+| `@env` | `src/environments/environment` | Environment config |
+
+```typescript
+// Before
+import { AuthService } from '../../../core/auth';
+import { ToastService } from '../../../shared/toast';
+
+// After
+import { AuthService } from '@core';
+import { ToastService } from '@shared';
+```
+
 ### Signal-Based State Management
 
 The app uses Angular Signals for reactive state instead of RxJS-heavy patterns:
