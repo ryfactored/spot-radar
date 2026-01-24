@@ -25,7 +25,7 @@ export class Dashboard {
 
   async loginWithGoogle() {
     try {
-      await this.auth.signInWithGoogle();
+      await this.auth.signInWithProvider('google');
     } catch (error) {
       console.error('Login failed:', error);
     }

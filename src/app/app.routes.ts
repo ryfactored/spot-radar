@@ -1,11 +1,12 @@
 import { Routes } from '@angular/router';
-import { Shell, AuthLayout } from '@layouts';
+import { Shell, AuthLayout, PublicLayout } from '@layouts';
 import { authGuard, guestGuard } from '@core';
 
 /**
  * Application routes with lazy-loaded feature components.
  *
  * Route structure:
+ * - PublicLayout: Landing page (guests only, redirects to dashboard if authenticated)
  * - Shell layout (authenticated): Dashboard, Profile, Notes
  * - AuthLayout (guests only): Login, Register
  *
@@ -17,12 +18,24 @@ import { authGuard, guestGuard } from '@core';
  * bundle splitting and faster initial load times.
  */
 export const routes: Routes = [
+  // Public landing page (guests only - authenticated users go to dashboard)
+  {
+    path: '',
+    component: PublicLayout,
+    canActivate: [guestGuard],
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./features/landing/landing').then((m) => m.Landing),
+      },
+    ],
+  },
+  // Authenticated routes
   {
     path: '',
     component: Shell,
     canActivate: [authGuard],
     children: [
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       {
         path: 'dashboard',
         loadComponent: () => import('./features/dashboard/dashboard').then((m) => m.Dashboard),
@@ -51,6 +64,7 @@ export const routes: Routes = [
       },
     ],
   },
+  // Auth routes (guests only)
   {
     path: '',
     component: AuthLayout,

@@ -5,3 +5,9 @@ export type { ConfirmDialogData } from './confirm-dialog/confirm-dialog-service'
 export { EmptyState } from './empty-state/empty-state';
 export { LoadingSpinner } from './loading-spinner/loading-spinner';
 export { Skeleton } from './skeleton/skeleton';
+export { SocialLoginButton } from './social-login-button/social-login-button';
+export { ThemePicker } from './theme-picker/theme-picker';
+export { DataTable } from './data-table/data-table';
+export type { ColumnDef } from './data-table/data-table';
+export type { PageEvent } from '@angular/material/paginator';
+export { SearchInput } from './search-input/search-input';

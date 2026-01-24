@@ -4,9 +4,9 @@ import { Router, RouterLink } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
-import { AuthService } from '@core';
+import { AuthService, SocialProvider } from '@core';
+import { SocialLoginButton } from '@shared';
 
 @Component({
   selector: 'app-login',
@@ -17,8 +17,8 @@ import { AuthService } from '@core';
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
-    MatIconModule,
     MatDividerModule,
+    SocialLoginButton,
   ],
   template: `
     <h2>Sign In</h2>
@@ -54,10 +54,13 @@ import { AuthService } from '@core';
 
     <mat-divider class="divider"></mat-divider>
 
-    <button mat-stroked-button class="full-width google-btn" (click)="loginWithGoogle()">
-      <mat-icon>login</mat-icon>
-      Continue with Google
-    </button>
+    <div class="social-buttons">
+      <app-social-login-button provider="google" (clicked)="loginWithProvider('google')" />
+      <app-social-login-button provider="github" (clicked)="loginWithProvider('github')" />
+      <app-social-login-button provider="discord" (clicked)="loginWithProvider('discord')" />
+      <app-social-login-button provider="spotify" (clicked)="loginWithProvider('spotify')" />
+      <app-social-login-button provider="apple" (clicked)="loginWithProvider('apple')" />
+    </div>
 
     <p class="footer">
       Don't have an account? <a routerLink="/register">Sign up</a>
@@ -68,8 +71,7 @@ import { AuthService } from '@core';
     .full-width { width: 100%; }
     mat-form-field { margin-bottom: 16px; }
     .divider { margin: 24px 0; }
-    .google-btn { margin-bottom: 16px; }
-    .google-btn mat-icon { margin-right: 8px; }
+    .social-buttons { margin-bottom: 16px; }
     .footer { text-align: center; margin-top: 16px; }
     .error { color: #f44336; text-align: center; }
   `
@@ -103,7 +105,11 @@ export class Login {
     }
   }
 
-  async loginWithGoogle() {
-    await this.auth.signInWithGoogle();
+  async loginWithProvider(provider: SocialProvider) {
+    try {
+      await this.auth.signInWithProvider(provider);
+    } catch (err: any) {
+      this.error = err.message || 'Social login failed';
+    }
   }
 }

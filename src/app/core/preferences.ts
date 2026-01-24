@@ -1,14 +1,18 @@
 import { Injectable, signal, effect } from '@angular/core';
 
+export type ColorTheme = 'default' | 'ocean' | 'forest';
+
 export interface UserPreferences {
-  theme: 'light' | 'dark';
+  colorTheme: ColorTheme;
+  darkMode: boolean;
   sidenavOpened: boolean;
 }
 
 const STORAGE_KEY = 'user_preferences';
 
 const DEFAULT_PREFERENCES: UserPreferences = {
-  theme: 'light',
+  colorTheme: 'default',
+  darkMode: false,
   sidenavOpened: true,
 };
 
@@ -32,8 +36,12 @@ export class PreferencesService {
   private preferences = signal<UserPreferences>(this.loadFromStorage());
 
   // Expose individual preferences as readonly signals
-  readonly theme = () => this.preferences().theme;
+  readonly colorTheme = () => this.preferences().colorTheme;
+  readonly darkMode = () => this.preferences().darkMode;
   readonly sidenavOpened = () => this.preferences().sidenavOpened;
+
+  // Legacy support: theme() returns 'light' or 'dark' based on darkMode
+  readonly theme = () => this.preferences().darkMode ? 'dark' : 'light';
 
   constructor() {
     // Auto-save to localStorage whenever preferences change
@@ -46,7 +54,13 @@ export class PreferencesService {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
-        return { ...DEFAULT_PREFERENCES, ...JSON.parse(stored) };
+        const parsed = JSON.parse(stored);
+        // Migration: convert old 'theme' to new 'darkMode'
+        if ('theme' in parsed && !('darkMode' in parsed)) {
+          parsed.darkMode = parsed.theme === 'dark';
+          delete parsed.theme;
+        }
+        return { ...DEFAULT_PREFERENCES, ...parsed };
       }
     } catch {
       // Invalid JSON, use defaults
@@ -54,15 +68,24 @@ export class PreferencesService {
     return DEFAULT_PREFERENCES;
   }
 
-  setTheme(theme: 'light' | 'dark') {
-    this.preferences.update(prefs => ({ ...prefs, theme }));
+  setColorTheme(colorTheme: ColorTheme) {
+    this.preferences.update(prefs => ({ ...prefs, colorTheme }));
   }
 
-  toggleTheme() {
+  setDarkMode(darkMode: boolean) {
+    this.preferences.update(prefs => ({ ...prefs, darkMode }));
+  }
+
+  toggleDarkMode() {
     this.preferences.update(prefs => ({
       ...prefs,
-      theme: prefs.theme === 'light' ? 'dark' : 'light'
+      darkMode: !prefs.darkMode
     }));
+  }
+
+  // Legacy method for compatibility
+  toggleTheme() {
+    this.toggleDarkMode();
   }
 
   setSidenavOpened(opened: boolean) {
