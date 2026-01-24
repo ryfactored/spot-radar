@@ -13,9 +13,13 @@ describe('Shell', () => {
   beforeEach(async () => {
     const preferencesMock = {
       theme: signal('light'),
+      darkMode: signal(false),
+      colorTheme: signal('default'),
       sidenavOpened: signal(true),
       toggleTheme: vi.fn(),
+      toggleDarkMode: vi.fn(),
       toggleSidenav: vi.fn(),
+      setColorTheme: vi.fn(),
     };
 
     const authMock = {

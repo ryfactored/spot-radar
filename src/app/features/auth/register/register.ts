@@ -4,7 +4,9 @@ import { Router, RouterLink } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { AuthService } from '@core';
+import { MatDividerModule } from '@angular/material/divider';
+import { AuthService, SocialProvider } from '@core';
+import { SocialLoginButton } from '@shared';
 
 @Component({
   selector: 'app-register',
@@ -15,6 +17,8 @@ import { AuthService } from '@core';
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
+    MatDividerModule,
+    SocialLoginButton,
   ],
   template: `
     <h2>Create Account</h2>
@@ -63,6 +67,16 @@ import { AuthService } from '@core';
       </button>
     </form>
 
+    <mat-divider class="divider"></mat-divider>
+
+    <div class="social-buttons">
+      <app-social-login-button provider="google" (clicked)="signUpWithProvider('google')" />
+      <app-social-login-button provider="github" (clicked)="signUpWithProvider('github')" />
+      <app-social-login-button provider="discord" (clicked)="signUpWithProvider('discord')" />
+      <app-social-login-button provider="spotify" (clicked)="signUpWithProvider('spotify')" />
+      <app-social-login-button provider="apple" (clicked)="signUpWithProvider('apple')" />
+    </div>
+
     <p class="footer">
       Already have an account? <a routerLink="/login">Sign in</a>
     </p>
@@ -71,6 +85,8 @@ import { AuthService } from '@core';
     h2 { text-align: center; margin-bottom: 24px; }
     .full-width { width: 100%; }
     mat-form-field { margin-bottom: 16px; }
+    .divider { margin: 24px 0; }
+    .social-buttons { margin-bottom: 16px; }
     .footer { text-align: center; margin-top: 16px; }
     .error { color: #f44336; text-align: center; }
     .success { color: #4caf50; text-align: center; }
@@ -109,6 +125,14 @@ export class Register {
       this.error = err.message || 'Registration failed';
     } finally {
       this.loading = false;
+    }
+  }
+
+  async signUpWithProvider(provider: SocialProvider) {
+    try {
+      await this.auth.signInWithProvider(provider);
+    } catch (err: any) {
+      this.error = err.message || 'Social login failed';
     }
   }
 }

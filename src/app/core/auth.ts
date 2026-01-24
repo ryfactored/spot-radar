@@ -1,7 +1,9 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { SupabaseService } from './supabase';
-import { User } from '@supabase/supabase-js';
+import { User, Provider } from '@supabase/supabase-js';
+
+export type SocialProvider = 'google' | 'github' | 'spotify' | 'discord' | 'apple';
 
 /**
  * Authentication service using Supabase Auth.
@@ -60,18 +62,9 @@ export class AuthService {
     return data;
   }
 
-  async signInWithGoogle() {
+  async signInWithProvider(provider: SocialProvider) {
     const { data, error } = await this.supabase.client.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: window.location.origin }
-    });
-    if (error) throw error;
-    return data;
-  }
-
-  async signInWithGithub() {
-    const { data, error } = await this.supabase.client.auth.signInWithOAuth({
-      provider: 'github',
+      provider: provider as Provider,
       options: { redirectTo: window.location.origin }
     });
     if (error) throw error;

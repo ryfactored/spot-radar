@@ -1,5 +1,5 @@
 <mat-sidenav-container class="shell-container">
-  <mat-sidenav #sidenav mode="side" [opened]="preferences.sidenavOpened()">
+  <mat-sidenav #sidenav [mode]="sidenavMode()" [opened]="sidenavOpened()">
     <mat-nav-list>
       <a mat-list-item routerLink="/dashboard">
         <mat-icon matListItemIcon>dashboard</mat-icon>
@@ -21,15 +21,13 @@
   </mat-sidenav>
 
   <mat-sidenav-content>
-    <mat-toolbar color="primary">
+    <mat-toolbar color="primary" class="toolbar">
       <button mat-icon-button (click)="toggleSidenav()">
         <mat-icon>menu</mat-icon>
       </button>
-      <span>Angular Starter</span>
+      <span class="toolbar-title">Angular Starter</span>
       <span class="spacer"></span>
-      <button mat-icon-button (click)="toggleTheme()" [matTooltip]="preferences.theme() === 'light' ? 'Dark mode' : 'Light mode'">
-        <mat-icon>{{ preferences.theme() === 'light' ? 'dark_mode' : 'light_mode' }}</mat-icon>
-      </button>
+      <app-theme-picker />
       <button mat-icon-button (click)="logout()" matTooltip="Logout">
         <mat-icon>logout</mat-icon>
       </button>
