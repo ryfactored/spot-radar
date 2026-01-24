@@ -18,10 +18,10 @@ import { MatCardModule } from '@angular/material/card';
           Start building your next project in minutes.
         </p>
         <div class="hero-actions">
-          <a mat-raised-button color="primary" routerLink="/register" class="cta-primary">
+          <a mat-raised-button color="primary" routerLink="/register">
             Get Started Free
           </a>
-          <a mat-stroked-button color="primary" routerLink="/login">
+          <a mat-stroked-button routerLink="/login">
             Sign In
           </a>
         </div>
@@ -117,13 +117,15 @@ import { MatCardModule } from '@angular/material/card';
       display: flex;
       gap: 16px;
       justify-content: center;
+      align-items: center;
       flex-wrap: wrap;
     }
 
-    .cta-primary {
-      padding: 0 32px;
+    .hero-actions a {
       height: 48px;
+      padding: 0 32px;
       font-size: 16px;
+      line-height: 48px;
     }
 
     .hero-actions a[mat-stroked-button] {
