@@ -12,7 +12,9 @@ import { MatIconModule } from '@angular/material/icon';
       @if (message()) {
         <p>{{ message() }}</p>
       }
-      <ng-content></ng-content>
+      <div class="actions">
+        <ng-content></ng-content>
+      </div>
     </div>
   `,
   styles: `
@@ -33,6 +35,7 @@ import { MatIconModule } from '@angular/material/icon';
     }
     h3 { margin: 0 0 8px; }
     p { margin: 0; }
+    .actions { margin-top: 16px; }
   `
 })
 export class EmptyState {
