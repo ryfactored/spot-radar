@@ -25,9 +25,16 @@ describe('GlobalErrorHandler', () => {
     expect(handler).toBeTruthy();
   });
 
-  it('should handle errors and show toast', () => {
+  it('should handle errors and show user-friendly toast', () => {
     const error = new Error('Test error');
     handler.handleError(error);
-    expect(toastMock.error).toHaveBeenCalledWith('Test error');
+    // Error mapper converts unknown errors to user-friendly messages
+    expect(toastMock.error).toHaveBeenCalledWith('Something went wrong. Please try again.');
+  });
+
+  it('should map known error codes to friendly messages', () => {
+    const error = { code: 'invalid_credentials', message: 'Invalid login credentials' };
+    handler.handleError(error);
+    expect(toastMock.error).toHaveBeenCalledWith('Invalid email or password');
   });
 });

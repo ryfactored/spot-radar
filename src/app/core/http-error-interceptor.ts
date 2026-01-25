@@ -33,7 +33,8 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
           message = 'Server error. Please try again later.';
           break;
         default:
-          message = error.error?.message || error.message || message;
+          // Never expose raw error messages - keep generic
+          break;
       }
 
       toast.error(message);

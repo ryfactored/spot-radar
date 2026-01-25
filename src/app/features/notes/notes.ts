@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { SupabaseService, AuthService } from '@core';
+import { SupabaseService, AuthService, mapToError } from '@core';
 
 export interface Note {
   id: string;
@@ -46,7 +46,7 @@ export class NotesService {
     }
 
     const { data, error, count } = await query;
-    if (error) throw error;
+    if (error) throw mapToError(error);
     return { data: data || [], count: count || 0 };
   }
 
@@ -57,13 +57,13 @@ export class NotesService {
       .eq('id', id)
       .single();
 
-    if (error) throw error;
+    if (error) throw mapToError(error);
     return data;
   }
 
   async create(note: { title: string; content?: string }): Promise<Note> {
     const user = this.auth.currentUser();
-    if (!user) throw new Error('Not authenticated');
+    if (!user) throw new Error('Please sign in to continue');
 
     const { data, error } = await this.supabase.client
       .from('notes')
@@ -75,7 +75,7 @@ export class NotesService {
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) throw mapToError(error);
     return data;
   }
 
@@ -87,7 +87,7 @@ export class NotesService {
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) throw mapToError(error);
     return data;
   }
 
@@ -97,6 +97,6 @@ export class NotesService {
       .delete()
       .eq('id', id);
 
-    if (error) throw error;
+    if (error) throw mapToError(error);
   }
 }

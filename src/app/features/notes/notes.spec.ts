@@ -130,7 +130,7 @@ describe('NotesService', () => {
         }),
       });
 
-      await expect(service.list(1, 10, '')).rejects.toThrow('Query failed');
+      await expect(service.list(1, 10, '')).rejects.toThrow('Something went wrong');
     });
   });
 
@@ -163,7 +163,7 @@ describe('NotesService', () => {
         }),
       });
 
-      await expect(service.get('invalid-id')).rejects.toThrow('Not found');
+      await expect(service.get('invalid-id')).rejects.toThrow('Something went wrong');
     });
   });
 
@@ -196,7 +196,7 @@ describe('NotesService', () => {
       });
       const unauthService = TestBed.inject(NotesService);
 
-      await expect(unauthService.create({ title: 'Test' })).rejects.toThrow('Not authenticated');
+      await expect(unauthService.create({ title: 'Test' })).rejects.toThrow('Please sign in to continue');
     });
 
     it('should set content to null when not provided', async () => {
@@ -246,7 +246,7 @@ describe('NotesService', () => {
         }),
       });
 
-      await expect(service.update('note-1', { title: 'Test' })).rejects.toThrow('Update failed');
+      await expect(service.update('note-1', { title: 'Test' })).rejects.toThrow('Something went wrong');
     });
   });
 
@@ -269,7 +269,7 @@ describe('NotesService', () => {
         }),
       });
 
-      await expect(service.delete('note-1')).rejects.toThrow('Delete failed');
+      await expect(service.delete('note-1')).rejects.toThrow('Something went wrong');
     });
   });
 });
