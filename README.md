@@ -1,4 +1,4 @@
-# Angular Template
+# Angular Starter Template
 
 A modern Angular 21 starter template with Supabase authentication, CRUD operations, state management using signals, and a complete testing setup.
 
