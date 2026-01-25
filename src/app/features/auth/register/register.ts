@@ -1,12 +1,14 @@
-import { Component, inject } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { AuthService, SocialProvider } from '@core';
-import { SocialLoginButton } from '@shared';
+import { SocialLoginButton, PasswordStrength, matchValidator } from '@shared';
 
 @Component({
   selector: 'app-register',
@@ -17,14 +19,16 @@ import { SocialLoginButton } from '@shared';
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
+    MatIconModule,
     MatDividerModule,
     SocialLoginButton,
+    PasswordStrength,
   ],
   template: `
     <h2>Create Account</h2>
 
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
-      <mat-form-field appearance="outline" class="full-width">
+      <mat-form-field appearance="outline" class="full-width" subscriptSizing="fixed">
         <mat-label>Email</mat-label>
         <input matInput formControlName="email" type="email">
         @if (form.controls.email.hasError('required')) {
@@ -35,22 +39,32 @@ import { SocialLoginButton } from '@shared';
         }
       </mat-form-field>
 
-      <mat-form-field appearance="outline" class="full-width">
+      <mat-form-field appearance="outline" class="full-width" subscriptSizing="fixed">
         <mat-label>Password</mat-label>
-        <input matInput formControlName="password" type="password">
+        <input matInput formControlName="password" [type]="showPassword() ? 'text' : 'password'">
+        <button mat-icon-button matSuffix type="button" (click)="showPassword.set(!showPassword())">
+          <mat-icon>{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
         @if (form.controls.password.hasError('required')) {
           <mat-error>Password is required</mat-error>
         }
         @if (form.controls.password.hasError('minlength')) {
-          <mat-error>Password must be at least 6 characters</mat-error>
+          <mat-error>Password must be at least 8 characters</mat-error>
         }
       </mat-form-field>
+      <app-password-strength [password]="passwordValue()" />
 
-      <mat-form-field appearance="outline" class="full-width">
+      <mat-form-field appearance="outline" class="full-width" subscriptSizing="fixed">
         <mat-label>Confirm Password</mat-label>
-        <input matInput formControlName="confirmPassword" type="password">
+        <input matInput formControlName="confirmPassword" [type]="showConfirmPassword() ? 'text' : 'password'">
+        <button mat-icon-button matSuffix type="button" (click)="showConfirmPassword.set(!showConfirmPassword())">
+          <mat-icon>{{ showConfirmPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
         @if (form.controls.confirmPassword.hasError('required')) {
           <mat-error>Please confirm your password</mat-error>
+        }
+        @if (form.controls.confirmPassword.hasError('mismatch')) {
+          <mat-error>Passwords do not match</mat-error>
         }
       </mat-form-field>
 
@@ -95,25 +109,32 @@ import { SocialLoginButton } from '@shared';
 export class Register {
   private fb = inject(FormBuilder);
   private auth = inject(AuthService);
-  private router = inject(Router);
+  private destroyRef = inject(DestroyRef);
 
-  form = this.fb.nonNullable.group({
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(6)]],
-    confirmPassword: ['', Validators.required],
-  });
+  form = this.fb.nonNullable.group(
+    {
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(8)]],
+      confirmPassword: ['', Validators.required],
+    },
+    { validators: matchValidator('password', 'confirmPassword') }
+  );
 
+  showPassword = signal(false);
+  showConfirmPassword = signal(false);
+  passwordValue = signal('');
   loading = false;
   error = '';
   success = '';
 
+  constructor() {
+    this.form.controls.password.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => this.passwordValue.set(value));
+  }
+
   async onSubmit() {
     if (this.form.invalid) return;
-
-    if (this.form.value.password !== this.form.value.confirmPassword) {
-      this.error = 'Passwords do not match';
-      return;
-    }
 
     this.loading = true;
     this.error = '';

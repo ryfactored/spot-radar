@@ -40,4 +40,84 @@ test.describe('Authentication', () => {
     // Should show validation state (mat-form-field adds error class)
     await expect(page.locator('mat-error').first()).toBeVisible();
   });
+
+  test('should toggle password visibility on login', async ({ page }) => {
+    await page.goto('/login');
+
+    const passwordInput = page.locator('input[formcontrolname="password"]');
+    const toggleButton = page.locator('button[matsuffix]');
+
+    // Initially password type
+    await expect(passwordInput).toHaveAttribute('type', 'password');
+
+    // Click toggle
+    await toggleButton.click();
+    await expect(passwordInput).toHaveAttribute('type', 'text');
+
+    // Click again to hide
+    await toggleButton.click();
+    await expect(passwordInput).toHaveAttribute('type', 'password');
+  });
+
+  test('should show password strength indicator on register', async ({ page }) => {
+    await page.goto('/register');
+
+    const passwordInput = page.locator('input[formcontrolname="password"]');
+    const strengthLabel = page.locator('.strength-label');
+
+    // Initially hidden
+    await expect(strengthLabel).toHaveClass(/hidden/);
+
+    // Type weak password (< 8 chars)
+    await passwordInput.fill('short');
+    await expect(strengthLabel).toContainText('Weak');
+    await expect(strengthLabel).toHaveClass(/weak/);
+
+    // Type fair password (8-11 chars)
+    await passwordInput.fill('eightchar');
+    await expect(strengthLabel).toContainText('Fair');
+
+    // Type strong password (15+ chars)
+    await passwordInput.fill('verylongpassword');
+    await expect(strengthLabel).toContainText('Strong');
+    await expect(strengthLabel).toHaveClass(/strong/);
+  });
+
+  test('should show mismatch error when passwords differ', async ({ page }) => {
+    await page.goto('/register');
+
+    const passwordInput = page.locator('input[formcontrolname="password"]');
+    const confirmInput = page.locator('input[formcontrolname="confirmPassword"]');
+
+    // Fill mismatched passwords
+    await passwordInput.fill('password123');
+    await confirmInput.fill('different456');
+
+    // Blur to trigger validation
+    await confirmInput.blur();
+
+    // Should show mismatch error
+    await expect(page.locator('mat-error')).toContainText('Passwords do not match');
+  });
+
+  test('should clear mismatch error when passwords match', async ({ page }) => {
+    await page.goto('/register');
+
+    const passwordInput = page.locator('input[formcontrolname="password"]');
+    const confirmInput = page.locator('input[formcontrolname="confirmPassword"]');
+
+    // Fill mismatched passwords
+    await passwordInput.fill('password123');
+    await confirmInput.fill('different');
+    await confirmInput.blur();
+
+    // Error should appear
+    await expect(page.locator('mat-error')).toContainText('Passwords do not match');
+
+    // Fix the confirmation
+    await confirmInput.fill('password123');
+
+    // Error should disappear
+    await expect(page.locator('text=Passwords do not match')).not.toBeVisible();
+  });
 });

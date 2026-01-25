@@ -1,9 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { AuthService, SocialProvider } from '@core';
 import { SocialLoginButton } from '@shared';
@@ -17,6 +18,7 @@ import { SocialLoginButton } from '@shared';
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
+    MatIconModule,
     MatDividerModule,
     SocialLoginButton,
   ],
@@ -24,7 +26,7 @@ import { SocialLoginButton } from '@shared';
     <h2>Sign In</h2>
 
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
-      <mat-form-field appearance="outline" class="full-width">
+      <mat-form-field appearance="outline" class="full-width" subscriptSizing="fixed">
         <mat-label>Email</mat-label>
         <input matInput formControlName="email" type="email">
         @if (form.controls.email.hasError('required')) {
@@ -35,9 +37,12 @@ import { SocialLoginButton } from '@shared';
         }
       </mat-form-field>
 
-      <mat-form-field appearance="outline" class="full-width">
+      <mat-form-field appearance="outline" class="full-width" subscriptSizing="fixed">
         <mat-label>Password</mat-label>
-        <input matInput formControlName="password" type="password">
+        <input matInput formControlName="password" [type]="showPassword() ? 'text' : 'password'">
+        <button mat-icon-button matSuffix type="button" (click)="showPassword.set(!showPassword())">
+          <mat-icon>{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
         @if (form.controls.password.hasError('required')) {
           <mat-error>Password is required</mat-error>
         }
@@ -86,6 +91,7 @@ export class Login {
     password: ['', Validators.required],
   });
 
+  showPassword = signal(false);
   loading = false;
   error = '';
 
