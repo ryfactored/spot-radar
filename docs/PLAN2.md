@@ -33,7 +33,7 @@ The template includes:
 - **Theming** - Three color themes (Default, Ocean, Forest) with light/dark mode support
 - **Layouts** - Shell layout for authenticated users, public layout for guests
 - **Shared Components** - DataTable, SearchInput, ThemePicker, SocialLoginButton, Toast, ConfirmDialog, LoadingSpinner, EmptyState
-- **Test Coverage** - 97 unit tests across 30 test files, plus E2E tests with Playwright
+- **Test Coverage** - 109 unit tests across 32 test files, plus E2E tests with Playwright
 
 Build: 1.48 MB initial | Tests: All passing
 
@@ -50,19 +50,25 @@ Build: 1.48 MB initial | Tests: All passing
 
 ---
 
-## Next Iterations
-
-### Iteration 14: Form Validation Enhancements
+### Iteration 14: Form Validation Enhancements ✅
 
 **Goal:** Improve user experience on authentication forms.
 
-- [ ] Add password strength indicator component
-- [ ] Add real-time validation feedback (debounced)
-- [ ] Add "show password" toggle on password fields
-- [ ] Implement password match validation on registration
-- [ ] Add loading states during form submission
+- [x] Create `PasswordStrength` component with visual strength bar (weak/fair/good/strong)
+- [x] Create `matchValidator` for password confirmation
+- [x] Update Register form with password strength indicator, match validation, and visibility toggle
+- [x] Update Login form with password visibility toggle
+- [x] Add `subscriptSizing="fixed"` to prevent layout shift from validation errors
+- [x] Export new components from shared barrel
+- [x] All 109 tests passing
+
+**New files:**
+- `src/app/shared/password-strength/password-strength.ts`
+- `src/app/shared/validators/match.validator.ts`
 
 ---
+
+## Next Iterations
 
 ### Iteration 15: Error Handling & Notifications
 
