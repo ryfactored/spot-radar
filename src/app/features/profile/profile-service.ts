@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { SupabaseService, AuthService, SUPABASE_ERRORS } from '@core';
+import { SupabaseService, AuthService, SUPABASE_ERRORS, mapToError } from '@core';
 
 export interface Profile {
   id: string;
@@ -30,7 +30,7 @@ export class ProfileService {
       return this.createProfile(userId);
     }
 
-    if (error) throw error;
+    if (error) throw mapToError(error);
     return data;
   }
 
@@ -49,7 +49,7 @@ export class ProfileService {
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) throw mapToError(error);
     return data;
   }
 
@@ -61,7 +61,7 @@ export class ProfileService {
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) throw mapToError(error);
     return data;
   }
 }

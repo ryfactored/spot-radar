@@ -33,7 +33,7 @@ The template includes:
 - **Theming** - Three color themes (Default, Ocean, Forest) with light/dark mode support
 - **Layouts** - Shell layout for authenticated users, public layout for guests
 - **Shared Components** - DataTable, SearchInput, ThemePicker, SocialLoginButton, Toast, ConfirmDialog, LoadingSpinner, EmptyState
-- **Test Coverage** - 109 unit tests across 32 test files, plus E2E tests with Playwright
+- **Test Coverage** - 114 unit tests across 33 test files, 14 E2E tests with Playwright
 
 Build: 1.48 MB initial | Tests: All passing
 
@@ -68,19 +68,47 @@ Build: 1.48 MB initial | Tests: All passing
 
 ---
 
-## Next Iterations
+### Iteration 15: Error Handling & User-Friendly Messages ✅
 
-### Iteration 15: Error Handling & Notifications
+**Goal:** Hide Supabase internals from users. Show helpful, actionable error messages instead of raw database errors.
 
-**Goal:** Create centralized error handling with user-friendly feedback.
+**Architecture:**
+- `mapToError()` function converts raw Supabase/PostgreSQL errors to user-friendly `AppError` objects
+- `GlobalErrorHandler` intercepts all uncaught errors and displays sanitized messages via toast
+- Services throw mapped errors so UI never sees raw database details
 
-- [ ] Create `ErrorHandlerService` for global error handling
-- [ ] Map Supabase error codes to user-friendly messages
-- [ ] Add retry logic for transient failures
-- [ ] Improve toast notifications with action buttons
-- [ ] Add error boundary component for component-level errors
+**Error categories handled:**
+- **Auth errors** - invalid credentials, email taken, weak password, expired session
+- **Database errors** - foreign key violations, unique constraints, not null violations
+- **Network errors** - offline, timeout, fetch failures
+- **Rate limiting** - too many requests
+
+**Files modified:**
+- `src/app/core/auth.ts` - throws mapped errors
+- `src/app/core/http-error-interceptor.ts` - hardened default case
+- `src/app/core/global-error-handler.ts` - uses mapper before toast
+- `src/app/features/notes/notes.ts` - throws mapped errors
+- `src/app/features/profile/profile-service.ts` - throws mapped errors
+
+**New files:**
+- `src/app/core/error-mapper.ts` - `mapToError()`, `AppError` type, error patterns
+- `src/app/core/error-mapper.spec.ts` - 4 unit tests
+
+**Example mappings:**
+| Raw Error | User Message |
+|-----------|--------------|
+| `invalid_credentials` | "Invalid email or password" |
+| `23503` foreign key | "This operation could not be completed" |
+| `JWT expired` | "Your session has expired. Please sign in again." |
+| Network failure | "Unable to connect. Please check your internet connection." |
+
+**Note:** Raw errors remain visible in browser Network tab (inherent to client-side Supabase SDK). For sensitive apps requiring full sanitization, use Supabase Edge Functions as a backend proxy.
+
+**Tests:** 114 unit tests passing, 14 E2E tests passing
 
 ---
+
+## Next Iterations
 
 ### Iteration 16: Loading States & Skeletons
 

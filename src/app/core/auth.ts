@@ -2,6 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { SupabaseService } from './supabase';
 import { User, Provider } from '@supabase/supabase-js';
+import { mapToError } from './error-mapper';
 
 export type SocialProvider = 'google' | 'github' | 'spotify' | 'discord' | 'apple';
 
@@ -49,7 +50,7 @@ export class AuthService {
       email,
       password
     });
-    if (error) throw error;
+    if (error) throw mapToError(error);
     return data;
   }
 
@@ -58,7 +59,7 @@ export class AuthService {
       email,
       password
     });
-    if (error) throw error;
+    if (error) throw mapToError(error);
     return data;
   }
 
@@ -67,12 +68,12 @@ export class AuthService {
       provider: provider as Provider,
       options: { redirectTo: window.location.origin }
     });
-    if (error) throw error;
+    if (error) throw mapToError(error);
     return data;
   }
 
   async signOut() {
     const { error } = await this.supabase.client.auth.signOut();
-    if (error) throw error;
+    if (error) throw mapToError(error);
   }
 }
