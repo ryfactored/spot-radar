@@ -17,27 +17,31 @@ interface ThemeOption {
   standalone: true,
   imports: [MatButtonModule, MatIconModule, MatMenuModule, MatTooltipModule, MatDividerModule],
   template: `
-    <button mat-icon-button [matMenuTriggerFor]="themeMenu" matTooltip="Change theme">
+    <button mat-icon-button [matMenuTriggerFor]="themeMenu" matTooltip="Change theme" aria-label="Change theme">
       <mat-icon>palette</mat-icon>
     </button>
 
     <mat-menu #themeMenu="matMenu">
-      <div class="menu-header">Color Theme</div>
+      <div class="menu-header" id="theme-menu-label">Color Theme</div>
       @for (theme of themes; track theme.value) {
-        <button mat-menu-item (click)="selectTheme(theme.value)" [class.selected]="preferences.colorTheme() === theme.value">
-          <span class="theme-preview">
+        <button mat-menu-item (click)="selectTheme(theme.value)"
+                [class.selected]="preferences.colorTheme() === theme.value"
+                [attr.aria-current]="preferences.colorTheme() === theme.value ? 'true' : null"
+                role="menuitemradio"
+                [attr.aria-checked]="preferences.colorTheme() === theme.value">
+          <span class="theme-preview" aria-hidden="true">
             <span class="color-dot" [style.background]="theme.colors.primary"></span>
             <span class="color-dot" [style.background]="theme.colors.accent"></span>
           </span>
           <span>{{ theme.label }}</span>
           @if (preferences.colorTheme() === theme.value) {
-            <mat-icon class="check-icon">check</mat-icon>
+            <mat-icon class="check-icon" aria-hidden="true">check</mat-icon>
           }
         </button>
       }
       <mat-divider></mat-divider>
-      <button mat-menu-item (click)="toggleDarkMode()">
-        <mat-icon>{{ preferences.darkMode() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+      <button mat-menu-item (click)="toggleDarkMode()" role="menuitemcheckbox" [attr.aria-checked]="preferences.darkMode()">
+        <mat-icon aria-hidden="true">{{ preferences.darkMode() ? 'light_mode' : 'dark_mode' }}</mat-icon>
         <span>{{ preferences.darkMode() ? 'Light Mode' : 'Dark Mode' }}</span>
       </button>
     </mat-menu>

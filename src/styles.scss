@@ -31,11 +31,30 @@
 }
 
 // Base styles
-  html, body {
-    height: 100%;
-    margin: 0;
-    font-family: Roboto, "Helvetica Neue", sans-serif;
-  }
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+// Accessibility: Enhanced focus indicators
+*:focus-visible {
+  outline: 2px solid #3f51b5;
+  outline-offset: 2px;
+}
+
+.dark-mode *:focus-visible {
+  outline-color: #7986cb;
+}
+
+// Remove default focus outline when using mouse (focus-visible handles keyboard)
+button:focus:not(:focus-visible),
+a:focus:not(:focus-visible),
+input:focus:not(:focus-visible),
+select:focus:not(:focus-visible),
+textarea:focus:not(:focus-visible) {
+  outline: none;
+}
 
 // Toast styling
 .toast-success .mdc-snackbar__surface {

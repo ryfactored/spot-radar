@@ -43,6 +43,7 @@
     "@angular/cli": "^21.1.0",
     "@angular/compiler-cli": "^21.1.0",
     "@angular/material": "^21.1.0",
+    "@axe-core/playwright": "^4.11.0",
     "@playwright/test": "^1.57.0",
     "jsdom": "^27.1.0",
     "typescript": "~5.9.2",

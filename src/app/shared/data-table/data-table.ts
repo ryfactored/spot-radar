@@ -26,14 +26,16 @@ export interface ColumnDef<T = any> {
               <mat-checkbox
                 (change)="$event ? toggleAllRows() : null"
                 [checked]="selection.hasValue() && isAllSelected()"
-                [indeterminate]="selection.hasValue() && !isAllSelected()">
+                [indeterminate]="selection.hasValue() && !isAllSelected()"
+                aria-label="Select all rows">
               </mat-checkbox>
             </th>
-            <td mat-cell *matCellDef="let row">
+            <td mat-cell *matCellDef="let row; let i = index">
               <mat-checkbox
                 (click)="$event.stopPropagation()"
                 (change)="$event ? selection.toggle(row) : null"
-                [checked]="selection.isSelected(row)">
+                [checked]="selection.isSelected(row)"
+                [attr.aria-label]="'Select row ' + (i + 1)">
               </mat-checkbox>
             </td>
           </ng-container>

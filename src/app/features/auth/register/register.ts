@@ -41,8 +41,10 @@ import { SocialLoginButton, PasswordStrength, matchValidator } from '@shared';
 
       <mat-form-field appearance="outline" class="full-width" subscriptSizing="fixed">
         <mat-label>Password</mat-label>
-        <input matInput formControlName="password" [type]="showPassword() ? 'text' : 'password'">
-        <button mat-icon-button matSuffix type="button" (click)="showPassword.set(!showPassword())">
+        <input matInput formControlName="password" [type]="showPassword() ? 'text' : 'password'"
+               aria-describedby="password-requirements">
+        <button mat-icon-button matSuffix type="button" (click)="showPassword.set(!showPassword())"
+                [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'">
           <mat-icon>{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
         </button>
         @if (form.controls.password.hasError('required')) {
@@ -52,12 +54,13 @@ import { SocialLoginButton, PasswordStrength, matchValidator } from '@shared';
           <mat-error>Password must be at least 8 characters</mat-error>
         }
       </mat-form-field>
-      <app-password-strength [password]="passwordValue()" />
+      <app-password-strength [password]="passwordValue()" id="password-requirements" />
 
       <mat-form-field appearance="outline" class="full-width" subscriptSizing="fixed">
         <mat-label>Confirm Password</mat-label>
         <input matInput formControlName="confirmPassword" [type]="showConfirmPassword() ? 'text' : 'password'">
-        <button mat-icon-button matSuffix type="button" (click)="showConfirmPassword.set(!showConfirmPassword())">
+        <button mat-icon-button matSuffix type="button" (click)="showConfirmPassword.set(!showConfirmPassword())"
+                [attr.aria-label]="showConfirmPassword() ? 'Hide password' : 'Show password'">
           <mat-icon>{{ showConfirmPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
         </button>
         @if (form.controls.confirmPassword.hasError('required')) {
@@ -69,11 +72,11 @@ import { SocialLoginButton, PasswordStrength, matchValidator } from '@shared';
       </mat-form-field>
 
       @if (error) {
-        <p class="error">{{ error }}</p>
+        <p class="error" role="alert">{{ error }}</p>
       }
 
       @if (success) {
-        <p class="success">{{ success }}</p>
+        <p class="success" role="status">{{ success }}</p>
       }
 
       <button mat-raised-button color="primary" class="full-width" type="submit" [disabled]="loading">

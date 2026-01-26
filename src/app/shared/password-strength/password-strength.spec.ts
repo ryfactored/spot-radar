@@ -44,7 +44,7 @@ describe('PasswordStrength', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     const label = fixture.nativeElement.querySelector('.strength-label');
-    expect(label.textContent.trim()).toBe('Weak');
+    expect(label.textContent.trim()).toBe('Password strength: Weak');
     expect(label.classList.contains('weak')).toBe(true);
   });
 
@@ -54,7 +54,7 @@ describe('PasswordStrength', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     const label = fixture.nativeElement.querySelector('.strength-label');
-    expect(label.textContent.trim()).toBe('Fair');
+    expect(label.textContent.trim()).toBe('Password strength: Fair');
   });
 
   it('should show good for 12-14 char password', async () => {
@@ -63,7 +63,7 @@ describe('PasswordStrength', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     const label = fixture.nativeElement.querySelector('.strength-label');
-    expect(label.textContent.trim()).toBe('Good');
+    expect(label.textContent.trim()).toBe('Password strength: Good');
   });
 
   it('should show strong for 15+ char password', async () => {
@@ -72,7 +72,7 @@ describe('PasswordStrength', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     const label = fixture.nativeElement.querySelector('.strength-label');
-    expect(label.textContent.trim()).toBe('Strong');
+    expect(label.textContent.trim()).toBe('Password strength: Strong');
     expect(label.classList.contains('strong')).toBe(true);
   });
 
