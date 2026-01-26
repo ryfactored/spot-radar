@@ -12,8 +12,8 @@ export interface PasswordStrengthResult {
   selector: 'app-password-strength',
   standalone: true,
   template: `
-    <div class="password-strength">
-      <div class="strength-bar">
+    <div class="password-strength" aria-live="polite" aria-atomic="true">
+      <div class="strength-bar" aria-hidden="true">
         @for (segment of [1, 2, 3, 4]; track segment) {
           <div
             class="segment"
@@ -26,7 +26,9 @@ export interface PasswordStrengthResult {
         }
       </div>
       <span class="strength-label" [class]="strength().level" [class.hidden]="!password()">
-        {{ strength().label }}
+        @if (password()) {
+          Password strength: {{ strength().label }}
+        }
       </span>
     </div>
   `,

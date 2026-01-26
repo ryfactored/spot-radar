@@ -6,8 +6,8 @@ import { MatIconModule } from '@angular/material/icon';
   standalone: true,
   imports: [MatIconModule],
   template: `
-    <div class="empty-state">
-      <mat-icon>{{ icon() }}</mat-icon>
+    <div class="empty-state" role="status">
+      <mat-icon aria-hidden="true">{{ icon() }}</mat-icon>
       <h3>{{ title() }}</h3>
       @if (message()) {
         <p>{{ message() }}</p>

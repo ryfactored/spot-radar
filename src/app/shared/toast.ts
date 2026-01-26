@@ -13,6 +13,7 @@ export class ToastService {
       panelClass: ['toast-success'],
       horizontalPosition: 'end',
       verticalPosition: 'top',
+      politeness: 'polite',
     });
   }
 
@@ -22,6 +23,7 @@ export class ToastService {
       panelClass: ['toast-error'],
       horizontalPosition: 'end',
       verticalPosition: 'top',
+      politeness: 'assertive',
     });
   }
 
@@ -31,6 +33,7 @@ export class ToastService {
       panelClass: ['toast-info'],
       horizontalPosition: 'end',
       verticalPosition: 'top',
+      politeness: 'polite',
     });
   }
 }

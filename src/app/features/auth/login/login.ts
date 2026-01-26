@@ -40,7 +40,8 @@ import { SocialLoginButton } from '@shared';
       <mat-form-field appearance="outline" class="full-width" subscriptSizing="fixed">
         <mat-label>Password</mat-label>
         <input matInput formControlName="password" [type]="showPassword() ? 'text' : 'password'">
-        <button mat-icon-button matSuffix type="button" (click)="showPassword.set(!showPassword())">
+        <button mat-icon-button matSuffix type="button" (click)="showPassword.set(!showPassword())"
+                [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'">
           <mat-icon>{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
         </button>
         @if (form.controls.password.hasError('required')) {
@@ -49,7 +50,7 @@ import { SocialLoginButton } from '@shared';
       </mat-form-field>
 
       @if (error) {
-        <p class="error">{{ error }}</p>
+        <p class="error" role="alert">{{ error }}</p>
       }
 
       <button mat-raised-button color="primary" class="full-width" type="submit" [disabled]="loading">

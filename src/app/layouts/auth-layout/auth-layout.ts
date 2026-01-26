@@ -6,12 +6,12 @@ import { RouterOutlet } from '@angular/router';
   standalone: true,
   imports: [RouterOutlet],
   template: `
-    <div class="auth-container">
+    <main class="auth-container">
       <div class="auth-card">
         <h1 class="app-title">Angular Starter</h1>
         <router-outlet />
       </div>
-    </div>
+    </main>
   `,
   styles: `
     .auth-container {
