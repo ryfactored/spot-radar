@@ -46,30 +46,23 @@ export class AuthService {
   }
 
   async signUp(email: string, password: string) {
-    const { data, error } = await this.supabase.client.auth.signUp({
-      email,
-      password
-    });
+    const { data, error } = await this.supabase.client.auth.signUp({ email, password });
     if (error) throw mapToError(error);
     return data;
   }
 
   async signIn(email: string, password: string) {
-    const { data, error } = await this.supabase.client.auth.signInWithPassword({
-      email,
-      password
-    });
+    const { data, error } = await this.supabase.client.auth.signInWithPassword({ email, password });
     if (error) throw mapToError(error);
     return data;
   }
 
   async signInWithProvider(provider: SocialProvider) {
-    const { data, error } = await this.supabase.client.auth.signInWithOAuth({
+    const { error } = await this.supabase.client.auth.signInWithOAuth({
       provider: provider as Provider,
       options: { redirectTo: window.location.origin }
     });
     if (error) throw mapToError(error);
-    return data;
   }
 
   async signOut() {

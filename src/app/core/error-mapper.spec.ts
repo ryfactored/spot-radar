@@ -1,4 +1,4 @@
-import { mapError, mapToError } from './error-mapper';
+import { mapError, mapToError, unwrap, unwrapWithCount } from './error-mapper';
 
 describe('ErrorMapper', () => {
   describe('mapError', () => {
@@ -37,6 +37,47 @@ describe('ErrorMapper', () => {
       const result = mapToError({ code: 'invalid_credentials' });
       expect(result).toBeInstanceOf(Error);
       expect(result.message).toBe('Invalid email or password');
+    });
+  });
+
+  describe('unwrap', () => {
+    it('should return data when no error', () => {
+      const result = unwrap({ data: { id: 1, name: 'test' }, error: null });
+      expect(result).toEqual({ id: 1, name: 'test' });
+    });
+
+    it('should throw mapped error when error exists', () => {
+      expect(() => unwrap({ data: null, error: { code: 'invalid_credentials' } }))
+        .toThrow('Invalid email or password');
+    });
+
+    it('should throw generic error for unknown error codes', () => {
+      expect(() => unwrap({ data: null, error: { code: 'unknown' } }))
+        .toThrow('Something went wrong. Please try again.');
+    });
+  });
+
+  describe('unwrapWithCount', () => {
+    it('should return data and count when no error', () => {
+      const result = unwrapWithCount({
+        data: [{ id: 1 }, { id: 2 }],
+        error: null,
+        count: 10
+      });
+      expect(result).toEqual({ data: [{ id: 1 }, { id: 2 }], count: 10 });
+    });
+
+    it('should default count to 0 when null', () => {
+      const result = unwrapWithCount({ data: [], error: null, count: null });
+      expect(result.count).toBe(0);
+    });
+
+    it('should throw mapped error when error exists', () => {
+      expect(() => unwrapWithCount({
+        data: null,
+        error: { code: 'PGRST116' },
+        count: null
+      })).toThrow('The requested item was not found');
     });
   });
 });

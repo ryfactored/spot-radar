@@ -1,17 +1,23 @@
 import { Component, input, output, inject, computed } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { MatButtonModule } from '@angular/material/button';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { SocialProvider } from '@core';
 
 @Component({
   selector: 'app-social-login-button',
   standalone: true,
-  imports: [MatButtonModule],
+  imports: [MatButtonModule, MatProgressSpinnerModule],
   template: `
-    <button mat-stroked-button class="social-btn" [class]="provider()" (click)="clicked.emit()">
+    <button mat-stroked-button class="social-btn" [class]="provider()" [disabled]="loading()" (click)="clicked.emit()">
       <span class="btn-content">
-        <span class="icon" [innerHTML]="safeProviderIcon()"></span>
-        <span class="label">Continue with {{ providerLabel }}</span>
+        @if (loading()) {
+          <mat-spinner diameter="20"></mat-spinner>
+          <span class="label">Connecting...</span>
+        } @else {
+          <span class="icon" [innerHTML]="safeProviderIcon()"></span>
+          <span class="label">Continue with {{ providerLabel }}</span>
+        }
       </span>
     </button>
   `,
@@ -80,6 +86,7 @@ export class SocialLoginButton {
   private sanitizer = inject(DomSanitizer);
 
   provider = input.required<SocialProvider>();
+  loading = input(false);
   clicked = output<void>();
 
   safeProviderIcon = computed(() =>

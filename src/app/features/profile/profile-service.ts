@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { SupabaseService, AuthService, SUPABASE_ERRORS, mapToError } from '@core';
+import { SupabaseService, AuthService, SUPABASE_ERRORS, mapToError, unwrap } from '@core';
 
 export interface Profile {
   id: string;
@@ -39,7 +39,7 @@ export class ProfileService {
     const email = user?.email || '';
     const displayName = user?.user_metadata?.['full_name'] || email;
 
-    const { data, error } = await this.supabase.client
+    return unwrap(await this.supabase.client
       .from('profiles')
       .insert({
         id: userId,
@@ -47,21 +47,15 @@ export class ProfileService {
         display_name: displayName,
       })
       .select()
-      .single();
-
-    if (error) throw mapToError(error);
-    return data;
+      .single());
   }
 
   async updateProfile(userId: string, updates: Partial<Profile>): Promise<Profile> {
-    const { data, error } = await this.supabase.client
+    return unwrap(await this.supabase.client
       .from('profiles')
       .update({ ...updates, updated_at: new Date().toISOString() })
       .eq('id', userId)
       .select()
-      .single();
-
-    if (error) throw mapToError(error);
-    return data;
+      .single());
   }
 }
