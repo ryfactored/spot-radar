@@ -9,6 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { AuthService, SocialProvider } from '@core';
 import { SocialLoginButton, PasswordStrength, matchValidator } from '@shared';
+import { environment } from '@env';
 
 @Component({
   selector: 'app-register',
@@ -84,15 +85,14 @@ import { SocialLoginButton, PasswordStrength, matchValidator } from '@shared';
       </button>
     </form>
 
-    <mat-divider class="divider"></mat-divider>
-
-    <div class="social-buttons">
-      <app-social-login-button provider="google" [loading]="loadingProvider() === 'google'" (clicked)="signUpWithProvider('google')" />
-      <app-social-login-button provider="github" [loading]="loadingProvider() === 'github'" (clicked)="signUpWithProvider('github')" />
-      <app-social-login-button provider="discord" [loading]="loadingProvider() === 'discord'" (clicked)="signUpWithProvider('discord')" />
-      <app-social-login-button provider="spotify" [loading]="loadingProvider() === 'spotify'" (clicked)="signUpWithProvider('spotify')" />
-      <app-social-login-button provider="apple" [loading]="loadingProvider() === 'apple'" (clicked)="signUpWithProvider('apple')" />
-    </div>
+    @if (socialProviders.length > 0) {
+      <mat-divider class="divider"></mat-divider>
+      <div class="social-buttons">
+        @for (provider of socialProviders; track provider) {
+          <app-social-login-button [provider]="provider" [loading]="loadingProvider() === provider" (clicked)="signUpWithProvider(provider)" />
+        }
+      </div>
+    }
 
     <p class="footer">
       Already have an account? <a routerLink="/login">Sign in</a>
@@ -130,6 +130,7 @@ export class Register {
   loadingProvider = signal<SocialProvider | null>(null);
   error = '';
   success = '';
+  socialProviders = environment.socialProviders as unknown as SocialProvider[];
 
   constructor() {
     this.form.controls.password.valueChanges
