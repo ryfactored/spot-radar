@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { AuthService, SocialProvider } from '@core';
 import { SocialLoginButton } from '@shared';
+import { environment } from '@env';
 
 @Component({
   selector: 'app-login',
@@ -58,15 +59,14 @@ import { SocialLoginButton } from '@shared';
       </button>
     </form>
 
-    <mat-divider class="divider"></mat-divider>
-
-    <div class="social-buttons">
-      <app-social-login-button provider="google" [loading]="loadingProvider() === 'google'" (clicked)="loginWithProvider('google')" />
-      <app-social-login-button provider="github" [loading]="loadingProvider() === 'github'" (clicked)="loginWithProvider('github')" />
-      <app-social-login-button provider="discord" [loading]="loadingProvider() === 'discord'" (clicked)="loginWithProvider('discord')" />
-      <app-social-login-button provider="spotify" [loading]="loadingProvider() === 'spotify'" (clicked)="loginWithProvider('spotify')" />
-      <app-social-login-button provider="apple" [loading]="loadingProvider() === 'apple'" (clicked)="loginWithProvider('apple')" />
-    </div>
+    @if (socialProviders.length > 0) {
+      <mat-divider class="divider"></mat-divider>
+      <div class="social-buttons">
+        @for (provider of socialProviders; track provider) {
+          <app-social-login-button [provider]="provider" [loading]="loadingProvider() === provider" (clicked)="loginWithProvider(provider)" />
+        }
+      </div>
+    }
 
     <p class="footer">
       Don't have an account? <a routerLink="/register">Sign up</a>
@@ -96,6 +96,7 @@ export class Login {
   loading = false;
   loadingProvider = signal<SocialProvider | null>(null);
   error = '';
+  socialProviders = environment.socialProviders as unknown as SocialProvider[];
 
   async onSubmit() {
     if (this.form.invalid) return;
