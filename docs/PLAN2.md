@@ -32,8 +32,8 @@ The template includes:
 - **Authentication** - Email/password and OAuth (Google, GitHub, Spotify, Discord, Apple) via Supabase
 - **Theming** - Three color themes (Default, Ocean, Forest) with light/dark mode support
 - **Layouts** - Shell layout for authenticated users, public layout for guests
-- **Shared Components** - DataTable, SearchInput, ThemePicker, SocialLoginButton, Toast, ConfirmDialog, LoadingSpinner, EmptyState
-- **Test Coverage** - 114 unit tests across 33 test files, 14 E2E tests with Playwright
+- **Shared Components** - DataTable, SearchInput, ThemePicker, SocialLoginButton, Toast, ConfirmDialog, LoadingSpinner, EmptyState, SkeletonOverlay
+- **Test Coverage** - 122 unit tests across 34 test files, 14 E2E tests with Playwright
 
 Build: 1.48 MB initial | Tests: All passing
 
@@ -108,19 +108,67 @@ Build: 1.48 MB initial | Tests: All passing
 
 ---
 
-## Next Iterations
+### Iteration 16: Error Wrappers & Loading UX ✅
 
-### Iteration 16: Loading States & Skeletons
+**Goal:** Enforce error mapping pattern and improve loading states.
 
-**Goal:** Improve perceived performance with loading indicators.
+- [x] Add `unwrap()` / `unwrapWithCount()` helpers to enforce error mapping
+- [x] Migrate NotesService, ProfileService to use unwrap pattern
+- [x] Add `SkeletonOverlay` directive for loading states (replaces separate skeleton components)
+- [x] Add OAuth loading state (show feedback when provider button clicked)
+- [x] Profile uses toast notifications for success/error feedback
+- [x] Per-user preferences stored in localStorage (namespaced by user ID)
+- [x] Add `appName` to environment config
+- [x] Add tests for unwrap helpers (6 new tests)
 
-- [ ] Create skeleton loader components for common patterns
-- [ ] Add loading states to OAuth redirect flows
-- [ ] Implement optimistic UI updates for data mutations
-- [ ] Add page transition animations
-- [ ] Create skeleton variants for cards, tables, and lists
+**New helpers in `error-mapper.ts`:**
+```typescript
+unwrap<T>(result)        // Returns data or throws mapped error
+unwrapWithCount<T>(result) // Returns { data, count } or throws mapped error
+```
+
+**New `SkeletonOverlay` directive:**
+```html
+<!-- Apply shimmer overlay to any element while loading -->
+<mat-card [appSkeletonOverlay]="loading()">
+  ...real content structure...
+</mat-card>
+```
+- Shimmer animation on container via `::before` pseudo-element
+- Disables interaction (`pointer-events: none`)
+- Styles inputs/buttons as gray placeholders
+- Dark mode support
+- No separate skeleton components needed - uses real component structure
+
+**Per-user preferences:**
+- Storage key format: `angular-starter:preferences:{userId}`
+- Guests use default preferences (not persisted)
+- Preferences reload automatically on login/logout via effect watching `AuthService.currentUser()`
+
+**New files:**
+- `src/app/shared/skeleton-overlay/skeleton-overlay.ts` - Reusable loading overlay directive
+- `src/app/shared/skeleton-overlay/skeleton-overlay.spec.ts` - Unit tests
+
+**Files modified:**
+- `src/styles.scss` - Added `.skeleton-overlay` CSS with shimmer animation
+- `src/app/core/error-mapper.ts` - Added unwrap helpers
+- `src/app/core/preferences.ts` - Per-user localStorage with namespaced keys
+- `src/environments/environment.ts` - Added `appName`
+- `src/environments/environment.prod.ts` - Added `appName`
+- `src/app/features/notes/notes.ts` - Uses unwrap/unwrapWithCount
+- `src/app/features/profile/profile-service.ts` - Uses unwrap
+- `src/app/features/profile/profile.ts` - Uses SkeletonOverlay directive, toast for feedback
+- `src/app/shared/social-login-button/social-login-button.ts` - Added loading state
+- `src/app/features/auth/login/login.ts` - Tracks loading provider
+- `src/app/features/auth/register/register.ts` - Tracks loading provider
+
+**Note:** AuthService kept manual pattern due to Supabase auth's complex union types.
+
+**Tests:** 122 unit tests passing, 14 E2E tests passing
 
 ---
+
+## Next Iterations
 
 ### Iteration 17: Accessibility Audit
 

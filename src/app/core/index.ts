@@ -8,4 +8,4 @@ export { PreferencesService } from './preferences';
 export type { ColorTheme } from './preferences';
 export { GlobalErrorHandler } from './global-error-handler';
 export { httpErrorInterceptor } from './http-error-interceptor';
-export { mapError, mapToError } from './error-mapper';
+export { mapError, mapToError, unwrap, unwrapWithCount } from './error-mapper';

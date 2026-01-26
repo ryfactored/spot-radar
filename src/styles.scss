@@ -61,3 +61,94 @@
 .toast-info .mat-mdc-button {
   color: white !important;
 }
+
+// Skeleton Overlay
+.skeleton-overlay {
+  position: relative;
+  pointer-events: none;
+
+  // Shimmer animation overlay
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 25%,
+      rgba(255, 255, 255, 0.4) 50%,
+      transparent 75%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.5s infinite;
+    z-index: 10;
+    border-radius: inherit;
+  }
+
+  // Hide text content
+  h1, h2, h3, h4, h5, h6, p, span, label {
+    color: transparent !important;
+  }
+
+  // Style inputs as skeleton placeholders
+  input, textarea, select {
+    background: #e0e0e0 !important;
+    border-color: transparent !important;
+    color: transparent !important;
+
+    &::placeholder {
+      color: transparent !important;
+    }
+  }
+
+  // Style buttons as skeleton
+  button {
+    background: #e0e0e0 !important;
+    color: transparent !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+  }
+
+  // Mat form field overrides
+  .mat-mdc-form-field {
+    .mdc-text-field--outlined .mdc-notched-outline__leading,
+    .mdc-text-field--outlined .mdc-notched-outline__notch,
+    .mdc-text-field--outlined .mdc-notched-outline__trailing {
+      border-color: transparent !important;
+    }
+
+    .mat-mdc-form-field-flex {
+      background: #e0e0e0 !important;
+      border-radius: 4px;
+    }
+
+    .mdc-floating-label {
+      color: transparent !important;
+    }
+  }
+}
+
+// Dark mode support
+.dark-mode .skeleton-overlay {
+  &::before {
+    background: linear-gradient(
+      90deg,
+      transparent 25%,
+      rgba(255, 255, 255, 0.1) 50%,
+      transparent 75%
+    );
+    background-size: 200% 100%;
+  }
+
+  input, textarea, select, button {
+    background: #333 !important;
+  }
+
+  .mat-mdc-form-field .mat-mdc-form-field-flex {
+    background: #333 !important;
+  }
+}
+
+@keyframes skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}

@@ -47,3 +47,34 @@ export function mapError(error: unknown): { message: string } {
 export function mapToError(error: unknown): Error {
   return new Error(mapError(error).message);
 }
+
+/**
+ * Unwraps a Supabase result, throwing a mapped error if one exists.
+ * Use this to ensure all Supabase errors are user-friendly.
+ *
+ * @example
+ * // Before (3 lines)
+ * const { data, error } = await client.from('notes').select('*');
+ * if (error) throw mapToError(error);
+ * return data;
+ *
+ * // After (1 line)
+ * return unwrap(await client.from('notes').select('*'));
+ */
+export function unwrap<T>(result: { data: T | null; error: unknown }): T {
+  if (result.error) throw mapToError(result.error);
+  return result.data as T;
+}
+
+/**
+ * Unwraps a Supabase result that includes count (for paginated queries).
+ *
+ * @example
+ * return unwrapWithCount(await client.from('notes').select('*', { count: 'exact' }));
+ */
+export function unwrapWithCount<T>(
+  result: { data: T | null; error: unknown; count: number | null }
+): { data: T; count: number } {
+  if (result.error) throw mapToError(result.error);
+  return { data: result.data as T, count: result.count ?? 0 };
+}

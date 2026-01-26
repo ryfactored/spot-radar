@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { SupabaseService, AuthService, mapToError } from '@core';
+import { SupabaseService, AuthService, unwrap, unwrapWithCount } from '@core';
 
 export interface Note {
   id: string;
@@ -45,27 +45,22 @@ export class NotesService {
       query = query.ilike('title', `%${search}%`);
     }
 
-    const { data, error, count } = await query;
-    if (error) throw mapToError(error);
-    return { data: data || [], count: count || 0 };
+    return unwrapWithCount<Note[]>(await query);
   }
 
   async get(id: string): Promise<Note | null> {
-    const { data, error } = await this.supabase.client
+    return unwrap(await this.supabase.client
       .from('notes')
       .select('*')
       .eq('id', id)
-      .single();
-
-    if (error) throw mapToError(error);
-    return data;
+      .single());
   }
 
   async create(note: { title: string; content?: string }): Promise<Note> {
     const user = this.auth.currentUser();
     if (!user) throw new Error('Please sign in to continue');
 
-    const { data, error } = await this.supabase.client
+    return unwrap(await this.supabase.client
       .from('notes')
       .insert({
         user_id: user.id,
@@ -73,30 +68,22 @@ export class NotesService {
         content: note.content || null,
       })
       .select()
-      .single();
-
-    if (error) throw mapToError(error);
-    return data;
+      .single());
   }
 
   async update(id: string, updates: { title?: string; content?: string }): Promise<Note> {
-    const { data, error } = await this.supabase.client
+    return unwrap(await this.supabase.client
       .from('notes')
       .update({ ...updates, updated_at: new Date().toISOString() })
       .eq('id', id)
       .select()
-      .single();
-
-    if (error) throw mapToError(error);
-    return data;
+      .single());
   }
 
   async delete(id: string): Promise<void> {
-    const { error } = await this.supabase.client
+    unwrap(await this.supabase.client
       .from('notes')
       .delete()
-      .eq('id', id);
-
-    if (error) throw mapToError(error);
+      .eq('id', id));
   }
 }

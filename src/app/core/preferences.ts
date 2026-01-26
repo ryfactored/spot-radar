@@ -1,4 +1,6 @@
-import { Injectable, signal, effect } from '@angular/core';
+import { Injectable, inject, signal, effect } from '@angular/core';
+import { AuthService } from './auth';
+import { environment } from '../../environments/environment';
 
 export type ColorTheme = 'default' | 'ocean' | 'forest';
 
@@ -8,8 +10,6 @@ export interface UserPreferences {
   sidenavOpened: boolean;
 }
 
-const STORAGE_KEY = 'user_preferences';
-
 const DEFAULT_PREFERENCES: UserPreferences = {
   colorTheme: 'default',
   darkMode: false,
@@ -18,22 +18,19 @@ const DEFAULT_PREFERENCES: UserPreferences = {
 
 /**
  * User preferences service with automatic localStorage persistence.
+ * Preferences are stored per-user using the user's ID as a namespace.
  *
- * Demonstrates the Angular effect() pattern for side effects:
- * - The effect() automatically tracks signal dependencies
- * - Runs whenever the preferences signal changes
- * - Persists state to localStorage without manual subscriptions
+ * Storage key: `{appName}:preferences:{userId}`
  *
- * This pattern is ideal for:
- * - Auto-saving form drafts
- * - Syncing state with external systems
- * - Analytics tracking
+ * On auth state change, preferences are reloaded for the new user.
+ * Guests use default preferences (not persisted).
  */
 @Injectable({
   providedIn: 'root'
 })
 export class PreferencesService {
-  private preferences = signal<UserPreferences>(this.loadFromStorage());
+  private auth = inject(AuthService);
+  private preferences = signal<UserPreferences>(DEFAULT_PREFERENCES);
 
   // Expose individual preferences as readonly signals
   readonly colorTheme = () => this.preferences().colorTheme;
@@ -44,23 +41,37 @@ export class PreferencesService {
   readonly theme = () => this.preferences().darkMode ? 'dark' : 'light';
 
   constructor() {
-    // Auto-save to localStorage whenever preferences change
+    // Reload preferences when user changes (login/logout)
     effect(() => {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(this.preferences()));
+      const user = this.auth.currentUser();
+      this.preferences.set(this.loadFromStorage(user?.id));
+    });
+
+    // Auto-save to localStorage whenever preferences change (only for authenticated users)
+    effect(() => {
+      const prefs = this.preferences();
+      const key = this.getStorageKey();
+      if (key) {
+        localStorage.setItem(key, JSON.stringify(prefs));
+      }
     });
   }
 
-  private loadFromStorage(): UserPreferences {
+  private getStorageKey(): string | null {
+    const userId = this.auth.currentUser()?.id;
+    return userId
+      ? `${environment.appName}:preferences:${userId}`
+      : null;
+  }
+
+  private loadFromStorage(userId?: string): UserPreferences {
+    if (!userId) return DEFAULT_PREFERENCES;
+
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
+      const key = `${environment.appName}:preferences:${userId}`;
+      const stored = localStorage.getItem(key);
       if (stored) {
-        const parsed = JSON.parse(stored);
-        // Migration: convert old 'theme' to new 'darkMode'
-        if ('theme' in parsed && !('darkMode' in parsed)) {
-          parsed.darkMode = parsed.theme === 'dark';
-          delete parsed.theme;
-        }
-        return { ...DEFAULT_PREFERENCES, ...parsed };
+        return { ...DEFAULT_PREFERENCES, ...JSON.parse(stored) };
       }
     } catch {
       // Invalid JSON, use defaults

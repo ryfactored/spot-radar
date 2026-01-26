@@ -14,3 +14,4 @@ export { SearchInput } from './search-input/search-input';
 export { PasswordStrength } from './password-strength/password-strength';
 export type { StrengthLevel, PasswordStrengthResult } from './password-strength/password-strength';
 export { matchValidator } from './validators/match.validator';
+export { SkeletonOverlay } from './skeleton-overlay/skeleton-overlay';

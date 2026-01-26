@@ -60,11 +60,11 @@ import { SocialLoginButton } from '@shared';
     <mat-divider class="divider"></mat-divider>
 
     <div class="social-buttons">
-      <app-social-login-button provider="google" (clicked)="loginWithProvider('google')" />
-      <app-social-login-button provider="github" (clicked)="loginWithProvider('github')" />
-      <app-social-login-button provider="discord" (clicked)="loginWithProvider('discord')" />
-      <app-social-login-button provider="spotify" (clicked)="loginWithProvider('spotify')" />
-      <app-social-login-button provider="apple" (clicked)="loginWithProvider('apple')" />
+      <app-social-login-button provider="google" [loading]="loadingProvider() === 'google'" (clicked)="loginWithProvider('google')" />
+      <app-social-login-button provider="github" [loading]="loadingProvider() === 'github'" (clicked)="loginWithProvider('github')" />
+      <app-social-login-button provider="discord" [loading]="loadingProvider() === 'discord'" (clicked)="loginWithProvider('discord')" />
+      <app-social-login-button provider="spotify" [loading]="loadingProvider() === 'spotify'" (clicked)="loginWithProvider('spotify')" />
+      <app-social-login-button provider="apple" [loading]="loadingProvider() === 'apple'" (clicked)="loginWithProvider('apple')" />
     </div>
 
     <p class="footer">
@@ -93,6 +93,7 @@ export class Login {
 
   showPassword = signal(false);
   loading = false;
+  loadingProvider = signal<SocialProvider | null>(null);
   error = '';
 
   async onSubmit() {
@@ -112,10 +113,14 @@ export class Login {
   }
 
   async loginWithProvider(provider: SocialProvider) {
+    this.loadingProvider.set(provider);
+    this.error = '';
     try {
       await this.auth.signInWithProvider(provider);
+      // Note: OAuth redirects away, so we won't reach here on success
     } catch (err: any) {
       this.error = err.message || 'Social login failed';
+      this.loadingProvider.set(null);
     }
   }
 }

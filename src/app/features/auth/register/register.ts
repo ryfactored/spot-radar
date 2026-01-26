@@ -84,11 +84,11 @@ import { SocialLoginButton, PasswordStrength, matchValidator } from '@shared';
     <mat-divider class="divider"></mat-divider>
 
     <div class="social-buttons">
-      <app-social-login-button provider="google" (clicked)="signUpWithProvider('google')" />
-      <app-social-login-button provider="github" (clicked)="signUpWithProvider('github')" />
-      <app-social-login-button provider="discord" (clicked)="signUpWithProvider('discord')" />
-      <app-social-login-button provider="spotify" (clicked)="signUpWithProvider('spotify')" />
-      <app-social-login-button provider="apple" (clicked)="signUpWithProvider('apple')" />
+      <app-social-login-button provider="google" [loading]="loadingProvider() === 'google'" (clicked)="signUpWithProvider('google')" />
+      <app-social-login-button provider="github" [loading]="loadingProvider() === 'github'" (clicked)="signUpWithProvider('github')" />
+      <app-social-login-button provider="discord" [loading]="loadingProvider() === 'discord'" (clicked)="signUpWithProvider('discord')" />
+      <app-social-login-button provider="spotify" [loading]="loadingProvider() === 'spotify'" (clicked)="signUpWithProvider('spotify')" />
+      <app-social-login-button provider="apple" [loading]="loadingProvider() === 'apple'" (clicked)="signUpWithProvider('apple')" />
     </div>
 
     <p class="footer">
@@ -124,6 +124,7 @@ export class Register {
   showConfirmPassword = signal(false);
   passwordValue = signal('');
   loading = false;
+  loadingProvider = signal<SocialProvider | null>(null);
   error = '';
   success = '';
 
@@ -150,10 +151,14 @@ export class Register {
   }
 
   async signUpWithProvider(provider: SocialProvider) {
+    this.loadingProvider.set(provider);
+    this.error = '';
     try {
       await this.auth.signInWithProvider(provider);
+      // Note: OAuth redirects away, so we won't reach here on success
     } catch (err: any) {
       this.error = err.message || 'Social login failed';
+      this.loadingProvider.set(null);
     }
   }
 }
