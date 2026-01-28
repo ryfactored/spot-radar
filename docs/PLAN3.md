@@ -40,9 +40,11 @@ The template includes:
 - Prettier reformatted files for consistency (line length, trailing commas, line endings)
 
 **New files:**
+
 - `eslint.config.js` — ESLint configuration
 
 **New npm scripts:**
+
 - `npm run lint` — Run ESLint
 - `npm run format:check` — Verify Prettier formatting
 
