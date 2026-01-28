@@ -287,14 +287,86 @@ unwrapWithCount<T>(result) // Returns { data, count } or throws mapped error
 
 ### Iteration 20: CI/CD Improvements
 
-**Goal:** Automate quality checks and deployment.
+**Goal:** Automate quality checks on pull requests.
 
-- [ ] Add GitHub Actions workflow for PR checks
-- [ ] Run linting on PR
-- [ ] Run unit tests on PR
-- [ ] Run E2E tests on PR
-- [ ] Add automated deployment to staging for PRs
-- [ ] Add production deployment on merge to main
+**Why:** Right now, the only way to know if a change breaks something is to manually run `npm run build`, `npm test`, and `npm run e2e` locally. Contributors may forget, skip steps, or have different local environments that mask issues. A CI pipeline catches regressions automatically on every push and PR — broken builds, failing tests, and coverage drops are flagged before code is merged. This protects `main` from accidental breakage and gives confidence that the codebase is always in a working state.
+
+#### Tasks
+
+- [ ] Create `.github/workflows/ci.yml` — single workflow file that runs on every push to `main` and on pull requests. This is the standard approach for GitHub-hosted projects.
+- [ ] Run build verification (`npm run build`) — catches TypeScript errors, missing imports, and Angular template issues that unit tests may miss.
+- [ ] Run unit tests with coverage (`npm run test:coverage`) — ensures all 163 tests pass and coverage stays above 80%. Coverage report is uploaded as an artifact for review.
+- [ ] Run E2E tests (`npm run e2e`) — validates real browser behavior (navigation, form validation, accessibility, visual regression). Auth-dependent tests are automatically skipped since CI won't have test credentials.
+- [ ] Cache npm dependencies — `node_modules` is cached between runs to avoid re-downloading ~200 MB of packages on every commit.
+- [ ] Upload test artifacts — coverage report and Playwright HTML report are saved as downloadable artifacts so reviewers can inspect failures without re-running locally.
+
+#### Workflow: `.github/workflows/ci.yml`
+
+```yaml
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Unit tests
+        run: npm run test:coverage
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: E2E tests
+        run: npx playwright test --project=chromium
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+```
+
+#### Vercel Deployment
+
+Vercel handles deployment automatically once the GitHub repo is connected:
+
+- **Preview deployments** — every PR gets a unique preview URL automatically, no config needed. This replaces the need for a manual "deploy to staging" step.
+- **Production deployment** — merging to `main` triggers a production deploy automatically.
+
+Vercel auto-detects Angular and configures the build command, output directory, and SPA routing. No `vercel.json` is needed — the CI workflow focuses only on quality checks, and Vercel handles the rest independently.
+
+#### Notes
+
+- E2E tests will run without `TEST_USER_EMAIL`/`TEST_USER_PASSWORD`, so authenticated tests are skipped in CI
+- Visual regression tests may need `--update-snapshots` on first CI run (Linux vs Windows font rendering differs)
+- Consider adding Playwright's `--project=chromium` to speed up CI
 
 ---
 

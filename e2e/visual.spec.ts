@@ -17,6 +17,8 @@ import { test, expect } from '@playwright/test';
  */
 
 test.describe('Visual Regression', () => {
+  test.skip(!!process.env['CI'], 'Visual regression tests are skipped in CI (platform-dependent baselines)');
+  
   test('login page', async ({ page }) => {
     await page.goto('/login');
     // Wait for fonts and animations to settle
