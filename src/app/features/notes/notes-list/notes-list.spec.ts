@@ -18,8 +18,22 @@ describe('NotesList', () => {
   let confirmDialogMock: any;
 
   const mockNotes: Note[] = [
-    { id: '1', user_id: 'u1', title: 'Note 1', content: 'Content 1', created_at: '2024-01-01', updated_at: '2024-01-01' },
-    { id: '2', user_id: 'u1', title: 'Note 2', content: 'Content 2', created_at: '2024-01-02', updated_at: '2024-01-02' },
+    {
+      id: '1',
+      user_id: 'u1',
+      title: 'Note 1',
+      content: 'Content 1',
+      created_at: '2024-01-01',
+      updated_at: '2024-01-01',
+    },
+    {
+      id: '2',
+      user_id: 'u1',
+      title: 'Note 2',
+      content: 'Content 2',
+      created_at: '2024-01-02',
+      updated_at: '2024-01-02',
+    },
   ];
 
   beforeEach(async () => {

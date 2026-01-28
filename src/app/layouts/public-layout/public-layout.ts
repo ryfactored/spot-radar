@@ -43,6 +43,6 @@ import { MatButtonModule } from '@angular/material/button';
     a[mat-button] {
       margin-right: 8px;
     }
-  `
+  `,
 })
 export class PublicLayout {}

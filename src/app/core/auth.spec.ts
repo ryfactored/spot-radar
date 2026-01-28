@@ -17,9 +17,7 @@ describe('AuthService', () => {
     };
 
     TestBed.configureTestingModule({
-      providers: [
-        { provide: SupabaseService, useValue: supabaseMock },
-      ],
+      providers: [{ provide: SupabaseService, useValue: supabaseMock }],
     });
     service = TestBed.inject(AuthService);
   });

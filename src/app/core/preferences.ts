@@ -26,7 +26,7 @@ const DEFAULT_PREFERENCES: UserPreferences = {
  * Guests use default preferences (not persisted).
  */
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class PreferencesService {
   private auth = inject(AuthService);
@@ -38,7 +38,7 @@ export class PreferencesService {
   readonly sidenavOpened = () => this.preferences().sidenavOpened;
 
   // Legacy support: theme() returns 'light' or 'dark' based on darkMode
-  readonly theme = () => this.preferences().darkMode ? 'dark' : 'light';
+  readonly theme = () => (this.preferences().darkMode ? 'dark' : 'light');
 
   constructor() {
     // Reload preferences when user changes (login/logout)
@@ -59,9 +59,7 @@ export class PreferencesService {
 
   private getStorageKey(): string | null {
     const userId = this.auth.currentUser()?.id;
-    return userId
-      ? `${environment.appName}:preferences:${userId}`
-      : null;
+    return userId ? `${environment.appName}:preferences:${userId}` : null;
   }
 
   private loadFromStorage(userId?: string): UserPreferences {
@@ -80,17 +78,17 @@ export class PreferencesService {
   }
 
   setColorTheme(colorTheme: ColorTheme) {
-    this.preferences.update(prefs => ({ ...prefs, colorTheme }));
+    this.preferences.update((prefs) => ({ ...prefs, colorTheme }));
   }
 
   setDarkMode(darkMode: boolean) {
-    this.preferences.update(prefs => ({ ...prefs, darkMode }));
+    this.preferences.update((prefs) => ({ ...prefs, darkMode }));
   }
 
   toggleDarkMode() {
-    this.preferences.update(prefs => ({
+    this.preferences.update((prefs) => ({
       ...prefs,
-      darkMode: !prefs.darkMode
+      darkMode: !prefs.darkMode,
     }));
   }
 
@@ -100,13 +98,13 @@ export class PreferencesService {
   }
 
   setSidenavOpened(opened: boolean) {
-    this.preferences.update(prefs => ({ ...prefs, sidenavOpened: opened }));
+    this.preferences.update((prefs) => ({ ...prefs, sidenavOpened: opened }));
   }
 
   toggleSidenav() {
-    this.preferences.update(prefs => ({
+    this.preferences.update((prefs) => ({
       ...prefs,
-      sidenavOpened: !prefs.sidenavOpened
+      sidenavOpened: !prefs.sidenavOpened,
     }));
   }
 }

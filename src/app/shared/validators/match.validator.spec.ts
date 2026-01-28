@@ -10,7 +10,7 @@ describe('matchValidator', () => {
         password: ['test123'],
         confirmPassword: ['test123'],
       },
-      { validators: matchValidator('password', 'confirmPassword') }
+      { validators: matchValidator('password', 'confirmPassword') },
     );
 
     expect(form.errors).toBeNull();
@@ -23,7 +23,7 @@ describe('matchValidator', () => {
         password: ['test123'],
         confirmPassword: ['different'],
       },
-      { validators: matchValidator('password', 'confirmPassword') }
+      { validators: matchValidator('password', 'confirmPassword') },
     );
 
     expect(form.errors).toEqual({ mismatch: true });
@@ -36,7 +36,7 @@ describe('matchValidator', () => {
         password: ['test123'],
         confirmPassword: [''],
       },
-      { validators: matchValidator('password', 'confirmPassword') }
+      { validators: matchValidator('password', 'confirmPassword') },
     );
 
     expect(form.errors).toBeNull();
@@ -48,7 +48,7 @@ describe('matchValidator', () => {
         password: ['test123'],
         confirmPassword: ['different'],
       },
-      { validators: matchValidator('password', 'confirmPassword') }
+      { validators: matchValidator('password', 'confirmPassword') },
     );
 
     expect(form.get('confirmPassword')?.hasError('mismatch')).toBe(true);
@@ -64,7 +64,7 @@ describe('matchValidator', () => {
       {
         password: ['test123'],
       },
-      { validators: matchValidator('password', 'nonexistent') }
+      { validators: matchValidator('password', 'nonexistent') },
     );
 
     expect(form.errors).toBeNull();

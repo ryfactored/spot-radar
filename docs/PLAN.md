@@ -8,25 +8,30 @@
 Before writing code, we ensure all tools are installed and accounts are ready. Skipping this leads to frustrating errors mid-development. This iteration is about setting up a solid foundation.
 
 ### 0.1 Verify Node.js
+
 - [ ] Run `node --version`
 - [ ] Ensure Node.js 20.x or 22.x is installed
 - [ ] If not, install from https://nodejs.org
 
 ### 0.2 Verify/Install Angular CLI
+
 - [ ] Run `ng version` to check current version
 - [ ] If not installed or not v21: `npm install -g @angular/cli@21`
 - [ ] Re-run `ng version` to confirm Angular CLI 21.x.x
 
 ### 0.3 Verify Git
+
 - [ ] Run `git --version`
 - [ ] Ensure git is installed and configured
 
 ### 0.4 Accounts Ready
+
 - [ ] GitHub account (you have this - repo exists)
 - [ ] Vercel account at https://vercel.com (sign up with GitHub)
 - [ ] Supabase account at https://supabase.com (for later iterations)
 
 ### 0.5 VS Code Extensions
+
 Install these extensions for the best Angular development experience.
 
 **Essential:**
@@ -61,21 +66,25 @@ Install these extensions for the best Angular development experience.
 A fresh Angular 21 application with routing enabled and SCSS for styling. We'll deploy it immediately to establish a CI/CD pipeline from day one - every push auto-deploys. This "always deployable" approach catches issues early.
 
 ### 1.1 Create Angular App
+
 - [ ] Run `ng new angular-template --directory . --style scss --routing --ssr false`
 - [ ] Wait for installation to complete
 
 ### 1.2 Verify Locally
+
 - [ ] Run `ng serve`
 - [ ] Open http://localhost:4200
 - [ ] Confirm Angular welcome page loads
 - [ ] Stop server with Ctrl+C
 
 ### 1.3 Push to GitHub
+
 - [ ] Run `git add .`
 - [ ] Run `git commit -m "Initialize Angular 21 app"`
 - [ ] Run `git push`
 
 ### 1.4 Deploy to Vercel
+
 - [ ] Go to https://vercel.com
 - [ ] Click "Add New Project"
 - [ ] Import `angular-template` repository
@@ -84,6 +93,7 @@ A fresh Angular 21 application with routing enabled and SCSS for styling. We'll 
 - [ ] Wait for build to complete
 
 ### 1.5 Preview
+
 - [ ] Open Vercel preview URL
 - [ ] Confirm Angular welcome page loads
 - [ ] Copy URL for reference
@@ -94,18 +104,21 @@ A fresh Angular 21 application with routing enabled and SCSS for styling. We'll 
 The visual foundation of the app. Angular Material provides pre-built, accessible UI components following Material Design. We'll create a "shell" layout (sidebar + toolbar) that wraps authenticated pages. This establishes the look and feel users will interact with throughout the app.
 
 ### 2.1 Install Angular Material
+
 - [ ] Run `ng add @angular/material`
 - [ ] Select: Theme → Custom
 - [ ] Select: Typography → Yes
 - [ ] Select: Animations → Yes
 
 ### 2.2 Configure Custom Theme
+
 - [ ] Edit `src/styles.scss` with custom light/dark theme
 - [ ] Define primary palette (indigo)
 - [ ] Define accent palette (pink)
 - [ ] Add `.dark-theme` class for dark mode
 
 ### 2.3 Create Project Structure
+
 - [ ] Create `src/app/core/` folder
 - [ ] Create `src/app/shared/` folder
 - [ ] Create `src/app/features/` folder
@@ -120,6 +133,7 @@ The visual foundation of the app. Angular Material provides pre-built, accessibl
 | `layouts/` | Page layouts (shell with sidebar, auth layout, etc.) |
 
 ### 2.4 Create Shell Layout Component
+
 - [ ] Run `ng generate component layouts/shell --standalone`
 - [ ] Add Material imports (Toolbar, Sidenav, List, Icon, Button)
 - [ ] Create shell template with sidebar and toolbar
@@ -127,16 +141,18 @@ The visual foundation of the app. Angular Material provides pre-built, accessibl
 
 **What is a shell layout?**
 The "shell" is the main app wrapper that stays constant while inner content changes. It contains:
+
 - **Toolbar**: Top bar with menu button, app title, user actions
 - **Sidenav**: Collapsible sidebar for navigation
 - **Content area**: Where routed pages render via `<router-outlet>`
 
 **Note on Angular 21 naming:**
+
 - **Filenames** are simplified: `shell.ts` instead of `shell.component.ts`
 - **Class names** can still be descriptive: `ShellComponent`, `Profile`
 
-
 **shell.ts:**
+
 ```typescript
 import { Component } from '@angular/core';
 import { RouterOutlet, RouterLink } from '@angular/router';
@@ -151,7 +167,7 @@ import { MatButtonModule } from '@angular/material/button';
   standalone: true,
   imports: [
     RouterOutlet,
-    RouterLink,      // Required for routerLink directives in template
+    RouterLink, // Required for routerLink directives in template
     MatToolbarModule,
     MatSidenavModule,
     MatListModule,
@@ -159,7 +175,7 @@ import { MatButtonModule } from '@angular/material/button';
     MatButtonModule,
   ],
   templateUrl: './shell.html',
-  styleUrl: './shell.scss'
+  styleUrl: './shell.scss',
 })
 export class Shell {
   sidenavOpened = true;
@@ -167,6 +183,7 @@ export class Shell {
 ```
 
 **shell.html:**
+
 ```html
 <mat-sidenav-container class="shell-container">
   <mat-sidenav #sidenav mode="side" [opened]="sidenavOpened">
@@ -202,6 +219,7 @@ export class Shell {
 ```
 
 **shell.scss:**
+
 ```scss
 .shell-container {
   height: 100vh;
@@ -221,26 +239,31 @@ mat-sidenav {
 ```
 
 **Why these choices:**
+
 - `mode="side"` keeps sidenav always visible on desktop (vs `over` which overlays)
 - `#sidenav` template reference lets the toolbar button toggle it
 - `routerLink` for navigation (will work once routing is set up)
 - `.spacer` with `flex: 1 1 auto` pushes the user icon to the right
 
 ### 2.5 Create Dashboard Placeholder
+
 - [ ] Run `ng generate component features/dashboard --standalone`
 
 ### 2.6 Update Routing
+
 - [ ] Edit `src/app/app.routes.ts`
 - [ ] Add ShellComponent as parent route
 - [ ] Add lazy-loaded dashboard child route
 
 ### 2.7 Verify Locally
+
 - [ ] Run `ng serve`
 - [ ] Open http://localhost:4200
 - [ ] Confirm shell layout displays (sidebar + toolbar)
 - [ ] Test sidebar toggle button
 
 ### 2.8 Push & Deploy
+
 - [ ] Run `git add .`
 - [ ] Run `git commit -m "Add Angular Material and shell layout"`
 - [ ] Run `git push`
@@ -253,6 +276,7 @@ mat-sidenav {
 The backend connection. Supabase is a "Backend as a Service" that provides a PostgreSQL database, authentication, and real-time subscriptions out of the box. Instead of building our own server, we connect directly from Angular to Supabase's APIs. This dramatically speeds up development.
 
 ### 3.1 Create Supabase Project
+
 - [ ] Go to https://supabase.com
 - [ ] Sign in / create account
 - [ ] Click "New Project"
@@ -263,34 +287,40 @@ The backend connection. Supabase is a "Backend as a Service" that provides a Pos
 - [ ] Wait for project to provision (~2 minutes)
 
 ### 3.2 Get API Credentials
+
 - [ ] Go to Project Settings → API
 - [ ] Copy the **Project URL** (e.g., `https://xxxxx.supabase.co`)
 - [ ] Copy the **anon public** key (safe to expose in frontend)
 
 ### 3.3 Install Supabase JS Client
+
 - [ ] Run `npm install @supabase/supabase-js`
 
 ### 3.4 Configure Environment Variables
+
 - [ ] Create `src/environments/environment.ts`
 - [ ] Create `src/environments/environment.prod.ts`
 - [ ] Add Supabase URL and anon key to both
 
 **environment.ts:**
+
 ```typescript
 export const environment = {
   production: false,
   supabaseUrl: 'YOUR_PROJECT_URL',
-  supabaseAnonKey: 'YOUR_ANON_KEY'
+  supabaseAnonKey: 'YOUR_ANON_KEY',
 };
 ```
 
 ### 3.5 Create Supabase Error Constants
+
 - [ ] Create `src/app/core/supabase-errors.ts`
 
 **Why constants?**
 Avoid hardcoded strings scattered throughout the codebase. Named constants are self-documenting, easier to find, and prevent typos.
 
 **supabase-errors.ts:**
+
 ```typescript
 export const SUPABASE_ERRORS = {
   NO_ROWS_FOUND: 'PGRST116',
@@ -301,26 +331,25 @@ export const SUPABASE_ERRORS = {
 ```
 
 ### 3.6 Create Supabase Service
+
 - [ ] Run `ng generate service core/supabase`
 - [ ] Initialize Supabase client in service
 
 **supabase.service.ts (or supabase.ts):**
+
 ```typescript
 import { Injectable } from '@angular/core';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { environment } from '../../environments/environment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class SupabaseService {
   private supabase: SupabaseClient;
 
   constructor() {
-    this.supabase = createClient(
-      environment.supabaseUrl,
-      environment.supabaseAnonKey
-    );
+    this.supabase = createClient(environment.supabaseUrl, environment.supabaseAnonKey);
   }
 
   get client(): SupabaseClient {
@@ -330,11 +359,13 @@ export class SupabaseService {
 ```
 
 ### 3.6 Test Connection
+
 - [ ] Inject SupabaseService into Dashboard component
 - [ ] Log client to console to verify initialization
 - [ ] Run `ng serve` and check browser console
 
 ### 3.7 Push & Deploy
+
 - [ ] Run `git add .`
 - [ ] Run `git commit -m "Add Supabase integration"`
 - [ ] Run `git push`
@@ -347,6 +378,7 @@ export class SupabaseService {
 User authentication - the ability to sign up, log in, and log out. Supabase Auth handles the heavy lifting (password hashing, session tokens, OAuth flows). We create an Angular service to wrap Supabase's auth methods, plus guards to protect routes. By the end, only logged-in users can access the dashboard.
 
 ### 4.1 Create Auth Service
+
 - [ ] Run `ng generate service core/auth`
 - [ ] Implement signup, login, logout, and session methods
 
@@ -354,6 +386,7 @@ User authentication - the ability to sign up, log in, and log out. Supabase Auth
 A centralized place for all authentication logic. Uses Angular signals (`currentUser`, `loading`) for reactive state - components automatically update when auth state changes. Wraps Supabase auth methods so the rest of the app doesn't need to know about Supabase directly.
 
 **auth.ts:**
+
 ```typescript
 import { Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
@@ -361,7 +394,7 @@ import { SupabaseService } from './supabase';
 import { User } from '@supabase/supabase-js';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
   private supabase = inject(SupabaseService);
@@ -392,7 +425,7 @@ export class AuthService {
   async signUp(email: string, password: string) {
     const { data, error } = await this.supabase.client.auth.signUp({
       email,
-      password
+      password,
     });
     if (error) throw error;
     return data;
@@ -401,7 +434,7 @@ export class AuthService {
   async signIn(email: string, password: string) {
     const { data, error } = await this.supabase.client.auth.signInWithPassword({
       email,
-      password
+      password,
     });
     if (error) throw error;
     return data;
@@ -410,7 +443,7 @@ export class AuthService {
   async signInWithGoogle() {
     const { data, error } = await this.supabase.client.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: window.location.origin }
+      options: { redirectTo: window.location.origin },
     });
     if (error) throw error;
     return data;
@@ -419,7 +452,7 @@ export class AuthService {
   async signInWithGithub() {
     const { data, error } = await this.supabase.client.auth.signInWithOAuth({
       provider: 'github',
-      options: { redirectTo: window.location.origin }
+      options: { redirectTo: window.location.origin },
     });
     if (error) throw error;
     return data;
@@ -433,6 +466,7 @@ export class AuthService {
 ```
 
 ### 4.2 Enable Auth Providers in Supabase
+
 - [ ] Go to Supabase Dashboard → Authentication → Providers
 - [ ] Email is enabled by default
 - [ ] Enable Google (requires Google Cloud OAuth credentials)
@@ -486,6 +520,7 @@ export class AuthService {
 10. Save
 
 ### 4.3 Create Auth Guard
+
 - [ ] Run `ng generate guard core/auth --functional`
 - [ ] Protect routes that require authentication
 
@@ -494,14 +529,15 @@ Guards are functions that run before a route loads. They decide "can this user a
 
 **RxJS Operators used in guards:**
 
-| Operator | What it does |
-|----------|--------------|
-| `toObservable()` | Converts an Angular signal to an RxJS observable stream |
-| `filter(fn)` | Only passes values that match condition (like Array.filter) |
-| `take(1)` | Takes first matching value then auto-unsubscribes |
-| `map(fn)` | Transforms the value into something else (like Array.map) |
+| Operator         | What it does                                                |
+| ---------------- | ----------------------------------------------------------- |
+| `toObservable()` | Converts an Angular signal to an RxJS observable stream     |
+| `filter(fn)`     | Only passes values that match condition (like Array.filter) |
+| `take(1)`        | Takes first matching value then auto-unsubscribes           |
+| `map(fn)`        | Transforms the value into something else (like Array.map)   |
 
 **How the guard flow works:**
+
 ```
 Signal: loading = true → false
                          ↓
@@ -515,6 +551,7 @@ map() ─────────────────→ returns true (allow
 Without `take(1)`, the observable keeps listening forever. With it, we get a one-time auth check that cleans itself up.
 
 **auth-guard.ts:**
+
 ```typescript
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
@@ -529,25 +566,27 @@ export const authGuard = () => {
   // Wait for auth to finish loading before checking user
   // This prevents race conditions on OAuth redirects
   return toObservable(auth.loading).pipe(
-    filter(loading => !loading),
+    filter((loading) => !loading),
     take(1),
     map(() => {
       if (auth.currentUser()) {
         return true;
       }
       return router.parseUrl('/login');
-    })
+    }),
   );
 };
 ```
 
 ### 4.4 Create Guest Guard
+
 - [ ] Redirect logged-in users away from auth pages
 
 **Why a guest guard?**
 The opposite of authGuard. If a user is already logged in and tries to visit /login or /register, redirect them to /dashboard. No point showing login forms to someone already authenticated.
 
 **guest-guard.ts:**
+
 ```typescript
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
@@ -561,19 +600,20 @@ export const guestGuard = () => {
 
   // Wait for auth to finish loading before checking user
   return toObservable(auth.loading).pipe(
-    filter(loading => !loading),
+    filter((loading) => !loading),
     take(1),
     map(() => {
       if (!auth.currentUser()) {
         return true;
       }
       return router.parseUrl('/dashboard');
-    })
+    }),
   );
 };
 ```
 
 ### 4.5 Test Auth Service
+
 - [ ] Inject AuthService into Dashboard
 - [ ] Add temporary signup/login buttons for testing
 - [ ] Configure Supabase redirect URLs
@@ -598,11 +638,15 @@ Supabase needs to know where to redirect after auth completes.
 4. Save
 
 The `window.location.origin` in AuthService automatically uses the correct URL for dev vs production:
+
 ```typescript
-options: { redirectTo: window.location.origin }
+options: {
+  redirectTo: window.location.origin;
+}
 ```
 
 ### 4.6 Push & Deploy
+
 - [ ] Run `git add .`
 - [ ] Run `git commit -m "Add authentication service and guards"`
 - [ ] Run `git push`
@@ -614,6 +658,7 @@ options: { redirectTo: window.location.origin }
 The user-facing authentication pages. We've built the auth service (backend logic) - now we need the login and register forms users actually interact with. We'll create a separate "auth layout" (simple centered card) distinct from the main shell layout, plus proper routing with guards applied.
 
 ### 5.1 Create Auth Layout
+
 - [ ] Run `ng generate component layouts/auth-layout --standalone`
 - [ ] Simple centered layout for auth pages (no sidebar)
 
@@ -621,6 +666,7 @@ The user-facing authentication pages. We've built the auth service (backend logi
 The shell layout (sidebar + toolbar) is for authenticated users. Auth pages (login/register) need a simpler, centered design - no navigation since the user isn't logged in yet. Having two layouts lets us swap between them based on auth state.
 
 **auth-layout.ts:**
+
 ```typescript
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
@@ -649,7 +695,7 @@ import { RouterOutlet } from '@angular/router';
       background: white;
       padding: 40px;
       border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
       width: 100%;
       max-width: 400px;
     }
@@ -658,12 +704,13 @@ import { RouterOutlet } from '@angular/router';
       margin-bottom: 24px;
       color: #3f51b5;
     }
-  `
+  `,
 })
 export class AuthLayout {}
 ```
 
 ### 5.2 Create Login Page
+
 - [ ] Run `ng generate component features/auth/login --standalone`
 - [ ] Add email/password form with validation
 - [ ] Add Google sign-in button
@@ -671,12 +718,14 @@ export class AuthLayout {}
 
 **What this page does:**
 The login page is the entry point for returning users. It provides two auth methods:
+
 1. Email/password - traditional form-based login
 2. Google OAuth - one-click sign in (configured in Iteration 4)
 
 We use Angular Reactive Forms for validation (required fields, email format) and Material components for consistent styling.
 
 **login.ts:**
+
 ```typescript
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -706,7 +755,7 @@ import { AuthService } from '../../../core/auth';
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Email</mat-label>
-        <input matInput formControlName="email" type="email">
+        <input matInput formControlName="email" type="email" />
         @if (form.controls.email.hasError('required')) {
           <mat-error>Email is required</mat-error>
         }
@@ -717,7 +766,7 @@ import { AuthService } from '../../../core/auth';
 
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Password</mat-label>
-        <input matInput formControlName="password" type="password">
+        <input matInput formControlName="password" type="password" />
         @if (form.controls.password.hasError('required')) {
           <mat-error>Password is required</mat-error>
         }
@@ -727,7 +776,13 @@ import { AuthService } from '../../../core/auth';
         <p class="error">{{ error }}</p>
       }
 
-      <button mat-raised-button color="primary" class="full-width" type="submit" [disabled]="loading">
+      <button
+        mat-raised-button
+        color="primary"
+        class="full-width"
+        type="submit"
+        [disabled]="loading"
+      >
         {{ loading ? 'Signing in...' : 'Sign In' }}
       </button>
     </form>
@@ -739,20 +794,37 @@ import { AuthService } from '../../../core/auth';
       Continue with Google
     </button>
 
-    <p class="footer">
-      Don't have an account? <a routerLink="/register">Sign up</a>
-    </p>
+    <p class="footer">Don't have an account? <a routerLink="/register">Sign up</a></p>
   `,
   styles: `
-    h2 { text-align: center; margin-bottom: 24px; }
-    .full-width { width: 100%; }
-    mat-form-field { margin-bottom: 16px; }
-    .divider { margin: 24px 0; }
-    .google-btn { margin-bottom: 16px; }
-    .google-btn mat-icon { margin-right: 8px; }
-    .footer { text-align: center; margin-top: 16px; }
-    .error { color: #f44336; text-align: center; }
-  `
+    h2 {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .full-width {
+      width: 100%;
+    }
+    mat-form-field {
+      margin-bottom: 16px;
+    }
+    .divider {
+      margin: 24px 0;
+    }
+    .google-btn {
+      margin-bottom: 16px;
+    }
+    .google-btn mat-icon {
+      margin-right: 8px;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 16px;
+    }
+    .error {
+      color: #f44336;
+      text-align: center;
+    }
+  `,
 })
 export class Login {
   private fb = inject(FormBuilder);
@@ -790,12 +862,14 @@ export class Login {
 ```
 
 ### 5.3 Create Register Page
+
 - [ ] Run `ng generate component features/auth/register --standalone`
 - [ ] Add email/password form with confirm password
 - [ ] Add link to login page
 
 **What this page does:**
 The register page lets new users create an account with email/password. It includes:
+
 - Confirm password field to prevent typos
 - Password length validation (Supabase requires 6+ characters)
 - Success message telling users to check email (Supabase sends confirmation emails by default)
@@ -803,6 +877,7 @@ The register page lets new users create an account with email/password. It inclu
 After registration, Supabase handles email verification automatically.
 
 **register.ts:**
+
 ```typescript
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -815,20 +890,14 @@ import { AuthService } from '../../../core/auth';
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    RouterLink,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-  ],
+  imports: [ReactiveFormsModule, RouterLink, MatFormFieldModule, MatInputModule, MatButtonModule],
   template: `
     <h2>Create Account</h2>
 
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Email</mat-label>
-        <input matInput formControlName="email" type="email">
+        <input matInput formControlName="email" type="email" />
         @if (form.controls.email.hasError('required')) {
           <mat-error>Email is required</mat-error>
         }
@@ -839,7 +908,7 @@ import { AuthService } from '../../../core/auth';
 
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Password</mat-label>
-        <input matInput formControlName="password" type="password">
+        <input matInput formControlName="password" type="password" />
         @if (form.controls.password.hasError('required')) {
           <mat-error>Password is required</mat-error>
         }
@@ -850,7 +919,7 @@ import { AuthService } from '../../../core/auth';
 
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Confirm Password</mat-label>
-        <input matInput formControlName="confirmPassword" type="password">
+        <input matInput formControlName="confirmPassword" type="password" />
         @if (form.controls.confirmPassword.hasError('required')) {
           <mat-error>Please confirm your password</mat-error>
         }
@@ -864,23 +933,43 @@ import { AuthService } from '../../../core/auth';
         <p class="success">{{ success }}</p>
       }
 
-      <button mat-raised-button color="primary" class="full-width" type="submit" [disabled]="loading">
+      <button
+        mat-raised-button
+        color="primary"
+        class="full-width"
+        type="submit"
+        [disabled]="loading"
+      >
         {{ loading ? 'Creating account...' : 'Sign Up' }}
       </button>
     </form>
 
-    <p class="footer">
-      Already have an account? <a routerLink="/login">Sign in</a>
-    </p>
+    <p class="footer">Already have an account? <a routerLink="/login">Sign in</a></p>
   `,
   styles: `
-    h2 { text-align: center; margin-bottom: 24px; }
-    .full-width { width: 100%; }
-    mat-form-field { margin-bottom: 16px; }
-    .footer { text-align: center; margin-top: 16px; }
-    .error { color: #f44336; text-align: center; }
-    .success { color: #4caf50; text-align: center; }
-  `
+    h2 {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .full-width {
+      width: 100%;
+    }
+    mat-form-field {
+      margin-bottom: 16px;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 16px;
+    }
+    .error {
+      color: #f44336;
+      text-align: center;
+    }
+    .success {
+      color: #4caf50;
+      text-align: center;
+    }
+  `,
 })
 export class Register {
   private fb = inject(FormBuilder);
@@ -921,11 +1010,13 @@ export class Register {
 ```
 
 ### 5.4 Update Routing
+
 - [ ] Add auth layout with login/register routes
 - [ ] Apply guards to routes
 
 **What we're configuring:**
 The routing ties everything together:
+
 - Shell layout (with authGuard) wraps protected pages - only accessible when logged in
 - Auth layout (with guestGuard) wraps login/register - only accessible when logged out
 - Guards automatically redirect users to the right place based on auth state
@@ -933,6 +1024,7 @@ The routing ties everything together:
 This creates a seamless flow: unauthenticated users always land on /login, and logging in takes them to /dashboard.
 
 **Updated app.routes.ts:**
+
 ```typescript
 import { Routes } from '@angular/router';
 import { Shell } from './layouts/shell/shell';
@@ -949,9 +1041,9 @@ export const routes: Routes = [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       {
         path: 'dashboard',
-        loadComponent: () => import('./features/dashboard/dashboard').then(m => m.Dashboard)
-      }
-    ]
+        loadComponent: () => import('./features/dashboard/dashboard').then((m) => m.Dashboard),
+      },
+    ],
   },
   {
     path: '',
@@ -960,18 +1052,19 @@ export const routes: Routes = [
     children: [
       {
         path: 'login',
-        loadComponent: () => import('./features/auth/login/login').then(m => m.Login)
+        loadComponent: () => import('./features/auth/login/login').then((m) => m.Login),
       },
       {
         path: 'register',
-        loadComponent: () => import('./features/auth/register/register').then(m => m.Register)
-      }
-    ]
-  }
+        loadComponent: () => import('./features/auth/register/register').then((m) => m.Register),
+      },
+    ],
+  },
 ];
 ```
 
 ### 5.5 Test Auth Flow
+
 - [ ] Run `ng serve`
 - [ ] Verify redirect to /login when not authenticated
 - [ ] Test login with Google
@@ -980,6 +1073,7 @@ export const routes: Routes = [
 - [ ] Test logout redirects to /login
 
 ### 5.6 Push & Deploy
+
 - [ ] Run `git add .`
 - [ ] Run `git commit -m "Add auth UI with login and register pages"`
 - [ ] Run `git push`
@@ -991,6 +1085,7 @@ export const routes: Routes = [
 A user profile system. Supabase Auth gives us basic user info (email, id), but we need a `profiles` table to store additional data (display name, avatar, bio). We'll create the database table, a profile service, and UI pages to view/edit profile info.
 
 ### 6.1 Create Profiles Table in Supabase
+
 - [ ] Go to Supabase Dashboard → SQL Editor
 - [ ] Run SQL to create profiles table
 - [ ] Set up Row Level Security (RLS) policies
@@ -1003,32 +1098,36 @@ Supabase Auth stores authentication data (email, password hash, tokens). Custom 
 RLS makes the database check permissions on every row, not just the table.
 
 Without RLS:
+
 ```
 Anyone with the anon key can: SELECT * FROM profiles
 → Gets ALL users' data 😱
 ```
 
 With RLS:
+
 ```
 Same query, but database checks each row against policy
 → Only returns rows where auth.uid() = id (your data only) ✅
 ```
 
 **Policy breakdown:**
+
 ```sql
 CREATE POLICY "Users can read own profile"
   ON profiles FOR SELECT
   USING (auth.uid() = id);
 ```
 
-| Part | Meaning |
-|------|---------|
-| `FOR SELECT` | This policy applies to read operations |
-| `USING (...)` | Condition that must be true for each row |
-| `auth.uid()` | Supabase function returning current user's ID (from JWT) |
-| `= id` | Compare to the `id` column in profiles table |
+| Part          | Meaning                                                  |
+| ------------- | -------------------------------------------------------- |
+| `FOR SELECT`  | This policy applies to read operations                   |
+| `USING (...)` | Condition that must be true for each row                 |
+| `auth.uid()`  | Supabase function returning current user's ID (from JWT) |
+| `= id`        | Compare to the `id` column in profiles table             |
 
 **Visual example:**
+
 ```
 profiles table:
 ┌──────────────────────────┬─────────────┐
@@ -1043,6 +1142,7 @@ profiles table:
 The anon key is safe because RLS ensures users only see their own data.
 
 **Run this SQL in Supabase:**
+
 ```sql
 -- Create profiles table
 CREATE TABLE profiles (
@@ -1094,10 +1194,12 @@ CREATE TRIGGER on_auth_user_created
 ```
 
 ### 6.2 Create Profile Service
+
 - [ ] Run `ng generate service core/profile`
 - [ ] Add methods to get and update profile
 
 **profile.ts:**
+
 ```typescript
 import { Injectable, inject } from '@angular/core';
 import { SupabaseService } from './supabase';
@@ -1115,7 +1217,7 @@ export interface Profile {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ProfileService {
   private supabase = inject(SupabaseService);
@@ -1171,11 +1273,13 @@ export class ProfileService {
 ```
 
 **What changed:**
+
 - `getProfile` now checks for error code `PGRST116` (no rows found)
 - If no profile exists, it auto-creates one using data from the auth user
 - This handles users who signed up before the trigger was created
 
 ### 6.3 Create Profile Page
+
 - [ ] Run `ng generate component features/profile --standalone`
 - [ ] Display current user profile info
 - [ ] Add edit form
@@ -1184,6 +1288,7 @@ export class ProfileService {
 Displays the user's profile with an editable form. Loads profile data on init, allows updates, and shows loading/error states.
 
 **profile.ts:**
+
 ```typescript
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -1220,12 +1325,12 @@ import { ProfileService, Profile as UserProfile } from '../../core/profile';
           <form [formGroup]="form" (ngSubmit)="onSubmit()">
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Email</mat-label>
-              <input matInput formControlName="email" readonly>
+              <input matInput formControlName="email" readonly />
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Display Name</mat-label>
-              <input matInput formControlName="display_name">
+              <input matInput formControlName="display_name" />
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="full-width">
@@ -1246,12 +1351,22 @@ import { ProfileService, Profile as UserProfile } from '../../core/profile';
     }
   `,
   styles: `
-    .full-width { width: 100%; }
-    mat-form-field { margin-bottom: 16px; }
-    mat-card { max-width: 500px; }
-    .error { color: #f44336; }
-    .success { color: #4caf50; }
-  `
+    .full-width {
+      width: 100%;
+    }
+    mat-form-field {
+      margin-bottom: 16px;
+    }
+    mat-card {
+      max-width: 500px;
+    }
+    .error {
+      color: #f44336;
+    }
+    .success {
+      color: #4caf50;
+    }
+  `,
 })
 export class Profile implements OnInit {
   private auth = inject(AuthService);
@@ -1312,6 +1427,7 @@ export class Profile implements OnInit {
 ```
 
 ### 6.4 Add Profile Route
+
 - [ ] Add profile route to shell children
 - [ ] Update sidebar link
 
@@ -1319,6 +1435,7 @@ export class Profile implements OnInit {
 Adding /profile as a protected route inside the shell layout, so logged-in users can access it from the sidebar.
 
 **Update app.routes.ts** - add profile to the shell children:
+
 ```typescript
 {
   path: '',
@@ -1343,12 +1460,14 @@ Adding /profile as a protected route inside the shell layout, so logged-in users
 The sidebar already has a profile link from when we created the shell - it should work now.
 
 ### 6.5 Test Profile Flow
+
 - [ ] Login and navigate to /profile
 - [ ] Verify profile loads
 - [ ] Test updating display name and bio
 - [ ] Check data persists in Supabase
 
 ### 6.6 Push & Deploy
+
 - [ ] Run `git add .`
 - [ ] Run `git commit -m "Add user profile feature"`
 - [ ] Run `git push`
@@ -1360,6 +1479,7 @@ The sidebar already has a profile link from when we created the shell - it shoul
 Reusable UI components that wrap Angular Material with app-specific defaults. Instead of repeating Material imports and configurations everywhere, we create thin wrappers that enforce consistency. Also includes utility services for common UX patterns like dialogs and toasts.
 
 ### 7.1 Create Confirm Dialog Service
+
 - [ ] Create a reusable confirmation dialog for destructive actions
 
 **Why a dialog service?**
@@ -1368,6 +1488,7 @@ Instead of importing MatDialog and configuring it everywhere, we create a servic
 **Run:** `ng generate service shared/confirm-dialog`
 
 **confirm-dialog.ts:**
+
 ```typescript
 import { Injectable, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -1381,7 +1502,7 @@ export interface ConfirmDialogData {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ConfirmDialogService {
   private dialog = inject(MatDialog);
@@ -1394,7 +1515,7 @@ export class ConfirmDialogService {
         message: data.message,
         confirmText: data.confirmText || 'Confirm',
         cancelText: data.cancelText || 'Cancel',
-      }
+      },
     });
 
     return new Promise((resolve) => {
@@ -1407,9 +1528,11 @@ export class ConfirmDialogService {
 ```
 
 ### 7.2 Create Confirm Dialog Component
+
 - [ ] Run `ng generate component shared/confirm-dialog --standalone`
 
 **confirm-dialog.component.ts:**
+
 ```typescript
 import { Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -1429,7 +1552,7 @@ import { ConfirmDialogData } from '../confirm-dialog';
       <button mat-button (click)="onCancel()">{{ data.cancelText }}</button>
       <button mat-raised-button color="warn" (click)="onConfirm()">{{ data.confirmText }}</button>
     </mat-dialog-actions>
-  `
+  `,
 })
 export class ConfirmDialog {
   data = inject<ConfirmDialogData>(MAT_DIALOG_DATA);
@@ -1446,6 +1569,7 @@ export class ConfirmDialog {
 ```
 
 ### 7.3 Create Toast/Snackbar Service
+
 - [ ] Create a simple notification service for success/error messages
 
 **Why a toast service?**
@@ -1454,12 +1578,13 @@ Wraps MatSnackBar with sensible defaults. Instead of configuring duration and po
 **Run:** `ng generate service shared/toast`
 
 **toast.ts:**
+
 ```typescript
 import { Injectable, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ToastService {
   private snackBar = inject(MatSnackBar);
@@ -1523,11 +1648,13 @@ Note: CSS variables alone don't reliably override Angular Material's MDC snackba
 ```
 
 ### 7.4 Create Loading Spinner Component
+
 - [ ] Run `ng generate component shared/loading-spinner --standalone`
 
 **A reusable loading indicator with optional message.**
 
 **loading-spinner.ts:**
+
 ```typescript
 import { Component, input } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -1552,7 +1679,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
       gap: 16px;
       padding: 24px;
     }
-  `
+  `,
 })
 export class LoadingSpinner {
   diameter = input(40);
@@ -1561,11 +1688,13 @@ export class LoadingSpinner {
 ```
 
 ### 7.5 Create Empty State Component
+
 - [ ] Run `ng generate component shared/empty-state --standalone`
 
 **Displays a friendly message when lists are empty.**
 
 **empty-state.ts:**
+
 ```typescript
 import { Component, input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
@@ -1600,9 +1729,13 @@ import { MatIconModule } from '@angular/material/icon';
       margin-bottom: 16px;
       opacity: 0.5;
     }
-    h3 { margin: 0 0 8px; }
-    p { margin: 0; }
-  `
+    h3 {
+      margin: 0 0 8px;
+    }
+    p {
+      margin: 0;
+    }
+  `,
 })
 export class EmptyState {
   icon = input('inbox');
@@ -1612,6 +1745,7 @@ export class EmptyState {
 ```
 
 ### 7.6 Create Component Test Page
+
 - [ ] Create dedicated page to test and showcase shared components
 - [ ] Add route at `/components`
 - [ ] Add sidebar link
@@ -1622,6 +1756,7 @@ Keep the dashboard clean for actual app functionality. A dedicated component tes
 **Run:** `ng generate component features/component-test --standalone`
 
 **component-test.ts:**
+
 ```typescript
 import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -1680,16 +1815,27 @@ import { EmptyState } from '../../shared/empty-state/empty-state';
         <app-empty-state
           icon="folder_open"
           title="No projects yet"
-          message="Create your first project to get started">
+          message="Create your first project to get started"
+        >
         </app-empty-state>
       </mat-card-content>
     </mat-card>
   `,
   styles: `
-    .subtitle { color: #666; margin-bottom: 24px; }
-    .section { margin-bottom: 24px; max-width: 600px; }
-    .button-row { display: flex; gap: 12px; margin-top: 16px; }
-  `
+    .subtitle {
+      color: #666;
+      margin-bottom: 24px;
+    }
+    .section {
+      margin-bottom: 24px;
+      max-width: 600px;
+    }
+    .button-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 16px;
+    }
+  `,
 })
 export class ComponentTest {
   private confirmDialog = inject(ConfirmDialogService);
@@ -1712,7 +1858,7 @@ export class ComponentTest {
       title: 'Delete Item',
       message: 'Are you sure you want to delete this item? This cannot be undone.',
       confirmText: 'Delete',
-      cancelText: 'Cancel'
+      cancelText: 'Cancel',
     });
 
     if (confirmed) {
@@ -1725,6 +1871,7 @@ export class ComponentTest {
 ```
 
 **Add route to app.routes.ts** (inside Shell children):
+
 ```typescript
 {
   path: 'components',
@@ -1733,6 +1880,7 @@ export class ComponentTest {
 ```
 
 **Add sidebar link to shell.html:**
+
 ```html
 <a mat-list-item routerLink="/components">
   <mat-icon matListItemIcon>widgets</mat-icon>
@@ -1741,6 +1889,7 @@ export class ComponentTest {
 ```
 
 **Test checklist:**
+
 - [ ] Run `ng serve`
 - [ ] Navigate to `/components` from sidebar
 - [ ] Click "Success" → green notification appears top-right
@@ -1751,6 +1900,7 @@ export class ComponentTest {
 - [ ] Empty state displays with icon, title, and message
 
 ### 7.7 Push & Deploy
+
 - [ ] Run `git add .`
 - [ ] Run `git commit -m "Add shared components and services"`
 - [ ] Run `git push`
@@ -1762,6 +1912,7 @@ export class ComponentTest {
 A complete notes feature demonstrating all CRUD operations (Create, Read, Update, Delete). This serves as a reference pattern for any data-driven feature in the app. We'll use the shared components from Iteration 7 (toast notifications, confirm dialog, loading spinner, empty state) to create a polished user experience.
 
 ### 8.1 Create Notes Table in Supabase
+
 - [ ] Go to Supabase Dashboard → SQL Editor
 - [ ] Run SQL to create notes table with RLS policies
 
@@ -1769,6 +1920,7 @@ A complete notes feature demonstrating all CRUD operations (Create, Read, Update
 Notes are simple enough to understand quickly but complex enough to demonstrate real patterns: user ownership, timestamps, text content, and ordering.
 
 **Run this SQL in Supabase:**
+
 ```sql
 -- Create notes table
 CREATE TABLE notes (
@@ -1808,6 +1960,7 @@ CREATE POLICY "Users can delete own notes"
 ```
 
 ### 8.2 Create Notes Service
+
 - [ ] Run `ng generate service core/notes`
 - [ ] Implement CRUD methods with pagination and search
 
@@ -1815,6 +1968,7 @@ CREATE POLICY "Users can delete own notes"
 Encapsulates all notes data operations. Returns typed data, handles errors, and provides pagination support. The `list` method supports both pagination and search filtering.
 
 **notes.ts:**
+
 ```typescript
 import { Injectable, inject } from '@angular/core';
 import { SupabaseService } from './supabase';
@@ -1835,7 +1989,7 @@ export interface NotesResponse {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class NotesService {
   private supabase = inject(SupabaseService);
@@ -1902,10 +2056,7 @@ export class NotesService {
   }
 
   async delete(id: string): Promise<void> {
-    const { error } = await this.supabase.client
-      .from('notes')
-      .delete()
-      .eq('id', id);
+    const { error } = await this.supabase.client.from('notes').delete().eq('id', id);
 
     if (error) throw error;
   }
@@ -1913,6 +2064,7 @@ export class NotesService {
 ```
 
 ### 8.3 Create Notes List Component
+
 - [ ] Run `ng generate component features/notes/notes-list --standalone`
 - [ ] Display notes in a list/card layout
 - [ ] Add pagination controls
@@ -1923,6 +2075,7 @@ export class NotesService {
 The main notes page. Loads and displays notes with pagination, provides search filtering, and links to create/edit forms. Uses signals for reactive state management.
 
 **notes-list.ts:**
+
 ```typescript
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
@@ -1966,7 +2119,12 @@ import { EmptyState } from '../../../shared/empty-state/empty-state';
 
     <mat-form-field appearance="outline" class="search-field">
       <mat-label>Search notes</mat-label>
-      <input matInput [(ngModel)]="searchQuery" (keyup.enter)="search()" placeholder="Search by title...">
+      <input
+        matInput
+        [(ngModel)]="searchQuery"
+        (keyup.enter)="search()"
+        placeholder="Search by title..."
+      />
       <button mat-icon-button matSuffix (click)="search()">
         <mat-icon>search</mat-icon>
       </button>
@@ -1978,10 +2136,9 @@ import { EmptyState } from '../../../shared/empty-state/empty-state';
       <app-empty-state
         icon="note"
         title="No notes yet"
-        message="Create your first note to get started">
-        <button mat-raised-button color="primary" (click)="createNote()">
-          Create Note
-        </button>
+        message="Create your first note to get started"
+      >
+        <button mat-raised-button color="primary" (click)="createNote()">Create Note</button>
       </app-empty-state>
     } @else {
       <div class="notes-grid">
@@ -1989,7 +2146,7 @@ import { EmptyState } from '../../../shared/empty-state/empty-state';
           <mat-card class="note-card">
             <mat-card-header>
               <mat-card-title>{{ note.title }}</mat-card-title>
-              <mat-card-subtitle>{{ note.created_at | date:'medium' }}</mat-card-subtitle>
+              <mat-card-subtitle>{{ note.created_at | date: 'medium' }}</mat-card-subtitle>
             </mat-card-header>
             <mat-card-content>
               <p>{{ note.content || 'No content' }}</p>
@@ -2014,7 +2171,8 @@ import { EmptyState } from '../../../shared/empty-state/empty-state';
         [pageIndex]="currentPage() - 1"
         [pageSizeOptions]="[5, 10, 25]"
         (page)="onPageChange($event)"
-        showFirstLastButtons>
+        showFirstLastButtons
+      >
       </mat-paginator>
     }
   `,
@@ -2046,7 +2204,7 @@ import { EmptyState } from '../../../shared/empty-state/empty-state';
       -webkit-line-clamp: 3;
       -webkit-box-orient: vertical;
     }
-  `
+  `,
 })
 export class NotesList implements OnInit {
   private notesService = inject(NotesService);
@@ -2071,7 +2229,7 @@ export class NotesList implements OnInit {
       const response = await this.notesService.list(
         this.currentPage(),
         this.pageSize,
-        this.searchQuery
+        this.searchQuery,
       );
       this.notes.set(response.data);
       this.totalCount.set(response.count);
@@ -2106,7 +2264,7 @@ export class NotesList implements OnInit {
       title: 'Delete Note',
       message: `Are you sure you want to delete "${note.title}"? This cannot be undone.`,
       confirmText: 'Delete',
-      cancelText: 'Cancel'
+      cancelText: 'Cancel',
     });
 
     if (confirmed) {
@@ -2123,6 +2281,7 @@ export class NotesList implements OnInit {
 ```
 
 ### 8.4 Create Note Form Component
+
 - [ ] Run `ng generate component features/notes/note-form --standalone`
 - [ ] Handle both create and edit modes
 - [ ] Load existing note data for edit mode
@@ -2131,6 +2290,7 @@ export class NotesList implements OnInit {
 A single form component that handles both creating new notes and editing existing ones. The route parameter determines the mode - if there's an `id`, it's edit mode.
 
 **note-form.ts:**
+
 ```typescript
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -2165,7 +2325,7 @@ import { LoadingSpinner } from '../../../shared/loading-spinner/loading-spinner'
           <form [formGroup]="form" (ngSubmit)="onSubmit()">
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Title</mat-label>
-              <input matInput formControlName="title" placeholder="Enter note title">
+              <input matInput formControlName="title" placeholder="Enter note title" />
               @if (form.controls.title.hasError('required')) {
                 <mat-error>Title is required</mat-error>
               }
@@ -2173,13 +2333,18 @@ import { LoadingSpinner } from '../../../shared/loading-spinner/loading-spinner'
 
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Content</mat-label>
-              <textarea matInput formControlName="content" rows="6" placeholder="Enter note content"></textarea>
+              <textarea
+                matInput
+                formControlName="content"
+                rows="6"
+                placeholder="Enter note content"
+              ></textarea>
             </mat-form-field>
 
             <div class="actions">
               <button mat-button type="button" (click)="cancel()">Cancel</button>
               <button mat-raised-button color="primary" type="submit" [disabled]="saving()">
-                {{ saving() ? 'Saving...' : (isEditMode() ? 'Update' : 'Create') }}
+                {{ saving() ? 'Saving...' : isEditMode() ? 'Update' : 'Create' }}
               </button>
             </div>
           </form>
@@ -2188,16 +2353,22 @@ import { LoadingSpinner } from '../../../shared/loading-spinner/loading-spinner'
     }
   `,
   styles: `
-    .form-card { max-width: 600px; }
-    .full-width { width: 100%; }
-    mat-form-field { margin-bottom: 16px; }
+    .form-card {
+      max-width: 600px;
+    }
+    .full-width {
+      width: 100%;
+    }
+    mat-form-field {
+      margin-bottom: 16px;
+    }
     .actions {
       display: flex;
       justify-content: flex-end;
       gap: 8px;
       margin-top: 16px;
     }
-  `
+  `,
 })
 export class NoteForm implements OnInit {
   private route = inject(ActivatedRoute);
@@ -2270,10 +2441,12 @@ export class NoteForm implements OnInit {
 ```
 
 ### 8.5 Add Notes Routes
+
 - [ ] Add notes routes to app.routes.ts
 - [ ] Add notes link to shell sidebar
 
 **Update app.routes.ts** - add to Shell children:
+
 ```typescript
 {
   path: 'notes',
@@ -2290,6 +2463,7 @@ export class NoteForm implements OnInit {
 ```
 
 **Add sidebar link to shell.html:**
+
 ```html
 <a mat-list-item routerLink="/notes">
   <mat-icon matListItemIcon>note</mat-icon>
@@ -2298,6 +2472,7 @@ export class NoteForm implements OnInit {
 ```
 
 ### 8.6 Test CRUD Flow
+
 - [ ] Run `ng serve`
 - [ ] Navigate to `/notes` from sidebar
 - [ ] Verify empty state displays when no notes exist
@@ -2311,6 +2486,7 @@ export class NoteForm implements OnInit {
 - [ ] Test pagination (create 10+ notes)
 
 ### 8.7 Push & Deploy
+
 - [ ] Run `git add .`
 - [ ] Run `git commit -m "Add notes CRUD feature"`
 - [ ] Run `git push`
@@ -2322,6 +2498,7 @@ export class NoteForm implements OnInit {
 A structured approach to managing application state using Angular signals. We already use signals in AuthService - now we'll formalize the pattern with a preferences store that persists to localStorage. This gives users a consistent experience across sessions (theme preference, sidebar state, etc.).
 
 ### 9.1 Create Preferences Service
+
 - [ ] Run `ng generate service core/preferences`
 - [ ] Store user preferences with localStorage persistence
 
@@ -2329,6 +2506,7 @@ A structured approach to managing application state using Angular signals. We al
 Manages user preferences that should persist across sessions. Uses signals for reactivity and localStorage for persistence. The `effect()` function auto-saves to localStorage whenever preferences change.
 
 **preferences.ts:**
+
 ```typescript
 import { Injectable, signal, effect } from '@angular/core';
 
@@ -2345,7 +2523,7 @@ const DEFAULT_PREFERENCES: UserPreferences = {
 };
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class PreferencesService {
   private preferences = signal<UserPreferences>(this.loadFromStorage());
@@ -2374,24 +2552,24 @@ export class PreferencesService {
   }
 
   setTheme(theme: 'light' | 'dark') {
-    this.preferences.update(prefs => ({ ...prefs, theme }));
+    this.preferences.update((prefs) => ({ ...prefs, theme }));
   }
 
   toggleTheme() {
-    this.preferences.update(prefs => ({
+    this.preferences.update((prefs) => ({
       ...prefs,
-      theme: prefs.theme === 'light' ? 'dark' : 'light'
+      theme: prefs.theme === 'light' ? 'dark' : 'light',
     }));
   }
 
   setSidenavOpened(opened: boolean) {
-    this.preferences.update(prefs => ({ ...prefs, sidenavOpened: opened }));
+    this.preferences.update((prefs) => ({ ...prefs, sidenavOpened: opened }));
   }
 
   toggleSidenav() {
-    this.preferences.update(prefs => ({
+    this.preferences.update((prefs) => ({
       ...prefs,
-      sidenavOpened: !prefs.sidenavOpened
+      sidenavOpened: !prefs.sidenavOpened,
     }));
   }
 }
@@ -2405,6 +2583,7 @@ export class PreferencesService {
 | `update()` | Updates signal value based on previous value (immutable pattern) |
 
 ### 9.2 Apply Theme to Application
+
 - [ ] Update `app.component.ts` to apply theme class to body
 - [ ] Use the dark-theme class we defined in Iteration 2
 
@@ -2412,6 +2591,7 @@ export class PreferencesService {
 Watches the theme preference and applies the appropriate CSS class to the document body. The `effect()` runs whenever the theme signal changes.
 
 **Update app.component.ts:**
+
 ```typescript
 import { Component, inject, effect } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
@@ -2437,6 +2617,7 @@ export class AppComponent {
 ```
 
 ### 9.3 Update Shell to Use Preferences
+
 - [ ] Wire up sidenav state to preferences
 - [ ] Add theme toggle button to toolbar
 
@@ -2444,6 +2625,7 @@ export class AppComponent {
 The shell now remembers sidenav state across page reloads and provides a theme toggle button in the toolbar.
 
 **Update shell.ts:**
+
 ```typescript
 import { Component, inject } from '@angular/core';
 import { RouterOutlet, RouterLink } from '@angular/router';
@@ -2470,7 +2652,7 @@ import { AuthService } from '../../core/auth';
     MatTooltipModule,
   ],
   templateUrl: './shell.html',
-  styleUrl: './shell.scss'
+  styleUrl: './shell.scss',
 })
 export class Shell {
   preferences = inject(PreferencesService);
@@ -2491,6 +2673,7 @@ export class Shell {
 ```
 
 **Update shell.html:**
+
 ```html
 <mat-sidenav-container class="shell-container">
   <mat-sidenav #sidenav mode="side" [opened]="preferences.sidenavOpened()">
@@ -2521,7 +2704,11 @@ export class Shell {
       </button>
       <span>Angular Starter</span>
       <span class="spacer"></span>
-      <button mat-icon-button (click)="toggleTheme()" [matTooltip]="preferences.theme() === 'light' ? 'Dark mode' : 'Light mode'">
+      <button
+        mat-icon-button
+        (click)="toggleTheme()"
+        [matTooltip]="preferences.theme() === 'light' ? 'Dark mode' : 'Light mode'"
+      >
         <mat-icon>{{ preferences.theme() === 'light' ? 'dark_mode' : 'light_mode' }}</mat-icon>
       </button>
       <button mat-icon-button (click)="logout()" matTooltip="Logout">
@@ -2537,6 +2724,7 @@ export class Shell {
 ```
 
 ### 9.4 Create Notes Store (Optional Enhancement)
+
 - [ ] Create a store for caching notes data
 - [ ] Reduce API calls when navigating
 
@@ -2544,12 +2732,13 @@ export class Shell {
 Caches notes in memory so navigating away and back doesn't require a new API call. This is optional but demonstrates the store pattern for feature-specific state.
 
 **features/notes/notes-store.ts:**
+
 ```typescript
 import { Injectable, signal, computed } from '@angular/core';
 import { Note } from '../../core/notes';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class NotesStore {
   private notes = signal<Note[]>([]);
@@ -2586,19 +2775,17 @@ export class NotesStore {
   }
 
   addNote(note: Note) {
-    this.notes.update(notes => [note, ...notes]);
-    this.totalCount.update(count => count + 1);
+    this.notes.update((notes) => [note, ...notes]);
+    this.totalCount.update((count) => count + 1);
   }
 
   updateNote(updated: Note) {
-    this.notes.update(notes =>
-      notes.map(n => n.id === updated.id ? updated : n)
-    );
+    this.notes.update((notes) => notes.map((n) => (n.id === updated.id ? updated : n)));
   }
 
   removeNote(id: string) {
-    this.notes.update(notes => notes.filter(n => n.id !== id));
-    this.totalCount.update(count => count - 1);
+    this.notes.update((notes) => notes.filter((n) => n.id !== id));
+    this.totalCount.update((count) => count - 1);
   }
 
   setLoading(loading: boolean) {
@@ -2699,12 +2886,14 @@ async onSubmit() {
 ```
 
 ### 9.5 Test State Persistence
+
 - [ ] Run `ng serve`
 - [ ] Toggle dark mode → verify theme persists after refresh
 - [ ] Close sidenav → verify state persists after refresh
 - [ ] Check localStorage in DevTools (Application tab)
 
 ### 9.6 Push & Deploy
+
 - [ ] Run `git add .`
 - [ ] Run `git commit -m "Add state management with preferences"`
 - [ ] Run `git push`
@@ -2716,6 +2905,7 @@ async onSubmit() {
 A polished error handling system that catches unexpected errors and displays user-friendly messages. We'll also add loading skeletons for a smoother perceived loading experience (instead of just spinners).
 
 ### 10.1 Create Global Error Handler
+
 - [ ] Create custom ErrorHandler service
 - [ ] Display errors via toast notifications
 - [ ] Log errors for debugging
@@ -2726,6 +2916,7 @@ Angular's ErrorHandler catches all uncaught exceptions. We override it to show a
 **Run:** `ng generate service core/global-error-handler`
 
 **global-error-handler.ts:**
+
 ```typescript
 import { ErrorHandler, Injectable, inject, NgZone } from '@angular/core';
 import { ToastService } from '../shared/toast';
@@ -2754,6 +2945,7 @@ export class GlobalErrorHandler implements ErrorHandler {
 ```
 
 **Register in app.config.ts:**
+
 ```typescript
 import { ErrorHandler } from '@angular/core';
 import { GlobalErrorHandler } from './core/global-error-handler';
@@ -2762,7 +2954,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     // ... existing providers
     { provide: ErrorHandler, useClass: GlobalErrorHandler },
-  ]
+  ],
 };
 ```
 
@@ -2770,6 +2962,7 @@ export const appConfig: ApplicationConfig = {
 Errors might occur outside Angular's change detection zone. `zone.run()` ensures the toast triggers UI updates properly.
 
 ### 10.2 Create HTTP Error Interceptor
+
 - [ ] Create interceptor to handle HTTP errors consistently
 - [ ] Transform error responses into user-friendly messages
 
@@ -2779,6 +2972,7 @@ Catches HTTP errors (401, 403, 404, 500, etc.) and transforms them into consiste
 **Run:** `ng generate interceptor core/http-error --functional`
 
 **http-error.interceptor.ts:**
+
 ```typescript
 import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
@@ -2820,12 +3014,13 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
 
       toast.error(message);
       return throwError(() => new Error(message));
-    })
+    }),
   );
 };
 ```
 
 **Register in app.config.ts:**
+
 ```typescript
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { httpErrorInterceptor } from './core/http-error.interceptor';
@@ -2834,11 +3029,12 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideHttpClient(withInterceptors([httpErrorInterceptor])),
     // ... other providers
-  ]
+  ],
 };
 ```
 
 ### 10.3 Create Skeleton Loader Component
+
 - [ ] Run `ng generate component shared/skeleton --standalone`
 - [ ] Create flexible skeleton for text, cards, and avatars
 
@@ -2846,6 +3042,7 @@ export const appConfig: ApplicationConfig = {
 Skeleton loaders show placeholder shapes while content loads. They're better than spinners because they hint at the layout, reducing perceived load time.
 
 **skeleton.ts:**
+
 ```typescript
 import { Component, input } from '@angular/core';
 import { NgStyle } from '@angular/common';
@@ -2860,9 +3057,9 @@ import { NgStyle } from '@angular/common';
       [ngStyle]="{
         width: width(),
         height: height(),
-        borderRadius: variant() === 'circle' ? '50%' : radius()
-      }">
-    </div>
+        borderRadius: variant() === 'circle' ? '50%' : radius(),
+      }"
+    ></div>
   `,
   styles: `
     .skeleton {
@@ -2872,15 +3069,19 @@ import { NgStyle } from '@angular/common';
     }
 
     @keyframes shimmer {
-      0% { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
+      0% {
+        background-position: 200% 0;
+      }
+      100% {
+        background-position: -200% 0;
+      }
     }
 
     :host-context(.dark-theme) .skeleton {
       background: linear-gradient(90deg, #333 25%, #444 50%, #333 75%);
       background-size: 200% 100%;
     }
-  `
+  `,
 })
 export class Skeleton {
   width = input('100%');
@@ -2891,6 +3092,7 @@ export class Skeleton {
 ```
 
 **Usage examples:**
+
 ```html
 <!-- Text line -->
 <app-skeleton width="80%" height="1rem" />
@@ -2903,10 +3105,12 @@ export class Skeleton {
 ```
 
 ### 10.4 Create Note Card Skeleton
+
 - [ ] Run `ng generate component shared/note-card-skeleton --standalone`
 - [ ] Match the layout of actual note cards
 
 **note-card-skeleton.ts:**
+
 ```typescript
 import { Component } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
@@ -2935,34 +3139,45 @@ import { Skeleton } from '../skeleton/skeleton';
   `,
   styles: `
     .skeleton-card {
-      mat-card-header { margin-bottom: 16px; }
-      mat-card-content app-skeleton { margin-bottom: 8px; }
-      mat-card-actions { display: flex; gap: 8px; justify-content: flex-end; }
+      mat-card-header {
+        margin-bottom: 16px;
+      }
+      mat-card-content app-skeleton {
+        margin-bottom: 8px;
+      }
+      mat-card-actions {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+      }
     }
-  `
+  `,
 })
 export class NoteCardSkeleton {}
 ```
 
 ### 10.5 Update Notes List to Use Skeleton
+
 - [ ] Replace loading spinner with skeleton cards
 
 **Update notes-list.ts template:**
+
 ```html
 @if (loading()) {
-  <div class="notes-grid">
-    @for (i of [1, 2, 3, 4, 5, 6]; track i) {
-      <app-note-card-skeleton />
-    }
-  </div>
+<div class="notes-grid">
+  @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+  <app-note-card-skeleton />
+  }
+</div>
 } @else if (notes().length === 0) {
-  <!-- empty state -->
+<!-- empty state -->
 } @else {
-  <!-- actual notes -->
+<!-- actual notes -->
 }
 ```
 
 **Add import:**
+
 ```typescript
 import { NoteCardSkeleton } from '../../../shared/note-card-skeleton/note-card-skeleton';
 
@@ -2974,12 +3189,14 @@ imports: [
 ```
 
 ### 10.6 Test Error Handling
+
 - [ ] Run `ng serve`
 - [ ] Temporarily break an API call (wrong URL) → verify toast appears
 - [ ] Test HTTP error scenarios
 - [ ] Verify skeletons appear while loading notes
 
 ### 10.7 Push & Deploy
+
 - [ ] Run `git add .`
 - [ ] Run `git commit -m "Add error handling and skeleton loaders"`
 - [ ] Run `git push`
@@ -2991,31 +3208,37 @@ imports: [
 A comprehensive test suite covering services, components, and guards. Angular 21 uses the built-in `@angular/build:unit-test` runner with Vitest. We'll also set up Playwright for end-to-end testing.
 
 ### 11.1 Understand Current Test Setup
+
 - [x] Run `ng test` to verify tests work
 - [x] Review angular.json test configuration
 - [x] Install `@angular/animations` if not present (required for `NoopAnimationsModule`)
 
 **Angular 21 testing:**
+
 - Uses `@angular/build:unit-test` builder (replaces Karma)
 - Vitest for assertions (NOT Jasmine)
 - Tests run via Vitest's test runner
 
 **Important:** The Angular CLI may still generate spec files with Jasmine syntax (`jasmine.createSpyObj`, `done()` callbacks). You must convert these to Vitest syntax:
+
 - `jasmine.createSpyObj()` → `vi.fn()`
 - `done()` callbacks → `async/await`
 - `jasmine.createSpy()` → `vi.fn()`
 
 **Install animations (if needed):**
+
 ```bash
 npm install @angular/animations@21.1.0 --save --legacy-peer-deps
 ```
 
 **Run existing tests:**
+
 ```bash
 ng test
 ```
 
 ### 11.2 Write Service Tests (NotesService)
+
 - [x] Create `features/notes/notes.spec.ts`
 - [x] Mock Supabase client
 - [x] Test CRUD operations (15 tests)
@@ -3024,6 +3247,7 @@ ng test
 Services contain business logic. Testing them ensures your data operations work correctly without needing the actual database.
 
 **notes.spec.ts:**
+
 ```typescript
 import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
@@ -3097,6 +3321,7 @@ describe('NotesService', () => {
 ```
 
 ### 11.3 Write Component Tests (NotesList)
+
 - [x] Create `features/notes/notes-list/notes-list.spec.ts`
 - [x] Test component rendering
 - [x] Test user interactions (19 tests)
@@ -3105,6 +3330,7 @@ describe('NotesService', () => {
 Ensures UI renders correctly and user interactions trigger expected behavior.
 
 **notes-list.spec.ts:**
+
 ```typescript
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
@@ -3121,8 +3347,22 @@ describe('NotesList', () => {
   let fixture: ComponentFixture<NotesList>;
 
   const mockNotes = [
-    { id: '1', user_id: 'u1', title: 'Note 1', content: 'Content 1', created_at: '', updated_at: '' },
-    { id: '2', user_id: 'u1', title: 'Note 2', content: 'Content 2', created_at: '', updated_at: '' },
+    {
+      id: '1',
+      user_id: 'u1',
+      title: 'Note 1',
+      content: 'Content 1',
+      created_at: '',
+      updated_at: '',
+    },
+    {
+      id: '2',
+      user_id: 'u1',
+      title: 'Note 2',
+      content: 'Content 2',
+      created_at: '',
+      updated_at: '',
+    },
   ];
 
   beforeEach(async () => {
@@ -3187,11 +3427,13 @@ describe('NotesList', () => {
 ```
 
 ### 11.4 Write Guard Tests
+
 - [x] Create `core/auth-guard.spec.ts` (6 tests)
 - [x] Create `core/guest-guard.spec.ts` (6 tests)
 - [x] Test authenticated and unauthenticated scenarios
 
 **auth-guard.spec.ts:**
+
 ```typescript
 import { TestBed } from '@angular/core/testing';
 import { Router, UrlTree } from '@angular/router';
@@ -3203,7 +3445,7 @@ import { AuthService } from './auth';
 describe('authGuard', () => {
   function setupGuard(isAuthenticated: boolean) {
     const authMock = {
-      currentUser: signal(isAuthenticated ? { id: '123' } as any : null),
+      currentUser: signal(isAuthenticated ? ({ id: '123' } as any) : null),
       loading: signal(false),
     };
 
@@ -3241,11 +3483,13 @@ describe('authGuard', () => {
 ```
 
 ### 11.5 Run and Verify Unit Tests
+
 - [x] Run `ng test`
 - [x] Fix any failing tests
 - [x] All 72 tests passing
 
 **Useful commands:**
+
 ```bash
 ng test                    # Run tests in watch mode
 ng test --no-watch         # Run once and exit
@@ -3253,21 +3497,25 @@ ng test --code-coverage    # Generate coverage report
 ```
 
 ### 11.6 Set Up Playwright for E2E
+
 - [x] Install Playwright
 - [x] Configure for Angular
 
 **Install Playwright:**
+
 ```bash
 npm init playwright@latest
 ```
 
 Choose these options:
+
 - TypeScript: Yes
 - Tests folder: e2e
 - GitHub Actions: No (or Yes if you want CI)
 - Install browsers: Yes
 
 **Update playwright.config.ts:**
+
 ```typescript
 import { defineConfig, devices } from '@playwright/test';
 
@@ -3297,11 +3545,13 @@ export default defineConfig({
 ```
 
 ### 11.7 Write E2E Tests
+
 - [x] Create `e2e/auth.spec.ts` (5 tests)
 - [x] Create `e2e/navigation.spec.ts` (5 tests)
 - [x] Test auth pages and guard redirects
 
 **e2e/auth.spec.ts** - Tests login/register pages display correctly:
+
 ```typescript
 import { test, expect } from '@playwright/test';
 
@@ -3322,6 +3572,7 @@ test.describe('Authentication', () => {
 ```
 
 **e2e/navigation.spec.ts** - Tests route guards redirect correctly:
+
 ```typescript
 import { test, expect } from '@playwright/test';
 
@@ -3339,6 +3590,7 @@ test.describe('Navigation', () => {
 ```
 
 **Run E2E tests:**
+
 ```bash
 npm run e2e                   # Run all tests (headless)
 npm run e2e:ui                # Run with Playwright UI
@@ -3347,11 +3599,13 @@ npx playwright show-report    # View HTML test report
 ```
 
 ### 11.8 Push & Deploy
+
 - [ ] Commit changes
 - [ ] Push to remote
 - [ ] Verify deployment
 
 ## Iteration 12: Documentation & Polish
+
 - [ ] Write comprehensive README
 - [ ] Add setup instructions
 - [ ] Document architecture decisions

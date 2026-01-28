@@ -17,7 +17,7 @@ export type SocialProvider = 'google' | 'github' | 'spotify' | 'discord' | 'appl
  * handles redirects when the user signs out.
  */
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
   private supabase = inject(SupabaseService);
@@ -60,7 +60,7 @@ export class AuthService {
   async signInWithProvider(provider: SocialProvider) {
     const { error } = await this.supabase.client.auth.signInWithOAuth({
       provider: provider as Provider,
-      options: { redirectTo: window.location.origin }
+      options: { redirectTo: window.location.origin },
     });
     if (error) throw mapToError(error);
   }

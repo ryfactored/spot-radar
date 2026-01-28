@@ -11,9 +11,9 @@ import { NgStyle } from '@angular/common';
       [ngStyle]="{
         width: width(),
         height: height(),
-        borderRadius: variant() === 'circle' ? '50%' : radius()
-      }">
-    </div>
+        borderRadius: variant() === 'circle' ? '50%' : radius(),
+      }"
+    ></div>
   `,
   styles: `
     .skeleton {
@@ -23,15 +23,19 @@ import { NgStyle } from '@angular/common';
     }
 
     @keyframes shimmer {
-      0% { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
+      0% {
+        background-position: 200% 0;
+      }
+      100% {
+        background-position: -200% 0;
+      }
     }
 
     :host-context(.dark-theme) .skeleton {
       background: linear-gradient(90deg, #333 25%, #444 50%, #333 75%);
       background-size: 200% 100%;
     }
-  `
+  `,
 })
 export class Skeleton {
   width = input('100%');

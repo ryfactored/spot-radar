@@ -25,7 +25,7 @@ import { RouterOutlet } from '@angular/router';
       background: white;
       padding: 40px;
       border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
       width: 100%;
       max-width: 400px;
     }
@@ -45,6 +45,6 @@ import { RouterOutlet } from '@angular/router';
     :host-context(.dark-theme) .app-title {
       color: #c5cae9;
     }
-  `
+  `,
 })
 export class AuthLayout {}

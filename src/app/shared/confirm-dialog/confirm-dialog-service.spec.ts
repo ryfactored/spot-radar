@@ -13,10 +13,7 @@ describe('ConfirmDialogService', () => {
     dialogMock = { open: vi.fn() };
 
     TestBed.configureTestingModule({
-      providers: [
-        ConfirmDialogService,
-        { provide: MatDialog, useValue: dialogMock },
-      ],
+      providers: [ConfirmDialogService, { provide: MatDialog, useValue: dialogMock }],
     });
     service = TestBed.inject(ConfirmDialogService);
   });

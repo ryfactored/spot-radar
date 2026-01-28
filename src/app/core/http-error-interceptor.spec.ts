@@ -81,7 +81,9 @@ describe('httpErrorInterceptor', () => {
     const req = httpTesting.expectOne('/api/test');
     req.flush({ message: 'Forbidden' }, { status: 403, statusText: 'Forbidden' });
 
-    expect(toastMock.error).toHaveBeenCalledWith('You do not have permission to perform this action');
+    expect(toastMock.error).toHaveBeenCalledWith(
+      'You do not have permission to perform this action',
+    );
   });
 
   it('should show not found for 404', () => {
@@ -129,7 +131,10 @@ describe('httpErrorInterceptor', () => {
     });
 
     const req = httpTesting.expectOne('/api/test');
-    req.flush({ message: 'Internal Server Error' }, { status: 500, statusText: 'Internal Server Error' });
+    req.flush(
+      { message: 'Internal Server Error' },
+      { status: 500, statusText: 'Internal Server Error' },
+    );
 
     expect(toastMock.error).toHaveBeenCalledWith('Server error. Please try again later.');
   });

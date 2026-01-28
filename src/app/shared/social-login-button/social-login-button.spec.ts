@@ -8,7 +8,7 @@ describe('SocialLoginButton', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [SocialLoginButton]
+      imports: [SocialLoginButton],
     }).compileComponents();
 
     fixture = TestBed.createComponent(SocialLoginButton);
@@ -41,7 +41,7 @@ describe('SocialLoginButton', () => {
 
   it('should have icon for each provider', () => {
     const providers = ['google', 'github', 'spotify', 'discord', 'apple'] as const;
-    providers.forEach(provider => {
+    providers.forEach((provider) => {
       fixture.componentRef.setInput('provider', provider);
       fixture.detectChanges();
       expect(component.providerIcon).toContain('<svg');

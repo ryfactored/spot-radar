@@ -49,10 +49,18 @@ export interface PasswordStrengthResult {
       border-radius: 2px;
       transition: background-color 0.2s;
     }
-    .segment.weak { background: #f44336; }
-    .segment.fair { background: #ff9800; }
-    .segment.good { background: #ffc107; }
-    .segment.strong { background: #4caf50; }
+    .segment.weak {
+      background: #f44336;
+    }
+    .segment.fair {
+      background: #ff9800;
+    }
+    .segment.good {
+      background: #ffc107;
+    }
+    .segment.strong {
+      background: #4caf50;
+    }
     .strength-label {
       display: block;
       font-size: 12px;
@@ -60,11 +68,21 @@ export interface PasswordStrengthResult {
       min-height: 18px;
       text-transform: capitalize;
     }
-    .strength-label.weak { color: #f44336; }
-    .strength-label.fair { color: #ff9800; }
-    .strength-label.good { color: #ffc107; }
-    .strength-label.strong { color: #4caf50; }
-    .strength-label.hidden { visibility: hidden; }
+    .strength-label.weak {
+      color: #f44336;
+    }
+    .strength-label.fair {
+      color: #ff9800;
+    }
+    .strength-label.good {
+      color: #ffc107;
+    }
+    .strength-label.strong {
+      color: #4caf50;
+    }
+    .strength-label.hidden {
+      visibility: hidden;
+    }
   `,
 })
 export class PasswordStrength {

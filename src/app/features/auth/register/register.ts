@@ -31,7 +31,7 @@ import { environment } from '@env';
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
       <mat-form-field appearance="outline" class="full-width" subscriptSizing="fixed">
         <mat-label>Email</mat-label>
-        <input matInput formControlName="email" type="email">
+        <input matInput formControlName="email" type="email" />
         @if (form.controls.email.hasError('required')) {
           <mat-error>Email is required</mat-error>
         }
@@ -42,10 +42,19 @@ import { environment } from '@env';
 
       <mat-form-field appearance="outline" class="full-width" subscriptSizing="fixed">
         <mat-label>Password</mat-label>
-        <input matInput formControlName="password" [type]="showPassword() ? 'text' : 'password'"
-               aria-describedby="password-requirements">
-        <button mat-icon-button matSuffix type="button" (click)="showPassword.set(!showPassword())"
-                [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'">
+        <input
+          matInput
+          formControlName="password"
+          [type]="showPassword() ? 'text' : 'password'"
+          aria-describedby="password-requirements"
+        />
+        <button
+          mat-icon-button
+          matSuffix
+          type="button"
+          (click)="showPassword.set(!showPassword())"
+          [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
+        >
           <mat-icon>{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
         </button>
         @if (form.controls.password.hasError('required')) {
@@ -59,9 +68,18 @@ import { environment } from '@env';
 
       <mat-form-field appearance="outline" class="full-width" subscriptSizing="fixed">
         <mat-label>Confirm Password</mat-label>
-        <input matInput formControlName="confirmPassword" [type]="showConfirmPassword() ? 'text' : 'password'">
-        <button mat-icon-button matSuffix type="button" (click)="showConfirmPassword.set(!showConfirmPassword())"
-                [attr.aria-label]="showConfirmPassword() ? 'Hide password' : 'Show password'">
+        <input
+          matInput
+          formControlName="confirmPassword"
+          [type]="showConfirmPassword() ? 'text' : 'password'"
+        />
+        <button
+          mat-icon-button
+          matSuffix
+          type="button"
+          (click)="showConfirmPassword.set(!showConfirmPassword())"
+          [attr.aria-label]="showConfirmPassword() ? 'Hide password' : 'Show password'"
+        >
           <mat-icon>{{ showConfirmPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
         </button>
         @if (form.controls.confirmPassword.hasError('required')) {
@@ -80,7 +98,13 @@ import { environment } from '@env';
         <p class="success" role="status">{{ success }}</p>
       }
 
-      <button mat-raised-button color="primary" class="full-width" type="submit" [disabled]="loading">
+      <button
+        mat-raised-button
+        color="primary"
+        class="full-width"
+        type="submit"
+        [disabled]="loading"
+      >
         {{ loading ? 'Creating account...' : 'Sign Up' }}
       </button>
     </form>
@@ -89,25 +113,47 @@ import { environment } from '@env';
       <mat-divider class="divider"></mat-divider>
       <div class="social-buttons">
         @for (provider of socialProviders; track provider) {
-          <app-social-login-button [provider]="provider" [loading]="loadingProvider() === provider" (clicked)="signUpWithProvider(provider)" />
+          <app-social-login-button
+            [provider]="provider"
+            [loading]="loadingProvider() === provider"
+            (clicked)="signUpWithProvider(provider)"
+          />
         }
       </div>
     }
 
-    <p class="footer">
-      Already have an account? <a routerLink="/login">Sign in</a>
-    </p>
+    <p class="footer">Already have an account? <a routerLink="/login">Sign in</a></p>
   `,
   styles: `
-    h2 { text-align: center; margin-bottom: 24px; }
-    .full-width { width: 100%; }
-    mat-form-field { margin-bottom: 16px; }
-    .divider { margin: 24px 0; }
-    .social-buttons { margin-bottom: 16px; }
-    .footer { text-align: center; margin-top: 16px; }
-    .error { color: #f44336; text-align: center; }
-    .success { color: #4caf50; text-align: center; }
-  `
+    h2 {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .full-width {
+      width: 100%;
+    }
+    mat-form-field {
+      margin-bottom: 16px;
+    }
+    .divider {
+      margin: 24px 0;
+    }
+    .social-buttons {
+      margin-bottom: 16px;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 16px;
+    }
+    .error {
+      color: #f44336;
+      text-align: center;
+    }
+    .success {
+      color: #4caf50;
+      text-align: center;
+    }
+  `,
 })
 export class Register {
   private fb = inject(FormBuilder);
@@ -120,7 +166,7 @@ export class Register {
       password: ['', [Validators.required, Validators.minLength(8)]],
       confirmPassword: ['', Validators.required],
     },
-    { validators: matchValidator('password', 'confirmPassword') }
+    { validators: matchValidator('password', 'confirmPassword') },
   );
 
   showPassword = signal(false);
@@ -147,8 +193,8 @@ export class Register {
     try {
       await this.auth.signUp(this.form.value.email!, this.form.value.password!);
       this.success = 'Account created! Check your email to confirm.';
-    } catch (err: any) {
-      this.error = err.message || 'Registration failed';
+    } catch (err) {
+      this.error = err instanceof Error ? err.message : 'Registration failed';
     } finally {
       this.loading = false;
     }
@@ -160,8 +206,8 @@ export class Register {
     try {
       await this.auth.signInWithProvider(provider);
       // Note: OAuth redirects away, so we won't reach here on success
-    } catch (err: any) {
-      this.error = err.message || 'Social login failed';
+    } catch (err) {
+      this.error = err instanceof Error ? err.message : 'Social login failed';
       this.loadingProvider.set(null);
     }
   }

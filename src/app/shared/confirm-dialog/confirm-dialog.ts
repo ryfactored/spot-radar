@@ -16,7 +16,7 @@ import { ConfirmDialogData } from './confirm-dialog-service';
       <button mat-button (click)="onCancel()">{{ data.cancelText }}</button>
       <button mat-raised-button color="warn" (click)="onConfirm()">{{ data.confirmText }}</button>
     </mat-dialog-actions>
-  `
+  `,
 })
 export class ConfirmDialog {
   data = inject<ConfirmDialogData>(MAT_DIALOG_DATA);

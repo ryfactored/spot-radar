@@ -31,7 +31,7 @@ import { ToastService, LoadingSpinner } from '@shared';
           <form [formGroup]="form" (ngSubmit)="onSubmit()">
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Title</mat-label>
-              <input matInput formControlName="title" placeholder="Enter note title">
+              <input matInput formControlName="title" placeholder="Enter note title" />
               @if (form.controls.title.hasError('required')) {
                 <mat-error>Title is required</mat-error>
               }
@@ -39,13 +39,18 @@ import { ToastService, LoadingSpinner } from '@shared';
 
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Content</mat-label>
-              <textarea matInput formControlName="content" rows="6" placeholder="Enter note content"></textarea>
+              <textarea
+                matInput
+                formControlName="content"
+                rows="6"
+                placeholder="Enter note content"
+              ></textarea>
             </mat-form-field>
 
             <div class="actions">
               <button mat-button type="button" (click)="cancel()">Cancel</button>
               <button mat-raised-button color="primary" type="submit" [disabled]="saving()">
-                {{ saving() ? 'Saving...' : (isEditMode() ? 'Update' : 'Create') }}
+                {{ saving() ? 'Saving...' : isEditMode() ? 'Update' : 'Create' }}
               </button>
             </div>
           </form>
@@ -54,16 +59,22 @@ import { ToastService, LoadingSpinner } from '@shared';
     }
   `,
   styles: `
-    .form-card { max-width: 600px; }
-    .full-width { width: 100%; }
-    mat-form-field { margin-bottom: 16px; }
+    .form-card {
+      max-width: 600px;
+    }
+    .full-width {
+      width: 100%;
+    }
+    mat-form-field {
+      margin-bottom: 16px;
+    }
     .actions {
       display: flex;
       justify-content: flex-end;
       gap: 8px;
       margin-top: 16px;
     }
-  `
+  `,
 })
 export class NoteForm implements OnInit {
   private route = inject(ActivatedRoute);
@@ -102,8 +113,8 @@ export class NoteForm implements OnInit {
           content: note.content || '',
         });
       }
-    } catch (err: any) {
-      this.toast.error(err.message || 'Failed to load note');
+    } catch (err) {
+      this.toast.error(err instanceof Error ? err.message : 'Failed to load note');
       this.router.navigate(['/notes']);
     } finally {
       this.loading.set(false);
@@ -125,8 +136,8 @@ export class NoteForm implements OnInit {
         this.toast.success('Note created');
       }
       this.router.navigate(['/notes']);
-    } catch (err: any) {
-      this.toast.error(err.message || 'Failed to save note');
+    } catch (err) {
+      this.toast.error(err instanceof Error ? err.message : 'Failed to save note');
     } finally {
       this.saving.set(false);
     }

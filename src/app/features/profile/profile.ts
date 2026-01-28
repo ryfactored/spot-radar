@@ -1,12 +1,12 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { AuthService } from '@core';
 import { SkeletonOverlay, ToastService } from '@shared';
-import { ProfileService, type Profile as UserProfile } from './profile-service';
+import { ProfileService } from './profile-service';
 
 @Component({
   selector: 'app-profile',
@@ -27,12 +27,12 @@ import { ProfileService, type Profile as UserProfile } from './profile-service';
         <form [formGroup]="form" (ngSubmit)="onSubmit()">
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Email</mat-label>
-            <input matInput formControlName="email" readonly>
+            <input matInput formControlName="email" readonly />
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Display Name</mat-label>
-            <input matInput formControlName="display_name">
+            <input matInput formControlName="display_name" />
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="full-width">
@@ -48,10 +48,16 @@ import { ProfileService, type Profile as UserProfile } from './profile-service';
     </mat-card>
   `,
   styles: `
-    .full-width { width: 100%; }
-    mat-form-field { margin-bottom: 16px; }
-    mat-card { max-width: 500px; }
-  `
+    .full-width {
+      width: 100%;
+    }
+    mat-form-field {
+      margin-bottom: 16px;
+    }
+    mat-card {
+      max-width: 500px;
+    }
+  `,
 })
 export class Profile implements OnInit {
   private auth = inject(AuthService);
@@ -81,8 +87,8 @@ export class Profile implements OnInit {
           bio: profile.bio || '',
         });
       }
-    } catch (err: any) {
-      this.toast.error(err.message || 'Failed to load profile');
+    } catch (err) {
+      this.toast.error(err instanceof Error ? err.message : 'Failed to load profile');
     } finally {
       this.loading.set(false);
     }
@@ -100,8 +106,8 @@ export class Profile implements OnInit {
         bio: this.form.value.bio,
       });
       this.toast.success('Profile updated!');
-    } catch (err: any) {
-      this.toast.error(err.message || 'Failed to save profile');
+    } catch (err) {
+      this.toast.error(err instanceof Error ? err.message : 'Failed to save profile');
     } finally {
       this.saving.set(false);
     }

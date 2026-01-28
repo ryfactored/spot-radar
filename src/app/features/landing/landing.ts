@@ -18,12 +18,8 @@ import { MatCardModule } from '@angular/material/card';
           Start building your next project in minutes.
         </p>
         <div class="hero-actions">
-          <a mat-raised-button color="primary" routerLink="/register">
-            Get Started Free
-          </a>
-          <a mat-stroked-button routerLink="/login">
-            Sign In
-          </a>
+          <a mat-raised-button color="primary" routerLink="/register"> Get Started Free </a>
+          <a mat-stroked-button routerLink="/login"> Sign In </a>
         </div>
       </div>
     </section>
@@ -38,7 +34,9 @@ import { MatCardModule } from '@angular/material/card';
             <mat-card-title>Authentication</mat-card-title>
           </mat-card-header>
           <mat-card-content>
-            <p>Built-in authentication with Supabase. Email/password and social logins ready to go.</p>
+            <p>
+              Built-in authentication with Supabase. Email/password and social logins ready to go.
+            </p>
           </mat-card-content>
         </mat-card>
 
@@ -48,7 +46,10 @@ import { MatCardModule } from '@angular/material/card';
             <mat-card-title>Theming</mat-card-title>
           </mat-card-header>
           <mat-card-content>
-            <p>Multiple color themes with light and dark modes. User preferences persist automatically.</p>
+            <p>
+              Multiple color themes with light and dark modes. User preferences persist
+              automatically.
+            </p>
           </mat-card-content>
         </mat-card>
 
@@ -223,6 +224,6 @@ import { MatCardModule } from '@angular/material/card';
         font-size: 1.5rem;
       }
     }
-  `
+  `,
 })
 export class Landing {}

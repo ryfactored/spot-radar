@@ -13,10 +13,7 @@ describe('GlobalErrorHandler', () => {
     };
 
     TestBed.configureTestingModule({
-      providers: [
-        GlobalErrorHandler,
-        { provide: ToastService, useValue: toastMock },
-      ],
+      providers: [GlobalErrorHandler, { provide: ToastService, useValue: toastMock }],
     });
     handler = TestBed.inject(GlobalErrorHandler);
   });

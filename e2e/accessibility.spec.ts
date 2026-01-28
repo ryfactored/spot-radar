@@ -22,9 +22,7 @@ test.describe('Accessibility', () => {
   test('login page should have no critical accessibility violations', async ({ page }) => {
     await page.goto('/login');
 
-    const results = await new AxeBuilder({ page })
-      .disableRules(excludeRules)
-      .analyze();
+    const results = await new AxeBuilder({ page }).disableRules(excludeRules).analyze();
 
     // Log violations for debugging
     if (results.violations.length > 0) {
@@ -37,9 +35,7 @@ test.describe('Accessibility', () => {
   test('register page should have no critical accessibility violations', async ({ page }) => {
     await page.goto('/register');
 
-    const results = await new AxeBuilder({ page })
-      .disableRules(excludeRules)
-      .analyze();
+    const results = await new AxeBuilder({ page }).disableRules(excludeRules).analyze();
 
     if (results.violations.length > 0) {
       console.log('Violations:', JSON.stringify(results.violations, null, 2));
@@ -51,9 +47,7 @@ test.describe('Accessibility', () => {
   test('landing page should have no critical accessibility violations', async ({ page }) => {
     await page.goto('/');
 
-    const results = await new AxeBuilder({ page })
-      .disableRules(excludeRules)
-      .analyze();
+    const results = await new AxeBuilder({ page }).disableRules(excludeRules).analyze();
 
     if (results.violations.length > 0) {
       console.log('Violations:', JSON.stringify(results.violations, null, 2));

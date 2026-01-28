@@ -165,8 +165,8 @@ export class NotesList implements OnInit {
         this.searchQuery,
       );
       this.store.setNotes(response.data, response.count, this.pageSize, this.currentPage());
-    } catch (err: any) {
-      this.toast.error(err.message || 'Failed to load notes');
+    } catch (err) {
+      this.toast.error(err instanceof Error ? err.message : 'Failed to load notes');
     } finally {
       this.store.setLoading(false);
     }
@@ -204,8 +204,8 @@ export class NotesList implements OnInit {
         await this.notesService.delete(note.id);
         this.store.removeNote(note.id);
         this.toast.success('Note deleted');
-      } catch (err: any) {
-        this.toast.error(err.message || 'Failed to delete note');
+      } catch (err) {
+        this.toast.error(err instanceof Error ? err.message : 'Failed to delete note');
         this.loadNotes(); // Refetch on error
       }
     }

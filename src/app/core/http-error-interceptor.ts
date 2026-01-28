@@ -39,6 +39,6 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
 
       toast.error(message);
       return throwError(() => new Error(message));
-    })
+    }),
   );
 };

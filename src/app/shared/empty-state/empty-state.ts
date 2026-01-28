@@ -33,10 +33,16 @@ import { MatIconModule } from '@angular/material/icon';
       margin-bottom: 16px;
       opacity: 0.5;
     }
-    h3 { margin: 0 0 8px; }
-    p { margin: 0; }
-    .actions { margin-top: 16px; }
-  `
+    h3 {
+      margin: 0 0 8px;
+    }
+    p {
+      margin: 0;
+    }
+    .actions {
+      margin-top: 16px;
+    }
+  `,
 })
 export class EmptyState {
   icon = input('inbox');
