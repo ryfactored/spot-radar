@@ -16,10 +16,7 @@ describe('Register', () => {
 
     await TestBed.configureTestingModule({
       imports: [Register, NoopAnimationsModule],
-      providers: [
-        provideRouter([]),
-        { provide: AuthService, useValue: authMock },
-      ],
+      providers: [provideRouter([]), { provide: AuthService, useValue: authMock }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(Register);

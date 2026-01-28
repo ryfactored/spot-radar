@@ -1,10 +1,20 @@
-import { Component, input, output, computed, ViewChild, AfterViewInit, OnChanges, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  input,
+  output,
+  computed,
+  ViewChild,
+  AfterViewInit,
+  OnChanges,
+  SimpleChanges,
+} from '@angular/core';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatSortModule, MatSort } from '@angular/material/sort';
 import { MatPaginatorModule, MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { SelectionModel } from '@angular/cdk/collections';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface ColumnDef<T = any> {
   key: string;
   header: string;
@@ -27,7 +37,8 @@ export interface ColumnDef<T = any> {
                 (change)="$event ? toggleAllRows() : null"
                 [checked]="selection.hasValue() && isAllSelected()"
                 [indeterminate]="selection.hasValue() && !isAllSelected()"
-                aria-label="Select all rows">
+                aria-label="Select all rows"
+              >
               </mat-checkbox>
             </th>
             <td mat-cell *matCellDef="let row; let i = index">
@@ -35,7 +46,8 @@ export interface ColumnDef<T = any> {
                 (click)="$event.stopPropagation()"
                 (change)="$event ? selection.toggle(row) : null"
                 [checked]="selection.isSelected(row)"
-                [attr.aria-label]="'Select row ' + (i + 1)">
+                [attr.aria-label]="'Select row ' + (i + 1)"
+              >
               </mat-checkbox>
             </td>
           </ng-container>
@@ -60,9 +72,12 @@ export interface ColumnDef<T = any> {
         }
 
         <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns()"
-            [class.clickable]="true"
-            (click)="onRowClick(row)"></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: displayedColumns()"
+          [class.clickable]="true"
+          (click)="onRowClick(row)"
+        ></tr>
 
         <!-- No data row -->
         <tr class="mat-row no-data-row" *matNoDataRow>
@@ -79,7 +94,8 @@ export interface ColumnDef<T = any> {
           [pageSize]="pageSize()"
           [pageIndex]="pageIndex()"
           (page)="onPageChange($event)"
-          showFirstLastButtons>
+          showFirstLastButtons
+        >
         </mat-paginator>
       }
     </div>
@@ -114,8 +130,10 @@ export interface ColumnDef<T = any> {
     :host-context(.dark-mode) .no-data-row td {
       color: #aaa;
     }
-  `
+  `,
 })
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export class DataTable<T = any> implements AfterViewInit, OnChanges {
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -141,7 +159,7 @@ export class DataTable<T = any> implements AfterViewInit, OnChanges {
   selection = new SelectionModel<T>(true, []);
 
   displayedColumns = computed(() => {
-    const cols = this.columns().map(c => c.key);
+    const cols = this.columns().map((c) => c.key);
     return this.selectable() ? ['select', ...cols] : cols;
   });
 
@@ -189,7 +207,7 @@ export class DataTable<T = any> implements AfterViewInit, OnChanges {
     if (this.isAllSelected()) {
       this.selection.clear();
     } else {
-      this.dataSource.data.forEach(row => this.selection.select(row));
+      this.dataSource.data.forEach((row) => this.selection.select(row));
     }
   }
 

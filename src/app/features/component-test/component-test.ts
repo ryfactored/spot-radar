@@ -11,7 +11,7 @@ import {
   DataTable,
   SearchInput,
   ColumnDef,
-  PageEvent
+  PageEvent,
 } from '@shared';
 import { AuthService } from '@core';
 import { NotesService, Note } from '../notes/notes';
@@ -81,7 +81,8 @@ import { NotesService, Note } from '../notes/notes';
           <app-empty-state
             icon="folder_open"
             title="No projects yet"
-            message="Create your first project to get started">
+            message="Create your first project to get started"
+          >
           </app-empty-state>
         </div>
       </mat-card-content>
@@ -98,8 +99,9 @@ import { NotesService, Note } from '../notes/notes';
           label="Search"
           [debounceMs]="300"
           [loading]="searchLoading()"
-          (search)="onSearch($event)"
-          (cleared)="onSearchCleared()" />
+          (searchChange)="onSearch($event)"
+          (cleared)="onSearchCleared()"
+        />
         <p class="search-result">
           <small>Debounced output:</small>
           @if (searchValue()) {
@@ -128,7 +130,8 @@ import { NotesService, Note } from '../notes/notes';
           emptyMessage="No notes found. Create some notes first!"
           (rowClick)="onRowClick($event)"
           (selectionChange)="onSelectionChange($event)"
-          (pageChange)="onPageChange($event)" />
+          (pageChange)="onPageChange($event)"
+        />
         @if (notesLoading()) {
           <div class="loading-overlay">
             <app-loading-spinner message="Loading..." />
@@ -203,7 +206,7 @@ import { NotesService, Note } from '../notes/notes';
     mat-card-content {
       position: relative;
     }
-  `
+  `,
 })
 /**
  * Component showcase page for testing shared UI components.
@@ -234,11 +237,25 @@ export class ComponentTest implements OnInit {
   // Table columns for notes
   tableColumns: ColumnDef<Note>[] = [
     { key: 'title', header: 'Title' },
-    { key: 'content', header: 'Content', cell: (note) => note.content?.substring(0, 50) + (note.content && note.content.length > 50 ? '...' : '') || '—' },
-    { key: 'created_at', header: 'Created', cell: (note) => new Date(note.created_at).toLocaleDateString() },
+    {
+      key: 'content',
+      header: 'Content',
+      cell: (note) =>
+        note.content?.substring(0, 50) + (note.content && note.content.length > 50 ? '...' : '') ||
+        '—',
+    },
+    {
+      key: 'created_at',
+      header: 'Created',
+      cell: (note) => new Date(note.created_at).toLocaleDateString(),
+    },
   ];
 
-  selectedNoteTitles = computed(() => this.selectedNotes().map(n => n.title).join(', '));
+  selectedNoteTitles = computed(() =>
+    this.selectedNotes()
+      .map((n) => n.title)
+      .join(', '),
+  );
 
   ngOnInit() {
     // Only load notes if user is authenticated
@@ -259,7 +276,7 @@ export class ComponentTest implements OnInit {
       const response = await this.notesService.list(page, this.pageSize(), this.searchValue());
       this.notes.set(response.data);
       this.totalNotes.set(response.count);
-    } catch (error) {
+    } catch (_error) {
       this.toast.error('Failed to load notes. Please ensure you are logged in.');
     } finally {
       this.notesLoading.set(false);
@@ -289,7 +306,7 @@ export class ComponentTest implements OnInit {
       title: 'Delete Item',
       message: 'Are you sure you want to delete this item? This cannot be undone.',
       confirmText: 'Delete',
-      cancelText: 'Cancel'
+      cancelText: 'Cancel',
     });
 
     if (confirmed) {

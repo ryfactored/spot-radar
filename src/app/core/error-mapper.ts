@@ -9,20 +9,20 @@ const GENERIC_MESSAGE = 'Something went wrong. Please try again.';
 
 // Auth errors (login, registration, session)
 const AUTH_ERRORS: Record<string, string> = {
-  'invalid_credentials': 'Invalid email or password',
-  'invalid_grant': 'Invalid email or password',
-  'user_already_exists': 'An account with this email already exists',
-  'email_not_confirmed': 'Please check your email to confirm your account',
+  invalid_credentials: 'Invalid email or password',
+  invalid_grant: 'Invalid email or password',
+  user_already_exists: 'An account with this email already exists',
+  email_not_confirmed: 'Please check your email to confirm your account',
 };
 
 // Rate limiting
 const RATE_LIMIT_ERRORS: Record<string, string> = {
-  'over_request_rate_limit': 'Too many attempts. Please wait and try again.',
+  over_request_rate_limit: 'Too many attempts. Please wait and try again.',
 };
 
 // Data/query errors
 const DATA_ERRORS: Record<string, string> = {
-  'PGRST116': 'The requested item was not found',
+  PGRST116: 'The requested item was not found',
 };
 
 // Combined map - only these get custom messages
@@ -72,9 +72,11 @@ export function unwrap<T>(result: { data: T | null; error: unknown }): T {
  * @example
  * return unwrapWithCount(await client.from('notes').select('*', { count: 'exact' }));
  */
-export function unwrapWithCount<T>(
-  result: { data: T | null; error: unknown; count: number | null }
-): { data: T; count: number } {
+export function unwrapWithCount<T>(result: {
+  data: T | null;
+  error: unknown;
+  count: number | null;
+}): { data: T; count: number } {
   if (result.error) throw mapToError(result.error);
   return { data: result.data as T, count: result.count ?? 0 };
 }

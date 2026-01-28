@@ -11,10 +11,7 @@ describe('ToastService', () => {
     snackBarMock = { open: vi.fn() };
 
     TestBed.configureTestingModule({
-      providers: [
-        ToastService,
-        { provide: MatSnackBar, useValue: snackBarMock },
-      ],
+      providers: [ToastService, { provide: MatSnackBar, useValue: snackBarMock }],
     });
     service = TestBed.inject(ToastService);
   });

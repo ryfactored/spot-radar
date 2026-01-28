@@ -17,7 +17,7 @@ import { Note } from './notes';
  * - Better performance with fine-grained reactivity
  */
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class NotesStore {
   private notes = signal<Note[]>([]);
@@ -55,19 +55,17 @@ export class NotesStore {
   }
 
   addNote(note: Note) {
-    this.notes.update(notes => [note, ...notes]);
-    this.totalCount.update(count => count + 1);
+    this.notes.update((notes) => [note, ...notes]);
+    this.totalCount.update((count) => count + 1);
   }
 
   updateNote(updated: Note) {
-    this.notes.update(notes =>
-      notes.map(n => n.id === updated.id ? updated : n)
-    );
+    this.notes.update((notes) => notes.map((n) => (n.id === updated.id ? updated : n)));
   }
 
   removeNote(id: string) {
-    this.notes.update(notes => notes.filter(n => n.id !== id));
-    this.totalCount.update(count => count - 1);
+    this.notes.update((notes) => notes.filter((n) => n.id !== id));
+    this.totalCount.update((count) => count - 1);
   }
 
   setLoading(loading: boolean) {

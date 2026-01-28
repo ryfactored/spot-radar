@@ -53,7 +53,9 @@ test.describe('Profile', () => {
     await page.click('button[type="submit"]');
 
     // Should show success toast
-    await expect(page.locator('mat-snack-bar-container, .mat-mdc-snack-bar-container')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('mat-snack-bar-container, .mat-mdc-snack-bar-container')).toBeVisible(
+      { timeout: 5000 },
+    );
   });
 
   test('should show validation error for empty display name', async ({ page }) => {

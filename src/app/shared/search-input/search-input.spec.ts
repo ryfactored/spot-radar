@@ -9,7 +9,7 @@ describe('SearchInput', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [SearchInput, NoopAnimationsModule]
+      imports: [SearchInput, NoopAnimationsModule],
     }).compileComponents();
 
     fixture = TestBed.createComponent(SearchInput);
@@ -23,13 +23,13 @@ describe('SearchInput', () => {
 
   it('should emit search after debounce', async () => {
     const searchSpy = vi.fn();
-    component.search.subscribe(searchSpy);
+    component.searchChange.subscribe(searchSpy);
 
     component.onInput('test');
     expect(searchSpy).not.toHaveBeenCalled();
 
     // Wait for debounce (300ms + buffer)
-    await new Promise(resolve => setTimeout(resolve, 350));
+    await new Promise((resolve) => setTimeout(resolve, 350));
     expect(searchSpy).toHaveBeenCalledWith('test');
   });
 

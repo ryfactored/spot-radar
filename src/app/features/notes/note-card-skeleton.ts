@@ -25,10 +25,18 @@ import { Skeleton } from '@shared';
   `,
   styles: `
     .skeleton-card {
-      mat-card-header { margin-bottom: 16px; }
-      mat-card-content app-skeleton { margin-bottom: 8px; }
-      mat-card-actions { display: flex; gap: 8px; justify-content: flex-end; }
+      mat-card-header {
+        margin-bottom: 16px;
+      }
+      mat-card-content app-skeleton {
+        margin-bottom: 8px;
+      }
+      mat-card-actions {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+      }
     }
-  `
+  `,
 })
 export class NoteCardSkeleton {}

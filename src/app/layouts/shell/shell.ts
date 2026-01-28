@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, ViewChild } from '@angular/core';
+import { Component, inject, computed, ViewChild } from '@angular/core';
 import { RouterOutlet, RouterLink, Router, NavigationEnd } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
@@ -27,7 +27,7 @@ import { ThemePicker } from '@shared';
     ThemePicker,
   ],
   templateUrl: './shell.html',
-  styleUrl: './shell.scss'
+  styleUrl: './shell.scss',
 })
 export class Shell {
   @ViewChild('sidenav') sidenav!: MatSidenav;
@@ -40,26 +40,28 @@ export class Shell {
   // Detect mobile breakpoint (< 768px)
   private isMobile$ = this.breakpointObserver
     .observe(['(max-width: 767px)'])
-    .pipe(map(result => result.matches));
+    .pipe(map((result) => result.matches));
 
   isMobile = toSignal(this.isMobile$, { initialValue: false });
 
   // Sidenav mode: 'over' on mobile, 'side' on desktop
-  sidenavMode = computed(() => this.isMobile() ? 'over' : 'side');
+  sidenavMode = computed(() => (this.isMobile() ? 'over' : 'side'));
 
   // Sidenav opened state: closed on mobile by default, respects preference on desktop
-  sidenavOpened = computed(() => this.isMobile() ? false : this.preferences.sidenavOpened());
+  sidenavOpened = computed(() => (this.isMobile() ? false : this.preferences.sidenavOpened()));
 
   constructor() {
     // Close sidenav on navigation when on mobile
-    this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd),
-      takeUntilDestroyed()
-    ).subscribe(() => {
-      if (this.isMobile() && this.sidenav) {
-        this.sidenav.close();
-      }
-    });
+    this.router.events
+      .pipe(
+        filter((event) => event instanceof NavigationEnd),
+        takeUntilDestroyed(),
+      )
+      .subscribe(() => {
+        if (this.isMobile() && this.sidenav) {
+          this.sidenav.close();
+        }
+      });
   }
 
   toggleSidenav() {

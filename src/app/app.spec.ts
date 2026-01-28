@@ -13,10 +13,7 @@ describe('App', () => {
 
     await TestBed.configureTestingModule({
       imports: [App],
-      providers: [
-        provideRouter([]),
-        { provide: PreferencesService, useValue: preferencesMock },
-      ],
+      providers: [provideRouter([]), { provide: PreferencesService, useValue: preferencesMock }],
     }).compileComponents();
   });
 

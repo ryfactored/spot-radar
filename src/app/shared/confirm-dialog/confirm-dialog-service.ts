@@ -10,7 +10,7 @@ export interface ConfirmDialogData {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ConfirmDialogService {
   private dialog = inject(MatDialog);
@@ -23,7 +23,7 @@ export class ConfirmDialogService {
         message: data.message,
         confirmText: data.confirmText || 'Confirm',
         cancelText: data.cancelText || 'Cancel',
-      }
+      },
     });
 
     return new Promise((resolve) => {

@@ -18,7 +18,7 @@ export class App {
     effect(() => {
       const colorTheme = this.preferences.colorTheme();
       // Remove all theme classes first
-      this.colorThemeClasses.forEach(t => {
+      this.colorThemeClasses.forEach((t) => {
         document.body.classList.remove(`theme-${t}`);
       });
       // Add current theme class (except default which has no class)

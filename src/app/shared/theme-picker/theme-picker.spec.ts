@@ -15,14 +15,12 @@ describe('ThemePicker', () => {
       colorTheme: signal('default'),
       darkMode: signal(false),
       setColorTheme: vi.fn(),
-      toggleDarkMode: vi.fn()
+      toggleDarkMode: vi.fn(),
     };
 
     await TestBed.configureTestingModule({
       imports: [ThemePicker, NoopAnimationsModule],
-      providers: [
-        { provide: PreferencesService, useValue: preferencesMock }
-      ]
+      providers: [{ provide: PreferencesService, useValue: preferencesMock }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ThemePicker);
@@ -36,7 +34,7 @@ describe('ThemePicker', () => {
 
   it('should have three theme options', () => {
     expect(component.themes.length).toBe(3);
-    expect(component.themes.map(t => t.value)).toEqual(['default', 'ocean', 'forest']);
+    expect(component.themes.map((t) => t.value)).toEqual(['default', 'ocean', 'forest']);
   });
 
   it('should call setColorTheme when theme selected', () => {

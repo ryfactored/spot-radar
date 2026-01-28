@@ -25,7 +25,8 @@ describe('NotesService', () => {
           order: vi.fn().mockReturnValue({
             range: vi.fn().mockReturnValue({
               ilike: vi.fn().mockResolvedValue({ data: [mockNote], error: null, count: 1 }),
-              then: (cb: any) => Promise.resolve({ data: [mockNote], error: null, count: 1 }).then(cb),
+              then: (cb: any) =>
+                Promise.resolve({ data: [mockNote], error: null, count: 1 }).then(cb),
               ...overrides.range,
             }),
             ...overrides.order,
@@ -125,7 +126,9 @@ describe('NotesService', () => {
       mockSupabaseClient.from.mockReturnValue({
         select: vi.fn().mockReturnValue({
           order: vi.fn().mockReturnValue({
-            range: vi.fn().mockResolvedValue({ data: null, error: new Error('Query failed'), count: 0 }),
+            range: vi
+              .fn()
+              .mockResolvedValue({ data: null, error: new Error('Query failed'), count: 0 }),
           }),
         }),
       });
@@ -196,7 +199,9 @@ describe('NotesService', () => {
       });
       const unauthService = TestBed.inject(NotesService);
 
-      await expect(unauthService.create({ title: 'Test' })).rejects.toThrow('Please sign in to continue');
+      await expect(unauthService.create({ title: 'Test' })).rejects.toThrow(
+        'Please sign in to continue',
+      );
     });
 
     it('should set content to null when not provided', async () => {
@@ -231,7 +236,7 @@ describe('NotesService', () => {
       await service.update('note-1', { title: 'Updated Title' });
 
       expect(updateMock).toHaveBeenCalledWith(
-        expect.objectContaining({ title: 'Updated Title', updated_at: expect.any(String) })
+        expect.objectContaining({ title: 'Updated Title', updated_at: expect.any(String) }),
       );
     });
 
@@ -246,7 +251,9 @@ describe('NotesService', () => {
         }),
       });
 
-      await expect(service.update('note-1', { title: 'Test' })).rejects.toThrow('Something went wrong');
+      await expect(service.update('note-1', { title: 'Test' })).rejects.toThrow(
+        'Something went wrong',
+      );
     });
   });
 

@@ -25,7 +25,7 @@ export interface NotesResponse {
  * - Search via ilike() for case-insensitive matching
  */
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class NotesService {
   private supabase = inject(SupabaseService);
@@ -49,41 +49,38 @@ export class NotesService {
   }
 
   async get(id: string): Promise<Note | null> {
-    return unwrap(await this.supabase.client
-      .from('notes')
-      .select('*')
-      .eq('id', id)
-      .single());
+    return unwrap(await this.supabase.client.from('notes').select('*').eq('id', id).single());
   }
 
   async create(note: { title: string; content?: string }): Promise<Note> {
     const user = this.auth.currentUser();
     if (!user) throw new Error('Please sign in to continue');
 
-    return unwrap(await this.supabase.client
-      .from('notes')
-      .insert({
-        user_id: user.id,
-        title: note.title,
-        content: note.content || null,
-      })
-      .select()
-      .single());
+    return unwrap(
+      await this.supabase.client
+        .from('notes')
+        .insert({
+          user_id: user.id,
+          title: note.title,
+          content: note.content || null,
+        })
+        .select()
+        .single(),
+    );
   }
 
   async update(id: string, updates: { title?: string; content?: string }): Promise<Note> {
-    return unwrap(await this.supabase.client
-      .from('notes')
-      .update({ ...updates, updated_at: new Date().toISOString() })
-      .eq('id', id)
-      .select()
-      .single());
+    return unwrap(
+      await this.supabase.client
+        .from('notes')
+        .update({ ...updates, updated_at: new Date().toISOString() })
+        .eq('id', id)
+        .select()
+        .single(),
+    );
   }
 
   async delete(id: string): Promise<void> {
-    unwrap(await this.supabase.client
-      .from('notes')
-      .delete()
-      .eq('id', id));
+    unwrap(await this.supabase.client.from('notes').delete().eq('id', id));
   }
 }

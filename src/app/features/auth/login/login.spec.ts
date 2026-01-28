@@ -17,10 +17,7 @@ describe('Login', () => {
 
     await TestBed.configureTestingModule({
       imports: [Login, NoopAnimationsModule],
-      providers: [
-        provideRouter([]),
-        { provide: AuthService, useValue: authMock },
-      ],
+      providers: [provideRouter([]), { provide: AuthService, useValue: authMock }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(Login);

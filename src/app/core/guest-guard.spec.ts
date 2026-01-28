@@ -103,7 +103,7 @@ describe('guestGuard', () => {
       loadingSignal.set(true);
       loadingSignal.set(false);
 
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await new Promise((resolve) => setTimeout(resolve, 50));
       subscription.unsubscribe();
 
       expect(emitCount).toBe(1);

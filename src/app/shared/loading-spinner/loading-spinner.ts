@@ -33,7 +33,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
       white-space: nowrap;
       border: 0;
     }
-  `
+  `,
 })
 export class LoadingSpinner {
   diameter = input(40);

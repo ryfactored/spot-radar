@@ -18,7 +18,7 @@ import { AuthService } from '@core';
         Sign in with Google
       </button>
     }
-  `
+  `,
 })
 export class Dashboard {
   auth = inject(AuthService);

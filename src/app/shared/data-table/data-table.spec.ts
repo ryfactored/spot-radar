@@ -14,17 +14,17 @@ describe('DataTable', () => {
 
   const testColumns: ColumnDef<TestRow>[] = [
     { key: 'id', header: 'ID' },
-    { key: 'name', header: 'Name' }
+    { key: 'name', header: 'Name' },
   ];
 
   const testData: TestRow[] = [
     { id: 1, name: 'Item 1' },
-    { id: 2, name: 'Item 2' }
+    { id: 2, name: 'Item 2' },
   ];
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [DataTable, NoopAnimationsModule]
+      imports: [DataTable, NoopAnimationsModule],
     }).compileComponents();
 
     fixture = TestBed.createComponent(DataTable<TestRow>);

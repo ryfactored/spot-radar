@@ -9,13 +9,13 @@ export const guestGuard = () => {
   const router = inject(Router);
 
   return toObservable(auth.loading).pipe(
-    filter(loading => !loading),
+    filter((loading) => !loading),
     take(1),
     map(() => {
       if (!auth.currentUser()) {
         return true;
       }
       return router.parseUrl('/dashboard');
-    })
+    }),
   );
 };

@@ -12,7 +12,7 @@ export interface Profile {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ProfileService {
   private supabase = inject(SupabaseService);
@@ -39,23 +39,27 @@ export class ProfileService {
     const email = user?.email || '';
     const displayName = user?.user_metadata?.['full_name'] || email;
 
-    return unwrap(await this.supabase.client
-      .from('profiles')
-      .insert({
-        id: userId,
-        email: email,
-        display_name: displayName,
-      })
-      .select()
-      .single());
+    return unwrap(
+      await this.supabase.client
+        .from('profiles')
+        .insert({
+          id: userId,
+          email: email,
+          display_name: displayName,
+        })
+        .select()
+        .single(),
+    );
   }
 
   async updateProfile(userId: string, updates: Partial<Profile>): Promise<Profile> {
-    return unwrap(await this.supabase.client
-      .from('profiles')
-      .update({ ...updates, updated_at: new Date().toISOString() })
-      .eq('id', userId)
-      .select()
-      .single());
+    return unwrap(
+      await this.supabase.client
+        .from('profiles')
+        .update({ ...updates, updated_at: new Date().toISOString() })
+        .eq('id', userId)
+        .select()
+        .single(),
+    );
   }
 }

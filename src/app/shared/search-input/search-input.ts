@@ -1,4 +1,4 @@
-import { Component, input, output, signal, OnInit, DestroyRef, inject } from '@angular/core';
+import { Component, input, output, OnInit, DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -28,7 +28,8 @@ import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
         [placeholder]="placeholder()"
         [(ngModel)]="value"
         (ngModelChange)="onInput($event)"
-        (keydown.escape)="clear()">
+        (keydown.escape)="clear()"
+      />
 
       @if (loading()) {
         <mat-spinner matSuffix diameter="20"></mat-spinner>
@@ -52,7 +53,7 @@ import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
     :host-context(.dark-mode) mat-icon[matPrefix] {
       color: #aaa;
     }
-  `
+  `,
 })
 export class SearchInput implements OnInit {
   private destroyRef = inject(DestroyRef);
@@ -67,7 +68,7 @@ export class SearchInput implements OnInit {
   initialValue = input('');
 
   // Outputs
-  search = output<string>();
+  searchChange = output<string>();
   cleared = output<void>();
 
   // Internal state
@@ -76,13 +77,15 @@ export class SearchInput implements OnInit {
   ngOnInit() {
     this.value = this.initialValue();
 
-    this.searchSubject.pipe(
-      debounceTime(this.debounceMs()),
-      distinctUntilChanged(),
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe(value => {
-      this.search.emit(value);
-    });
+    this.searchSubject
+      .pipe(
+        debounceTime(this.debounceMs()),
+        distinctUntilChanged(),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((value) => {
+        this.searchChange.emit(value);
+      });
   }
 
   onInput(value: string) {

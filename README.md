@@ -22,12 +22,14 @@ A modern Angular 21 starter template with Supabase authentication, CRUD operatio
 ## Quick Start
 
 1. **Clone the repository**
+
    ```bash
    git clone <repository-url>
    cd angular-template
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
@@ -35,17 +37,19 @@ A modern Angular 21 starter template with Supabase authentication, CRUD operatio
 3. **Configure Supabase**
 
    Update `src/environments/environment.ts` with your Supabase credentials:
+
    ```typescript
    export const environment = {
      production: false,
      supabaseUrl: 'YOUR_SUPABASE_URL',
-     supabaseAnonKey: 'YOUR_SUPABASE_ANON_KEY'
+     supabaseAnonKey: 'YOUR_SUPABASE_ANON_KEY',
    };
    ```
 
 4. **Set up the database** (see [Database Setup](#database-setup))
 
 5. **Start the development server**
+
    ```bash
    npm start
    ```
@@ -98,14 +102,14 @@ To enable Google or GitHub authentication:
 
 ## Available Scripts
 
-| Command | Description |
-|---------|-------------|
-| `npm start` | Start development server at `http://localhost:4200` |
-| `npm run build` | Build for production |
-| `npm run watch` | Build in watch mode for development |
-| `npm test` | Run unit tests with Vitest |
-| `npm run e2e` | Run end-to-end tests with Playwright |
-| `npm run e2e:ui` | Run Playwright tests with UI mode |
+| Command          | Description                                         |
+| ---------------- | --------------------------------------------------- |
+| `npm start`      | Start development server at `http://localhost:4200` |
+| `npm run build`  | Build for production                                |
+| `npm run watch`  | Build in watch mode for development                 |
+| `npm test`       | Run unit tests with Vitest                          |
+| `npm run e2e`    | Run end-to-end tests with Playwright                |
+| `npm run e2e:ui` | Run Playwright tests with UI mode                   |
 
 ## Project Structure
 
@@ -161,6 +165,7 @@ src/
 ### Standalone Components
 
 All components are standalone (no NgModules). This is the modern Angular approach that provides:
+
 - Simpler component structure
 - Better tree-shaking
 - Explicit dependencies per component
@@ -171,20 +176,20 @@ All components are standalone (no NgModules). This is the modern Angular approac
   imports: [CommonModule, MatButtonModule],
   // ...
 })
-export class MyComponent { }
+export class MyComponent {}
 ```
 
 ### Path Aliases
 
 The project uses TypeScript path aliases for cleaner imports:
 
-| Alias | Path | Usage |
-|-------|------|-------|
-| `@core` | `src/app/core` | Services, guards, utilities |
-| `@shared` | `src/app/shared` | Shared components & services |
-| `@layouts` | `src/app/layouts` | Layout components |
-| `@features/*` | `src/app/features/*` | Feature modules |
-| `@env` | `src/environments/environment` | Environment config |
+| Alias         | Path                           | Usage                        |
+| ------------- | ------------------------------ | ---------------------------- |
+| `@core`       | `src/app/core`                 | Services, guards, utilities  |
+| `@shared`     | `src/app/shared`               | Shared components & services |
+| `@layouts`    | `src/app/layouts`              | Layout components            |
+| `@features/*` | `src/app/features/*`           | Feature modules              |
+| `@env`        | `src/environments/environment` | Environment config           |
 
 ```typescript
 // Before
@@ -201,12 +206,14 @@ import { ToastService } from '@shared';
 The app uses Angular Signals for reactive state instead of RxJS-heavy patterns:
 
 **AuthService** - User authentication state
+
 ```typescript
 currentUser = signal<User | null>(null);
 loading = signal(true);
 ```
 
 **NotesStore** - Notes state with computed values
+
 ```typescript
 readonly allNotes = this.notes.asReadonly();
 readonly isEmpty = computed(() => this.notes().length === 0);
@@ -214,6 +221,7 @@ readonly isStale = computed(() => /* cache invalidation logic */);
 ```
 
 **PreferencesService** - User preferences with auto-persist
+
 ```typescript
 effect(() => {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(this.preferences()));
@@ -230,9 +238,9 @@ export const authGuard = () => {
   const router = inject(Router);
 
   return toObservable(auth.loading).pipe(
-    filter(loading => !loading),
+    filter((loading) => !loading),
     take(1),
-    map(() => auth.currentUser() ? true : router.parseUrl('/login'))
+    map(() => (auth.currentUser() ? true : router.parseUrl('/login'))),
   );
 };
 ```
@@ -252,6 +260,7 @@ Feature components are lazy-loaded for optimal bundle size:
 ### Global Error Handling
 
 Centralized error handling with:
+
 - `GlobalErrorHandler` - Catches unhandled errors
 - `httpErrorInterceptor` - Handles HTTP errors with Supabase-specific messages
 - `ToastService` - Displays user-friendly error notifications
@@ -319,7 +328,7 @@ For production builds, create `src/environments/environment.prod.ts`:
 export const environment = {
   production: true,
   supabaseUrl: 'YOUR_SUPABASE_URL',
-  supabaseAnonKey: 'YOUR_SUPABASE_ANON_KEY'
+  supabaseAnonKey: 'YOUR_SUPABASE_ANON_KEY',
 };
 ```
 
