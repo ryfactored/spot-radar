@@ -25,7 +25,7 @@ A modern Angular 21 starter template with Supabase authentication, CRUD operatio
 
    ```bash
    git clone <repository-url>
-   cd angular-template
+   cd angular-starter
    ```
 
 2. **Install dependencies**
@@ -304,7 +304,7 @@ The Playwright config automatically starts the dev server before running tests.
 
 2. **Configure build settings**:
    - Build Command: `npm run build`
-   - Output Directory: `dist/angular-template/browser`
+   - Output Directory: `dist/angular-starter/browser`
    - Install Command: `npm install`
 
 3. **Add environment variables** in Vercel dashboard:
@@ -317,7 +317,7 @@ The Playwright config automatically starts the dev server before running tests.
 
 ### Other Platforms
 
-The production build outputs to `dist/angular-template/browser`. Deploy this directory to any static hosting service (Netlify, Firebase Hosting, AWS S3, etc.).
+The production build outputs to `dist/angular-starter/browser`. Deploy this directory to any static hosting service (Netlify, Firebase Hosting, AWS S3, etc.).
 
 ```bash
 npm run build

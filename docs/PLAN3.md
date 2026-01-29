@@ -83,7 +83,7 @@ The template includes:
 
 **New npm scripts:**
 
-- `npm run serve:ssr:angular-template` — Run SSR server locally
+- `npm run serve:ssr:angular-starter` — Run SSR server locally
 
 **Tests:** 163 unit tests passing, lint clean, build clean, 3 routes prerendered
 
