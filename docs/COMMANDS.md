@@ -6,7 +6,7 @@
 | ------------------------------------ | ------------------------------------------- |
 | `npm start`                          | Start dev server at `http://localhost:4200` |
 | `npm run build`                      | Build for production                        |
-| `npm run serve:ssr:angular-template` | Serve SSR build locally (run `build` first) |
+| `npm run serve:ssr:angular-starter` | Serve SSR build locally (run `build` first) |
 
 ## Testing
 

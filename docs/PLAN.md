@@ -67,7 +67,7 @@ A fresh Angular 21 application with routing enabled and SCSS for styling. We'll 
 
 ### 1.1 Create Angular App
 
-- [ ] Run `ng new angular-template --directory . --style scss --routing --ssr false`
+- [ ] Run `ng new angular-starter --directory . --style scss --routing --ssr false`
 - [ ] Wait for installation to complete
 
 ### 1.2 Verify Locally
@@ -87,7 +87,7 @@ A fresh Angular 21 application with routing enabled and SCSS for styling. We'll 
 
 - [ ] Go to https://vercel.com
 - [ ] Click "Add New Project"
-- [ ] Import `angular-template` repository
+- [ ] Import `angular-starter` repository
 - [ ] Accept auto-detected settings
 - [ ] Click "Deploy"
 - [ ] Wait for build to complete
