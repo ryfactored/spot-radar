@@ -58,14 +58,60 @@ The template includes:
 
 **Why:** The landing page is the only public-facing page and the one most likely shared via links. Currently it's a blank HTML shell until JavaScript loads — search engines and social previews (Open Graph) see nothing. SSR pre-renders the HTML on the server so crawlers get real content. Authenticated pages don't need SSR since they're behind login.
 
-**Tasks:**
+#### Step-by-step
 
-- [ ] Add `@angular/ssr` to the project
-- [ ] Configure SSR for the public layout route only (landing page)
-- [ ] Add Open Graph meta tags to the landing page (`og:title`, `og:description`, `og:image`)
-- [ ] Ensure Supabase client initializes correctly in both server and browser environments
-- [ ] Update Vercel config if needed for SSR output
-- [ ] Verify authenticated routes still work as client-side only
+**Step 1: Add Angular SSR**
+
+Run `ng add @angular/ssr`. This:
+- Installs `@angular/ssr` and `express`
+- Creates `server.ts` (Express server entry point)
+- Updates `angular.json` with SSR build configuration
+- Updates `app.config.ts` to include `provideClientHydration()`
+
+**Step 2: Handle Supabase in SSR context**
+
+Supabase uses browser APIs (`localStorage`, `window`). On the server, these don't exist. Update `SupabaseService` to:
+- Check if running in browser using `isPlatformBrowser()`
+- Skip auth persistence on server (use `persistSession: false` or memory storage)
+- Return null/empty for auth state on server
+
+**Step 3: Add Open Graph meta tags**
+
+Update the landing page to set meta tags for social sharing:
+- `og:title` — "Angular Starter Template"
+- `og:description` — Brief description of the template
+- `og:image` — URL to a preview image (optional, can add later)
+- `og:url` — Canonical URL
+
+Use Angular's `Meta` service to set these dynamically, or add them statically to `index.html` if the landing page content is fixed.
+
+**Step 4: Configure Vercel for SSR**
+
+Vercel auto-detects Angular SSR and configures serverless functions. Verify:
+- Build output includes both browser and server bundles
+- `vercel.json` is not needed (Vercel handles routing)
+- Preview deploy works with SSR
+
+**Step 5: Test SSR locally**
+
+Run `npm run serve:ssr:angular-template` (or the script added by `ng add`). Visit `http://localhost:4000` and:
+- View page source — should see pre-rendered HTML, not empty `<app-root>`
+- Verify landing page renders
+- Verify login/register pages render (even if they redirect client-side)
+- Verify authenticated routes don't break (they'll render loading state on server)
+
+**Step 6: Verify and deploy**
+
+- Run `npm run build` (builds both browser and server)
+- Run `npm test` and `npm run e2e` to ensure no regressions
+- Push to trigger Vercel deploy
+- Test the deployed SSR landing page with [Facebook Sharing Debugger](https://developers.facebook.com/tools/debug/) or similar
+
+#### Notes
+
+- SSR adds complexity — only use it if SEO matters for your landing page
+- Authenticated routes don't benefit from SSR (user-specific content can't be pre-rendered)
+- If Supabase causes issues, consider lazy-loading it only in browser context
 
 ---
 
