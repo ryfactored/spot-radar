@@ -1,6 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { SupabaseService } from './supabase';
+import { RealtimeService } from './realtime';
 import { User, Provider } from '@supabase/supabase-js';
 import { mapToError } from './error-mapper';
 
@@ -21,6 +22,7 @@ export type SocialProvider = 'google' | 'github' | 'spotify' | 'discord' | 'appl
 })
 export class AuthService {
   private supabase = inject(SupabaseService);
+  private realtime = inject(RealtimeService);
   private router = inject(Router);
 
   currentUser = signal<User | null>(null);
@@ -66,6 +68,9 @@ export class AuthService {
   }
 
   async signOut() {
+    // Disconnect all realtime subscriptions
+    this.realtime.disconnectAll();
+
     try {
       await this.supabase.client.auth.signOut();
     } catch {
