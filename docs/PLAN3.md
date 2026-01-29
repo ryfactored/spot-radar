@@ -12,6 +12,7 @@ The template includes:
 - **Accessibility** — WCAG 2.1 AA, axe-core E2E tests, skip links, ARIA
 - **Test Coverage** — 163 unit tests (80%+), 24 E2E tests, visual regression baselines
 - **CI/CD** — GitHub Actions (build, test, E2E), Vercel auto-deploy
+- **SSR** — Server-side rendering for public pages (landing, login, register)
 
 ---
 
@@ -52,66 +53,39 @@ The template includes:
 
 ---
 
-### Iteration 22: SEO / SSR
+### Iteration 22: SEO / SSR ✅
 
 **Goal:** Add server-side rendering so the public landing page is indexable by search engines.
 
 **Why:** The landing page is the only public-facing page and the one most likely shared via links. Currently it's a blank HTML shell until JavaScript loads — search engines and social previews (Open Graph) see nothing. SSR pre-renders the HTML on the server so crawlers get real content. Authenticated pages don't need SSR since they're behind login.
 
-#### Step-by-step
+**What was done:**
 
-**Step 1: Add Angular SSR**
+- Ran `ng add @angular/ssr` to add Angular SSR support
+- Updated Angular packages to 21.1.2 (required for SSR compatibility)
+- Added `isPlatformBrowser()` checks in:
+  - `SupabaseService` — skip session persistence on server
+  - `GlobalErrorHandler` — skip toasts on server
+  - `App` — skip theme/dark mode class manipulation on server
+- Configured `app.routes.server.ts` with render modes:
+  - `RenderMode.Prerender` for public pages (`/`, `/login`, `/register`)
+  - `RenderMode.Client` for all authenticated/dynamic routes
+- Increased bundle size budget from 1.5MB to 1.6MB (SSR adds overhead)
+- Added SEO config to environment files (`siteUrl`, `siteTitle`, `siteDescription`)
+- Landing page sets Open Graph meta tags dynamically via Angular's `Meta` service
 
-Run `ng add @angular/ssr`. This:
-- Installs `@angular/ssr` and `express`
-- Creates `server.ts` (Express server entry point)
-- Updates `angular.json` with SSR build configuration
-- Updates `app.config.ts` to include `provideClientHydration()`
+**New files:**
 
-**Step 2: Handle Supabase in SSR context**
+- `server.ts` — Express server entry point
+- `src/main.server.ts` — Server bootstrap
+- `src/app/app.config.server.ts` — Server-side app config
+- `src/app/app.routes.server.ts` — SSR render mode configuration
 
-Supabase uses browser APIs (`localStorage`, `window`). On the server, these don't exist. Update `SupabaseService` to:
-- Check if running in browser using `isPlatformBrowser()`
-- Skip auth persistence on server (use `persistSession: false` or memory storage)
-- Return null/empty for auth state on server
+**New npm scripts:**
 
-**Step 3: Add Open Graph meta tags**
+- `npm run serve:ssr:angular-template` — Run SSR server locally
 
-Update the landing page to set meta tags for social sharing:
-- `og:title` — "Angular Starter Template"
-- `og:description` — Brief description of the template
-- `og:image` — URL to a preview image (optional, can add later)
-- `og:url` — Canonical URL
-
-Use Angular's `Meta` service to set these dynamically, or add them statically to `index.html` if the landing page content is fixed.
-
-**Step 4: Configure Vercel for SSR**
-
-Vercel auto-detects Angular SSR and configures serverless functions. Verify:
-- Build output includes both browser and server bundles
-- `vercel.json` is not needed (Vercel handles routing)
-- Preview deploy works with SSR
-
-**Step 5: Test SSR locally**
-
-Run `npm run serve:ssr:angular-template` (or the script added by `ng add`). Visit `http://localhost:4000` and:
-- View page source — should see pre-rendered HTML, not empty `<app-root>`
-- Verify landing page renders
-- Verify login/register pages render (even if they redirect client-side)
-- Verify authenticated routes don't break (they'll render loading state on server)
-
-**Step 6: Verify and deploy**
-
-- Run `npm run build` (builds both browser and server)
-- Run `npm test` and `npm run e2e` to ensure no regressions
-- Push to trigger Vercel deploy
-- Test the deployed SSR landing page with [Facebook Sharing Debugger](https://developers.facebook.com/tools/debug/) or similar
-
-#### Notes
-
-- SSR adds complexity — only use it if SEO matters for your landing page
-- Authenticated routes don't benefit from SSR (user-specific content can't be pre-rendered)
-- If Supabase causes issues, consider lazy-loading it only in browser context
+**Tests:** 163 unit tests passing, lint clean, build clean, 3 routes prerendered
 
 ---
 
