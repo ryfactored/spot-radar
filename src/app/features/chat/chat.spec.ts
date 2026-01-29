@@ -127,7 +127,9 @@ describe('ChatService', () => {
         }),
       });
 
-      await expect(service.send('Hello')).rejects.toThrow('Something went wrong. Please try again.');
+      await expect(service.send('Hello')).rejects.toThrow(
+        'Something went wrong. Please try again.',
+      );
     });
   });
 });

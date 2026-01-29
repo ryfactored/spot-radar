@@ -21,7 +21,12 @@ describe('roleGuard', () => {
     userRole?: string | null;
     profileError?: boolean;
   }) {
-    const { isAuthenticated = true, isLoading = false, userRole = 'user', profileError = false } = options;
+    const {
+      isAuthenticated = true,
+      isLoading = false,
+      userRole = 'user',
+      profileError = false,
+    } = options;
 
     loadingSignal = signal(isLoading);
     userSignal = signal(isAuthenticated ? { id: '123', email: 'test@test.com' } : null);
@@ -32,7 +37,7 @@ describe('roleGuard', () => {
     };
 
     routerMock = {
-      parseUrl: vi.fn().mockImplementation((url: string) => ({ toString: () => url } as UrlTree)),
+      parseUrl: vi.fn().mockImplementation((url: string) => ({ toString: () => url }) as UrlTree),
     };
 
     toastMock = {
@@ -41,11 +46,13 @@ describe('roleGuard', () => {
 
     const selectMock = {
       eq: vi.fn().mockReturnValue({
-        single: vi.fn().mockResolvedValue(
-          profileError
-            ? { data: null, error: { message: 'Error' } }
-            : { data: userRole ? { role: userRole } : null, error: null },
-        ),
+        single: vi
+          .fn()
+          .mockResolvedValue(
+            profileError
+              ? { data: null, error: { message: 'Error' } }
+              : { data: userRole ? { role: userRole } : null, error: null },
+          ),
       }),
     };
 
@@ -99,7 +106,9 @@ describe('roleGuard', () => {
 
       const result = await firstValueFrom((result$ as any).pipe(timeout(1000)));
       expect(routerMock.parseUrl).toHaveBeenCalledWith('/dashboard');
-      expect(toastMock.error).toHaveBeenCalledWith('You do not have permission to access this page');
+      expect(toastMock.error).toHaveBeenCalledWith(
+        'You do not have permission to access this page',
+      );
     });
   });
 

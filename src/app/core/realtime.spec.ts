@@ -54,7 +54,9 @@ describe('RealtimeService', () => {
     it('should create a channel with correct name', () => {
       service.subscribeToTable('notes', () => {});
 
-      expect(mockSupabase.client.channel).toHaveBeenCalledWith(expect.stringContaining('notes-changes-'));
+      expect(mockSupabase.client.channel).toHaveBeenCalledWith(
+        expect.stringContaining('notes-changes-'),
+      );
     });
 
     it('should subscribe to postgres_changes with correct config', () => {
