@@ -1,8 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
+import { Meta, Title } from '@angular/platform-browser';
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
+import { environment } from '@env';
 
 @Component({
   selector: 'app-landing',
@@ -226,4 +228,17 @@ import { MatCardModule } from '@angular/material/card';
     }
   `,
 })
-export class Landing {}
+export class Landing implements OnInit {
+  private meta = inject(Meta);
+  private title = inject(Title);
+
+  ngOnInit() {
+    this.title.setTitle(environment.siteTitle);
+
+    this.meta.updateTag({ property: 'og:title', content: environment.siteTitle });
+    this.meta.updateTag({ property: 'og:description', content: environment.siteDescription });
+    this.meta.updateTag({ property: 'og:url', content: environment.siteUrl });
+    this.meta.updateTag({ property: 'og:type', content: 'website' });
+    this.meta.updateTag({ name: 'description', content: environment.siteDescription });
+  }
+}

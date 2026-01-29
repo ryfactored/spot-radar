@@ -1,4 +1,5 @@
-import { ErrorHandler, Injectable, inject, NgZone } from '@angular/core';
+import { ErrorHandler, Injectable, inject, NgZone, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { ToastService } from '../shared/toast';
 import { mapError } from './error-mapper';
 
@@ -17,17 +18,20 @@ import { mapError } from './error-mapper';
 export class GlobalErrorHandler implements ErrorHandler {
   private toast = inject(ToastService);
   private zone = inject(NgZone);
+  private platformId = inject(PLATFORM_ID);
 
   handleError(error: unknown): void {
     // Log full error for debugging (only visible in console)
     console.error('Global error:', error);
 
-    // Map to user-friendly message (hides internal details)
-    const { message } = mapError(error);
-
-    // Show toast (must run in Angular zone)
-    this.zone.run(() => {
-      this.toast.error(message);
-    });
+    // Only show toast in browser (not during SSR)
+    if (isPlatformBrowser(this.platformId)) {
+      // Map to user-friendly message (hides internal details)
+      const { message } = mapError(error);
+      // Show toast (must run in Angular zone)
+      this.zone.run(() => {
+        this.toast.error(message);
+      });
+    }
   }
 }

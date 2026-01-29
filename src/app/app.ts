@@ -1,4 +1,5 @@
-import { Component, inject, effect } from '@angular/core';
+import { Component, inject, effect, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { PreferencesService, ColorTheme } from './core/preferences';
 
@@ -10,10 +11,16 @@ import { PreferencesService, ColorTheme } from './core/preferences';
 })
 export class App {
   private preferences = inject(PreferencesService);
+  private platformId = inject(PLATFORM_ID);
 
   private colorThemeClasses: ColorTheme[] = ['default', 'ocean', 'forest'];
 
   constructor() {
+    // Skip theme handling on server (no document)
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
     // Apply color theme class to body
     effect(() => {
       const colorTheme = this.preferences.colorTheme();

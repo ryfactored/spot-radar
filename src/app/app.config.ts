@@ -2,8 +2,9 @@ import { ApplicationConfig, ErrorHandler, provideBrowserGlobalErrorListeners } f
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { GlobalErrorHandler, httpErrorInterceptor } from '@core';
+import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 
 /**
  * Application configuration using the standalone bootstrapping pattern.
@@ -14,9 +15,10 @@ import { GlobalErrorHandler, httpErrorInterceptor } from '@core';
  */
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideHttpClient(withInterceptors([httpErrorInterceptor])),
+    provideHttpClient(withFetch(), withInterceptors([httpErrorInterceptor])),
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
     { provide: ErrorHandler, useClass: GlobalErrorHandler },
+    provideClientHydration(withEventReplay()),
   ],
 };
