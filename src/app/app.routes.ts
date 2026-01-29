@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { Shell, AuthLayout, PublicLayout } from '@layouts';
-import { authGuard, guestGuard } from '@core';
+import { authGuard, guestGuard, roleGuard } from '@core';
 
 /**
  * Application routes with lazy-loaded feature components.
@@ -61,6 +61,11 @@ export const routes: Routes = [
       {
         path: 'notes/:id/edit',
         loadComponent: () => import('./features/notes/note-form/note-form').then((m) => m.NoteForm),
+      },
+      {
+        path: 'admin',
+        loadComponent: () => import('./features/admin/admin').then((m) => m.Admin),
+        canActivate: [roleGuard('admin')],
       },
     ],
   },

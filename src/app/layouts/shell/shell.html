@@ -25,6 +25,12 @@
         <mat-icon matListItemIcon>widgets</mat-icon>
         <span matListItemTitle>Components</span>
       </a>
+      @if (isAdmin()) {
+        <a mat-list-item routerLink="/admin">
+          <mat-icon matListItemIcon>admin_panel_settings</mat-icon>
+          <span matListItemTitle>Admin</span>
+        </a>
+      }
     </mat-nav-list>
   </mat-sidenav>
 

@@ -60,13 +60,20 @@ export class AuthService {
   async signInWithProvider(provider: SocialProvider) {
     const { error } = await this.supabase.client.auth.signInWithOAuth({
       provider: provider as Provider,
-      options: { redirectTo: window.location.origin },
+      options: { redirectTo: `${window.location.origin}/dashboard` },
     });
     if (error) throw mapToError(error);
   }
 
   async signOut() {
-    const { error } = await this.supabase.client.auth.signOut();
-    if (error) throw mapToError(error);
+    try {
+      await this.supabase.client.auth.signOut();
+    } catch {
+      // Ignore - session may already be invalid server-side
+    }
+    // Clear local state regardless of server response
+    // (guestGuard checks currentUser before allowing /login)
+    this.currentUser.set(null);
+    this.router.navigate(['/login']);
   }
 }

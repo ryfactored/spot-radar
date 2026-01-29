@@ -89,20 +89,100 @@ The template includes:
 
 ---
 
-### Iteration 23: Route Guards + Role-Based Access
+### Iteration 23: Route Guards + Role-Based Access ✅
 
 **Goal:** Add user roles and protect routes based on role membership.
 
 **Why:** The current `authGuard` only checks "is the user logged in?" — it can't distinguish between a regular user and an admin. As the app grows, certain pages (user management, analytics, settings) should be restricted to specific roles. Building this foundation now avoids retrofitting later.
 
-**Tasks:**
+#### Step-by-step
 
-- [ ] Add `role` column to Supabase user profile (e.g. `user`, `admin`)
-- [ ] Create `RoleService` to fetch and cache the current user's role
-- [ ] Create `roleGuard(allowedRoles)` — a configurable route guard that checks role membership
-- [ ] Add a protected admin route (placeholder page) to demonstrate the pattern
-- [ ] Show/hide navigation items based on role
-- [ ] Add tests for role guard (allowed, denied, unauthenticated)
+**Step 1: Add `role` column to Supabase**
+
+Run this SQL in Supabase SQL Editor:
+
+```sql
+-- Add role column with default 'user'
+ALTER TABLE profiles ADD COLUMN role TEXT NOT NULL DEFAULT 'user';
+
+-- Optional: Add check constraint for valid roles
+ALTER TABLE profiles ADD CONSTRAINT valid_role CHECK (role IN ('user', 'admin'));
+```
+
+**Step 2: Update Profile interface**
+
+Add `role` field to the `Profile` interface in `profile-service.ts`:
+
+```typescript
+export type UserRole = 'user' | 'admin';
+
+export interface Profile {
+  // ... existing fields
+  role: UserRole;
+}
+```
+
+**Step 3: Create `roleGuard`**
+
+Create `src/app/core/role-guard.ts`:
+
+- Factory function that accepts allowed roles: `roleGuard('admin')` or `roleGuard('admin', 'user')`
+- Wait for auth loading (like `authGuard`)
+- Fetch user profile to get role
+- Return true if role matches, otherwise redirect to `/dashboard` with a toast
+
+**Step 4: Add admin page**
+
+Create `src/app/features/admin/admin.ts`:
+
+- Simple placeholder page showing "Admin Dashboard"
+- Only accessible to users with `admin` role
+
+**Step 5: Add admin route**
+
+Update `app.routes.ts`:
+
+- Add `/admin` route inside Shell
+- Apply both `authGuard` and `roleGuard('admin')`
+
+**Step 6: Show/hide nav based on role**
+
+Update Shell component:
+
+- Inject ProfileService and fetch current user's profile
+- Only show "Admin" nav link if `profile.role === 'admin'`
+
+**Step 7: Add tests**
+
+Create `src/app/core/role-guard.spec.ts`:
+
+- Test: allows access when user has required role
+- Test: denies access and redirects when user lacks role
+- Test: denies access when user is not authenticated
+
+**Step 8: Verify**
+
+- Run `npm run lint && npm run build && npm test`
+- Manually test: login as regular user (no admin link), change role to admin in Supabase, refresh (admin link appears)
+
+**What was done:**
+
+- Added `role` column to Supabase profiles table (SQL migration)
+- Added `UserRole` type and updated `Profile` interface
+- Created `roleGuard` factory function that accepts allowed roles
+- Created `/admin` page (placeholder for admin functionality)
+- Added `/admin` route with `roleGuard('admin')` protection
+- Updated Shell to fetch user role and conditionally show Admin nav link
+- Added 8 new tests (6 for roleGuard, 2 for admin component)
+
+**New files:**
+
+- `src/app/core/role-guard.ts` — Role-based route guard
+- `src/app/core/role-guard.spec.ts` — Tests for role guard
+- `src/app/features/admin/admin.ts` — Admin page component
+- `src/app/features/admin/admin.spec.ts` — Admin page tests
+
+**Tests:** 171 unit tests passing, lint clean, build clean
 
 ---
 
