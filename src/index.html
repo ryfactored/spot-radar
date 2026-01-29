@@ -1,6 +1,12 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <script>
+      // Immediately hide content if not on landing page (prevents SSR flash)
+      if (location.pathname !== '/') {
+        document.documentElement.style.visibility = 'hidden';
+      }
+    </script>
     <meta charset="utf-8" />
     <title>AngularTemplate</title>
     <base href="/" />

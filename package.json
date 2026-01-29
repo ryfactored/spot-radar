@@ -14,7 +14,8 @@
     "lint": "ng lint",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "serve:ssr:angular-template": "node dist/angular-template/server/server.mjs"
+    "serve:ssr": "node dist/angular-template/server/server.mjs",
+    "serve:ssr:dev": "ng build --configuration development && node dist/angular-template/server/server.mjs"
   },
   "prettier": {
     "printWidth": 100,
