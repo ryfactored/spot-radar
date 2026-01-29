@@ -2,17 +2,43 @@ import { Component, inject, effect, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { PreferencesService, ColorTheme } from './core/preferences';
+import { environment } from '../environments/environment';
 
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [RouterOutlet],
-  template: `<router-outlet />`,
+  template: `
+    <router-outlet />
+    @if (!isProd && isBrowser) {
+      <div class="dev-badge"><span class="material-icons">code</span></div>
+    }
+  `,
+  styles: `
+    .dev-badge {
+      position: fixed;
+      bottom: 8px;
+      left: 8px;
+      background: #03a9f4;
+      color: white;
+      padding: 6px;
+      border-radius: 4px;
+      z-index: 99999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .dev-badge .material-icons {
+      font-size: 18px;
+    }
+  `,
 })
 export class App {
   private preferences = inject(PreferencesService);
   private platformId = inject(PLATFORM_ID);
 
+  isProd = environment.production;
+  isBrowser = false;
   private colorThemeClasses: ColorTheme[] = ['default', 'ocean', 'forest'];
 
   constructor() {
@@ -20,6 +46,12 @@ export class App {
     if (!isPlatformBrowser(this.platformId)) {
       return;
     }
+
+    // Restore visibility (hidden by inline script to prevent SSR flash)
+    document.documentElement.style.visibility = '';
+
+    // Enable dev badge (only in browser to avoid hydration mismatch)
+    this.isBrowser = true;
 
     // Apply color theme class to body
     effect(() => {
