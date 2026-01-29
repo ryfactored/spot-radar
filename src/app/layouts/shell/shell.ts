@@ -1,4 +1,4 @@
-import { Component, inject, computed, ViewChild } from '@angular/core';
+import { Component, inject, computed, ViewChild, signal, OnInit } from '@angular/core';
 import { RouterOutlet, RouterLink, Router, NavigationEnd } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
@@ -9,7 +9,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { toSignal, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { map, filter } from 'rxjs';
-import { PreferencesService, AuthService } from '@core';
+import { PreferencesService, AuthService, UserRole, SupabaseService } from '@core';
 import { ThemePicker } from '@shared';
 
 @Component({
@@ -29,13 +29,18 @@ import { ThemePicker } from '@shared';
   templateUrl: './shell.html',
   styleUrl: './shell.scss',
 })
-export class Shell {
+export class Shell implements OnInit {
   @ViewChild('sidenav') sidenav!: MatSidenav;
 
   preferences = inject(PreferencesService);
   private auth = inject(AuthService);
+  private supabase = inject(SupabaseService);
   private breakpointObserver = inject(BreakpointObserver);
   private router = inject(Router);
+
+  // User role for conditional nav items
+  userRole = signal<UserRole | null>(null);
+  isAdmin = computed(() => this.userRole() === 'admin');
 
   // Detect mobile breakpoint (< 768px)
   private isMobile$ = this.breakpointObserver
@@ -62,6 +67,25 @@ export class Shell {
           this.sidenav.close();
         }
       });
+  }
+
+  async ngOnInit() {
+    await this.loadUserRole();
+  }
+
+  private async loadUserRole() {
+    const user = this.auth.currentUser();
+    if (!user) return;
+
+    const { data } = await this.supabase.client
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
+    if (data?.role) {
+      this.userRole.set(data.role as UserRole);
+    }
   }
 
   toggleSidenav() {

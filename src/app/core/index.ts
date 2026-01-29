@@ -2,6 +2,8 @@ export { AuthService } from './auth';
 export type { SocialProvider } from './auth';
 export { authGuard } from './auth-guard';
 export { guestGuard } from './guest-guard';
+export { roleGuard } from './role-guard';
+export type { UserRole } from './role-guard';
 export { SupabaseService } from './supabase';
 export { SUPABASE_ERRORS } from './supabase-errors';
 export { PreferencesService } from './preferences';

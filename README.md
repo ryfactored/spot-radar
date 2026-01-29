@@ -99,6 +99,9 @@ To enable Google or GitHub authentication:
 1. Go to **Authentication > Providers** in your Supabase dashboard
 2. Enable Google and/or GitHub
 3. Add the required OAuth credentials from each provider
+4. Go to **Authentication > URL Configuration** and add redirect URLs:
+   - `http://localhost:4200/**` (for local development)
+   - `https://your-domain.com/**` (for production)
 
 ## Available Scripts
 
