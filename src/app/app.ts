@@ -1,6 +1,7 @@
 import { Component, inject, effect, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { RouterOutlet } from '@angular/router';
+import { Router, NavigationEnd, RouterOutlet } from '@angular/router';
+import { filter, take } from 'rxjs';
 import { PreferencesService, ColorTheme } from './core/preferences';
 import { environment } from '../environments/environment';
 
@@ -48,7 +49,27 @@ export class App {
     }
 
     // Restore visibility (hidden by inline script to prevent SSR flash)
-    document.documentElement.style.visibility = '';
+    const isOAuthCallback =
+      location.search.includes('code=') || location.hash.includes('access_token');
+    if (!isOAuthCallback) {
+      document.documentElement.style.visibility = '';
+    } else {
+      // During OAuth callback, keep hidden until auth redirects away from landing page
+      const router = inject(Router);
+      router.events
+        .pipe(
+          filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+          filter((e) => e.urlAfterRedirects !== '/'),
+          take(1),
+        )
+        .subscribe(() => {
+          document.documentElement.style.visibility = '';
+        });
+      // Safety fallback in case auth processing fails
+      setTimeout(() => {
+        document.documentElement.style.visibility = '';
+      }, 5000);
+    }
 
     // Enable dev badge (only in browser to avoid hydration mismatch)
     this.isBrowser = true;
