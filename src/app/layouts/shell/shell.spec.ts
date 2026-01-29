@@ -25,7 +25,9 @@ describe('Shell', () => {
     };
   }
 
-  function createAuthMock(user: { id: string; email: string } | null = { id: '123', email: 'test@test.com' }) {
+  function createAuthMock(
+    user: { id: string; email: string } | null = { id: '123', email: 'test@test.com' },
+  ) {
     return {
       signOut: vi.fn().mockResolvedValue(undefined),
       currentUser: signal(user),
@@ -43,7 +45,9 @@ describe('Shell', () => {
     setColorTheme: vi.fn(),
   };
 
-  async function setupTest(options: { role?: string; user?: { id: string; email: string } | null } = {}) {
+  async function setupTest(
+    options: { role?: string; user?: { id: string; email: string } | null } = {},
+  ) {
     const { role = 'user', user = { id: '123', email: 'test@test.com' } } = options;
 
     supabaseMock = createSupabaseMock(role);

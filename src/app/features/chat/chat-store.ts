@@ -51,9 +51,8 @@ export class ChatStore {
   subscribeToRealtime(): void {
     if (this.unsubscribeFn) return; // Already subscribed
 
-    this.unsubscribeFn = this.realtime.subscribeToTable<Message>(
-      'messages',
-      (payload) => this.handleRealtimeEvent(payload),
+    this.unsubscribeFn = this.realtime.subscribeToTable<Message>('messages', (payload) =>
+      this.handleRealtimeEvent(payload),
     );
   }
 
