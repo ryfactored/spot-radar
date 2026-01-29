@@ -186,20 +186,58 @@ Create `src/app/core/role-guard.spec.ts`:
 
 ---
 
-### Iteration 24: Notifications / Real-Time
+### Iteration 24: Chat Feature (Realtime Showcase) ✅
 
-**Goal:** Add real-time updates using Supabase's subscription feature.
+**Goal:** Add real-time updates using Supabase Realtime, demonstrated via a chat feature.
 
-**Why:** Currently, notes are only refreshed when the user navigates to the list or manually reloads. If notes are edited from another device or by another user (in a future shared-notes scenario), the UI becomes stale. Supabase provides PostgreSQL change notifications over WebSocket — subscribing to `INSERT`, `UPDATE`, and `DELETE` events keeps the UI in sync without polling.
+**Why:** Chat is a natural showcase for Supabase Realtime because messages from all authenticated users appear instantly — the core value prop of realtime subscriptions.
 
-**Tasks:**
+**What was done:**
 
-- [ ] Create `RealtimeService` wrapping Supabase's `channel().on()` API
-- [ ] Subscribe to notes table changes in `NotesStore`
-- [ ] Update the notes list in real-time when notes are created, edited, or deleted
-- [ ] Show a toast when a remote change is received (e.g. "Note updated")
-- [ ] Unsubscribe on component destroy / logout
-- [ ] Add connection status indicator (connected / reconnecting)
+- Created `RealtimeService` wrapping Supabase's `channel().on()` API
+- Created `ConnectionIndicator` component showing connection status (connected/connecting/reconnecting/disconnected)
+- Created Chat feature with realtime message updates:
+  - `ChatService` — list() fetches last 50 messages, send() inserts new message
+  - `ChatStore` — signal-based store with realtime subscription for INSERT events
+  - `ChatRoom` — component with message list, input field, auto-scroll, own-message highlighting
+- Added `/chat` route and nav link
+
+**New files:**
+
+- `src/app/core/realtime.ts` — RealtimeService with subscribeToTable(), connectionStatus signal
+- `src/app/core/realtime.spec.ts` — 15 unit tests
+- `src/app/shared/connection-indicator/connection-indicator.ts` — Status indicator component
+- `src/app/shared/connection-indicator/connection-indicator.spec.ts` — 13 unit tests
+- `src/app/features/chat/chat.ts` — ChatService
+- `src/app/features/chat/chat.spec.ts` — 7 unit tests
+- `src/app/features/chat/chat-store.ts` — ChatStore with realtime
+- `src/app/features/chat/chat-store.spec.ts` — 18 unit tests
+- `src/app/features/chat/chat-room/chat-room.ts` — Chat component
+- `src/app/features/chat/chat-room/chat-room.spec.ts` — 17 unit tests
+
+**Database setup (run in Supabase SQL Editor):**
+
+```sql
+create table messages (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references auth.users(id) on delete cascade not null,
+  username text not null,
+  content text not null,
+  created_at timestamptz default now() not null
+);
+
+alter table messages enable row level security;
+
+create policy "Anyone can read messages"
+  on messages for select to authenticated using (true);
+
+create policy "Users can insert their own messages"
+  on messages for insert to authenticated with check (auth.uid() = user_id);
+
+alter publication supabase_realtime add table messages;
+```
+
+**Tests:** 255 unit tests passing, lint clean, build clean
 
 ---
 

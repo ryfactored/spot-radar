@@ -11,3 +11,5 @@ export type { ColorTheme } from './preferences';
 export { GlobalErrorHandler } from './global-error-handler';
 export { httpErrorInterceptor } from './http-error-interceptor';
 export { mapError, mapToError, unwrap, unwrapWithCount } from './error-mapper';
+export { RealtimeService } from './realtime';
+export type { ConnectionStatus, RealtimeEventType, RealtimePayload } from './realtime';

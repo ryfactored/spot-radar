@@ -63,6 +63,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/notes/note-form/note-form').then((m) => m.NoteForm),
       },
       {
+        path: 'chat',
+        loadComponent: () => import('./features/chat/chat-room/chat-room').then((m) => m.ChatRoom),
+      },
+      {
         path: 'admin',
         loadComponent: () => import('./features/admin/admin').then((m) => m.Admin),
         canActivate: [roleGuard('admin')],
