@@ -19,7 +19,7 @@ After Part 1, the app is consistent: CSS custom properties for all colors, stand
 | 28  | Clean up `app.html` placeholder                         | `app.html`                                                                  |
 | 29  | Standardize page header pattern                         | `shell.scss`, `dashboard.ts`, `notes-list.ts`, `chat-room.ts`, `profile.ts` |
 | 30  | Improve the dashboard page                              | `dashboard.ts`                                                              |
-| 31  | Use `environment.siteTitle` for all app name references | `shell.html`/`shell.ts`, `public-layout.ts`, `auth-layout.ts`              |
+| 31  | Use `environment.siteTitle` for all app name references | `shell.html`/`shell.ts`, `public-layout.ts`, `auth-layout.ts`               |
 | 32  | Swap font to Inter                                      | `index.html`, `styles.scss`                                                 |
 | 33  | Refresh theme palettes with custom colors               | `_themes.scss`, `theme-picker.ts`, `landing.ts`                             |
 | 34  | Softer card radius and consistent hover elevation       | `styles.scss`                                                               |
@@ -249,7 +249,7 @@ When cloning this starter for a new app, these are the files to customize:
 
 - **`@core`, `@shared`, `@layouts` barrel imports** -- Services, shared components, and layouts are re-exported through barrel files. Use these aliases in imports rather than deep relative paths.
 
-- **Shell-scoped utility classes** -- `.page-header` is defined in `shell.scss` (not encapsulated by Angular) so it's available to all child components rendered inside the shell. New utility classes for authenticated pages should be added here.
+- **Global utility classes** -- `.page-header` is defined in `styles.scss` (global) so it's available to all components, including those rendered via `<router-outlet>`. Shell's `shell.scss` uses default emulated encapsulation, so styles there do NOT reach child components. Any utility class shared across pages must go in `styles.scss`, not `shell.scss`.
 
 - **M2 theming (not M3)** -- The app uses Angular Material's M2 API (`m2-define-palette`, `m2-define-light-theme`, etc.). M3 migration would require a different palette format and theme structure. The custom palette maps in `_themes.scss` follow the M2 shape: keys 50-900, A100-A700, plus a `contrast` sub-map.
 
@@ -278,13 +278,13 @@ When cloning this starter for a new app, these are the files to customize:
 
 These are the most commonly used properties, set automatically by Angular Material's theme system:
 
-| Property | Usage |
-|---|---|
-| `--mat-sys-primary` | Primary theme color (buttons, links, accents) |
-| `--mat-sys-on-primary` | Text/icon color on primary backgrounds |
-| `--mat-sys-primary-container` | Lighter primary tint (chat bubbles, highlights) |
-| `--mat-sys-surface-variant` | Subtle surface color (placeholders, dividers) |
-| `--mat-sys-on-surface-variant` | Secondary text color (hints, captions, timestamps) |
-| `--mat-app-background-color` | Page/app background |
-| `--mat-app-text-color` | Default text color |
-| `--mdc-elevated-card-container-color` | Card background color |
+| Property                              | Usage                                              |
+| ------------------------------------- | -------------------------------------------------- |
+| `--mat-sys-primary`                   | Primary theme color (buttons, links, accents)      |
+| `--mat-sys-on-primary`                | Text/icon color on primary backgrounds             |
+| `--mat-sys-primary-container`         | Lighter primary tint (chat bubbles, highlights)    |
+| `--mat-sys-surface-variant`           | Subtle surface color (placeholders, dividers)      |
+| `--mat-sys-on-surface-variant`        | Secondary text color (hints, captions, timestamps) |
+| `--mat-app-background-color`          | Page/app background                                |
+| `--mat-app-text-color`                | Default text color                                 |
+| `--mdc-elevated-card-container-color` | Card background color                              |

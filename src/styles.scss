@@ -30,12 +30,69 @@
   @include mat.all-component-colors(themes.$forest-light-theme);
 }
 
+// Card polish: softer radius globally, hover lift only on linked cards
+mat-card,
+.mat-mdc-card {
+  border-radius: 12px !important;
+}
+
+a mat-card,
+a .mat-mdc-card {
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+  }
+}
+
+// Page header utility (used by child components inside the shell)
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+
+  h1 {
+    margin: 0;
+  }
+}
+
 // Base styles
 html,
 body {
   height: 100%;
   margin: 0;
-  font-family: Inter, system-ui, -apple-system, sans-serif;
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    sans-serif;
+}
+
+// Smooth theme and dark-mode transitions
+body,
+mat-toolbar,
+mat-sidenav,
+mat-sidenav-container,
+mat-card,
+.mat-mdc-card {
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+
+// Button press feedback
+[mat-raised-button],
+[mat-fab],
+[mat-flat-button] {
+  transition: transform 0.1s ease;
+
+  &:active {
+    transform: scale(0.97);
+  }
 }
 
 // Accessibility: Enhanced focus indicators
