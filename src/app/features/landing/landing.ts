@@ -138,14 +138,14 @@ import { environment } from '@env';
 
     .features {
       padding: 80px 24px;
-      background: #fafafa;
+      background: var(--mat-app-background-color, #fafafa);
     }
 
     .features h2 {
       text-align: center;
       font-size: 2rem;
       margin: 0 0 48px;
-      color: #333;
+      color: var(--mat-app-text-color, #333);
     }
 
     .features-grid {
@@ -177,10 +177,11 @@ import { environment } from '@env';
     }
 
     .feature-card p {
-      color: #666;
+      color: var(--mat-sys-on-surface-variant, #666);
       line-height: 1.6;
     }
 
+    /* Brand footer -- intentionally dark regardless of theme */
     .footer {
       padding: 32px 24px;
       text-align: center;
@@ -190,19 +191,6 @@ import { environment } from '@env';
 
     .footer p {
       margin: 0;
-    }
-
-    /* Dark theme support */
-    :host-context(.dark-theme) .features {
-      background: #1e1e1e;
-    }
-
-    :host-context(.dark-theme) .features h2 {
-      color: #fff;
-    }
-
-    :host-context(.dark-theme) .feature-card p {
-      color: #aaa;
     }
 
     @media (max-width: 600px) {
