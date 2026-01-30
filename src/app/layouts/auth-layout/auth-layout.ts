@@ -20,21 +20,27 @@ import { environment } from '@env';
       display: flex;
       align-items: center;
       justify-content: center;
-      background: var(--mat-app-background-color, #f5f5f5);
+      background:
+        radial-gradient(ellipse at top left, color-mix(in srgb, var(--mat-sys-primary, #3b82f6) 12%, transparent) 0%, transparent 50%),
+        radial-gradient(ellipse at bottom right, color-mix(in srgb, var(--mat-sys-primary, #3b82f6) 8%, transparent) 0%, transparent 50%),
+        #121215;
     }
     .auth-card {
-      background: var(--mdc-elevated-card-container-color, white);
-      color: var(--mat-app-text-color, inherit);
+      background: rgba(30, 30, 34, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      color: #fafafa;
       padding: 40px;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      border-radius: 12px;
+      border: 1px solid #2a2a2e;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
       width: 100%;
       max-width: 400px;
     }
     .app-title {
       text-align: center;
       margin-bottom: 24px;
-      color: var(--mat-sys-primary, #6366f1);
+      color: var(--mat-sys-primary, #3b82f6);
     }
   `,
 })

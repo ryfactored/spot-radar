@@ -20,8 +20,8 @@ import { environment } from '@env';
           Start building your next project in minutes.
         </p>
         <div class="hero-actions">
-          <a mat-raised-button color="primary" routerLink="/register"> Get Started Free </a>
-          <a mat-stroked-button routerLink="/login"> Sign In </a>
+          <a mat-flat-button class="hero-cta-btn" routerLink="/register"> Get Started Free </a>
+          <a mat-flat-button class="hero-signin-btn" routerLink="/login"> Sign In </a>
         </div>
       </div>
     </section>
@@ -31,11 +31,11 @@ import { environment } from '@env';
       <h2>Everything You Need</h2>
       <div class="features-grid">
         <mat-card class="feature-card">
-          <mat-card-header>
-            <mat-icon mat-card-avatar class="feature-icon">security</mat-icon>
-            <mat-card-title>Authentication</mat-card-title>
-          </mat-card-header>
           <mat-card-content>
+            <div class="feature-icon-wrap">
+              <mat-icon class="feature-icon">security</mat-icon>
+            </div>
+            <h3>Authentication</h3>
             <p>
               Built-in authentication with Supabase. Email/password and social logins ready to go.
             </p>
@@ -43,11 +43,11 @@ import { environment } from '@env';
         </mat-card>
 
         <mat-card class="feature-card">
-          <mat-card-header>
-            <mat-icon mat-card-avatar class="feature-icon">palette</mat-icon>
-            <mat-card-title>Theming</mat-card-title>
-          </mat-card-header>
           <mat-card-content>
+            <div class="feature-icon-wrap">
+              <mat-icon class="feature-icon">palette</mat-icon>
+            </div>
+            <h3>Theming</h3>
             <p>
               Multiple color themes with light and dark modes. User preferences persist
               automatically.
@@ -56,21 +56,21 @@ import { environment } from '@env';
         </mat-card>
 
         <mat-card class="feature-card">
-          <mat-card-header>
-            <mat-icon mat-card-avatar class="feature-icon">widgets</mat-icon>
-            <mat-card-title>Components</mat-card-title>
-          </mat-card-header>
           <mat-card-content>
+            <div class="feature-icon-wrap">
+              <mat-icon class="feature-icon">widgets</mat-icon>
+            </div>
+            <h3>Components</h3>
             <p>Pre-built UI components like data tables, search inputs, toasts, and dialogs.</p>
           </mat-card-content>
         </mat-card>
 
         <mat-card class="feature-card">
-          <mat-card-header>
-            <mat-icon mat-card-avatar class="feature-icon">speed</mat-icon>
-            <mat-card-title>Performance</mat-card-title>
-          </mat-card-header>
           <mat-card-content>
+            <div class="feature-icon-wrap">
+              <mat-icon class="feature-icon">speed</mat-icon>
+            </div>
+            <h3>Performance</h3>
             <p>Lazy-loaded routes, standalone components, and signals for optimal performance.</p>
           </mat-card-content>
         </mat-card>
@@ -87,38 +87,78 @@ import { environment } from '@env';
       display: block;
     }
 
+    /* ── Hero ─────────────────────────────────────── */
+    @keyframes heroGradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
     .hero {
-      min-height: calc(100vh - 64px);
+      position: relative;
+      min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 100px 24px 64px;
-      background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+      background: linear-gradient(135deg, #121215 0%, #1e1e22 40%, #262336 70%, #121215 100%);
+      background-size: 300% 300%;
+      animation: heroGradient 8s ease infinite;
       color: white;
       text-align: center;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      width: 700px;
+      height: 700px;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--mat-sys-primary, #3b82f6) 0%, transparent 70%);
+      opacity: 0.1;
+      top: -200px;
+      right: -200px;
+      pointer-events: none;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--mat-sys-primary, #3b82f6) 0%, transparent 70%);
+      opacity: 0.06;
+      bottom: -150px;
+      left: -150px;
+      pointer-events: none;
     }
 
     .hero-content {
-      max-width: 700px;
+      position: relative;
+      max-width: 750px;
     }
 
     .hero h1 {
       font-size: 3rem;
-      font-weight: 700;
+      font-weight: 800;
+      letter-spacing: -0.02em;
       margin: 0 0 24px;
       line-height: 1.2;
     }
 
     .subtitle {
       font-size: 1.25rem;
-      margin: 0 0 40px;
-      opacity: 0.9;
+      margin: 0 auto 40px;
+      max-width: 600px;
+      opacity: 0.6;
       line-height: 1.6;
     }
 
     .hero-actions {
       display: flex;
-      gap: 16px;
+      gap: 20px;
       justify-content: center;
       align-items: center;
       flex-wrap: wrap;
@@ -129,23 +169,51 @@ import { environment } from '@env';
       padding: 0 32px;
       font-size: 16px;
       line-height: 48px;
+      border-radius: 24px;
     }
 
-    .hero-actions a[mat-stroked-button] {
-      border-color: white;
-      color: white;
+    .hero-cta-btn {
+      background: white !important;
+      color: #121215 !important;
+      font-weight: 600;
     }
 
+    .hero-cta-btn:hover {
+      background: #e4e4e7 !important;
+    }
+
+    .hero-signin-btn {
+      background: rgba(255, 255, 255, 0.1) !important;
+      color: rgba(255, 255, 255, 0.8) !important;
+      backdrop-filter: blur(4px);
+    }
+
+    .hero-signin-btn:hover {
+      background: rgba(255, 255, 255, 0.18) !important;
+      color: white !important;
+    }
+
+    /* ── Features ──────────────────────────────────── */
     .features {
       padding: 80px 24px;
-      background: var(--mat-app-background-color, #fafafa);
+      background: #121215;
     }
 
     .features h2 {
       text-align: center;
       font-size: 2rem;
       margin: 0 0 48px;
-      color: var(--mat-app-text-color, #333);
+      color: #fafafa;
+    }
+
+    .features h2::after {
+      content: '';
+      display: block;
+      width: 40px;
+      height: 3px;
+      background: var(--mat-sys-primary, #3b82f6);
+      margin: 16px auto 0;
+      border-radius: 2px;
     }
 
     .features-grid {
@@ -158,41 +226,60 @@ import { environment } from '@env';
 
     .feature-card {
       text-align: center;
+      transition: transform 0.2s ease;
+      background: #1e1e22 !important;
+      border: 1px solid #2a2a2e !important;
     }
 
-    .feature-card mat-card-header {
+    .feature-card:hover {
+      transform: scale(1.02);
+      border-color: #3f3f44 !important;
+    }
+
+    .feature-icon-wrap {
+      display: flex;
       justify-content: center;
+      margin-bottom: 16px;
     }
 
     .feature-icon {
-      background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+      background: var(--mat-sys-primary, #3b82f6);
       color: white;
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 24px;
+      font-size: 28px;
+    }
+
+    .feature-card h3 {
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin: 0 0 8px;
+      color: #fafafa;
     }
 
     .feature-card p {
-      color: var(--mat-sys-on-surface-variant, #666);
+      color: #a1a1aa;
       line-height: 1.6;
     }
 
-    /* Brand footer -- intentionally dark regardless of theme */
+    /* ── Footer ────────────────────────────────────── */
     .footer {
       padding: 32px 24px;
       text-align: center;
-      background: #333;
-      color: #999;
+      border-top: 1px solid #2a2a2e;
+      background: #121215;
+      color: #52525b;
     }
 
     .footer p {
       margin: 0;
     }
 
+    /* ── Mobile ────────────────────────────────────── */
     @media (max-width: 600px) {
       .hero {
         padding: 80px 16px 48px;
@@ -206,12 +293,28 @@ import { environment } from '@env';
         font-size: 1rem;
       }
 
+      .hero-actions {
+        flex-direction: column;
+      }
+
+      .hero-actions a {
+        width: 100%;
+        text-align: center;
+      }
+
       .features {
         padding: 48px 16px;
       }
 
       .features h2 {
         font-size: 1.5rem;
+      }
+
+      .feature-icon {
+        width: 48px;
+        height: 48px;
+        font-size: 24px;
+        border-radius: 12px;
       }
     }
   `,

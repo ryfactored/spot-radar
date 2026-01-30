@@ -2,7 +2,13 @@ import { Injectable, inject, signal, effect } from '@angular/core';
 import { AuthService } from './auth';
 import { environment } from '@env';
 
-export type ColorTheme = 'default' | 'ocean' | 'forest';
+export const COLOR_THEMES = [
+  { value: 'default', label: 'Default', colors: { primary: '#3b82f6', accent: '#38bdf8' } },
+  { value: 'teal', label: 'Teal', colors: { primary: '#14b8a6', accent: '#38bdf8' } },
+  { value: 'slate', label: 'Slate', colors: { primary: '#475569', accent: '#38bdf8' } },
+] as const;
+
+export type ColorTheme = (typeof COLOR_THEMES)[number]['value'];
 
 export interface UserPreferences {
   colorTheme: ColorTheme;
@@ -12,7 +18,7 @@ export interface UserPreferences {
 
 const DEFAULT_PREFERENCES: UserPreferences = {
   colorTheme: 'default',
-  darkMode: false,
+  darkMode: true,
   sidenavOpened: true,
 };
 

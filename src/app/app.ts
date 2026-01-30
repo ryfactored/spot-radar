@@ -2,7 +2,7 @@ import { Component, inject, effect, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Router, NavigationEnd, RouterOutlet } from '@angular/router';
 import { filter, take } from 'rxjs';
-import { PreferencesService, ColorTheme } from './core/preferences';
+import { PreferencesService, COLOR_THEMES } from './core/preferences';
 import { environment } from '@env';
 
 @Component({
@@ -40,7 +40,7 @@ export class App {
 
   isProd = environment.production;
   isBrowser = false;
-  private colorThemeClasses: ColorTheme[] = ['default', 'ocean', 'forest'];
+  private colorThemeClasses = COLOR_THEMES.map((t) => t.value);
 
   constructor() {
     // Skip theme handling on server (no document)
@@ -81,18 +81,14 @@ export class App {
       this.colorThemeClasses.forEach((t) => {
         document.body.classList.remove(`theme-${t}`);
       });
-      // Add current theme class (except default which has no class)
-      if (colorTheme !== 'default') {
-        document.body.classList.add(`theme-${colorTheme}`);
-      }
+      // Add current theme class
+      document.body.classList.add(`theme-${colorTheme}`);
     });
 
     // Apply dark mode class to body
     effect(() => {
       const darkMode = this.preferences.darkMode();
       document.body.classList.toggle('dark-mode', darkMode);
-      // Legacy support for existing dark-theme class
-      document.body.classList.toggle('dark-theme', darkMode);
     });
   }
 }

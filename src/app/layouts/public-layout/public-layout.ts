@@ -10,11 +10,11 @@ import { environment } from '@env';
   imports: [RouterOutlet, RouterLink, MatToolbarModule, MatButtonModule],
   template: `
     <header>
-      <mat-toolbar color="primary" class="toolbar" role="navigation" aria-label="Main navigation">
+      <mat-toolbar class="toolbar" role="navigation" aria-label="Main navigation">
         <a routerLink="/" class="logo">{{ siteTitle }}</a>
         <span class="spacer"></span>
         <a mat-button routerLink="/login">Sign In</a>
-        <a mat-raised-button color="accent" routerLink="/register">Get Started</a>
+        <a mat-flat-button class="toolbar-cta" routerLink="/register">Get Started</a>
       </mat-toolbar>
     </header>
     <main>
@@ -28,6 +28,9 @@ import { environment } from '@env';
       left: 0;
       right: 0;
       z-index: 100;
+      background: transparent;
+      color: white;
+      box-shadow: none;
     }
 
     .logo {
@@ -43,6 +46,18 @@ import { environment } from '@env';
 
     a[mat-button] {
       margin-right: 8px;
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .toolbar-cta {
+      background: rgba(255, 255, 255, 0.15) !important;
+      color: white !important;
+      backdrop-filter: blur(4px);
+      border-radius: 24px;
+    }
+
+    .toolbar-cta:hover {
+      background: rgba(255, 255, 255, 0.25) !important;
     }
   `,
 })

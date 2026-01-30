@@ -6,7 +6,7 @@ export { roleGuard } from './role-guard';
 export type { UserRole } from './role-guard';
 export { SupabaseService } from './supabase';
 export { SUPABASE_ERRORS } from './supabase-errors';
-export { PreferencesService } from './preferences';
+export { PreferencesService, COLOR_THEMES } from './preferences';
 export type { ColorTheme } from './preferences';
 export { GlobalErrorHandler } from './global-error-handler';
 export { httpErrorInterceptor } from './http-error-interceptor';

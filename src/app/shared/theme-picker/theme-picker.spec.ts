@@ -3,7 +3,7 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { signal } from '@angular/core';
 
 import { ThemePicker } from './theme-picker';
-import { PreferencesService } from '@core';
+import { PreferencesService, COLOR_THEMES } from '@core';
 
 describe('ThemePicker', () => {
   let component: ThemePicker;
@@ -32,14 +32,14 @@ describe('ThemePicker', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should have three theme options', () => {
-    expect(component.themes.length).toBe(3);
-    expect(component.themes.map((t) => t.value)).toEqual(['default', 'ocean', 'forest']);
+  it('should use COLOR_THEMES as theme options', () => {
+    expect(component.themes).toBe(COLOR_THEMES);
   });
 
   it('should call setColorTheme when theme selected', () => {
-    component.selectTheme('ocean');
-    expect(preferencesMock.setColorTheme).toHaveBeenCalledWith('ocean');
+    const nonDefault = COLOR_THEMES.find((t) => t.value !== 'default')!;
+    component.selectTheme(nonDefault.value);
+    expect(preferencesMock.setColorTheme).toHaveBeenCalledWith(nonDefault.value);
   });
 
   it('should call toggleDarkMode when toggled', () => {
