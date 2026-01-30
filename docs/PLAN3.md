@@ -83,7 +83,7 @@ The template includes:
 
 **New npm scripts:**
 
-- `npm run serve:ssr:angular-starter` — Run SSR server locally
+- `npm run serve:ssr` — Run SSR server locally
 
 **Tests:** 163 unit tests passing, lint clean, build clean, 3 routes prerendered
 
@@ -237,25 +237,149 @@ create policy "Users can insert their own messages"
 alter publication supabase_realtime add table messages;
 ```
 
+**Also done (post-iteration polish):**
+
+- Fixed OAuth redirect flash on Vercel (inline script in `index.html` + deferred visibility restore in `App` constructor)
+- Added DEV badge (blue `code` icon, bottom-left, non-production only)
+- Added `serve:ssr:dev` npm script; changed default SSR port to 4200
+- Renamed project from "angular-template" to "angular-starter"
+
 **Tests:** 255 unit tests passing, lint clean, build clean
 
 ---
 
-### Iteration 25: File Uploads
+### Iteration 25a: File Uploads — Avatars ✅
 
-**Goal:** Add file upload support using Supabase Storage for profile avatars and note attachments.
+**Goal:** Add file upload support using Supabase Storage, starting with profile avatars displayed in the shell header.
 
-**Why:** File uploads are a common requirement that most apps eventually need. Adding it to the starter template demonstrates the Supabase Storage pattern and gives a working foundation for profile images, document attachments, or any file-based feature.
+**Why:** File uploads are a common requirement that most apps eventually need. Adding it to the starter template demonstrates the Supabase Storage pattern and gives a working foundation for profile images and file-based features.
 
-**Tasks:**
+**What was done:**
 
-- [ ] Create Supabase Storage bucket (e.g. `avatars`, `attachments`)
-- [ ] Create `StorageService` wrapping Supabase Storage upload/download/delete
-- [ ] Add avatar upload to profile page (image picker, preview, upload on save)
-- [ ] Display avatar in shell header (with fallback to initials)
-- [ ] Add file attachment support to notes (upload, list, download, delete)
-- [ ] Add file size and type validation (client-side)
-- [ ] Add tests for StorageService
+- Created `StorageService` with upload, getPublicUrl, createSignedUrl, remove methods
+- Client-side validation: max 5MB for avatars (images only), max 10MB for general attachments
+- Added avatar upload to Profile page (circular preview, click to change, initials fallback)
+- Added avatar display in Shell toolbar (image or initials circle next to logout button)
+- Shell loads `avatar_url` and `display_name` alongside role from profiles table
+
+**Prerequisites (Supabase SQL Editor):**
+
+```sql
+-- Create avatars bucket (public, so avatar URLs work without auth)
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('avatars', 'avatars', true);
+
+CREATE POLICY "Users can upload their own avatar"
+  ON storage.objects FOR INSERT TO authenticated
+  WITH CHECK (bucket_id = 'avatars' AND (storage.foldername(name))[1] = auth.uid()::text);
+CREATE POLICY "Users can update their own avatar"
+  ON storage.objects FOR UPDATE TO authenticated
+  USING (bucket_id = 'avatars' AND (storage.foldername(name))[1] = auth.uid()::text);
+CREATE POLICY "Users can delete their own avatar"
+  ON storage.objects FOR DELETE TO authenticated
+  USING (bucket_id = 'avatars' AND (storage.foldername(name))[1] = auth.uid()::text);
+CREATE POLICY "Anyone can view avatars"
+  ON storage.objects FOR SELECT TO authenticated
+  USING (bucket_id = 'avatars');
+```
+
+**New files:**
+
+- `src/app/core/storage.ts` — StorageService
+- `src/app/core/storage.spec.ts` — StorageService tests (14 tests)
+
+**Modified files:**
+
+- `src/app/core/index.ts` — export StorageService
+- `src/app/features/profile/profile.ts` — avatar upload UI
+- `src/app/features/profile/profile.spec.ts` — avatar tests
+- `src/app/layouts/shell/shell.ts` — avatar display logic
+- `src/app/layouts/shell/shell.html` — avatar in toolbar
+- `src/app/layouts/shell/shell.scss` — avatar styles
+
+**Tests:** 285 unit tests passing, lint clean, build clean
+
+---
+
+### Iteration 25b: Standalone Files Page ✅
+
+**Goal:** Add a dedicated `/files` page for general file uploads, replacing the earlier note-attachments approach.
+
+**Why:** A standalone files page is more flexible than note-attached files. Users can upload, browse, download, and delete any file — not just files tied to a specific note. This also keeps the notes feature simple (title + content only) while still showcasing Supabase Storage with private buckets and signed URLs.
+
+**What was done:**
+
+- Reverted note attachments: removed `NoteAttachment` interface, `attachments` field from `Note`, all attachment UI from note-form and notes-list, and storage cleanup from delete
+- Created `FilesService` with list, upload, download (signed URL), and delete methods
+- Created `FilesPage` component with file upload, listing grid, download, and delete with confirmation
+- Added `/files` route and "Files" nav link in shell sidebar
+
+**Prerequisites (Supabase SQL Editor):**
+
+```sql
+-- User files bucket (private)
+INSERT INTO storage.buckets (id, name, public) VALUES ('user-files', 'user-files', false);
+
+CREATE POLICY "Users can upload own files" ON storage.objects
+  FOR INSERT TO authenticated
+  WITH CHECK (bucket_id = 'user-files' AND (storage.foldername(name))[1] = auth.uid()::text);
+CREATE POLICY "Users can view own files" ON storage.objects
+  FOR SELECT TO authenticated
+  USING (bucket_id = 'user-files' AND (storage.foldername(name))[1] = auth.uid()::text);
+CREATE POLICY "Users can delete own files" ON storage.objects
+  FOR DELETE TO authenticated
+  USING (bucket_id = 'user-files' AND (storage.foldername(name))[1] = auth.uid()::text);
+
+-- Files metadata table
+CREATE TABLE files (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id) NOT NULL,
+  name TEXT NOT NULL,
+  storage_path TEXT NOT NULL,
+  size BIGINT NOT NULL,
+  type TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+ALTER TABLE files ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view own files" ON files FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert own files" ON files FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own files" ON files FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Users can delete own files" ON files FOR DELETE USING (auth.uid() = user_id);
+```
+
+Optional cleanup (if previous note-attachments SQL was run):
+
+```sql
+DELETE FROM storage.buckets WHERE id = 'note-attachments';
+ALTER TABLE notes DROP COLUMN IF EXISTS attachments;
+```
+
+**New files:**
+
+- `src/app/features/files/files.ts` — FilesService (11 tests)
+- `src/app/features/files/files.spec.ts` — FilesService tests
+- `src/app/features/files/files-page/files-page.ts` — FilesPage component (9 tests)
+- `src/app/features/files/files-page/files-page.spec.ts` — FilesPage tests
+
+**Reverted files (removed attachment code):**
+
+- `src/app/features/notes/notes.ts` — removed NoteAttachment, attachments field
+- `src/app/features/notes/note-form/note-form.ts` — restored simple title+content form
+- `src/app/features/notes/note-form/note-form.spec.ts` — restored minimal spec
+- `src/app/features/notes/notes-list/notes-list.ts` — removed badge + storage cleanup
+- `src/app/features/notes/notes-list/notes-list.spec.ts` — removed storage mock + 4 tests
+- `src/app/features/notes/notes.spec.ts` — removed attachments from mock
+- `src/app/features/notes/notes-store.spec.ts` — removed attachments from mocks
+
+**Modified files:**
+
+- `src/app/app.routes.ts` — added /files route
+- `src/app/layouts/shell/shell.html` — added Files nav link
+
+**Tests:** 294 unit tests passing, lint clean, build clean
 
 ---
 
