@@ -33,12 +33,10 @@ describe('Profile', () => {
 
     storageMock = {
       validateAvatar: vi.fn().mockReturnValue(null),
-      upload: vi
-        .fn()
-        .mockResolvedValue({
-          path: 'user-123/avatar.png',
-          publicUrl: 'https://example.com/new-avatar.png',
-        }),
+      upload: vi.fn().mockResolvedValue({
+        path: 'user-123/avatar.png',
+        publicUrl: 'https://example.com/new-avatar.png',
+      }),
     };
 
     toastMock = {
