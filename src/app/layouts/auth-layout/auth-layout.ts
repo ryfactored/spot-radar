@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { environment } from '@env';
 
 @Component({
   selector: 'app-auth-layout',
@@ -8,7 +9,7 @@ import { RouterOutlet } from '@angular/router';
   template: `
     <main class="auth-container">
       <div class="auth-card">
-        <h1 class="app-title">Angular Starter</h1>
+        <h1 class="app-title">{{ siteTitle }}</h1>
         <router-outlet />
       </div>
     </main>
@@ -37,4 +38,6 @@ import { RouterOutlet } from '@angular/router';
     }
   `,
 })
-export class AuthLayout {}
+export class AuthLayout {
+  siteTitle = environment.siteTitle;
+}

@@ -1,6 +1,6 @@
 import { Injectable, inject, signal, effect } from '@angular/core';
 import { AuthService } from './auth';
-import { environment } from '../../environments/environment';
+import { environment } from '@env';
 
 export type ColorTheme = 'default' | 'ocean' | 'forest';
 

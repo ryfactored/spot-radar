@@ -3,7 +3,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { Router, NavigationEnd, RouterOutlet } from '@angular/router';
 import { filter, take } from 'rxjs';
 import { PreferencesService, ColorTheme } from './core/preferences';
-import { environment } from '../environments/environment';
+import { environment } from '@env';
 
 @Component({
   selector: 'app-root',
