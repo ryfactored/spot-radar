@@ -19,10 +19,11 @@ import { RouterOutlet } from '@angular/router';
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #f5f5f5;
+      background: var(--mat-app-background-color, #f5f5f5);
     }
     .auth-card {
-      background: white;
+      background: var(--mdc-elevated-card-container-color, white);
+      color: var(--mat-app-text-color, inherit);
       padding: 40px;
       border-radius: 8px;
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -32,18 +33,7 @@ import { RouterOutlet } from '@angular/router';
     .app-title {
       text-align: center;
       margin-bottom: 24px;
-      color: #3f51b5;
-    }
-
-    :host-context(.dark-theme) .auth-container {
-      background: var(--mat-app-background-color, #1e1e1e);
-    }
-    :host-context(.dark-theme) .auth-card {
-      background: var(--mdc-elevated-card-container-color, #2d2d2d);
-      color: var(--mat-app-text-color, #fff);
-    }
-    :host-context(.dark-theme) .app-title {
-      color: #c5cae9;
+      color: var(--mat-sys-primary, #3f51b5);
     }
   `,
 })

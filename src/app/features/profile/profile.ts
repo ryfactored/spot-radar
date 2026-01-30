@@ -110,7 +110,7 @@ import { ProfileService } from './profile-service';
     .avatar-placeholder {
       width: 100%;
       height: 100%;
-      background: #e0e0e0;
+      background: var(--mat-sys-surface-variant, #e0e0e0);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -119,7 +119,7 @@ import { ProfileService } from './profile-service';
       font-size: 48px;
       width: 48px;
       height: 48px;
-      color: #9e9e9e;
+      color: var(--mat-sys-on-surface-variant, #9e9e9e);
     }
     .avatar-overlay {
       position: absolute;
@@ -143,7 +143,7 @@ import { ProfileService } from './profile-service';
     .avatar-hint {
       margin-top: 8px;
       font-size: 12px;
-      color: #757575;
+      color: var(--mat-sys-on-surface-variant, #757575);
     }
   `,
 })
