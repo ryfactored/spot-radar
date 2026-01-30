@@ -22,7 +22,9 @@ import { ProfileService } from './profile-service';
     SkeletonOverlay,
   ],
   template: `
-    <h1>Profile</h1>
+    <div class="page-header">
+      <h1>Profile</h1>
+    </div>
 
     <mat-card [appSkeletonOverlay]="loading()">
       <mat-card-content>

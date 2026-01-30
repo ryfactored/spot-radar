@@ -35,11 +35,9 @@ import { ToastService, ConnectionIndicator, LoadingSpinner } from '@shared';
   ],
   template: `
     <div class="chat-container">
-      <div class="header">
-        <div class="title-row">
-          <h1>Chat</h1>
-          <app-connection-indicator [status]="connectionStatus()" [showLabel]="true" />
-        </div>
+      <div class="page-header">
+        <h1>Chat</h1>
+        <app-connection-indicator [status]="connectionStatus()" [showLabel]="true" />
       </div>
 
       @if (loading()) {
@@ -98,20 +96,6 @@ import { ToastService, ConnectionIndicator, LoadingSpinner } from '@shared';
       flex-direction: column;
       height: calc(100vh - 120px);
       max-height: 800px;
-    }
-
-    .header {
-      margin-bottom: 16px;
-    }
-
-    .title-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .title-row h1 {
-      margin: 0;
     }
 
     .messages-card {

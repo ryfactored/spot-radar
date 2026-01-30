@@ -7,7 +7,9 @@ import { AuthService } from '@core';
   standalone: true,
   imports: [MatButtonModule],
   template: `
-    <h1>Dashboard</h1>
+    <div class="page-header">
+      <h1>Dashboard</h1>
+    </div>
 
     @if (auth.currentUser()) {
       <p>Logged in as: {{ auth.currentUser()?.email }}</p>
