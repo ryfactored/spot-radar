@@ -108,9 +108,9 @@ export class ThemePicker {
   preferences = inject(PreferencesService);
 
   themes: ThemeOption[] = [
-    { value: 'default', label: 'Default', colors: { primary: '#3f51b5', accent: '#ff4081' } },
-    { value: 'ocean', label: 'Ocean', colors: { primary: '#2196f3', accent: '#009688' } },
-    { value: 'forest', label: 'Forest', colors: { primary: '#4caf50', accent: '#ffc107' } },
+    { value: 'default', label: 'Default', colors: { primary: '#6366f1', accent: '#fb7185' } },
+    { value: 'ocean', label: 'Ocean', colors: { primary: '#0891b2', accent: '#38bdf8' } },
+    { value: 'forest', label: 'Forest', colors: { primary: '#059669', accent: '#a3e635' } },
   ];
 
   selectTheme(theme: ColorTheme) {

@@ -34,7 +34,7 @@ import { environment } from '@env';
     .app-title {
       text-align: center;
       margin-bottom: 24px;
-      color: var(--mat-sys-primary, #3f51b5);
+      color: var(--mat-sys-primary, #6366f1);
     }
   `,
 })

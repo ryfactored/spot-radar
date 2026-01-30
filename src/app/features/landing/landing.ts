@@ -93,7 +93,7 @@ import { environment } from '@env';
       align-items: center;
       justify-content: center;
       padding: 100px 24px 64px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
       color: white;
       text-align: center;
     }
@@ -165,7 +165,7 @@ import { environment } from '@env';
     }
 
     .feature-icon {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
       color: white;
       width: 48px;
       height: 48px;

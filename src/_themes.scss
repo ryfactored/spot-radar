@@ -1,12 +1,224 @@
 @use '@angular/material' as mat;
 
 // ============================================
+// Custom Palette Maps
+// ============================================
+
+// Slate Blue (Tailwind Indigo-inspired, primary: #6366f1)
+$slate-blue-palette: (
+  50: #eef2ff,
+  100: #e0e7ff,
+  200: #c7d2fe,
+  300: #a5b4fc,
+  400: #818cf8,
+  500: #6366f1,
+  600: #4f46e5,
+  700: #4338ca,
+  800: #3730a3,
+  900: #312e81,
+  A100: #c7d2fe,
+  A200: #818cf8,
+  A400: #6366f1,
+  A700: #4338ca,
+  contrast: (
+    50: rgba(0, 0, 0, 0.87),
+    100: rgba(0, 0, 0, 0.87),
+    200: rgba(0, 0, 0, 0.87),
+    300: rgba(0, 0, 0, 0.87),
+    400: white,
+    500: white,
+    600: white,
+    700: white,
+    800: white,
+    900: white,
+    A100: rgba(0, 0, 0, 0.87),
+    A200: white,
+    A400: white,
+    A700: white,
+  ),
+);
+
+// Rose (Tailwind Rose-inspired, accent: #f43f5e)
+$rose-palette: (
+  50: #fff1f2,
+  100: #ffe4e6,
+  200: #fecdd3,
+  300: #fda4af,
+  400: #fb7185,
+  500: #f43f5e,
+  600: #e11d48,
+  700: #be123c,
+  800: #9f1239,
+  900: #881337,
+  A100: #fecdd3,
+  A200: #fb7185,
+  A400: #f43f5e,
+  A700: #be123c,
+  contrast: (
+    50: rgba(0, 0, 0, 0.87),
+    100: rgba(0, 0, 0, 0.87),
+    200: rgba(0, 0, 0, 0.87),
+    300: rgba(0, 0, 0, 0.87),
+    400: white,
+    500: white,
+    600: white,
+    700: white,
+    800: white,
+    900: white,
+    A100: rgba(0, 0, 0, 0.87),
+    A200: white,
+    A400: white,
+    A700: white,
+  ),
+);
+
+// Deep Cyan (Tailwind Cyan-inspired, primary: #0891b2)
+$deep-cyan-palette: (
+  50: #ecfeff,
+  100: #cffafe,
+  200: #a5f3fc,
+  300: #67e8f9,
+  400: #22d3ee,
+  500: #0891b2,
+  600: #0e7490,
+  700: #155e75,
+  800: #164e63,
+  900: #143d4f,
+  A100: #a5f3fc,
+  A200: #22d3ee,
+  A400: #0891b2,
+  A700: #155e75,
+  contrast: (
+    50: rgba(0, 0, 0, 0.87),
+    100: rgba(0, 0, 0, 0.87),
+    200: rgba(0, 0, 0, 0.87),
+    300: rgba(0, 0, 0, 0.87),
+    400: rgba(0, 0, 0, 0.87),
+    500: white,
+    600: white,
+    700: white,
+    800: white,
+    900: white,
+    A100: rgba(0, 0, 0, 0.87),
+    A200: rgba(0, 0, 0, 0.87),
+    A400: white,
+    A700: white,
+  ),
+);
+
+// Sky (Tailwind Sky-inspired, accent: #38bdf8)
+$sky-palette: (
+  50: #f0f9ff,
+  100: #e0f2fe,
+  200: #bae6fd,
+  300: #7dd3fc,
+  400: #38bdf8,
+  500: #0ea5e9,
+  600: #0284c7,
+  700: #0369a1,
+  800: #075985,
+  900: #0c4a6e,
+  A100: #bae6fd,
+  A200: #38bdf8,
+  A400: #0ea5e9,
+  A700: #0369a1,
+  contrast: (
+    50: rgba(0, 0, 0, 0.87),
+    100: rgba(0, 0, 0, 0.87),
+    200: rgba(0, 0, 0, 0.87),
+    300: rgba(0, 0, 0, 0.87),
+    400: rgba(0, 0, 0, 0.87),
+    500: white,
+    600: white,
+    700: white,
+    800: white,
+    900: white,
+    A100: rgba(0, 0, 0, 0.87),
+    A200: rgba(0, 0, 0, 0.87),
+    A400: white,
+    A700: white,
+  ),
+);
+
+// Emerald (Tailwind Emerald-inspired, primary: #059669)
+$emerald-palette: (
+  50: #ecfdf5,
+  100: #d1fae5,
+  200: #a7f3d0,
+  300: #6ee7b7,
+  400: #34d399,
+  500: #059669,
+  600: #047857,
+  700: #065f46,
+  800: #064e3b,
+  900: #053b2e,
+  A100: #a7f3d0,
+  A200: #34d399,
+  A400: #059669,
+  A700: #065f46,
+  contrast: (
+    50: rgba(0, 0, 0, 0.87),
+    100: rgba(0, 0, 0, 0.87),
+    200: rgba(0, 0, 0, 0.87),
+    300: rgba(0, 0, 0, 0.87),
+    400: rgba(0, 0, 0, 0.87),
+    500: white,
+    600: white,
+    700: white,
+    800: white,
+    900: white,
+    A100: rgba(0, 0, 0, 0.87),
+    A200: rgba(0, 0, 0, 0.87),
+    A400: white,
+    A700: white,
+  ),
+);
+
+// Lime (Tailwind Lime-inspired, accent: #84cc16)
+$lime-palette: (
+  50: #f7fee7,
+  100: #ecfccb,
+  200: #d9f99d,
+  300: #bef264,
+  400: #a3e635,
+  500: #84cc16,
+  600: #65a30d,
+  700: #4d7c0f,
+  800: #3f6212,
+  900: #365314,
+  A100: #d9f99d,
+  A200: #a3e635,
+  A400: #84cc16,
+  A700: #4d7c0f,
+  contrast: (
+    50: rgba(0, 0, 0, 0.87),
+    100: rgba(0, 0, 0, 0.87),
+    200: rgba(0, 0, 0, 0.87),
+    300: rgba(0, 0, 0, 0.87),
+    400: rgba(0, 0, 0, 0.87),
+    500: rgba(0, 0, 0, 0.87),
+    600: white,
+    700: white,
+    800: white,
+    900: white,
+    A100: rgba(0, 0, 0, 0.87),
+    A200: rgba(0, 0, 0, 0.87),
+    A400: rgba(0, 0, 0, 0.87),
+    A700: white,
+  ),
+);
+
+// ============================================
 // Theme Definitions
 // ============================================
 
-// Default Theme (Indigo/Pink)
-$default-primary: mat.m2-define-palette(mat.$m2-indigo-palette);
-$default-accent: mat.m2-define-palette(mat.$m2-pink-palette, A200, A100, A400);
+$custom-typography: mat.m2-define-typography-config(
+  $font-family: 'Inter, system-ui, -apple-system, sans-serif',
+);
+
+// Default Theme (Slate Blue / Rose)
+$default-primary: mat.m2-define-palette($slate-blue-palette);
+$default-accent: mat.m2-define-palette($rose-palette, A200, A100, A400);
 
 $default-light-theme: mat.m2-define-light-theme(
   (
@@ -14,7 +226,7 @@ $default-light-theme: mat.m2-define-light-theme(
       primary: $default-primary,
       accent: $default-accent,
     ),
-    typography: mat.m2-define-typography-config(),
+    typography: $custom-typography,
     density: 0,
   )
 );
@@ -28,9 +240,9 @@ $default-dark-theme: mat.m2-define-dark-theme(
   )
 );
 
-// Ocean Theme (Blue/Teal)
-$ocean-primary: mat.m2-define-palette(mat.$m2-blue-palette);
-$ocean-accent: mat.m2-define-palette(mat.$m2-teal-palette, A200, A100, A400);
+// Ocean Theme (Deep Cyan / Sky)
+$ocean-primary: mat.m2-define-palette($deep-cyan-palette);
+$ocean-accent: mat.m2-define-palette($sky-palette, A200, A100, A400);
 
 $ocean-light-theme: mat.m2-define-light-theme(
   (
@@ -50,9 +262,9 @@ $ocean-dark-theme: mat.m2-define-dark-theme(
   )
 );
 
-// Forest Theme (Green/Amber)
-$forest-primary: mat.m2-define-palette(mat.$m2-green-palette);
-$forest-accent: mat.m2-define-palette(mat.$m2-amber-palette, A200, A100, A400);
+// Forest Theme (Emerald / Lime)
+$forest-primary: mat.m2-define-palette($emerald-palette);
+$forest-accent: mat.m2-define-palette($lime-palette, A200, A100, A400);
 
 $forest-light-theme: mat.m2-define-light-theme(
   (
