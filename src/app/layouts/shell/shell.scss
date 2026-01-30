@@ -41,6 +41,33 @@ mat-sidenav {
   padding: 20px;
 }
 
+.toolbar-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin: 0 4px;
+  cursor: pointer;
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.toolbar-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.toolbar-avatar-initials {
+  color: white;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+}
+
 /* Mobile styles */
 @media (max-width: 767px) {
   .toolbar {

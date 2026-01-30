@@ -13,3 +13,4 @@ export { httpErrorInterceptor } from './http-error-interceptor';
 export { mapError, mapToError, unwrap, unwrapWithCount } from './error-mapper';
 export { RealtimeService } from './realtime';
 export type { ConnectionStatus, RealtimeEventType, RealtimePayload } from './realtime';
+export { StorageService } from './storage';

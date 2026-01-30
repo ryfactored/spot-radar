@@ -2,11 +2,12 @@
 
 ## Development
 
-| Command                              | Description                                 |
-| ------------------------------------ | ------------------------------------------- |
-| `npm start`                          | Start dev server at `http://localhost:4200` |
-| `npm run build`                      | Build for production                        |
-| `npm run serve:ssr:angular-starter` | Serve SSR build locally (run `build` first) |
+| Command                 | Description                                 |
+| ----------------------- | ------------------------------------------- |
+| `npm start`             | Start dev server at `http://localhost:4200` |
+| `npm run build`         | Build for production                        |
+| `npm run serve:ssr`     | Serve SSR build locally (run `build` first) |
+| `npm run serve:ssr:dev` | Build dev config + serve SSR locally        |
 
 ## Testing
 

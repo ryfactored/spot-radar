@@ -21,6 +21,10 @@
         <mat-icon matListItemIcon>chat</mat-icon>
         <span matListItemTitle>Chat</span>
       </a>
+      <a mat-list-item routerLink="/files">
+        <mat-icon matListItemIcon>folder</mat-icon>
+        <span matListItemTitle>Files</span>
+      </a>
       <a mat-list-item routerLink="/profile">
         <mat-icon matListItemIcon>person</mat-icon>
         <span matListItemTitle>Profile</span>
@@ -46,6 +50,18 @@
       <span class="toolbar-title">Angular Starter</span>
       <span class="spacer"></span>
       <app-theme-picker />
+      <a
+        routerLink="/profile"
+        class="toolbar-avatar"
+        matTooltip="Profile"
+        aria-label="Go to profile"
+      >
+        @if (avatarUrl()) {
+          <img [src]="avatarUrl()" alt="Avatar" class="toolbar-avatar-img" />
+        } @else {
+          <span class="toolbar-avatar-initials">{{ userInitials() }}</span>
+        }
+      </a>
       <button mat-icon-button (click)="logout()" matTooltip="Logout" aria-label="Logout">
         <mat-icon>logout</mat-icon>
       </button>

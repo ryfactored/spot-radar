@@ -67,6 +67,11 @@ export const routes: Routes = [
         loadComponent: () => import('./features/chat/chat-room/chat-room').then((m) => m.ChatRoom),
       },
       {
+        path: 'files',
+        loadComponent: () =>
+          import('./features/files/files-page/files-page').then((m) => m.FilesPage),
+      },
+      {
         path: 'admin',
         loadComponent: () => import('./features/admin/admin').then((m) => m.Admin),
         canActivate: [roleGuard('admin')],
