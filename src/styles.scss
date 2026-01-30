@@ -13,39 +13,167 @@
   @include mat.all-component-colors(themes.$default-dark-theme);
 }
 
-.theme-ocean.dark-mode {
-  @include mat.all-component-colors(themes.$ocean-dark-theme);
-}
-
-.theme-forest.dark-mode {
-  @include mat.all-component-colors(themes.$forest-dark-theme);
+.theme-teal.dark-mode {
+  @include mat.all-component-colors(themes.$teal-dark-theme);
 }
 
 // Light mode color overrides
-.theme-ocean:not(.dark-mode) {
-  @include mat.all-component-colors(themes.$ocean-light-theme);
+.theme-teal:not(.dark-mode) {
+  @include mat.all-component-colors(themes.$teal-light-theme);
 }
 
-.theme-forest:not(.dark-mode) {
-  @include mat.all-component-colors(themes.$forest-light-theme);
+.theme-slate.dark-mode {
+  @include mat.all-component-colors(themes.$slate-dark-theme);
 }
 
-// Card polish: softer radius globally, hover lift only on linked cards
+.theme-slate:not(.dark-mode) {
+  @include mat.all-component-colors(themes.$slate-light-theme);
+}
+
+// ============================================
+// Theme Surface Overrides
+// ============================================
+// Each theme defines: card colors, table colors, borders, and inset backgrounds.
+// Card borders use --app-card-border-color / --app-card-hover-border-color
+// so the selector only needs to appear once globally.
+
+// Default light
+.theme-default:not(.dark-mode) {
+  --mat-card-elevated-container-color: #eff6ff;
+  --mat-card-outlined-container-color: #eff6ff;
+  --mat-card-filled-container-color: #eff6ff;
+  --mat-dialog-container-color: #eff6ff;
+  --mat-table-background-color: #eff6ff;
+  --mat-table-row-item-outline-color: #dbeafe;
+  --mat-paginator-container-background-color: #eff6ff;
+  --app-inset-bg: #dbeafe;
+  --app-card-border-color: #dbeafe;
+  --app-card-hover-border-color: #93c5fd;
+}
+
+// Default dark
+.theme-default.dark-mode {
+  --mat-app-background-color: #110f1d;
+  --mat-sidenav-container-background-color: #110f1d;
+  --mat-sidenav-content-background-color: #110f1d;
+  --mat-sidenav-container-divider-color: #2d2a45;
+  --mat-card-elevated-container-color: #221e3d;
+  --mat-card-outlined-container-color: #221e3d;
+  --mat-card-filled-container-color: #221e3d;
+  --mat-dialog-container-color: #221e3d;
+  --mat-table-background-color: #221e3d;
+  --mat-table-row-item-outline-color: #352f58;
+  --mat-paginator-container-background-color: #221e3d;
+  --app-inset-bg: #1a1736;
+  --app-card-border-color: #352f58;
+  --app-card-hover-border-color: #4a4478;
+}
+
+// Teal light
+.theme-teal:not(.dark-mode) {
+  --mat-app-background-color: #f0fdfa;
+  --mat-sidenav-container-background-color: #f0fdfa;
+  --mat-sidenav-content-background-color: #f0fdfa;
+  --mat-sidenav-container-divider-color: #99f6e4;
+  --mat-card-elevated-container-color: #e6faf6;
+  --mat-card-outlined-container-color: #e6faf6;
+  --mat-card-filled-container-color: #e6faf6;
+  --mat-dialog-container-color: #e6faf6;
+  --mat-table-background-color: #e6faf6;
+  --mat-table-row-item-outline-color: #b2f5ea;
+  --mat-paginator-container-background-color: #e6faf6;
+  --app-inset-bg: #ccfbf1;
+  --app-card-border-color: #b2f5ea;
+  --app-card-hover-border-color: #5eead4;
+}
+
+// Teal dark
+.theme-teal.dark-mode {
+  --mat-app-background-color: #0e2a26;
+  --mat-sidenav-container-background-color: #0e2a26;
+  --mat-sidenav-content-background-color: #0e2a26;
+  --mat-sidenav-container-divider-color: #287068;
+  --mat-card-elevated-container-color: #1c4f48;
+  --mat-card-outlined-container-color: #1c4f48;
+  --mat-card-filled-container-color: #1c4f48;
+  --mat-dialog-container-color: #1c4f48;
+  --mat-table-background-color: #1c4f48;
+  --mat-table-row-item-outline-color: #2e8a80;
+  --mat-paginator-container-background-color: #1c4f48;
+  --app-inset-bg: #163d37;
+  --app-card-border-color: #2e8a80;
+  --app-card-hover-border-color: #3aa89c;
+}
+
+// Slate light
+.theme-slate:not(.dark-mode) {
+  --mat-app-background-color: #f8fafc;
+  --mat-sidenav-container-background-color: #f8fafc;
+  --mat-sidenav-content-background-color: #f8fafc;
+  --mat-sidenav-container-divider-color: #cbd5e1;
+  --mat-card-elevated-container-color: #edf2f8;
+  --mat-card-outlined-container-color: #edf2f8;
+  --mat-card-filled-container-color: #edf2f8;
+  --mat-dialog-container-color: #edf2f8;
+  --mat-table-background-color: #edf2f8;
+  --mat-table-row-item-outline-color: #d0d9e5;
+  --mat-paginator-container-background-color: #edf2f8;
+  --app-inset-bg: #dce4ef;
+  --app-card-border-color: #d0d9e5;
+  --app-card-hover-border-color: #94a3b8;
+}
+
+// Slate dark
+.theme-slate.dark-mode {
+  --mat-app-background-color: #0f172a;
+  --mat-sidenav-container-background-color: #0f172a;
+  --mat-sidenav-content-background-color: #0f172a;
+  --mat-sidenav-container-divider-color: #334155;
+  --mat-card-elevated-container-color: #1f3050;
+  --mat-card-outlined-container-color: #1f3050;
+  --mat-card-filled-container-color: #1f3050;
+  --mat-dialog-container-color: #1f3050;
+  --mat-table-background-color: #1f3050;
+  --mat-table-row-item-outline-color: #395270;
+  --mat-paginator-container-background-color: #1f3050;
+  --app-inset-bg: #1a2842;
+  --app-card-border-color: #395270;
+  --app-card-hover-border-color: #4e6a88;
+}
+
+// ============================================
+// Card Polish
+// ============================================
+
+// Card shape, borders, and hover effects (consolidated via CSS variables)
+html {
+  --mat-card-elevated-container-shape: 12px;
+  --mat-card-outlined-container-shape: 12px;
+  --mat-card-filled-container-shape: 12px;
+}
+
 mat-card,
 .mat-mdc-card {
-  border-radius: 12px !important;
+  border: 1px solid var(--app-card-border-color, transparent);
 }
 
 a mat-card,
 a .mat-mdc-card {
   transition:
     box-shadow 0.2s ease,
-    transform 0.2s ease;
+    transform 0.2s ease,
+    border-color 0.2s ease;
 
   &:hover {
+    border-color: var(--app-card-hover-border-color, inherit);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     transform: translateY(-2px);
   }
+}
+
+.dark-mode a mat-card:hover,
+.dark-mode a .mat-mdc-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
 }
 
 // Page header utility (used by child components inside the shell)
@@ -97,12 +225,12 @@ mat-card,
 
 // Accessibility: Enhanced focus indicators
 *:focus-visible {
-  outline: 2px solid var(--mat-sys-primary, #6366f1);
+  outline: 2px solid var(--mat-sys-primary, #3b82f6);
   outline-offset: 2px;
 }
 
 .dark-mode *:focus-visible {
-  outline-color: var(--mat-sys-primary, #a5b4fc);
+  outline-color: var(--mat-sys-primary, #93c5fd);
 }
 
 // Remove default focus outline when using mouse (focus-visible handles keyboard)
@@ -230,11 +358,11 @@ textarea:focus:not(:focus-visible) {
   textarea,
   select,
   button {
-    background: #333 !important;
+    background: #27272a !important;
   }
 
   .mat-mdc-form-field .mat-mdc-form-field-flex {
-    background: #333 !important;
+    background: #27272a !important;
   }
 }
 

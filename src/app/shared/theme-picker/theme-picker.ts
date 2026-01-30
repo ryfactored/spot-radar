@@ -4,13 +4,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
-import { PreferencesService, ColorTheme } from '@core';
-
-interface ThemeOption {
-  value: ColorTheme;
-  label: string;
-  colors: { primary: string; accent: string };
-}
+import { PreferencesService, COLOR_THEMES, ColorTheme } from '@core';
 
 @Component({
   selector: 'app-theme-picker',
@@ -27,24 +21,25 @@ interface ThemeOption {
     </button>
 
     <mat-menu #themeMenu="matMenu">
-      <div class="menu-header" id="theme-menu-label">Color Theme</div>
+      <div class="menu-header">Color Theme</div>
       @for (theme of themes; track theme.value) {
         <button
           mat-menu-item
           (click)="selectTheme(theme.value)"
           [class.selected]="preferences.colorTheme() === theme.value"
-          [attr.aria-current]="preferences.colorTheme() === theme.value ? 'true' : null"
           role="menuitemradio"
           [attr.aria-checked]="preferences.colorTheme() === theme.value"
         >
-          <span class="theme-preview" aria-hidden="true">
+          <span class="theme-dots" aria-hidden="true">
             <span class="color-dot" [style.background]="theme.colors.primary"></span>
             <span class="color-dot" [style.background]="theme.colors.accent"></span>
           </span>
           <span>{{ theme.label }}</span>
-          @if (preferences.colorTheme() === theme.value) {
-            <mat-icon class="check-icon" aria-hidden="true">check</mat-icon>
-          }
+          <mat-icon
+            class="check-icon"
+            [style.visibility]="preferences.colorTheme() === theme.value ? 'visible' : 'hidden'"
+            aria-hidden="true"
+          >check</mat-icon>
         </button>
       }
       <mat-divider></mat-divider>
@@ -64,28 +59,30 @@ interface ThemeOption {
   styles: `
     .menu-header {
       padding: 8px 16px;
-      font-size: 12px;
-      font-weight: 500;
-      color: #666;
+      font-size: 11px;
+      font-weight: 600;
+      color: #71717a;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.05em;
     }
 
-    .theme-preview {
-      display: flex;
-      gap: 4px;
-      margin-right: 12px;
+    .theme-dots {
+      display: inline-flex;
+      align-items: center;
+      width: 24px;
+      margin-right: 16px;
     }
 
     .color-dot {
-      width: 16px;
-      height: 16px;
+      width: 14px;
+      height: 14px;
       border-radius: 50%;
-      border: 1px solid rgba(0, 0, 0, 0.1);
+      border: 1.5px solid rgba(0, 0, 0, 0.12);
+      flex-shrink: 0;
     }
 
-    .selected {
-      background: rgba(0, 0, 0, 0.04);
+    .color-dot + .color-dot {
+      margin-left: -4px;
     }
 
     .check-icon {
@@ -95,8 +92,16 @@ interface ThemeOption {
       height: 18px;
     }
 
+    .selected {
+      background: rgba(0, 0, 0, 0.04);
+    }
+
     :host-context(.dark-mode) .menu-header {
-      color: #aaa;
+      color: #a1a1aa;
+    }
+
+    :host-context(.dark-mode) .color-dot {
+      border-color: rgba(255, 255, 255, 0.2);
     }
 
     :host-context(.dark-mode) .selected {
@@ -107,11 +112,7 @@ interface ThemeOption {
 export class ThemePicker {
   preferences = inject(PreferencesService);
 
-  themes: ThemeOption[] = [
-    { value: 'default', label: 'Default', colors: { primary: '#6366f1', accent: '#fb7185' } },
-    { value: 'ocean', label: 'Ocean', colors: { primary: '#0891b2', accent: '#38bdf8' } },
-    { value: 'forest', label: 'Forest', colors: { primary: '#059669', accent: '#a3e635' } },
-  ];
+  themes = COLOR_THEMES;
 
   selectTheme(theme: ColorTheme) {
     this.preferences.setColorTheme(theme);

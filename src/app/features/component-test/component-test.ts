@@ -41,8 +41,8 @@ import { NotesService, Note } from '../notes/notes';
         <div class="button-row">
           <button mat-raised-button color="primary" (click)="showSuccess()">Success</button>
           <button mat-raised-button color="warn" (click)="showError()">Error</button>
-          <button mat-raised-button (click)="showInfo()">Info</button>
-          <button mat-raised-button color="accent" (click)="testError()">Throw Error</button>
+          <button mat-raised-button color="accent" (click)="showInfo()">Info</button>
+          <button mat-raised-button color="warn" (click)="testError()">Throw Error</button>
         </div>
       </mat-card-content>
     </mat-card>
@@ -148,7 +148,7 @@ import { NotesService, Note } from '../notes/notes';
   `,
   styles: `
     .subtitle {
-      color: #666;
+      color: var(--mat-card-subtitle-text-color, #666);
       margin-bottom: 24px;
     }
     .section {
@@ -164,30 +164,22 @@ import { NotesService, Note } from '../notes/notes';
       margin-top: 16px;
     }
     .demo-box {
-      background: #f5f5f5;
+      background: var(--app-inset-bg, #f5f5f5);
       border-radius: 8px;
       margin-top: 16px;
     }
     .search-result {
       margin-top: 16px;
       padding: 12px;
-      background: #f5f5f5;
+      background: var(--app-inset-bg, #f5f5f5);
       border-radius: 4px;
     }
     .selection-info {
       margin-top: 16px;
       padding: 12px;
-      background: #e3f2fd;
+      background: var(--app-inset-bg, #e3f2fd);
       border-radius: 4px;
-      color: #1565c0;
-    }
-    :host-context(.dark-mode) .search-result,
-    :host-context(.dark-mode) .demo-box {
-      background: #333;
-    }
-    :host-context(.dark-mode) .selection-info {
-      background: #1e3a5f;
-      color: #90caf9;
+      color: var(--mat-card-subtitle-text-color, #1565c0);
     }
     .loading-overlay {
       position: absolute;
@@ -195,13 +187,10 @@ import { NotesService, Note } from '../notes/notes';
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(255, 255, 255, 0.7);
+      background: color-mix(in srgb, var(--mat-card-elevated-container-color, white) 85%, transparent);
       display: flex;
       align-items: center;
       justify-content: center;
-    }
-    :host-context(.dark-mode) .loading-overlay {
-      background: rgba(0, 0, 0, 0.5);
     }
     mat-card-content {
       position: relative;

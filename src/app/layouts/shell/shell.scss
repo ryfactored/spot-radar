@@ -3,7 +3,7 @@
   position: absolute;
   top: -40px;
   left: 0;
-  background: var(--mat-sys-primary, #6366f1);
+  background: var(--mat-sys-primary, #3b82f6);
   color: white;
   padding: 8px 16px;
   z-index: 1001;
@@ -21,16 +21,20 @@
 
 mat-sidenav {
   width: 250px;
+
+  ::ng-deep .mat-drawer-inner-container {
+    overflow-x: hidden;
+  }
 }
 
 .active-link {
   border-radius: 8px;
   margin: 2px 8px;
-  background: color-mix(in srgb, var(--mat-sys-primary, #6366f1) 12%, transparent);
+  background: color-mix(in srgb, var(--mat-sys-primary, #3b82f6) 12%, transparent);
 }
 
 :host-context(.dark-mode) .active-link {
-  background: color-mix(in srgb, var(--mat-sys-primary, #6366f1) 16%, transparent);
+  background: color-mix(in srgb, var(--mat-sys-primary, #3b82f6) 16%, transparent);
 }
 
 .spacer {
@@ -41,6 +45,81 @@ mat-sidenav {
   position: sticky;
   top: 0;
   z-index: 1;
+}
+
+:host-context(.theme-default.dark-mode) .toolbar {
+  background-color: #1c1a2e;
+  color: #fafafa;
+  border-bottom: 1px solid #2d2a45;
+}
+
+:host-context(.theme-default.dark-mode) mat-sidenav {
+  background-color: #15132a;
+  border-right-color: #2d2a45;
+}
+
+:host-context(.theme-default.dark-mode) .toolbar-avatar {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+// Teal theme light mode: teal-tinted sidenav
+:host-context(.theme-teal:not(.dark-mode)) mat-sidenav {
+  background-color: #e6faf6;
+  border-right-color: #99f6e4;
+}
+
+:host-context(.theme-teal:not(.dark-mode)) .active-link {
+  background: color-mix(in srgb, #14b8a6 18%, transparent);
+}
+
+// Teal theme dark mode: vibrant toolbar + saturated teal surfaces
+:host-context(.theme-teal.dark-mode) .toolbar {
+  background-color: #0d9488;
+  color: white;
+  border-bottom: none;
+}
+
+:host-context(.theme-teal.dark-mode) mat-sidenav {
+  background-color: #0a2320;
+  border-right-color: #287068;
+}
+
+:host-context(.theme-teal.dark-mode) .toolbar-avatar {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+:host-context(.theme-teal.dark-mode) .active-link {
+  background: color-mix(in srgb, #14b8a6 30%, transparent);
+}
+
+// Slate theme light mode: cool blue-gray sidenav
+:host-context(.theme-slate:not(.dark-mode)) mat-sidenav {
+  background-color: #f1f5f9;
+  border-right-color: #cbd5e1;
+}
+
+:host-context(.theme-slate:not(.dark-mode)) .active-link {
+  background: color-mix(in srgb, #475569 14%, transparent);
+}
+
+// Slate theme dark mode: deep navy toolbar + dark blue-gray surfaces
+:host-context(.theme-slate.dark-mode) .toolbar {
+  background-color: #1e293b;
+  color: #f1f5f9;
+  border-bottom: 1px solid #334155;
+}
+
+:host-context(.theme-slate.dark-mode) mat-sidenav {
+  background-color: #0b1222;
+  border-right-color: #334155;
+}
+
+:host-context(.theme-slate.dark-mode) .toolbar-avatar {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+:host-context(.theme-slate.dark-mode) .active-link {
+  background: color-mix(in srgb, #38bdf8 20%, transparent);
 }
 
 .toolbar-title {

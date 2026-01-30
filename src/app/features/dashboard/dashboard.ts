@@ -54,7 +54,7 @@ import { AuthService } from '@core';
       gap: 16px;
     }
     .card-icon {
-      color: var(--mat-sys-primary, #6366f1);
+      color: var(--mat-sys-primary, #3b82f6);
       font-size: 32px;
       width: 32px;
       height: 32px;

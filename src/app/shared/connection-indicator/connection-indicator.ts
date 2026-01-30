@@ -46,7 +46,7 @@ import { ConnectionStatus } from '@core';
     }
 
     mat-icon.disconnected {
-      color: #9e9e9e;
+      color: var(--mat-card-subtitle-text-color, #9e9e9e);
     }
 
     .label {

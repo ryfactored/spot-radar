@@ -75,6 +75,10 @@ import { SocialProvider } from '@core';
       border-color: #333;
     }
 
+    :host-context(.dark-mode) .github:hover {
+      border-color: #e6edf3;
+    }
+
     .spotify:hover {
       border-color: #1db954;
     }
@@ -85,6 +89,10 @@ import { SocialProvider } from '@core';
 
     .apple:hover {
       border-color: #000;
+    }
+
+    :host-context(.dark-mode) .apple:hover {
+      border-color: #f5f5f7;
     }
   `,
 })

@@ -124,11 +124,7 @@ export interface ColumnDef<T = any> {
     .no-data-row td {
       text-align: center;
       padding: 24px;
-      color: #666;
-    }
-
-    :host-context(.dark-mode) .no-data-row td {
-      color: #aaa;
+      color: var(--mat-card-subtitle-text-color, #666);
     }
   `,
 })

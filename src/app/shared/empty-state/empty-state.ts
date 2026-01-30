@@ -24,7 +24,7 @@ import { MatIconModule } from '@angular/material/icon';
       align-items: center;
       padding: 48px 24px;
       text-align: center;
-      color: #666;
+      color: var(--mat-card-subtitle-text-color, #666);
     }
     mat-icon {
       font-size: 64px;

@@ -47,11 +47,7 @@ import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 
     mat-icon[matPrefix] {
       margin-right: 8px;
-      color: #666;
-    }
-
-    :host-context(.dark-mode) mat-icon[matPrefix] {
-      color: #aaa;
+      color: var(--mat-card-subtitle-text-color, #666);
     }
   `,
 })
