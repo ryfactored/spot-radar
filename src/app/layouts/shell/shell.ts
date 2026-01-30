@@ -11,6 +11,7 @@ import { toSignal, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { map, filter } from 'rxjs';
 import { PreferencesService, AuthService, UserRole, SupabaseService } from '@core';
 import { ThemePicker } from '@shared';
+import { environment } from '@env';
 
 @Component({
   selector: 'app-shell',
@@ -33,6 +34,7 @@ import { ThemePicker } from '@shared';
 export class Shell implements OnInit {
   @ViewChild('sidenav') sidenav!: MatSidenav;
 
+  siteTitle = environment.siteTitle;
   preferences = inject(PreferencesService);
   private auth = inject(AuthService);
   private supabase = inject(SupabaseService);

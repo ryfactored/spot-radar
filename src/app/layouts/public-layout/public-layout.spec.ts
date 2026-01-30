@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 
 import { PublicLayout } from './public-layout';
+import { environment } from '@env';
 
 describe('PublicLayout', () => {
   let component: PublicLayout;
@@ -25,7 +26,7 @@ describe('PublicLayout', () => {
   it('should display toolbar with logo', () => {
     const toolbar = fixture.nativeElement.querySelector('mat-toolbar');
     expect(toolbar).toBeTruthy();
-    expect(toolbar.textContent).toContain('Angular Starter');
+    expect(toolbar.textContent).toContain(environment.siteTitle);
   });
 
   it('should have sign in and get started buttons', () => {

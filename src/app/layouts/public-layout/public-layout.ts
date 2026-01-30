@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { RouterOutlet, RouterLink } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
+import { environment } from '@env';
 
 @Component({
   selector: 'app-public-layout',
@@ -10,7 +11,7 @@ import { MatButtonModule } from '@angular/material/button';
   template: `
     <header>
       <mat-toolbar color="primary" class="toolbar" role="navigation" aria-label="Main navigation">
-        <a routerLink="/" class="logo">Angular Starter</a>
+        <a routerLink="/" class="logo">{{ siteTitle }}</a>
         <span class="spacer"></span>
         <a mat-button routerLink="/login">Sign In</a>
         <a mat-raised-button color="accent" routerLink="/register">Get Started</a>
@@ -45,4 +46,6 @@ import { MatButtonModule } from '@angular/material/button';
     }
   `,
 })
-export class PublicLayout {}
+export class PublicLayout {
+  siteTitle = environment.siteTitle;
+}
