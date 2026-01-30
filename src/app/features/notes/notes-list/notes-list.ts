@@ -29,7 +29,7 @@ import { ToastService, ConfirmDialogService, EmptyState } from '@shared';
     EmptyState,
   ],
   template: `
-    <div class="header">
+    <div class="page-header">
       <h1>Notes</h1>
       <button mat-raised-button color="primary" (click)="createNote()">
         <mat-icon>add</mat-icon>
@@ -101,12 +101,6 @@ import { ToastService, ConfirmDialogService, EmptyState } from '@shared';
     }
   `,
   styles: `
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 24px;
-    }
     .search-field {
       width: 100%;
       max-width: 400px;
