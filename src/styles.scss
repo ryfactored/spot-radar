@@ -35,17 +35,17 @@ html,
 body {
   height: 100%;
   margin: 0;
-  font-family: Roboto, 'Helvetica Neue', sans-serif;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
 }
 
 // Accessibility: Enhanced focus indicators
 *:focus-visible {
-  outline: 2px solid var(--mat-sys-primary, #3f51b5);
+  outline: 2px solid var(--mat-sys-primary, #6366f1);
   outline-offset: 2px;
 }
 
 .dark-mode *:focus-visible {
-  outline-color: var(--mat-sys-primary, #7986cb);
+  outline-color: var(--mat-sys-primary, #a5b4fc);
 }
 
 // Remove default focus outline when using mouse (focus-visible handles keyboard)
