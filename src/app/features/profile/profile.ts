@@ -1,12 +1,20 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { AuthService, StorageService } from '@core';
-import { Avatar, SkeletonOverlay, ToastService } from '@shared';
+import { AuthService, HasUnsavedChanges, StorageService } from '@core';
+import {
+  Avatar,
+  ConfirmDialogService,
+  PasswordStrength,
+  SkeletonOverlay,
+  ToastService,
+  matchValidator,
+} from '@shared';
 import { ProfileService } from './profile-service';
 import { environment } from '@env';
 
@@ -22,6 +30,7 @@ import { environment } from '@env';
     MatIconModule,
     SkeletonOverlay,
     Avatar,
+    PasswordStrength,
   ],
   template: `
     <div class="page-header">
@@ -79,6 +88,92 @@ import { environment } from '@env';
         </form>
       </mat-card-content>
     </mat-card>
+
+    @if (isEmailUser()) {
+      <mat-card class="password-card">
+        <mat-card-header>
+          <mat-card-title>Change Password</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <form [formGroup]="passwordForm" (ngSubmit)="onChangePassword()">
+            <mat-form-field appearance="outline" class="full-width" subscriptSizing="fixed">
+              <mat-label>New Password</mat-label>
+              <input
+                matInput
+                formControlName="password"
+                [type]="showPassword() ? 'text' : 'password'"
+              />
+              <button
+                mat-icon-button
+                matSuffix
+                type="button"
+                (click)="showPassword.set(!showPassword())"
+                [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
+              >
+                <mat-icon>{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+              @if (passwordForm.controls.password.hasError('required')) {
+                <mat-error>Password is required</mat-error>
+              }
+              @if (passwordForm.controls.password.hasError('minlength')) {
+                <mat-error>
+                  Password must be at least {{ passwordMinLength }} characters
+                </mat-error>
+              }
+            </mat-form-field>
+            <app-password-strength [password]="passwordValue()" />
+
+            <mat-form-field appearance="outline" class="full-width" subscriptSizing="fixed">
+              <mat-label>Confirm New Password</mat-label>
+              <input
+                matInput
+                formControlName="confirmPassword"
+                [type]="showConfirmPassword() ? 'text' : 'password'"
+              />
+              <button
+                mat-icon-button
+                matSuffix
+                type="button"
+                (click)="showConfirmPassword.set(!showConfirmPassword())"
+                [attr.aria-label]="showConfirmPassword() ? 'Hide password' : 'Show password'"
+              >
+                <mat-icon>{{ showConfirmPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+              @if (passwordForm.controls.confirmPassword.hasError('required')) {
+                <mat-error>Please confirm your password</mat-error>
+              }
+              @if (passwordForm.controls.confirmPassword.hasError('mismatch')) {
+                <mat-error>Passwords do not match</mat-error>
+              }
+            </mat-form-field>
+
+            <button mat-raised-button color="primary" type="submit" [disabled]="changingPassword()">
+              {{ changingPassword() ? 'Changing...' : 'Change Password' }}
+            </button>
+          </form>
+        </mat-card-content>
+      </mat-card>
+    }
+
+    <mat-card class="danger-card">
+      <mat-card-header>
+        <mat-card-title>Danger Zone</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p class="danger-description">
+          Permanently delete your account data including your profile, notes, messages, and files.
+          This action cannot be undone.
+        </p>
+        <button
+          mat-raised-button
+          class="delete-button"
+          (click)="onDeleteAccount()"
+          [disabled]="deleting()"
+        >
+          {{ deleting() ? 'Deleting...' : 'Delete Account' }}
+        </button>
+      </mat-card-content>
+    </mat-card>
   `,
   styles: `
     .full-width {
@@ -128,25 +223,67 @@ import { environment } from '@env';
       font-size: 12px;
       color: var(--mat-sys-on-surface-variant, #757575);
     }
+    .password-card {
+      margin-top: 24px;
+    }
+    .danger-card {
+      margin-top: 24px;
+      border: 1px solid var(--mat-sys-error, #f44336);
+    }
+    .danger-description {
+      margin-bottom: 16px;
+      color: var(--mat-sys-on-surface-variant, #757575);
+    }
+    .delete-button {
+      background-color: var(--mat-sys-error, #f44336);
+      color: var(--mat-sys-on-error, white);
+    }
   `,
 })
-export class Profile implements OnInit {
+export class Profile implements OnInit, HasUnsavedChanges {
   private auth = inject(AuthService);
   profileService = inject(ProfileService);
   private storage = inject(StorageService);
   private fb = inject(FormBuilder);
   private toast = inject(ToastService);
+  private confirmDialog = inject(ConfirmDialogService);
+  private destroyRef = inject(DestroyRef);
 
   loading = signal(true);
   saving = signal(false);
+  changingPassword = signal(false);
+  deleting = signal(false);
   avatarPreview = signal<string | null>(null);
   selectedAvatarFile = signal<File | null>(null);
+  showPassword = signal(false);
+  showConfirmPassword = signal(false);
+  passwordValue = signal('');
+  passwordMinLength = environment.passwordMinLength;
+  isEmailUser = computed(() => this.auth.currentUser()?.app_metadata?.['provider'] === 'email');
 
   form = this.fb.nonNullable.group({
     email: [{ value: '', disabled: true }],
     display_name: [''],
     bio: [''],
   });
+
+  passwordForm = this.fb.nonNullable.group(
+    {
+      password: ['', [Validators.required, Validators.minLength(environment.passwordMinLength)]],
+      confirmPassword: ['', Validators.required],
+    },
+    { validators: matchValidator('password', 'confirmPassword') },
+  );
+
+  constructor() {
+    this.passwordForm.controls.password.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => this.passwordValue.set(value));
+  }
+
+  hasUnsavedChanges(): boolean {
+    return this.form.dirty && !this.saving();
+  }
 
   async ngOnInit() {
     const user = this.auth.currentUser();
@@ -223,6 +360,49 @@ export class Profile implements OnInit {
       this.toast.error(err instanceof Error ? err.message : 'Failed to save profile');
     } finally {
       this.saving.set(false);
+    }
+  }
+
+  async onChangePassword() {
+    if (this.passwordForm.invalid) return;
+
+    this.changingPassword.set(true);
+    try {
+      await this.auth.updatePassword(this.passwordForm.value.password!);
+      this.toast.success('Password changed successfully');
+      this.passwordForm.reset();
+      this.passwordValue.set('');
+    } catch (err) {
+      this.toast.error(err instanceof Error ? err.message : 'Failed to change password');
+    } finally {
+      this.changingPassword.set(false);
+    }
+  }
+
+  async onDeleteAccount() {
+    const confirmed = await this.confirmDialog.confirm({
+      title: 'Delete Account',
+      message:
+        'This will permanently delete your profile, notes, messages, and files. This action cannot be undone.',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+    });
+
+    if (!confirmed) return;
+
+    this.deleting.set(true);
+    try {
+      const user = this.auth.currentUser();
+      if (user) {
+        await this.profileService.deleteProfile(user.id);
+      }
+      // Sign out after deleting data. Full auth.users row deletion
+      // requires a Supabase Edge Function with service_role key.
+      await this.auth.signOut();
+      this.toast.info('Your account data has been deleted');
+    } catch (err) {
+      this.toast.error(err instanceof Error ? err.message : 'Failed to delete account');
+      this.deleting.set(false);
     }
   }
 }

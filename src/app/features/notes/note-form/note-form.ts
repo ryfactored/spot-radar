@@ -8,6 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { NotesService } from '../notes';
 import { NotesStore } from '../notes-store';
 import { ToastService, LoadingSpinner } from '@shared';
+import { HasUnsavedChanges } from '@core';
 
 @Component({
   selector: 'app-note-form',
@@ -78,7 +79,7 @@ import { ToastService, LoadingSpinner } from '@shared';
     }
   `,
 })
-export class NoteForm implements OnInit {
+export class NoteForm implements OnInit, HasUnsavedChanges {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private fb = inject(FormBuilder);
@@ -143,6 +144,10 @@ export class NoteForm implements OnInit {
     } finally {
       this.saving.set(false);
     }
+  }
+
+  hasUnsavedChanges(): boolean {
+    return this.form.dirty && !this.saving();
   }
 
   cancel() {

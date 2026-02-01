@@ -14,3 +14,5 @@ export { mapError, mapToError, unwrap, unwrapWithCount } from './error-mapper';
 export { RealtimeService } from './realtime';
 export type { ConnectionStatus, RealtimeEventType, RealtimePayload } from './realtime';
 export { StorageService } from './storage';
+export { unsavedChangesGuard } from './unsaved-changes-guard';
+export type { HasUnsavedChanges } from './unsaved-changes-guard';

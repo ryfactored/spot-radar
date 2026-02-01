@@ -74,6 +74,12 @@ export class ProfileService {
     return result;
   }
 
+  async deleteProfile(userId: string): Promise<void> {
+    const { error } = await this.supabase.client.from('profiles').delete().eq('id', userId);
+    if (error) throw mapToError(error);
+    this.setSharedState(null);
+  }
+
   private setSharedState(profile: Profile | null) {
     this.avatarUrl.set(profile?.avatar_url ?? null);
     this.displayName.set(profile?.display_name ?? null);
