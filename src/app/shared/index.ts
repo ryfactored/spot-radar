@@ -16,3 +16,4 @@ export type { StrengthLevel, PasswordStrengthResult } from './password-strength/
 export { matchValidator } from './validators/match.validator';
 export { SkeletonOverlay } from './skeleton-overlay/skeleton-overlay';
 export { ConnectionIndicator } from './connection-indicator/connection-indicator';
+export { LoadingBar } from './loading-bar/loading-bar';
