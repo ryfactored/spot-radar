@@ -35,4 +35,11 @@ test.describe('Navigation', () => {
     // Should stay on register page
     await expect(page).toHaveURL(/register/);
   });
+
+  test('should show 404 page for unknown routes', async ({ page }) => {
+    await page.goto('/nonexistent');
+
+    await expect(page.locator('app-not-found h2')).toContainText(/page not found/i);
+    await expect(page.locator('a[href="/"]')).toBeVisible();
+  });
 });
