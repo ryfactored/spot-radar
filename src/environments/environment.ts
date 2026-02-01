@@ -10,4 +10,6 @@ export const environment = {
   siteTitle: 'Angular Starter Template',
   siteDescription:
     'A production-ready Angular starter with authentication, theming, and reusable components.',
+  // Toast durations in milliseconds
+  toastDuration: { success: 2000, info: 3000, error: 4000 },
 };
