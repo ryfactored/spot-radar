@@ -45,7 +45,14 @@ describe('StorageService', () => {
 
     it('should return error for invalid type', () => {
       const file = new File(['data'], 'doc.pdf', { type: 'application/pdf' });
-      expect(service.validateAvatar(file)).toBe('Only JPEG, PNG, GIF, and WebP images are allowed');
+      expect(service.validateAvatar(file)).toBe(
+        'Only JPEG, PNG, GIF, WebP, and SVG images are allowed',
+      );
+    });
+
+    it('should return null for valid SVG', () => {
+      const file = new File(['<svg></svg>'], 'avatar.svg', { type: 'image/svg+xml' });
+      expect(service.validateAvatar(file)).toBeNull();
     });
 
     it('should return error for file over 5MB', () => {

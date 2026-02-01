@@ -99,11 +99,7 @@
         matTooltip="Profile"
         aria-label="Go to profile"
       >
-        @if (avatarUrl()) {
-          <img [src]="avatarUrl()" alt="Avatar" class="toolbar-avatar-img" />
-        } @else {
-          <span class="toolbar-avatar-initials">{{ userInitials() }}</span>
-        }
+        <app-avatar [src]="avatarUrl()" [name]="displayName()" [size]="32" />
       </a>
       <button mat-icon-button (click)="logout()" matTooltip="Logout" aria-label="Logout">
         <mat-icon>logout</mat-icon>

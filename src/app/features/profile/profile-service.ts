@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { SupabaseService, AuthService, SUPABASE_ERRORS, mapToError, unwrap } from '@core';
 
 export type UserRole = 'user' | 'admin';
@@ -21,6 +21,9 @@ export class ProfileService {
   private supabase = inject(SupabaseService);
   private auth = inject(AuthService);
 
+  avatarUrl = signal<string | null>(null);
+  displayName = signal<string | null>(null);
+
   async getProfile(userId: string): Promise<Profile | null> {
     const { data, error } = await this.supabase.client
       .from('profiles')
@@ -34,6 +37,7 @@ export class ProfileService {
     }
 
     if (error) throw mapToError(error);
+    this.setSharedState(data);
     return data;
   }
 
@@ -42,7 +46,7 @@ export class ProfileService {
     const email = user?.email || '';
     const displayName = user?.user_metadata?.['full_name'] || email;
 
-    return unwrap(
+    const result = unwrap(
       await this.supabase.client
         .from('profiles')
         .insert({
@@ -52,17 +56,26 @@ export class ProfileService {
         })
         .select()
         .single(),
-    );
+    )!;
+    this.setSharedState(result);
+    return result;
   }
 
   async updateProfile(userId: string, updates: Partial<Profile>): Promise<Profile> {
-    return unwrap(
+    const result = unwrap(
       await this.supabase.client
         .from('profiles')
         .update({ ...updates, updated_at: new Date().toISOString() })
         .eq('id', userId)
         .select()
         .single(),
-    );
+    )!;
+    this.setSharedState(result);
+    return result;
+  }
+
+  private setSharedState(profile: Profile | null) {
+    this.avatarUrl.set(profile?.avatar_url ?? null);
+    this.displayName.set(profile?.display_name ?? null);
   }
 }

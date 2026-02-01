@@ -3,7 +3,7 @@ import { SupabaseService } from './supabase';
 import { mapToError } from './error-mapper';
 
 const AVATAR_MAX_SIZE = 5 * 1024 * 1024; // 5MB
-const AVATAR_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+const AVATAR_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
 const ATTACHMENT_MAX_SIZE = 10 * 1024 * 1024; // 10MB
 
 @Injectable({
@@ -14,7 +14,7 @@ export class StorageService {
 
   validateAvatar(file: File): string | null {
     if (!AVATAR_TYPES.includes(file.type)) {
-      return 'Only JPEG, PNG, GIF, and WebP images are allowed';
+      return 'Only JPEG, PNG, GIF, WebP, and SVG images are allowed';
     }
     if (file.size > AVATAR_MAX_SIZE) {
       return 'Avatar must be less than 5MB';
