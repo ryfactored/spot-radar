@@ -49,14 +49,9 @@ export class App {
       return;
     }
 
-    // Restore visibility (hidden by inline script to prevent SSR flash)
+    // Restore visibility after OAuth callback (hidden by inline script in index.html)
     const router = inject(Router);
-    const isOAuthCallback =
-      location.search.includes('code=') || location.hash.includes('access_token');
-    if (!isOAuthCallback) {
-      document.documentElement.style.visibility = '';
-    } else {
-      // During OAuth callback, keep hidden until auth redirects away from landing page
+    if (location.search.includes('code=') || location.hash.includes('access_token')) {
       router.events
         .pipe(
           filter((e): e is NavigationEnd => e instanceof NavigationEnd),
@@ -93,21 +88,21 @@ export class App {
         );
       });
 
-    // Apply color theme class to body
+    // Apply color theme class to <html> (matches inline script in index.html)
     effect(() => {
       const colorTheme = this.preferences.colorTheme();
       // Remove all theme classes first
       this.colorThemeClasses.forEach((t) => {
-        document.body.classList.remove(`theme-${t}`);
+        document.documentElement.classList.remove(`theme-${t}`);
       });
       // Add current theme class
-      document.body.classList.add(`theme-${colorTheme}`);
+      document.documentElement.classList.add(`theme-${colorTheme}`);
     });
 
-    // Apply dark mode class to body
+    // Apply dark mode class to <html> (matches inline script in index.html)
     effect(() => {
       const darkMode = this.preferences.darkMode();
-      document.body.classList.toggle('dark-mode', darkMode);
+      document.documentElement.classList.toggle('dark-mode', darkMode);
     });
   }
 }

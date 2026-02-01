@@ -2,16 +2,20 @@
 <html lang="en">
   <head>
     <script>
-      // Hide content to prevent flash:
-      // - Non-landing routes: prevents prerendered landing page showing during client navigation
-      // - OAuth callbacks: prevents landing page flash while Supabase processes auth tokens
-      if (
-        location.pathname !== '/' ||
-        location.search.includes('code=') ||
-        location.hash.includes('access_token')
-      ) {
+      // Hide landing page during OAuth callbacks to prevent flash while Supabase processes tokens
+      if (location.search.includes('code=') || location.hash.includes('access_token')) {
         document.documentElement.style.visibility = 'hidden';
       }
+    </script>
+    <script>
+      // Apply theme before first paint to prevent white flash
+      try {
+        var t = JSON.parse(localStorage.getItem('angular-starter:theme'));
+        if (t) {
+          if (t.darkMode) document.documentElement.classList.add('dark-mode');
+          if (t.colorTheme) document.documentElement.classList.add('theme-' + t.colorTheme);
+        }
+      } catch (e) {}
     </script>
     <meta charset="utf-8" />
     <title>Angular Starter</title>
