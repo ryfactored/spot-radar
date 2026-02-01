@@ -379,4 +379,4 @@ If you don't need SSR, change `outputMode` in `angular.json` from `"server"` to 
 
 - [Feature Removal Guide](./feature-removal.md) — how to strip example features you don't need
 - [Theming Guide](./theming.md) — how to customize colors and add new themes
-- [Accessibility Notes](./ACCESSIBILITY.md) — accessibility audit results and patterns used
+- [Accessibility Notes](./accessibility.md) — accessibility audit results and patterns used
