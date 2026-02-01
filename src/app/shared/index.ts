@@ -17,3 +17,4 @@ export { matchValidator } from './validators/match.validator';
 export { SkeletonOverlay } from './skeleton-overlay/skeleton-overlay';
 export { ConnectionIndicator } from './connection-indicator/connection-indicator';
 export { LoadingBar } from './loading-bar/loading-bar';
+export { Avatar } from './avatar/avatar';

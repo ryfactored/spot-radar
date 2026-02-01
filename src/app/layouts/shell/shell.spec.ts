@@ -4,24 +4,19 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { signal } from '@angular/core';
 
 import { Shell } from './shell';
-import { PreferencesService, AuthService, SupabaseService } from '@core';
+import { PreferencesService, AuthService } from '@core';
+import { ProfileService } from '@features/profile/profile-service';
 
 describe('Shell', () => {
   let component: Shell;
   let fixture: ComponentFixture<Shell>;
-  let supabaseMock: ReturnType<typeof createSupabaseMock>;
+  let profileMock: ReturnType<typeof createProfileMock>;
 
-  function createSupabaseMock(role = 'user') {
+  function createProfileMock(role = 'user') {
     return {
-      client: {
-        from: vi.fn().mockReturnValue({
-          select: vi.fn().mockReturnValue({
-            eq: vi.fn().mockReturnValue({
-              single: vi.fn().mockResolvedValue({ data: { role }, error: null }),
-            }),
-          }),
-        }),
-      },
+      avatarUrl: signal<string | null>(null),
+      displayName: signal<string | null>(null),
+      getProfile: vi.fn().mockResolvedValue({ role, avatar_url: null, display_name: null }),
     };
   }
 
@@ -50,7 +45,7 @@ describe('Shell', () => {
   ) {
     const { role = 'user', user = { id: '123', email: 'test@test.com' } } = options;
 
-    supabaseMock = createSupabaseMock(role);
+    profileMock = createProfileMock(role);
     const authMock = createAuthMock(user);
 
     await TestBed.configureTestingModule({
@@ -59,7 +54,7 @@ describe('Shell', () => {
         provideRouter([]),
         { provide: PreferencesService, useValue: preferencesMock },
         { provide: AuthService, useValue: authMock },
-        { provide: SupabaseService, useValue: supabaseMock },
+        { provide: ProfileService, useValue: profileMock },
       ],
     }).compileComponents();
 
@@ -108,7 +103,7 @@ describe('Shell', () => {
     it('should not fetch role when user is not logged in', async () => {
       await setupTest({ user: null });
 
-      expect(supabaseMock.client.from).not.toHaveBeenCalled();
+      expect(profileMock.getProfile).not.toHaveBeenCalled();
       expect(component.userRole()).toBeNull();
     });
   });

@@ -9,8 +9,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { toSignal, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { map, filter } from 'rxjs';
-import { PreferencesService, AuthService, UserRole, SupabaseService } from '@core';
-import { ThemePicker, LoadingBar } from '@shared';
+import { PreferencesService, AuthService, UserRole } from '@core';
+import { ThemePicker, LoadingBar, Avatar } from '@shared';
+import { ProfileService } from '@features/profile/profile-service';
 import { environment } from '@env';
 
 @Component({
@@ -28,6 +29,7 @@ import { environment } from '@env';
     MatTooltipModule,
     ThemePicker,
     LoadingBar,
+    Avatar,
   ],
   templateUrl: './shell.html',
   styleUrl: './shell.scss',
@@ -38,7 +40,7 @@ export class Shell implements OnInit {
   siteTitle = environment.siteTitle;
   preferences = inject(PreferencesService);
   private auth = inject(AuthService);
-  private supabase = inject(SupabaseService);
+  private profileService = inject(ProfileService);
   private breakpointObserver = inject(BreakpointObserver);
   private router = inject(Router);
 
@@ -46,20 +48,9 @@ export class Shell implements OnInit {
   userRole = signal<UserRole | null>(null);
   isAdmin = computed(() => this.userRole() === 'admin');
 
-  // User avatar and display name
-  avatarUrl = signal<string | null>(null);
-  displayName = signal<string | null>(null);
-  userInitials = computed(() => {
-    const name = this.displayName();
-    if (!name) return '?';
-    return name
-      .split(' ')
-      .map((part) => part[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
-  });
-
+  // User avatar and display name (shared via ProfileService)
+  avatarUrl = this.profileService.avatarUrl;
+  displayName = this.profileService.displayName;
   // Detect mobile breakpoint (< 768px)
   private isMobile$ = this.breakpointObserver
     .observe(['(max-width: 767px)'])
@@ -95,16 +86,9 @@ export class Shell implements OnInit {
     const user = this.auth.currentUser();
     if (!user) return;
 
-    const { data } = await this.supabase.client
-      .from('profiles')
-      .select('role, avatar_url, display_name')
-      .eq('id', user.id)
-      .single();
-
-    if (data) {
-      if (data.role) this.userRole.set(data.role as UserRole);
-      if (data.avatar_url) this.avatarUrl.set(data.avatar_url as string);
-      if (data.display_name) this.displayName.set(data.display_name as string);
+    const profile = await this.profileService.getProfile(user.id);
+    if (profile?.role) {
+      this.userRole.set(profile.role as UserRole);
     }
   }
 

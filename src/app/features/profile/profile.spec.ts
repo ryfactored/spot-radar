@@ -21,12 +21,19 @@ describe('Profile', () => {
     };
 
     profileMock = {
-      getProfile: vi.fn().mockResolvedValue({
-        id: 'user-123',
-        email: 'test@test.com',
-        display_name: 'Test User',
-        avatar_url: 'https://example.com/avatar.png',
-        bio: '',
+      avatarUrl: signal<string | null>(null),
+      displayName: signal<string | null>(null),
+      getProfile: vi.fn().mockImplementation(async () => {
+        const profile = {
+          id: 'user-123',
+          email: 'test@test.com',
+          display_name: 'Test User',
+          avatar_url: 'https://example.com/avatar.png',
+          bio: '',
+        };
+        profileMock.avatarUrl.set(profile.avatar_url);
+        profileMock.displayName.set(profile.display_name);
+        return profile;
       }),
       updateProfile: vi.fn().mockResolvedValue({}),
     };
@@ -65,12 +72,14 @@ describe('Profile', () => {
   });
 
   it('should load avatar_url from profile', () => {
-    expect(component.avatarUrl()).toBe('https://example.com/avatar.png');
+    expect(profileMock.avatarUrl()).toBe('https://example.com/avatar.png');
   });
 
   it('should show avatar image when avatarUrl is set', () => {
     fixture.detectChanges();
-    const img = fixture.nativeElement.querySelector('.avatar-img');
+    const avatar = fixture.nativeElement.querySelector('app-avatar');
+    expect(avatar).toBeTruthy();
+    const img = avatar.querySelector('img');
     expect(img).toBeTruthy();
     expect(img.src).toContain('avatar.png');
   });

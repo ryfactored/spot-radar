@@ -48,7 +48,7 @@ There's no wildcard route. Any unknown URL silently shows a blank page. Every ap
 **Changes:**
 
 - `src/app/features/not-found/not-found.ts` -- Simple page with empty-state-style layout: large icon, "Page not found" heading, "The page you're looking for doesn't exist or has been moved" message, "Go to Dashboard" / "Go Home" buttons (conditional on auth state).
-- `src/app/app.routes.ts` -- Add `{ path: '**', component: NotFound }` as the last route. This needs to be outside any layout wrapper so it works for both authenticated and guest users. Use a minimal standalone layout or apply a simple centered layout inline.
+- `src/app/app.routes.ts` -- Add `{ path: '**', loadComponent: ... }` as the last route. Placed **inside the no-guard AuthLayout group** so it gets the dark background and card styling consistent with auth pages. This works for both authenticated and guest users since the AuthLayout group has no guard.
 - E2e test: navigate to `/nonexistent`, verify the 404 page renders.
 
 ### Iteration 42 -- Dynamic Page Titles
@@ -72,9 +72,10 @@ When navigating between lazy-loaded routes (especially on slow connections), the
 
 **Changes:**
 
-- `src/app/shared/loading-bar/loading-bar.ts` -- New component: a thin (3px) progress bar fixed to the top of the viewport. Uses `Router` events: show on `NavigationStart`, hide on `NavigationEnd`/`NavigationCancel`/`NavigationError`. Animate with CSS (`width` transition or indeterminate shimmer). Uses `--mat-sys-primary` for color.
-- `src/app/layouts/shell/shell.html` -- Add `<app-loading-bar />` inside the shell (above the toolbar or inside `mat-sidenav-content`).
+- `src/app/shared/loading-bar/loading-bar.ts` -- New component: a thin (3px) progress bar fixed to the top of the viewport. Uses `Router` events: show on `NavigationStart`, hide on `NavigationEnd`/`NavigationCancel`/`NavigationError`. Uses a sliding gradient animation (not a width/scaleX transition, which was invisible during the short display window). Includes a 300ms minimum display time via `setTimeout` so the bar is visible even on fast navigations. Uses `var(--mat-sys-primary, #3b82f6)` with fallback because the app uses M2 themes which don't natively generate `--mat-sys-primary`.
+- `src/app/layouts/shell/shell.html` -- Add `<app-loading-bar />` **outside `mat-sidenav-container`** because Material's sidenav creates a stacking context that breaks `position: fixed`.
 - `src/app/layouts/auth-layout/auth-layout.ts` -- Add `<app-loading-bar />` for auth page transitions too.
+- `src/styles.scss` -- Added `--mat-sys-primary` CSS variable definitions for all 6 theme variants (3 themes × light/dark). This cross-cutting change ensures `var(--mat-sys-primary)` resolves correctly throughout the app without fallbacks, which also simplifies Iteration 50 (Admin Placeholder Cleanup).
 - Keep it minimal -- no third-party library, just a CSS-animated div responding to router events.
 
 ### Iteration 44 -- Reusable Avatar Component

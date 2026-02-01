@@ -6,7 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService, StorageService } from '@core';
-import { SkeletonOverlay, ToastService } from '@shared';
+import { Avatar, SkeletonOverlay, ToastService } from '@shared';
 import { ProfileService } from './profile-service';
 
 @Component({
@@ -20,6 +20,7 @@ import { ProfileService } from './profile-service';
     MatCardModule,
     MatIconModule,
     SkeletonOverlay,
+    Avatar,
   ],
   template: `
     <div class="page-header">
@@ -36,13 +37,11 @@ import { ProfileService } from './profile-service';
             (click)="avatarInput.click()"
             (keydown.enter)="avatarInput.click()"
           >
-            @if (avatarPreview() || avatarUrl()) {
-              <img [src]="avatarPreview() || avatarUrl()" alt="Avatar" class="avatar-img" />
-            } @else {
-              <div class="avatar-placeholder">
-                <mat-icon>person</mat-icon>
-              </div>
-            }
+            <app-avatar
+              [src]="avatarPreview() || profileService.avatarUrl()"
+              [name]="form.value.display_name"
+              [size]="100"
+            />
             <div class="avatar-overlay">
               <mat-icon>photo_camera</mat-icon>
             </div>
@@ -50,7 +49,7 @@ import { ProfileService } from './profile-service';
           <input
             #avatarInput
             type="file"
-            accept="image/jpeg,image/png,image/gif,image/webp"
+            accept="image/jpeg,image/png,image/gif,image/webp,image/svg+xml"
             hidden
             (change)="onAvatarSelected($event)"
           />
@@ -104,25 +103,6 @@ import { ProfileService } from './profile-service';
       cursor: pointer;
       overflow: hidden;
     }
-    .avatar-img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    .avatar-placeholder {
-      width: 100%;
-      height: 100%;
-      background: var(--mat-sys-surface-variant, #e0e0e0);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .avatar-placeholder mat-icon {
-      font-size: 48px;
-      width: 48px;
-      height: 48px;
-      color: var(--mat-sys-on-surface-variant, #9e9e9e);
-    }
     .avatar-overlay {
       position: absolute;
       top: 0;
@@ -151,14 +131,13 @@ import { ProfileService } from './profile-service';
 })
 export class Profile implements OnInit {
   private auth = inject(AuthService);
-  private profileService = inject(ProfileService);
+  profileService = inject(ProfileService);
   private storage = inject(StorageService);
   private fb = inject(FormBuilder);
   private toast = inject(ToastService);
 
   loading = signal(true);
   saving = signal(false);
-  avatarUrl = signal<string | null>(null);
   avatarPreview = signal<string | null>(null);
   selectedAvatarFile = signal<File | null>(null);
 
@@ -180,9 +159,6 @@ export class Profile implements OnInit {
           display_name: profile.display_name || '',
           bio: profile.bio || '',
         });
-        if (profile.avatar_url) {
-          this.avatarUrl.set(profile.avatar_url);
-        }
       }
     } catch (err) {
       this.toast.error(err instanceof Error ? err.message : 'Failed to load profile');
@@ -234,7 +210,9 @@ export class Profile implements OnInit {
       await this.profileService.updateProfile(user.id, updates);
 
       if (updates['avatar_url']) {
-        this.avatarUrl.set(updates['avatar_url'] as string);
+        // Bust browser cache: the storage URL doesn't change on upsert,
+        // so the browser would serve the cached old image without this.
+        this.profileService.avatarUrl.set(`${updates['avatar_url']}?t=${Date.now()}`);
         this.avatarPreview.set(null);
         this.selectedAvatarFile.set(null);
       }
