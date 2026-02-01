@@ -7,36 +7,36 @@ import { MatIconModule } from '@angular/material/icon';
   standalone: true,
   imports: [MatCardModule, MatIconModule],
   template: `
-    <div class="admin-container">
-      <mat-card>
-        <mat-card-header>
-          <mat-icon mat-card-avatar>admin_panel_settings</mat-icon>
-          <mat-card-title>Admin Dashboard</mat-card-title>
-          <mat-card-subtitle>Manage your application</mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content>
-          <p>This page is only accessible to users with the <strong>admin</strong> role.</p>
-          <p>Add your admin functionality here:</p>
-          <ul>
-            <li>User management</li>
-            <li>System settings</li>
-            <li>Analytics dashboard</li>
-            <li>Content moderation</li>
-          </ul>
-        </mat-card-content>
-      </mat-card>
+    <div class="page-header">
+      <h1>Admin</h1>
     </div>
+
+    <mat-card class="admin-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar class="admin-avatar">admin_panel_settings</mat-icon>
+        <mat-card-title>Admin Dashboard</mat-card-title>
+        <mat-card-subtitle>Manage your application</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <p>This page is only accessible to users with the <strong>admin</strong> role.</p>
+        <p>Add your admin functionality here:</p>
+        <ul>
+          <li>User management</li>
+          <li>System settings</li>
+          <li>Analytics dashboard</li>
+          <li>Content moderation</li>
+        </ul>
+      </mat-card-content>
+    </mat-card>
   `,
   styles: `
-    .admin-container {
-      padding: 24px;
+    .admin-card {
       max-width: 800px;
-      margin: 0 auto;
     }
 
-    mat-icon[mat-card-avatar] {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
+    .admin-avatar {
+      background-color: var(--mat-sys-primary);
+      color: var(--mat-sys-on-primary);
       width: 40px;
       height: 40px;
       border-radius: 50%;

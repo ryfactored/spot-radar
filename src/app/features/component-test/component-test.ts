@@ -30,7 +30,9 @@ import { NotesService, Note } from '../notes/notes';
     SearchInput,
   ],
   template: `
-    <h1>Shared Components</h1>
+    <div class="page-header">
+      <h1>Shared Components</h1>
+    </div>
     <p class="subtitle">Test page for shared UI components</p>
 
     <mat-card class="section">
