@@ -56,182 +56,24 @@ siteUrl: 'https://your-domain.com',
 
 ## 4. Set up the database
 
-Run these SQL statements in your Supabase **SQL Editor** (Dashboard > SQL Editor > New query).
+The SQL migrations live in `supabase/migrations/`. Run them in your Supabase **SQL Editor** (Dashboard > SQL Editor > New query).
 
-### Profiles table (required)
+### Core schema (required)
 
-Every user gets a profile row. The trigger auto-creates one on sign-up.
+Run [`supabase/migrations/001_initial_schema.sql`](../supabase/migrations/001_initial_schema.sql). This creates:
 
-```sql
--- Profiles table
-create table public.profiles (
-  id uuid references auth.users(id) on delete cascade primary key,
-  email text,
-  display_name text,
-  avatar_url text,
-  bio text,
-  role text default 'user',
-  created_at timestamptz default now() not null,
-  updated_at timestamptz default now() not null
-);
-
-alter table public.profiles enable row level security;
-
-create policy "Users can view own profile"
-  on public.profiles for select
-  using (auth.uid() = id);
-
-create policy "Users can update own profile"
-  on public.profiles for update
-  using (auth.uid() = id);
-
-create policy "Users can insert own profile"
-  on public.profiles for insert
-  with check (auth.uid() = id);
-
--- Auto-create profile on sign-up
-create or replace function public.handle_new_user()
-returns trigger as $$
-begin
-  insert into public.profiles (id, email, display_name)
-  values (
-    new.id,
-    new.email,
-    coalesce(new.raw_user_meta_data->>'full_name', new.email)
-  );
-  return new;
-end;
-$$ language plpgsql security definer;
-
-create trigger on_auth_user_created
-  after insert on auth.users
-  for each row execute function public.handle_new_user();
-```
-
-### Storage buckets (required for avatars)
-
-```sql
--- Avatars bucket (public, for profile pictures)
-insert into storage.buckets (id, name, public) values ('avatars', 'avatars', true);
-
-create policy "Users can upload own avatar"
-  on storage.objects for insert
-  with check (bucket_id = 'avatars' and (storage.foldername(name))[1] = auth.uid()::text);
-
-create policy "Users can update own avatar"
-  on storage.objects for update
-  using (bucket_id = 'avatars' and (storage.foldername(name))[1] = auth.uid()::text);
-
-create policy "Anyone can view avatars"
-  on storage.objects for select
-  using (bucket_id = 'avatars');
-```
+- `profiles` table with RLS policies
+- Auto-create trigger (new profile row on every sign-up)
+- `avatars` storage bucket for profile pictures
 
 ### Example feature tables (optional)
 
-Only run these if you're keeping the corresponding features. See [feature-removal.md](./feature-removal.md) for how to strip features you don't need.
+Run [`supabase/migrations/002_example_features.sql`](../supabase/migrations/002_example_features.sql) if you're keeping the example features (Notes, Chat, Files). Skip it entirely or comment out individual sections for features you don't need. See [feature-removal.md](./feature-removal.md) for details.
 
-<details>
-<summary>Notes table</summary>
-
-```sql
-create table public.notes (
-  id uuid default gen_random_uuid() primary key,
-  user_id uuid references auth.users(id) on delete cascade not null,
-  title text not null,
-  content text,
-  created_at timestamptz default now() not null,
-  updated_at timestamptz default now() not null
-);
-
-alter table public.notes enable row level security;
-
-create policy "Users can view own notes"
-  on public.notes for select using (auth.uid() = user_id);
-
-create policy "Users can create own notes"
-  on public.notes for insert with check (auth.uid() = user_id);
-
-create policy "Users can update own notes"
-  on public.notes for update using (auth.uid() = user_id);
-
-create policy "Users can delete own notes"
-  on public.notes for delete using (auth.uid() = user_id);
-```
-
-</details>
-
-<details>
-<summary>Messages table (Chat)</summary>
-
-```sql
-create table public.messages (
-  id uuid default gen_random_uuid() primary key,
-  user_id uuid references auth.users(id) on delete cascade not null,
-  username text not null,
-  content text not null,
-  created_at timestamptz default now() not null
-);
-
-alter table public.messages enable row level security;
-
-create policy "Authenticated users can view messages"
-  on public.messages for select using (auth.role() = 'authenticated');
-
-create policy "Users can insert own messages"
-  on public.messages for insert with check (auth.uid() = user_id);
-```
-
-Enable Realtime for the messages table:
+After running 002, enable Realtime for the Chat feature:
 
 1. Go to **Database > Replication** in the Supabase dashboard.
 2. Toggle on Realtime for the `messages` table.
-
-</details>
-
-<details>
-<summary>Files table + storage bucket</summary>
-
-```sql
-create table public.files (
-  id uuid default gen_random_uuid() primary key,
-  user_id uuid references auth.users(id) on delete cascade not null,
-  name text not null,
-  storage_path text not null,
-  size bigint not null,
-  type text not null,
-  created_at timestamptz default now() not null,
-  updated_at timestamptz default now() not null
-);
-
-alter table public.files enable row level security;
-
-create policy "Users can view own files"
-  on public.files for select using (auth.uid() = user_id);
-
-create policy "Users can insert own files"
-  on public.files for insert with check (auth.uid() = user_id);
-
-create policy "Users can delete own files"
-  on public.files for delete using (auth.uid() = user_id);
-
--- Private storage bucket for user files
-insert into storage.buckets (id, name, public) values ('user-files', 'user-files', false);
-
-create policy "Users can upload own files"
-  on storage.objects for insert
-  with check (bucket_id = 'user-files' and (storage.foldername(name))[1] = auth.uid()::text);
-
-create policy "Users can view own files"
-  on storage.objects for select
-  using (bucket_id = 'user-files' and (storage.foldername(name))[1] = auth.uid()::text);
-
-create policy "Users can delete own files"
-  on storage.objects for delete
-  using (bucket_id = 'user-files' and (storage.foldername(name))[1] = auth.uid()::text);
-```
-
-</details>
 
 ---
 
