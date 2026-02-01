@@ -4,7 +4,7 @@
 
 **Status at start of Phase 6**: Iterations 52–58 complete. Audit passed (lint, format, build 1.55MB, 346 tests, 30 E2E).
 
-**Current status**: All iterations complete. 360 unit tests, 30 E2E tests. Build 1.55 MB. Ready for v1.0.0 tag.
+**Current status**: All iterations complete (including mobile UX audit). 360 unit tests, 30 E2E tests. Build 1.55 MB. Ready for v1.0.0 tag.
 
 ---
 
@@ -106,6 +106,46 @@ Full audit pass after all changes:
 
 ---
 
+## ✅ Iteration 65 — Mobile UX audit
+
+Audited all layouts and feature pages for mobile viewport issues. Five fixes applied.
+
+**Issues found and fixed:**
+
+1. **`.page-header` (global)** — No `flex-wrap` or `gap`. On narrow screens, the h1 title and action button would collide or overflow. Fixed by adding `flex-wrap: wrap` and `gap: 12px`.
+
+2. **Files grid `minmax(350px, 1fr)`** — On phones (375px viewport - 32px shell padding = 343px usable), the 350px minimum forced horizontal scroll. Fixed by using `minmax(min(350px, 100%), 1fr)`, matching the pattern already used by the dashboard grid.
+
+3. **Notes grid `minmax(300px, 1fr)`** — Same issue on very small phones (320px - 32px = 288px < 300px). Fixed with `minmax(min(300px, 100%), 1fr)`.
+
+4. **Chat container `height: calc(100vh - 120px)`** — `100vh` doesn't account for mobile browser chrome (URL bar, bottom navigation bar). Changed to `100dvh` (dynamic viewport height), which adjusts when the browser chrome shows/hides.
+
+5. **Auth layout** — The `.auth-container` had no padding, so the `.auth-card` (max-width 400px, padding 40px) went edge-to-edge on phones with no breathing room. The 40px internal padding also consumed too much width on small screens (320px → only 240px for content). Fixed by:
+   - Adding `padding: 16px` and `box-sizing: border-box` to `.auth-container` for side margins.
+   - Adding `min-height: 100dvh` (replacing `100vh`) for consistent mobile behavior.
+   - Adding `box-sizing: border-box` to `.auth-card`.
+   - Adding a `@media (max-width: 480px)` query that reduces card padding to 24px.
+
+**What was already solid:**
+
+- Shell layout had a 767px breakpoint with reduced padding and font sizes.
+- Landing page had well-defined breakpoints at 600px and 601–900px.
+- Dashboard grid already used the `min()` pattern: `minmax(min(260px, 100%), 1fr)`.
+- Profile and note-form use constrained `max-width` (500px / 600px) which naturally fits mobile viewports.
+- Chat messages use `max-width: 70%` which works well on all screen sizes.
+
+**Changes:**
+
+- `src/styles.scss` — Added `flex-wrap: wrap` and `gap: 12px` to `.page-header`.
+- `src/app/features/files/files-page/files-page.ts` — Changed grid to `minmax(min(350px, 100%), 1fr)`.
+- `src/app/features/notes/notes-list/notes-list.ts` — Changed grid to `minmax(min(300px, 100%), 1fr)`.
+- `src/app/features/chat/chat-room/chat-room.ts` — Changed height to `calc(100dvh - 120px)`.
+- `src/app/layouts/auth-layout/auth-layout.ts` — Added container padding, `100dvh`, `box-sizing`, and mobile media query for reduced card padding.
+
+**Verify:** `npm run lint` pass, `npm run build` 1.55 MB, 360 tests pass, 30 E2E pass. Visual regression snapshots updated (auth layout padding changes affected 5 snapshots).
+
+---
+
 ## Summary
 
 | Iteration | Name                          | Category      | Status |
@@ -115,8 +155,9 @@ Full audit pass after all changes:
 | 62        | Route transition animations   | UX            | ✅     |
 | 63        | CSP documentation             | Docs          | ✅     |
 | 64        | Final re-audit                | QA            | ✅     |
+| 65        | Mobile UX audit               | UX            | ✅     |
 
-**Total iterations**: 5 (60–64). All complete.
+**Total iterations**: 6 (60–65). All complete.
 
 **Test count progression**: 346 → 360 (+14 from TimeAgoPipe).
 
@@ -133,8 +174,9 @@ Full audit pass after all changes:
 - `src/app/app.config.ts` (provideAnimationsAsync)
 - `src/app/shared/index.ts` (TimeAgoPipe export)
 - `src/app/layouts/shell/shell.ts` + `shell.html` (route animation)
-- `src/app/layouts/auth-layout/auth-layout.ts` + spec (route animation)
-- `src/app/features/notes/notes-list/notes-list.ts` (timeAgo pipe)
-- `src/app/features/chat/chat-room/chat-room.ts` (timeAgo pipe)
-- `src/app/features/files/files-page/files-page.ts` (timeAgo pipe)
+- `src/app/layouts/auth-layout/auth-layout.ts` + spec (route animation, mobile padding)
+- `src/app/features/notes/notes-list/notes-list.ts` (timeAgo pipe, grid mobile fix)
+- `src/app/features/chat/chat-room/chat-room.ts` (timeAgo pipe, dvh fix)
+- `src/app/features/files/files-page/files-page.ts` (timeAgo pipe, grid mobile fix)
+- `src/styles.scss` (page-header flex-wrap)
 - `docs/setup.md` (security headers section)

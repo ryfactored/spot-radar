@@ -20,10 +20,12 @@ import { routeAnimation } from '../../shared/animations/route-animation';
   `,
   styles: `
     .auth-container {
-      min-height: 100vh;
+      min-height: 100dvh;
       display: flex;
       align-items: center;
       justify-content: center;
+      padding: 16px;
+      box-sizing: border-box;
       background:
         radial-gradient(
           ellipse at top left,
@@ -48,11 +50,17 @@ import { routeAnimation } from '../../shared/animations/route-animation';
       box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
       width: 100%;
       max-width: 400px;
+      box-sizing: border-box;
     }
     .app-title {
       text-align: center;
       margin-bottom: 24px;
       color: var(--mat-sys-primary, #3b82f6);
+    }
+    @media (max-width: 480px) {
+      .auth-card {
+        padding: 24px;
+      }
     }
   `,
 })

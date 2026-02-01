@@ -93,7 +93,7 @@ import { ToastService, ConnectionIndicator, LoadingSpinner, TimeAgoPipe } from '
     .chat-container {
       display: flex;
       flex-direction: column;
-      height: calc(100vh - 120px);
+      height: calc(100dvh - 120px);
       max-height: 800px;
     }
 
