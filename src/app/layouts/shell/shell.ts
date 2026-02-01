@@ -1,7 +1,7 @@
 import { Component, inject, computed, ViewChild, signal, OnInit } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
+import { MatSidenav, MatSidenavContent, MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -36,6 +36,7 @@ import { environment } from '@env';
 })
 export class Shell implements OnInit {
   @ViewChild('sidenav') sidenav!: MatSidenav;
+  @ViewChild(MatSidenavContent) sidenavContent!: MatSidenavContent;
 
   siteTitle = environment.siteTitle;
   preferences = inject(PreferencesService);
@@ -75,6 +76,8 @@ export class Shell implements OnInit {
         if (this.isMobile() && this.sidenav) {
           this.sidenav.close();
         }
+        // Scroll content to top — the scroll container is mat-sidenav-content, not the viewport
+        this.sidenavContent?.getElementRef().nativeElement.scrollTo(0, 0);
       });
   }
 

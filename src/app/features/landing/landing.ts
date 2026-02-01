@@ -37,8 +37,41 @@ import { environment } from '@env';
             </div>
             <h3>Authentication</h3>
             <p>
-              Built-in authentication with Supabase. Email/password and social logins ready to go.
+              Email/password and social login with Google, GitHub, and more. Password reset and
+              email verification included.
             </p>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="feature-card">
+          <mat-card-content>
+            <div class="feature-icon-wrap">
+              <mat-icon class="feature-icon">note</mat-icon>
+            </div>
+            <h3>Notes &amp; CRUD</h3>
+            <p>
+              Full create, read, update, and delete with pagination, search, and realtime updates.
+            </p>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="feature-card">
+          <mat-card-content>
+            <div class="feature-icon-wrap">
+              <mat-icon class="feature-icon">chat</mat-icon>
+            </div>
+            <h3>Realtime Chat</h3>
+            <p>Live messaging with presence indicators powered by Supabase Realtime.</p>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="feature-card">
+          <mat-card-content>
+            <div class="feature-icon-wrap">
+              <mat-icon class="feature-icon">cloud_upload</mat-icon>
+            </div>
+            <h3>File Storage</h3>
+            <p>Upload, download, and manage files with avatar support and signed URLs.</p>
           </mat-card-content>
         </mat-card>
 
@@ -49,19 +82,8 @@ import { environment } from '@env';
             </div>
             <h3>Theming</h3>
             <p>
-              Multiple color themes with light and dark modes. User preferences persist
-              automatically.
+              Three color themes with dark and light mode. User preferences persist automatically.
             </p>
-          </mat-card-content>
-        </mat-card>
-
-        <mat-card class="feature-card">
-          <mat-card-content>
-            <div class="feature-icon-wrap">
-              <mat-icon class="feature-icon">widgets</mat-icon>
-            </div>
-            <h3>Components</h3>
-            <p>Pre-built UI components like data tables, search inputs, toasts, and dialogs.</p>
           </mat-card-content>
         </mat-card>
 
@@ -70,8 +92,10 @@ import { environment } from '@env';
             <div class="feature-icon-wrap">
               <mat-icon class="feature-icon">speed</mat-icon>
             </div>
-            <h3>Performance</h3>
-            <p>Lazy-loaded routes, standalone components, and signals for optimal performance.</p>
+            <h3>SSR &amp; Signals</h3>
+            <p>
+              Server-side rendered, zoneless, and signal-driven. Fast first paint with zero zone.js.
+            </p>
           </mat-card-content>
         </mat-card>
       </div>
@@ -224,7 +248,7 @@ import { environment } from '@env';
 
     .features-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      grid-template-columns: repeat(3, 1fr);
       gap: 24px;
       max-width: 1100px;
       margin: 0 auto;
@@ -316,11 +340,21 @@ import { environment } from '@env';
         font-size: 1.5rem;
       }
 
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+
       .feature-icon {
         width: 48px;
         height: 48px;
         font-size: 24px;
         border-radius: 12px;
+      }
+    }
+
+    @media (min-width: 601px) and (max-width: 900px) {
+      .features-grid {
+        grid-template-columns: repeat(2, 1fr);
       }
     }
   `,

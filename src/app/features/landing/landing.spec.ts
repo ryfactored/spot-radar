@@ -30,7 +30,7 @@ describe('Landing', () => {
 
   it('should display feature cards', () => {
     const cards = fixture.nativeElement.querySelectorAll('.feature-card');
-    expect(cards.length).toBe(4);
+    expect(cards.length).toBe(6);
   });
 
   it('should have call to action buttons', () => {

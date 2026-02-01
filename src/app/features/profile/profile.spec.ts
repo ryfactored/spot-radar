@@ -6,19 +6,23 @@ import { signal } from '@angular/core';
 import { Profile } from './profile';
 import { AuthService, StorageService } from '@core';
 import { ProfileService } from './profile-service';
-import { ToastService } from '@shared';
+import { ConfirmDialogService, ToastService } from '@shared';
 import { environment } from '@env';
 
 describe('Profile', () => {
   let component: Profile;
   let fixture: ComponentFixture<Profile>;
+  let authMock: any;
   let storageMock: any;
   let profileMock: any;
   let toastMock: any;
+  let confirmMock: any;
 
   beforeEach(async () => {
-    const authMock = {
+    authMock = {
       currentUser: signal({ id: 'user-123', email: 'test@test.com' }),
+      updatePassword: vi.fn().mockResolvedValue(undefined),
+      signOut: vi.fn().mockResolvedValue(undefined),
     };
 
     profileMock = {
@@ -37,6 +41,7 @@ describe('Profile', () => {
         return profile;
       }),
       updateProfile: vi.fn().mockResolvedValue({}),
+      deleteProfile: vi.fn().mockResolvedValue(undefined),
     };
 
     storageMock = {
@@ -50,6 +55,11 @@ describe('Profile', () => {
     toastMock = {
       success: vi.fn(),
       error: vi.fn(),
+      info: vi.fn(),
+    };
+
+    confirmMock = {
+      confirm: vi.fn().mockResolvedValue(false),
     };
 
     await TestBed.configureTestingModule({
@@ -60,6 +70,7 @@ describe('Profile', () => {
         { provide: ProfileService, useValue: profileMock },
         { provide: StorageService, useValue: storageMock },
         { provide: ToastService, useValue: toastMock },
+        { provide: ConfirmDialogService, useValue: confirmMock },
       ],
     }).compileComponents();
 
@@ -124,5 +135,81 @@ describe('Profile', () => {
         avatar_url: 'https://example.com/new-avatar.png',
       }),
     );
+  });
+
+  describe('change password', () => {
+    it('should not submit when password form is invalid', async () => {
+      await component.onChangePassword();
+      expect(authMock.updatePassword).not.toHaveBeenCalled();
+    });
+
+    it('should call updatePassword and show success toast', async () => {
+      component.passwordForm.patchValue({
+        password: 'newpassword123',
+        confirmPassword: 'newpassword123',
+      });
+      component.passwordForm.updateValueAndValidity();
+
+      await component.onChangePassword();
+
+      expect(authMock.updatePassword).toHaveBeenCalledWith('newpassword123');
+      expect(toastMock.success).toHaveBeenCalledWith('Password changed successfully');
+    });
+
+    it('should reset password form after successful change', async () => {
+      component.passwordForm.patchValue({
+        password: 'newpassword123',
+        confirmPassword: 'newpassword123',
+      });
+      component.passwordForm.updateValueAndValidity();
+
+      await component.onChangePassword();
+
+      expect(component.passwordForm.value.password).toBeFalsy();
+      expect(component.passwordValue()).toBe('');
+    });
+
+    it('should show error toast on failure', async () => {
+      authMock.updatePassword.mockRejectedValue(new Error('Same password'));
+      component.passwordForm.patchValue({
+        password: 'newpassword123',
+        confirmPassword: 'newpassword123',
+      });
+      component.passwordForm.updateValueAndValidity();
+
+      await component.onChangePassword();
+
+      expect(toastMock.error).toHaveBeenCalledWith('Same password');
+    });
+  });
+
+  describe('delete account', () => {
+    it('should not delete when confirm dialog is cancelled', async () => {
+      confirmMock.confirm.mockResolvedValue(false);
+
+      await component.onDeleteAccount();
+
+      expect(profileMock.deleteProfile).not.toHaveBeenCalled();
+      expect(authMock.signOut).not.toHaveBeenCalled();
+    });
+
+    it('should delete profile and sign out when confirmed', async () => {
+      confirmMock.confirm.mockResolvedValue(true);
+
+      await component.onDeleteAccount();
+
+      expect(profileMock.deleteProfile).toHaveBeenCalledWith('user-123');
+      expect(authMock.signOut).toHaveBeenCalled();
+      expect(toastMock.info).toHaveBeenCalledWith('Your account data has been deleted');
+    });
+
+    it('should show error toast on delete failure', async () => {
+      confirmMock.confirm.mockResolvedValue(true);
+      profileMock.deleteProfile.mockRejectedValue(new Error('Delete failed'));
+
+      await component.onDeleteAccount();
+
+      expect(toastMock.error).toHaveBeenCalledWith('Delete failed');
+    });
   });
 });

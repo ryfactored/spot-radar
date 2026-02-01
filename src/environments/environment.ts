@@ -1,3 +1,5 @@
+import { Environment } from './environment.interface';
+
 export const environment = {
   appName: 'angular-starter',
   production: false,
@@ -32,4 +34,4 @@ export const environment = {
   searchDebounceMs: 300,
   // Loading bar minimum visible duration in milliseconds
   loadingBarDelayMs: 300,
-};
+} satisfies Environment;

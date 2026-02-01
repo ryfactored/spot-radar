@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { Shell, AuthLayout, PublicLayout } from '@layouts';
-import { authGuard, guestGuard, roleGuard } from '@core';
+import { authGuard, guestGuard, roleGuard, unsavedChangesGuard } from '@core';
 
 /**
  * Application routes with lazy-loaded feature components.
@@ -45,6 +45,7 @@ export const routes: Routes = [
         path: 'profile',
         data: { title: 'Profile' },
         loadComponent: () => import('./features/profile/profile').then((m) => m.Profile),
+        canDeactivate: [unsavedChangesGuard],
       },
       {
         path: 'components',
@@ -62,11 +63,13 @@ export const routes: Routes = [
         path: 'notes/new',
         data: { title: 'New Note' },
         loadComponent: () => import('./features/notes/note-form/note-form').then((m) => m.NoteForm),
+        canDeactivate: [unsavedChangesGuard],
       },
       {
         path: 'notes/:id/edit',
         data: { title: 'Edit Note' },
         loadComponent: () => import('./features/notes/note-form/note-form').then((m) => m.NoteForm),
+        canDeactivate: [unsavedChangesGuard],
       },
       {
         path: 'chat',
