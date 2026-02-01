@@ -5,6 +5,8 @@
  * Only explicitly mapped errors get custom messages.
  */
 
+import { environment } from '@env';
+
 const GENERIC_MESSAGE = 'Something went wrong. Please try again.';
 
 // Auth errors (login, registration, session)
@@ -14,7 +16,7 @@ const AUTH_ERRORS: Record<string, string> = {
   user_already_exists: 'An account with this email already exists',
   email_not_confirmed: 'Please check your email to confirm your account',
   same_password: 'New password must be different from your current password',
-  weak_password: 'Password is too weak. Use at least 8 characters.',
+  weak_password: `Password is too weak. Use at least ${environment.passwordMinLength} characters.`,
 };
 
 // Rate limiting

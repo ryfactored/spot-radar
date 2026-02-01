@@ -3,6 +3,7 @@ import { signal } from '@angular/core';
 
 import { FilesService, FileRecord } from './files';
 import { SupabaseService, AuthService, StorageService } from '@core';
+import { environment } from '@env';
 
 describe('FilesService', () => {
   let service: FilesService;
@@ -112,7 +113,7 @@ describe('FilesService', () => {
 
       expect(storageMock.upload).toHaveBeenCalledWith(
         expect.objectContaining({
-          bucket: 'user-files',
+          bucket: environment.storageBuckets.files,
           file,
         }),
       );
@@ -132,7 +133,10 @@ describe('FilesService', () => {
     it('should return signed URL', async () => {
       const url = await service.download(mockFile);
       expect(url).toBe('https://example.com/signed-url');
-      expect(storageMock.createSignedUrl).toHaveBeenCalledWith('user-files', mockFile.storage_path);
+      expect(storageMock.createSignedUrl).toHaveBeenCalledWith(
+        environment.storageBuckets.files,
+        mockFile.storage_path,
+      );
     });
 
     it('should throw on error', async () => {
@@ -146,7 +150,9 @@ describe('FilesService', () => {
       await service.delete(mockFile);
 
       expect(mockSupabaseClient.from).toHaveBeenCalledWith('files');
-      expect(storageMock.remove).toHaveBeenCalledWith('user-files', [mockFile.storage_path]);
+      expect(storageMock.remove).toHaveBeenCalledWith(environment.storageBuckets.files, [
+        mockFile.storage_path,
+      ]);
     });
 
     it('should throw on DB error', async () => {

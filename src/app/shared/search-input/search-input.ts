@@ -7,6 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
+import { environment } from '@env';
 
 @Component({
   selector: 'app-search-input',
@@ -58,7 +59,7 @@ export class SearchInput implements OnInit {
   // Inputs
   placeholder = input('Search...');
   label = input('Search');
-  debounceMs = input(300);
+  debounceMs = input(environment.searchDebounceMs);
   loading = input(false);
   appearance = input<'fill' | 'outline'>('outline');
   initialValue = input('');

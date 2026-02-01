@@ -7,6 +7,7 @@ import { Profile } from './profile';
 import { AuthService, StorageService } from '@core';
 import { ProfileService } from './profile-service';
 import { ToastService } from '@shared';
+import { environment } from '@env';
 
 describe('Profile', () => {
   let component: Profile;
@@ -112,7 +113,7 @@ describe('Profile', () => {
     await component.onSubmit();
 
     expect(storageMock.upload).toHaveBeenCalledWith({
-      bucket: 'avatars',
+      bucket: environment.storageBuckets.avatars,
       path: 'user-123/avatar.png',
       file,
       upsert: true,

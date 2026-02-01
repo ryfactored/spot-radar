@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { NotesStore } from './notes-store';
 import { Note } from './notes';
+import { environment } from '@env';
 
 describe('NotesStore', () => {
   let store: NotesStore;
@@ -176,6 +177,42 @@ describe('NotesStore', () => {
       expect(store.isStale()).toBe(false);
 
       store.clear();
+      expect(store.isStale()).toBe(true);
+    });
+  });
+
+  describe('cache TTL', () => {
+    const ttl = environment.cacheTtlMinutes * 60 * 1000;
+
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('should not be stale within TTL window', () => {
+      const baseTime = new Date('2024-01-01T00:00:00Z').getTime();
+      vi.setSystemTime(baseTime);
+      store.setNotes([mockNote], 1, 10, 1);
+      expect(store.isStale()).toBe(false);
+
+      // Advance time just under TTL and force recompute via lastFetch signal
+      vi.setSystemTime(baseTime + ttl - 1);
+      (store as any).lastFetch.set(new Date(baseTime));
+      expect(store.isStale()).toBe(false);
+    });
+
+    it('should be stale after TTL expires', () => {
+      const baseTime = new Date('2024-01-01T00:00:00Z').getTime();
+      vi.setSystemTime(baseTime);
+      store.setNotes([mockNote], 1, 10, 1);
+      expect(store.isStale()).toBe(false);
+
+      // Advance time past TTL and force recompute via lastFetch signal
+      vi.setSystemTime(baseTime + ttl + 1);
+      (store as any).lastFetch.set(new Date(baseTime));
       expect(store.isStale()).toBe(true);
     });
   });

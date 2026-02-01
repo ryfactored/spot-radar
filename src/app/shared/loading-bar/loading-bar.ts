@@ -8,6 +8,7 @@ import {
 } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter } from 'rxjs';
+import { environment } from '@env';
 
 @Component({
   selector: 'app-loading-bar',
@@ -82,7 +83,7 @@ export class LoadingBar {
           this.hideTimer = setTimeout(() => {
             this.loading.set(false);
             this.hideTimer = null;
-          }, 300);
+          }, environment.loadingBarDelayMs);
         }
       });
   }

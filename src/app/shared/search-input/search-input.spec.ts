@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 import { SearchInput } from './search-input';
+import { environment } from '@env';
 
 describe('SearchInput', () => {
   let component: SearchInput;
@@ -29,7 +30,7 @@ describe('SearchInput', () => {
     expect(searchSpy).not.toHaveBeenCalled();
 
     // Wait for debounce (300ms + buffer)
-    await new Promise((resolve) => setTimeout(resolve, 350));
+    await new Promise((resolve) => setTimeout(resolve, environment.searchDebounceMs + 50));
     expect(searchSpy).toHaveBeenCalledWith('test');
   });
 

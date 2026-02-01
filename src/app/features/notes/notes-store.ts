@@ -1,4 +1,5 @@
 import { Injectable, signal, computed } from '@angular/core';
+import { environment } from '@env';
 import { Note } from './notes';
 
 /**
@@ -24,7 +25,7 @@ export class NotesStore {
   private loading = signal(false);
   private lastFetch = signal<Date | null>(null);
   private totalCount = signal(0);
-  private pageSize = signal(10);
+  private pageSize = signal(environment.pagination.defaultPageSize);
   private page = signal(1);
 
   // Public readonly access
@@ -38,12 +39,12 @@ export class NotesStore {
   readonly noteCount = computed(() => this.notes().length);
   readonly isEmpty = computed(() => this.notes().length === 0);
 
-  // Check if cache is stale (older than 5 minutes)
+  // Check if cache is stale (based on environment.cacheTtlMinutes)
   readonly isStale = computed(() => {
     const last = this.lastFetch();
     if (!last) return true;
-    const fiveMinutes = 5 * 60 * 1000;
-    return Date.now() - last.getTime() > fiveMinutes;
+    const ttl = environment.cacheTtlMinutes * 60 * 1000;
+    return Date.now() - last.getTime() > ttl;
   });
 
   setNotes(notes: Note[], total: number, pageSize: number, page: number) {

@@ -6,6 +6,7 @@ import { signal } from '@angular/core';
 import { ResetPassword } from './reset-password';
 import { AuthService } from '@core';
 import { ToastService } from '@shared';
+import { environment } from '@env';
 
 describe('ResetPassword', () => {
   let component: ResetPassword;
@@ -93,5 +94,15 @@ describe('ResetPassword', () => {
     component.form.controls.confirmPassword.setValue('password2');
 
     expect(component.form.controls.confirmPassword.hasError('mismatch')).toBe(true);
+  });
+
+  it('should use environment passwordMinLength for password validator', () => {
+    const shortPassword = 'a'.repeat(environment.passwordMinLength - 1);
+    component.form.controls.password.setValue(shortPassword);
+    expect(component.form.controls.password.hasError('minlength')).toBe(true);
+
+    const validPassword = 'a'.repeat(environment.passwordMinLength);
+    component.form.controls.password.setValue(validPassword);
+    expect(component.form.controls.password.hasError('minlength')).toBe(false);
   });
 });

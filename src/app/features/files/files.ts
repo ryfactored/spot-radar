@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { SupabaseService, AuthService, StorageService, unwrap } from '@core';
+import { environment } from '@env';
 
 export interface FileRecord {
   id: string;
@@ -40,7 +41,7 @@ export class FilesService {
     const path = `${user.id}/${timestamp}-${file.name}`;
 
     await this.storage.upload({
-      bucket: 'user-files',
+      bucket: environment.storageBuckets.files,
       path,
       file,
     });
@@ -61,11 +62,11 @@ export class FilesService {
   }
 
   async download(record: FileRecord): Promise<string> {
-    return this.storage.createSignedUrl('user-files', record.storage_path);
+    return this.storage.createSignedUrl(environment.storageBuckets.files, record.storage_path);
   }
 
   async delete(record: FileRecord): Promise<void> {
     unwrap(await this.supabase.client.from('files').delete().eq('id', record.id));
-    await this.storage.remove('user-files', [record.storage_path]);
+    await this.storage.remove(environment.storageBuckets.files, [record.storage_path]);
   }
 }

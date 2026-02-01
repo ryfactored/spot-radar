@@ -12,6 +12,7 @@ import { NotesService, type Note } from '../notes';
 import { NotesStore } from '../notes-store';
 import { NoteCardSkeleton } from '../note-card-skeleton';
 import { ToastService, ConfirmDialogService, EmptyState } from '@shared';
+import { environment } from '@env';
 
 @Component({
   selector: 'app-notes-list',
@@ -93,7 +94,7 @@ import { ToastService, ConfirmDialogService, EmptyState } from '@shared';
         [length]="totalCount()"
         [pageSize]="pageSize"
         [pageIndex]="currentPage() - 1"
-        [pageSizeOptions]="[5, 10, 25]"
+        [pageSizeOptions]="pageSizeOptions"
         (page)="onPageChange($event)"
         showFirstLastButtons
       >
@@ -137,7 +138,8 @@ export class NotesList implements OnInit {
   totalCount = this.store.total;
 
   currentPage = signal(1);
-  pageSize = 10;
+  pageSize = environment.pagination.defaultPageSize;
+  pageSizeOptions = environment.pagination.pageSizeOptions;
   searchQuery = '';
 
   async ngOnInit() {

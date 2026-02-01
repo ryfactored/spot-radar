@@ -13,6 +13,7 @@ import { MatSortModule, MatSort } from '@angular/material/sort';
 import { MatPaginatorModule, MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { SelectionModel } from '@angular/cdk/collections';
+import { environment } from '@env';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface ColumnDef<T = any> {
@@ -139,9 +140,9 @@ export class DataTable<T = any> implements AfterViewInit, OnChanges {
   data = input.required<T[]>();
   selectable = input(false);
   paginate = input(true);
-  pageSize = input(10);
+  pageSize = input(environment.pagination.defaultPageSize);
   pageIndex = input(0);
-  pageSizeOptions = input([5, 10, 25, 50]);
+  pageSizeOptions = input(environment.pagination.pageSizeOptions);
   emptyMessage = input('No data available');
   totalItems = input<number | undefined>(undefined); // For server-side pagination
 

@@ -8,6 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '@core';
 import { PasswordStrength, matchValidator, ToastService } from '@shared';
+import { environment } from '@env';
 
 @Component({
   selector: 'app-reset-password',
@@ -52,7 +53,7 @@ import { PasswordStrength, matchValidator, ToastService } from '@shared';
             <mat-error>Password is required</mat-error>
           }
           @if (form.controls.password.hasError('minlength')) {
-            <mat-error>Password must be at least 8 characters</mat-error>
+            <mat-error>Password must be at least {{ passwordMinLength }} characters</mat-error>
           }
         </mat-form-field>
         <app-password-strength [password]="passwordValue()" id="password-requirements" />
@@ -134,12 +135,13 @@ export class ResetPassword {
 
   form = this.fb.nonNullable.group(
     {
-      password: ['', [Validators.required, Validators.minLength(8)]],
+      password: ['', [Validators.required, Validators.minLength(environment.passwordMinLength)]],
       confirmPassword: ['', Validators.required],
     },
     { validators: matchValidator('password', 'confirmPassword') },
   );
 
+  passwordMinLength = environment.passwordMinLength;
   showPassword = signal(false);
   showConfirmPassword = signal(false);
   passwordValue = signal('');
