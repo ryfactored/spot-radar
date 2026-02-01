@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AuthLayout } from './auth-layout';
 
@@ -8,7 +9,7 @@ describe('AuthLayout', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AuthLayout],
+      imports: [AuthLayout, NoopAnimationsModule],
     }).compileComponents();
 
     fixture = TestBed.createComponent(AuthLayout);

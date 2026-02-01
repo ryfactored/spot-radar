@@ -106,8 +106,8 @@
       </button>
     </mat-toolbar>
 
-    <main id="main-content" class="content" role="main">
-      <router-outlet />
+    <main id="main-content" class="content" role="main" [@routeAnimation]="routeKey()">
+      <router-outlet (activate)="onActivate()" />
     </main>
   </mat-sidenav-content>
 </mat-sidenav-container>

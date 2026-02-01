@@ -217,6 +217,49 @@ If you don't need SSR, change `outputMode` in `angular.json` from `"server"` to 
 
 ---
 
+## Security headers
+
+When deploying to production, configure these HTTP response headers on your web server or hosting provider. The exact values depend on your CDNs, analytics services, and third-party integrations.
+
+### Recommended headers
+
+| Header                      | Recommended Value                          | Notes                       |
+| --------------------------- | ------------------------------------------ | --------------------------- |
+| `Content-Security-Policy`   | See example below                          | Restrict resource origins   |
+| `X-Frame-Options`           | `DENY`                                     | Prevent clickjacking        |
+| `X-Content-Type-Options`    | `nosniff`                                  | Prevent MIME-type sniffing  |
+| `Referrer-Policy`           | `strict-origin-when-cross-origin`          | Limit referrer information  |
+| `Permissions-Policy`        | `camera=(), microphone=(), geolocation=()` | Disable unused browser APIs |
+| `Strict-Transport-Security` | `max-age=31536000; includeSubDomains`      | Enforce HTTPS (HSTS)        |
+
+### Example CSP
+
+Adjust the domains to match your Supabase project and any third-party services:
+
+```
+Content-Security-Policy:
+  default-src 'self';
+  script-src 'self';
+  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+  font-src 'self' https://fonts.gstatic.com;
+  img-src 'self' data: https://*.supabase.co;
+  connect-src 'self' https://*.supabase.co wss://*.supabase.co;
+  frame-ancestors 'none';
+  base-uri 'self';
+  form-action 'self';
+```
+
+> **Note**: `'unsafe-inline'` is required for styles because Angular Material injects inline styles. If you use a nonce-based CSP strategy, configure Angular's `CSP_NONCE` injection token.
+
+### Where to set headers
+
+- **Vercel**: Add a `vercel.json` with a `headers` array.
+- **Netlify**: Add a `_headers` file in the publish directory.
+- **Express SSR**: Use the [helmet](https://www.npmjs.com/package/helmet) middleware in `server.ts`.
+- **Nginx/Apache**: Set headers in your server configuration.
+
+---
+
 ## Further reading
 
 - [Feature Removal Guide](./feature-removal.md) — how to strip example features you don't need

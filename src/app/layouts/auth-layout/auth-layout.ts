@@ -1,18 +1,20 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { LoadingBar } from '@shared';
 import { environment } from '@env';
+import { routeAnimation } from '../../shared/animations/route-animation';
 
 @Component({
   selector: 'app-auth-layout',
   standalone: true,
   imports: [RouterOutlet, LoadingBar],
+  animations: [routeAnimation],
   template: `
     <app-loading-bar />
     <main class="auth-container">
-      <div class="auth-card">
+      <div class="auth-card" [@routeAnimation]="routeKey()">
         <h1 class="app-title">{{ siteTitle }}</h1>
-        <router-outlet />
+        <router-outlet (activate)="onActivate()" />
       </div>
     </main>
   `,
@@ -56,4 +58,9 @@ import { environment } from '@env';
 })
 export class AuthLayout {
   siteTitle = environment.siteTitle;
+  routeKey = signal(0);
+
+  onActivate() {
+    this.routeKey.update((k) => k + 1);
+  }
 }

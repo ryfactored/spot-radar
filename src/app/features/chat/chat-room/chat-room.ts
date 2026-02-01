@@ -7,7 +7,6 @@ import {
   ElementRef,
   AfterViewChecked,
 } from '@angular/core';
-import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -17,13 +16,13 @@ import { MatInputModule } from '@angular/material/input';
 import { ChatService, Message } from '../chat';
 import { ChatStore } from '../chat-store';
 import { AuthService } from '@core';
-import { ToastService, ConnectionIndicator, LoadingSpinner } from '@shared';
+import { ToastService, ConnectionIndicator, LoadingSpinner, TimeAgoPipe } from '@shared';
 
 @Component({
   selector: 'app-chat-room',
   standalone: true,
   imports: [
-    DatePipe,
+    TimeAgoPipe,
     FormsModule,
     MatCardModule,
     MatButtonModule,
@@ -56,7 +55,7 @@ import { ToastService, ConnectionIndicator, LoadingSpinner } from '@shared';
                   <div class="message" [class.own-message]="isOwnMessage(message)">
                     <div class="message-header">
                       <span class="username">{{ message.username }}</span>
-                      <span class="timestamp">{{ message.created_at | date: 'short' }}</span>
+                      <span class="timestamp">{{ message.created_at | timeAgo }}</span>
                     </div>
                     <div class="message-content">{{ message.content }}</div>
                   </div>
