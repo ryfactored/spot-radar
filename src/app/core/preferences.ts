@@ -61,6 +61,19 @@ export class PreferencesService {
         localStorage.setItem(key, JSON.stringify(prefs));
       }
     });
+
+    // Cache theme to non-user-scoped key for the inline script in index.html
+    effect(() => {
+      const { darkMode, colorTheme } = this.preferences();
+      try {
+        localStorage.setItem(
+          `${environment.appName}:theme`,
+          JSON.stringify({ darkMode, colorTheme }),
+        );
+      } catch {
+        // localStorage may be unavailable (e.g. private browsing quota exceeded)
+      }
+    });
   }
 
   private getStorageKey(): string | null {
