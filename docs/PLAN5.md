@@ -4,13 +4,15 @@
 
 **Status at start of Phase 5**: 294 unit tests, 24 e2e tests, 3 color themes, dark mode, SSR, CI/CD, full auth with OAuth, Notes/Chat/Files/Profile features, accessibility audit, theming guide.
 
+**Current status**: Iterations 39--45 and 49 complete, plus an unplanned dark-mode flash fix. 336 unit tests. Next up: Iteration 46.
+
 ---
 
 ## Part 1: Missing Auth Flows
 
 The auth system handles login, register, and logout -- but every production app also needs password reset and email verification. These are table-stakes features that would have to be rebuilt in every clone.
 
-### Iteration 39 -- Forgot Password / Reset Password
+### ✅ Iteration 39 -- Forgot Password / Reset Password
 
 Supabase has built-in support for password reset via `resetPasswordForEmail()` and the `RECOVERY` auth event. We need two pages and a small service addition.
 
@@ -26,7 +28,7 @@ Supabase has built-in support for password reset via `resetPasswordForEmail()` a
 
 **Supabase email rate limits:** The free tier limits auth emails (signup confirmation, password reset) to **2 per hour** by default. This is a project-wide limit across all email types, so a few signup + reset attempts during development will exhaust it quickly. To avoid this, configure a custom SMTP provider in **Supabase > Authentication > SMTP Settings**. Resend (free tier: 100 emails/day) works well — set host to `smtp.resend.com`, port `465`, username `resend`, password is your API key, sender is an address on your verified domain.
 
-### Iteration 40 -- Email Verification Page
+### ✅ Iteration 40 -- Email Verification Page
 
 After registration, Supabase sends a confirmation email. When the user clicks the link, they land back on the app with a token. We need a page to handle that callback and show appropriate feedback.
 
@@ -41,7 +43,7 @@ After registration, Supabase sends a confirmation email. When the user clicks th
 
 ## Part 2: Routing Gaps
 
-### Iteration 41 -- 404 Not Found Page
+### ✅ Iteration 41 -- 404 Not Found Page
 
 There's no wildcard route. Any unknown URL silently shows a blank page. Every app needs a 404.
 
@@ -51,7 +53,7 @@ There's no wildcard route. Any unknown URL silently shows a blank page. Every ap
 - `src/app/app.routes.ts` -- Add `{ path: '**', loadComponent: ... }` as the last route. Placed **inside the no-guard AuthLayout group** so it gets the dark background and card styling consistent with auth pages. This works for both authenticated and guest users since the AuthLayout group has no guard.
 - E2e test: navigate to `/nonexistent`, verify the 404 page renders.
 
-### Iteration 42 -- Dynamic Page Titles
+### ✅ Iteration 42 -- Dynamic Page Titles
 
 Browser tabs all show the same `siteTitle`. Each page should set its own title for UX and SEO.
 
@@ -66,7 +68,7 @@ Browser tabs all show the same `siteTitle`. Each page should set its own title f
 
 ## Part 3: Polish & UX
 
-### Iteration 43 -- Route Transition Loading Bar
+### ✅ Iteration 43 -- Route Transition Loading Bar
 
 When navigating between lazy-loaded routes (especially on slow connections), there's no visual feedback. A thin progress bar at the top of the page (like YouTube/GitHub) gives instant feedback.
 
@@ -78,7 +80,7 @@ When navigating between lazy-loaded routes (especially on slow connections), the
 - `src/styles.scss` -- Added `--mat-sys-primary` CSS variable definitions for all 6 theme variants (3 themes × light/dark). This cross-cutting change ensures `var(--mat-sys-primary)` resolves correctly throughout the app without fallbacks, which also simplifies Iteration 50 (Admin Placeholder Cleanup).
 - Keep it minimal -- no third-party library, just a CSS-animated div responding to router events.
 
-### Iteration 44 -- Reusable Avatar Component
+### ✅ Iteration 44 -- Reusable Avatar Component
 
 The avatar rendering logic (image vs initials, circle shape, sizing) is duplicated between the shell toolbar and the profile page. Extract it into a shared component.
 
@@ -90,18 +92,27 @@ The avatar rendering logic (image vs initials, circle shape, sizing) is duplicat
 - `src/app/shared/index.ts` -- Export the new component.
 - Unit test for the avatar component (image rendering, initials fallback, error fallback).
 
-### Iteration 45 -- Snackbar Position & Stacking
+### ✅ Iteration 45 -- Snackbar Position & Stacking
 
-Currently toasts appear at the bottom-center with default Material behavior. If multiple toasts fire in quick succession, they replace each other. This is usually fine, but verify the behavior and ensure:
-
-- Toasts don't overlap the mobile bottom of the screen
-- Success/error toasts have a reasonable duration (success: 3s, error: 5s, info: 4s)
-- Review whether the toast service needs a queue or if Material's default stacking is sufficient
+Toasts were already positioned top-right, which avoids mobile bottom-of-screen overlap. Material's default replacement behavior (newest toast replaces current) is sufficient -- a queue adds complexity for no real benefit. Durations were adjusted and moved to `environment.ts` for easy tuning (dev: 2s/3s/4s, prod: 3s/4s/5s for success/info/error).
 
 **Changes:**
 
-- `src/app/shared/toast.ts` -- Audit durations, positions, and behavior. Adjust if needed. This may end up being a no-op if the current behavior is already good.
-- Verify on mobile viewport.
+- `src/app/shared/toast.ts` -- Moved hardcoded durations to `environment.toastDuration`. Adjusted info duration from 3s to match environment config.
+- `src/environments/environment.ts` / `environment.prod.ts` -- Added `toastDuration` config (shorter in dev for faster iteration, longer in prod for readability).
+
+### ✅ Unplanned -- Dark Mode Flash Fix
+
+On browser refresh, the page flashed white for hundreds of milliseconds before dark mode kicked in. The root cause had two layers: (1) theme classes (`dark-mode`, `theme-*`) were only applied by Angular `effect()` in `app.ts`, which required the full async chain of auth → preferences → localStorage to complete, and (2) even once classes were present, Angular Material's M2 `all-component-themes` mixin defines `--mat-app-background-color` as a CSS variable but never applies it as `background-color` on `html` or `body`.
+
+Also cleaned up the SSR visibility script from commit `a99266e`. That script hid the page for ALL non-landing routes, but Angular's `RenderMode.Client` generates a separate `index.csr.html` (empty shell) so the prerendered landing page is never served for authenticated routes. The hiding was a no-op for those routes and actually delayed display of prerendered `/login` and `/register` pages. Narrowed it to only hide during OAuth callbacks, which is the one case where the prerendered landing page content would flash while Supabase processes auth tokens.
+
+**Changes:**
+
+- `src/index.html` -- Added inline `<script>` in `<head>` that synchronously reads `angular-starter:theme` from localStorage and applies `dark-mode` / `theme-*` classes to `<html>` before first paint. Simplified the existing visibility script to only hide during OAuth callbacks (removed `location.pathname !== '/'` condition).
+- `src/app/core/preferences.ts` -- Added `effect()` that writes `{ darkMode, colorTheme }` to a non-user-scoped localStorage key (`angular-starter:theme`) on every change, so the inline script can read it without knowing the user ID.
+- `src/app/app.ts` -- Moved theme class application from `document.body` to `document.documentElement` so both the inline script and Angular target `<html>`. Simplified visibility restoration to only handle the OAuth callback path.
+- `src/styles.scss` -- Added `background-color: var(--mat-app-background-color)` to the `html, body` rule, which was the missing link between the CSS variables and actual page background.
 
 ---
 
@@ -156,16 +167,16 @@ Right now there's no SQL file defining the database schema. When cloning, you'd 
 
 ## Part 5: Code Quality & Maintainability
 
-### Iteration 49 -- Consolidate Hardcoded Strings
+### ✅ Iteration 49 -- Consolidate Hardcoded Values into Environment
 
-Audit the codebase for hardcoded UI strings that should come from a central place. Not full i18n (that's overkill for a starter), but making key strings easy to find and change.
+Moved all configuration constants scattered across 30 files into `environment.ts` / `environment.prod.ts`. This makes every tunable value discoverable in one place and easy to adjust per-environment.
 
-**Changes:**
+**Changes (done out of order, alongside Iteration 45):**
 
-- Audit all hardcoded button labels, error messages, and placeholder text across auth pages, dashboard, and shared components.
-- Ensure error messages go through `ErrorMapper` consistently.
-- Ensure all page titles, descriptions, and labels that a cloner would want to customize are easy to find (either in the component or in environment/constants).
-- This may be a no-op if things are already well-organized. Document findings either way.
+- `src/environments/environment.ts` / `environment.prod.ts` -- Added: `toastDuration`, `upload` (avatar/attachment max size), `passwordMinLength`, `defaults` (colorTheme, darkMode, sidenavOpened), `cacheTtlMinutes`, `pagination` (defaultPageSize, pageSizeOptions), `chatMessageLimit`, `signedUrlExpirationSecs`, `storageBuckets`, `searchDebounceMs`, `loadingBarDelayMs`.
+- Updated 28 consuming files across core, features, and shared to import from `@env` instead of using hardcoded values.
+- Updated corresponding spec files to use environment values or mock them.
+- UI strings (button labels, error messages, placeholder text) were already well-organized -- error messages go through `ErrorMapper`, page titles come from route data. No changes needed there.
 
 ### Iteration 50 -- Admin Placeholder Cleanup
 
@@ -194,23 +205,24 @@ Run a final review pass before considering the template complete.
 
 ## Summary
 
-| Iteration | Name                           | Category       |
-| --------- | ------------------------------ | -------------- |
-| 39        | Forgot / Reset Password        | Auth           |
-| 40        | Email Verification Page        | Auth           |
-| 41        | 404 Not Found Page             | Routing        |
-| 42        | Dynamic Page Titles            | Routing        |
-| 43        | Route Transition Loading Bar   | UX             |
-| 44        | Reusable Avatar Component      | Components     |
-| 45        | Snackbar Position & Stacking   | UX             |
-| 46        | Feature Removal Guide          | Docs           |
-| 47        | Clone & Setup Guide            | Docs           |
-| 48        | Supabase Schema Migration File | Infrastructure |
-| 49        | Consolidate Hardcoded Strings  | Code Quality   |
-| 50        | Admin Placeholder Cleanup      | Code Quality   |
-| 51        | Final Audit & Snapshot         | QA             |
+| Iteration | Name                           | Category       | Status |
+| --------- | ------------------------------ | -------------- | ------ |
+| 39        | Forgot / Reset Password        | Auth           | ✅     |
+| 40        | Email Verification Page        | Auth           | ✅     |
+| 41        | 404 Not Found Page             | Routing        | ✅     |
+| 42        | Dynamic Page Titles            | Routing        | ✅     |
+| 43        | Route Transition Loading Bar   | UX             | ✅     |
+| 44        | Reusable Avatar Component      | Components     | ✅     |
+| 45        | Snackbar Position & Stacking   | UX             | ✅     |
+| --        | Dark Mode Flash Fix            | UX             | ✅     |
+| 49        | Consolidate Hardcoded Values   | Code Quality   | ✅     |
+| 46        | Feature Removal Guide          | Docs           |        |
+| 47        | Clone & Setup Guide            | Docs           |        |
+| 48        | Supabase Schema Migration File | Infrastructure |        |
+| 50        | Admin Placeholder Cleanup      | Code Quality   |        |
+| 51        | Final Audit & Snapshot         | QA             |        |
 
-**Estimated iterations**: 13 (39--51)
+**Total iterations**: 14 (39--51 + unplanned flash fix). 9 complete, 5 remaining.
 
 **What's intentionally NOT included:**
 
