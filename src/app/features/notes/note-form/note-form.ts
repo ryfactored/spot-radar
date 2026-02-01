@@ -21,7 +21,9 @@ import { ToastService, LoadingSpinner } from '@shared';
     LoadingSpinner,
   ],
   template: `
-    <h1>{{ isEditMode() ? 'Edit Note' : 'New Note' }}</h1>
+    <div class="page-header">
+      <h1>{{ isEditMode() ? 'Edit Note' : 'New Note' }}</h1>
+    </div>
 
     @if (loading()) {
       <app-loading-spinner message="Loading..." />

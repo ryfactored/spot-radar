@@ -22,7 +22,7 @@ import { ToastService, ConfirmDialogService, LoadingSpinner, EmptyState } from '
     EmptyState,
   ],
   template: `
-    <div class="header">
+    <div class="page-header">
       <h1>Files</h1>
       <button mat-raised-button color="primary" (click)="fileInput.click()">
         <mat-icon>upload_file</mat-icon>
@@ -73,12 +73,6 @@ import { ToastService, ConfirmDialogService, LoadingSpinner, EmptyState } from '
     }
   `,
   styles: `
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 24px;
-    }
     .files-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
