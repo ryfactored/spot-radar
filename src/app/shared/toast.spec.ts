@@ -53,7 +53,7 @@ describe('ToastService', () => {
       service.info('Info message');
 
       expect(snackBarMock.open).toHaveBeenCalledWith('Info message', 'Close', {
-        duration: 3000,
+        duration: 4000,
         panelClass: ['toast-info'],
         horizontalPosition: 'end',
         verticalPosition: 'top',
