@@ -1,12 +1,14 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { LoadingBar } from '@shared';
 import { environment } from '@env';
 
 @Component({
   selector: 'app-auth-layout',
   standalone: true,
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, LoadingBar],
   template: `
+    <app-loading-bar />
     <main class="auth-container">
       <div class="auth-card">
         <h1 class="app-title">{{ siteTitle }}</h1>

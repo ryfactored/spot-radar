@@ -8,26 +8,35 @@
 // Base theme (default light)
 @include mat.all-component-themes(themes.$default-light-theme);
 
+// Primary color token (M2 doesn't generate --mat-sys-primary, so we define it per theme)
+:root {
+  --mat-sys-primary: #3b82f6;
+}
+
 // Dark mode variants
 .dark-mode {
+  --mat-sys-primary: #60a5fa;
   @include mat.all-component-colors(themes.$default-dark-theme);
 }
 
-.theme-teal.dark-mode {
-  @include mat.all-component-colors(themes.$teal-dark-theme);
-}
-
-// Light mode color overrides
 .theme-teal:not(.dark-mode) {
+  --mat-sys-primary: #14b8a6;
   @include mat.all-component-colors(themes.$teal-light-theme);
 }
 
-.theme-slate.dark-mode {
-  @include mat.all-component-colors(themes.$slate-dark-theme);
+.theme-teal.dark-mode {
+  --mat-sys-primary: #2dd4bf;
+  @include mat.all-component-colors(themes.$teal-dark-theme);
 }
 
 .theme-slate:not(.dark-mode) {
+  --mat-sys-primary: #64748b;
   @include mat.all-component-colors(themes.$slate-light-theme);
+}
+
+.theme-slate.dark-mode {
+  --mat-sys-primary: #94a3b8;
+  @include mat.all-component-colors(themes.$slate-dark-theme);
 }
 
 // ============================================

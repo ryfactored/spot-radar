@@ -10,7 +10,7 @@ import { BreakpointObserver } from '@angular/cdk/layout';
 import { toSignal, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { map, filter } from 'rxjs';
 import { PreferencesService, AuthService, UserRole, SupabaseService } from '@core';
-import { ThemePicker } from '@shared';
+import { ThemePicker, LoadingBar } from '@shared';
 import { environment } from '@env';
 
 @Component({
@@ -27,6 +27,7 @@ import { environment } from '@env';
     MatButtonModule,
     MatTooltipModule,
     ThemePicker,
+    LoadingBar,
   ],
   templateUrl: './shell.html',
   styleUrl: './shell.scss',

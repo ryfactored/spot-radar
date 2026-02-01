@@ -1,7 +1,8 @@
 import { Component, inject, effect, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { Router, NavigationEnd, RouterOutlet } from '@angular/router';
-import { filter, take } from 'rxjs';
+import { Title } from '@angular/platform-browser';
+import { Router, NavigationEnd, ActivatedRoute, RouterOutlet } from '@angular/router';
+import { filter, map, take } from 'rxjs';
 import { PreferencesService, COLOR_THEMES } from './core/preferences';
 import { environment } from '@env';
 
@@ -49,13 +50,13 @@ export class App {
     }
 
     // Restore visibility (hidden by inline script to prevent SSR flash)
+    const router = inject(Router);
     const isOAuthCallback =
       location.search.includes('code=') || location.hash.includes('access_token');
     if (!isOAuthCallback) {
       document.documentElement.style.visibility = '';
     } else {
       // During OAuth callback, keep hidden until auth redirects away from landing page
-      const router = inject(Router);
       router.events
         .pipe(
           filter((e): e is NavigationEnd => e instanceof NavigationEnd),
@@ -73,6 +74,24 @@ export class App {
 
     // Enable dev badge (only in browser to avoid hydration mismatch)
     this.isBrowser = true;
+
+    // Update page title on navigation
+    const titleService = inject(Title);
+    const route = inject(ActivatedRoute);
+    router.events
+      .pipe(
+        filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+        map(() => {
+          let child = route;
+          while (child.firstChild) child = child.firstChild;
+          return child.snapshot.data['title'] as string | undefined;
+        }),
+      )
+      .subscribe((pageTitle) => {
+        titleService.setTitle(
+          pageTitle ? `${pageTitle} | ${environment.siteTitle}` : environment.siteTitle,
+        );
+      });
 
     // Apply color theme class to body
     effect(() => {
