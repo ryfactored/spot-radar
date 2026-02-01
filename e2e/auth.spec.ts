@@ -133,6 +133,14 @@ test.describe('Authentication', () => {
     await expect(page.locator('a[href*="forgot-password"]')).toBeVisible();
   });
 
+  test('should display verify-email page with informational message', async ({ page }) => {
+    await page.goto('/verify-email');
+
+    await expect(page.locator('app-verify-email h2')).toContainText(/email verification/i);
+    await expect(page.locator('text=Check your email')).toBeVisible();
+    await expect(page.locator('a[href*="login"]')).toBeVisible();
+  });
+
   test('should clear mismatch error when passwords match', async ({ page }) => {
     await page.goto('/register');
 

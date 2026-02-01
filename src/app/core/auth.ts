@@ -49,7 +49,13 @@ export class AuthService {
   }
 
   async signUp(email: string, password: string) {
-    const { data, error } = await this.supabase.client.auth.signUp({ email, password });
+    const { data, error } = await this.supabase.client.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: `${environment.siteUrl}/verify-email`,
+      },
+    });
     if (error) throw mapToError(error);
     return data;
   }
