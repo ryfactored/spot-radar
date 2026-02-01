@@ -21,8 +21,16 @@ import { environment } from '@env';
       align-items: center;
       justify-content: center;
       background:
-        radial-gradient(ellipse at top left, color-mix(in srgb, var(--mat-sys-primary, #3b82f6) 12%, transparent) 0%, transparent 50%),
-        radial-gradient(ellipse at bottom right, color-mix(in srgb, var(--mat-sys-primary, #3b82f6) 8%, transparent) 0%, transparent 50%),
+        radial-gradient(
+          ellipse at top left,
+          color-mix(in srgb, var(--mat-sys-primary, #3b82f6) 12%, transparent) 0%,
+          transparent 50%
+        ),
+        radial-gradient(
+          ellipse at bottom right,
+          color-mix(in srgb, var(--mat-sys-primary, #3b82f6) 8%, transparent) 0%,
+          transparent 50%
+        ),
         #121215;
     }
     .auth-card {

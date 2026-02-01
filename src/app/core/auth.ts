@@ -4,6 +4,7 @@ import { SupabaseService } from './supabase';
 import { RealtimeService } from './realtime';
 import { User, Provider } from '@supabase/supabase-js';
 import { mapToError } from './error-mapper';
+import { environment } from '@env';
 
 export type SocialProvider = 'google' | 'github' | 'spotify' | 'discord' | 'apple';
 
@@ -64,6 +65,18 @@ export class AuthService {
       provider: provider as Provider,
       options: { redirectTo: `${window.location.origin}/dashboard` },
     });
+    if (error) throw mapToError(error);
+  }
+
+  async resetPassword(email: string): Promise<void> {
+    const { error } = await this.supabase.client.auth.resetPasswordForEmail(email, {
+      redirectTo: `${environment.siteUrl}/reset-password`,
+    });
+    if (error) throw mapToError(error);
+  }
+
+  async updatePassword(password: string): Promise<void> {
+    const { error } = await this.supabase.client.auth.updateUser({ password });
     if (error) throw mapToError(error);
   }
 

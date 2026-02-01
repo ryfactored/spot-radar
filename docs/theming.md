@@ -27,14 +27,14 @@ User picks theme + mode
 
 ## File Map
 
-| File | Purpose |
-|------|---------|
-| `src/_themes.scss` | Palette maps and `mat.m2-define-*-theme()` calls |
-| `src/styles.scss` | Material includes, per-theme surface overrides, card polish, skeleton, toasts, base styles |
-| `src/app/core/preferences.ts` | `PreferencesService` + `COLOR_THEMES` constant + `ColorTheme` type |
-| `src/app/app.ts` | Applies `theme-{name}` and `dark-mode` to `<body>` |
-| `src/app/layouts/shell/shell.scss` | Per-theme toolbar, sidenav, and active-link overrides |
-| `src/app/shared/theme-picker/theme-picker.ts` | UI for switching theme and toggling dark mode |
+| File                                          | Purpose                                                                                    |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `src/_themes.scss`                            | Palette maps and `mat.m2-define-*-theme()` calls                                           |
+| `src/styles.scss`                             | Material includes, per-theme surface overrides, card polish, skeleton, toasts, base styles |
+| `src/app/core/preferences.ts`                 | `PreferencesService` + `COLOR_THEMES` constant + `ColorTheme` type                         |
+| `src/app/app.ts`                              | Applies `theme-{name}` and `dark-mode` to `<body>`                                         |
+| `src/app/layouts/shell/shell.scss`            | Per-theme toolbar, sidenav, and active-link overrides                                      |
+| `src/app/shared/theme-picker/theme-picker.ts` | UI for switching theme and toggling dark mode                                              |
 
 ---
 
@@ -46,7 +46,7 @@ The root `App` component uses two effects to sync the body:
 // Always exactly one theme class present
 effect(() => {
   const colorTheme = this.preferences.colorTheme();
-  this.colorThemeClasses.forEach(t => document.body.classList.remove(`theme-${t}`));
+  this.colorThemeClasses.forEach((t) => document.body.classList.remove(`theme-${t}`));
   document.body.classList.add(`theme-${colorTheme}`);
 });
 
@@ -60,7 +60,7 @@ effect(() => {
 This produces a body like:
 
 ```html
-<body class="theme-teal dark-mode">
+<body class="theme-teal dark-mode"></body>
 ```
 
 All theme selectors in CSS rely on these classes.
@@ -117,19 +117,19 @@ The default light block uses `.theme-default:not(.dark-mode)` for the same reaso
 
 ### Material Properties (overridden per theme)
 
-| Property | What it controls |
-|----------|-----------------|
-| `--mat-app-background-color` | Page background |
-| `--mat-sidenav-container-background-color` | Sidenav container |
-| `--mat-sidenav-content-background-color` | Main content area |
-| `--mat-sidenav-container-divider-color` | Sidenav border |
-| `--mat-card-elevated-container-color` | Elevated card background |
-| `--mat-card-outlined-container-color` | Outlined card background |
-| `--mat-card-filled-container-color` | Filled card background |
-| `--mat-dialog-container-color` | Dialog background |
-| `--mat-table-background-color` | Table background |
-| `--mat-table-row-item-outline-color` | Table row borders |
-| `--mat-paginator-container-background-color` | Paginator background |
+| Property                                     | What it controls         |
+| -------------------------------------------- | ------------------------ |
+| `--mat-app-background-color`                 | Page background          |
+| `--mat-sidenav-container-background-color`   | Sidenav container        |
+| `--mat-sidenav-content-background-color`     | Main content area        |
+| `--mat-sidenav-container-divider-color`      | Sidenav border           |
+| `--mat-card-elevated-container-color`        | Elevated card background |
+| `--mat-card-outlined-container-color`        | Outlined card background |
+| `--mat-card-filled-container-color`          | Filled card background   |
+| `--mat-dialog-container-color`               | Dialog background        |
+| `--mat-table-background-color`               | Table background         |
+| `--mat-table-row-item-outline-color`         | Table row borders        |
+| `--mat-paginator-container-background-color` | Paginator background     |
 
 These are consumed by Angular Material components automatically. Set them in each theme block and Material picks them up.
 
@@ -137,31 +137,31 @@ These are consumed by Angular Material components automatically. Set them in eac
 
 ### Material Properties (set globally)
 
-| Property | Value | What it controls |
-|----------|-------|-----------------|
+| Property                              | Value  | What it controls   |
+| ------------------------------------- | ------ | ------------------ |
 | `--mat-card-elevated-container-shape` | `12px` | Card border radius |
 | `--mat-card-outlined-container-shape` | `12px` | Card border radius |
-| `--mat-card-filled-container-shape` | `12px` | Card border radius |
+| `--mat-card-filled-container-shape`   | `12px` | Card border radius |
 
 These are set on `html` and apply to all themes.
 
 ### App-Level Properties (set per theme)
 
-| Property | What it controls |
-|----------|-----------------|
-| `--app-inset-bg` | Background for "inset" content areas inside cards (demo boxes, search results, nested panels) |
-| `--app-card-border-color` | Subtle border on all cards |
-| `--app-card-hover-border-color` | Border color on linked card hover |
+| Property                        | What it controls                                                                              |
+| ------------------------------- | --------------------------------------------------------------------------------------------- |
+| `--app-inset-bg`                | Background for "inset" content areas inside cards (demo boxes, search results, nested panels) |
+| `--app-card-border-color`       | Subtle border on all cards                                                                    |
+| `--app-card-hover-border-color` | Border color on linked card hover                                                             |
 
 ### Material Properties Available for Components
 
 These are set by Material and available to use without needing to override them per theme:
 
-| Property | What it provides |
-|----------|-----------------|
-| `--mat-sys-primary` | Theme primary color |
+| Property                         | What it provides                           |
+| -------------------------------- | ------------------------------------------ |
+| `--mat-sys-primary`              | Theme primary color                        |
 | `--mat-card-subtitle-text-color` | Muted text color that adapts to light/dark |
-| `--mat-sys-on-surface-variant` | Variant text color from Material |
+| `--mat-sys-on-surface-variant`   | Variant text color from Material           |
 
 ---
 
@@ -169,32 +169,32 @@ These are set by Material and available to use without needing to override them 
 
 ### Default (Blue)
 
-| Token | Light | Dark |
-|-------|-------|------|
-| Background | `#eff6ff` | `#110f1d` |
-| Card | `#eff6ff` | `#221e3d` |
-| Inset | `#dbeafe` | `#1a1736` |
-| Card border | `#dbeafe` | `#352f58` |
+| Token        | Light     | Dark      |
+| ------------ | --------- | --------- |
+| Background   | `#eff6ff` | `#110f1d` |
+| Card         | `#eff6ff` | `#221e3d` |
+| Inset        | `#dbeafe` | `#1a1736` |
+| Card border  | `#dbeafe` | `#352f58` |
 | Hover border | `#93c5fd` | `#4a4478` |
 
 ### Teal
 
-| Token | Light | Dark |
-|-------|-------|------|
-| Background | `#f0fdfa` | `#0e2a26` |
-| Card | `#e6faf6` | `#1c4f48` |
-| Inset | `#ccfbf1` | `#163d37` |
-| Card border | `#b2f5ea` | `#2e8a80` |
+| Token        | Light     | Dark      |
+| ------------ | --------- | --------- |
+| Background   | `#f0fdfa` | `#0e2a26` |
+| Card         | `#e6faf6` | `#1c4f48` |
+| Inset        | `#ccfbf1` | `#163d37` |
+| Card border  | `#b2f5ea` | `#2e8a80` |
 | Hover border | `#5eead4` | `#3aa89c` |
 
 ### Slate
 
-| Token | Light | Dark |
-|-------|-------|------|
-| Background | `#f8fafc` | `#0f172a` |
-| Card | `#edf2f8` | `#1f3050` |
-| Inset | `#dce4ef` | `#1a2842` |
-| Card border | `#d0d9e5` | `#395270` |
+| Token        | Light     | Dark      |
+| ------------ | --------- | --------- |
+| Background   | `#f8fafc` | `#0f172a` |
+| Card         | `#edf2f8` | `#1f3050` |
+| Inset        | `#dce4ef` | `#1a2842` |
+| Card border  | `#d0d9e5` | `#395270` |
 | Hover border | `#94a3b8` | `#4e6a88` |
 
 ---
@@ -246,13 +246,23 @@ Then define the light and dark theme objects. All themes currently share `$sky-p
 $violet-primary: mat.m2-define-palette($violet-palette);
 $violet-accent: mat.m2-define-palette($sky-palette, A200, A100, A400);
 
-$violet-light-theme: mat.m2-define-light-theme((
-  color: (primary: $violet-primary, accent: $violet-accent),
-));
+$violet-light-theme: mat.m2-define-light-theme(
+  (
+    color: (
+      primary: $violet-primary,
+      accent: $violet-accent,
+    ),
+  )
+);
 
-$violet-dark-theme: mat.m2-define-dark-theme((
-  color: (primary: $violet-primary, accent: $violet-accent),
-));
+$violet-dark-theme: mat.m2-define-dark-theme(
+  (
+    color: (
+      primary: $violet-primary,
+      accent: $violet-accent,
+    ),
+  )
+);
 ```
 
 ### Step 2: Add Material includes (`src/styles.scss`)
@@ -412,12 +422,20 @@ If a CSS custom property already adapts (like `--mat-card-subtitle-text-color`),
 
 ```scss
 // Unnecessary -- the variable already adapts
-.text { color: var(--mat-card-subtitle-text-color, #666); }
-:host-context(.dark-mode) .text { color: #aaa; }  // Delete this
+.text {
+  color: var(--mat-card-subtitle-text-color, #666);
+}
+:host-context(.dark-mode) .text {
+  color: #aaa;
+} // Delete this
 
 // Necessary -- rgba hover highlights need different opacity
-.row:hover { background: rgba(0, 0, 0, 0.04); }
-:host-context(.dark-mode) .row:hover { background: rgba(255, 255, 255, 0.04); }
+.row:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+:host-context(.dark-mode) .row:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
 ```
 
 ### Use `color-mix()` for theme-tinted backgrounds
@@ -438,9 +456,15 @@ Status indicators (green for success, red for error, amber for warning) are sema
 
 ```scss
 // These are fine hardcoded
-.status-success { color: #4caf50; }
-.status-error { color: #f44336; }
-.status-warning { color: #ff9800; }
+.status-success {
+  color: #4caf50;
+}
+.status-error {
+  color: #f44336;
+}
+.status-warning {
+  color: #ff9800;
+}
 ```
 
 ### Social/brand buttons need dark-mode hover variants
@@ -448,8 +472,12 @@ Status indicators (green for success, red for error, amber for warning) are sema
 Dark borders (like `#333` for GitHub) are invisible on dark backgrounds. Add a `:host-context(.dark-mode)` override with a light border:
 
 ```scss
-.github:hover { border-color: #333; }
-:host-context(.dark-mode) .github:hover { border-color: #e6edf3; }
+.github:hover {
+  border-color: #333;
+}
+:host-context(.dark-mode) .github:hover {
+  border-color: #e6edf3;
+}
 ```
 
 ### Skeleton and loading states

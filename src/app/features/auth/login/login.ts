@@ -55,8 +55,12 @@ import { environment } from '@env';
         }
       </mat-form-field>
 
-      @if (error) {
-        <p class="error" role="alert">{{ error }}</p>
+      <div class="forgot-link">
+        <a routerLink="/forgot-password">Forgot password?</a>
+      </div>
+
+      @if (error()) {
+        <p class="error" role="alert">{{ error() }}</p>
       }
 
       <button
@@ -64,9 +68,9 @@ import { environment } from '@env';
         color="primary"
         class="full-width"
         type="submit"
-        [disabled]="loading"
+        [disabled]="loading()"
       >
-        {{ loading ? 'Signing in...' : 'Sign In' }}
+        {{ loading() ? 'Signing in...' : 'Sign In' }}
       </button>
     </form>
 
@@ -106,6 +110,15 @@ import { environment } from '@env';
       text-align: center;
       margin-top: 16px;
     }
+    .forgot-link {
+      text-align: right;
+      margin-bottom: 16px;
+      font-size: 14px;
+    }
+    .forgot-link a,
+    .footer a {
+      color: var(--mat-sys-primary);
+    }
     .error {
       color: #f44336;
       text-align: center;
@@ -123,35 +136,35 @@ export class Login {
   });
 
   showPassword = signal(false);
-  loading = false;
+  loading = signal(false);
   loadingProvider = signal<SocialProvider | null>(null);
-  error = '';
+  error = signal('');
   socialProviders = environment.socialProviders as unknown as SocialProvider[];
 
   async onSubmit() {
     if (this.form.invalid) return;
 
-    this.loading = true;
-    this.error = '';
+    this.loading.set(true);
+    this.error.set('');
 
     try {
       await this.auth.signIn(this.form.value.email!, this.form.value.password!);
       this.router.navigate(['/dashboard']);
     } catch (err) {
-      this.error = err instanceof Error ? err.message : 'Login failed';
+      this.error.set(err instanceof Error ? err.message : 'Login failed');
     } finally {
-      this.loading = false;
+      this.loading.set(false);
     }
   }
 
   async loginWithProvider(provider: SocialProvider) {
     this.loadingProvider.set(provider);
-    this.error = '';
+    this.error.set('');
     try {
       await this.auth.signInWithProvider(provider);
       // Note: OAuth redirects away, so we won't reach here on success
     } catch (err) {
-      this.error = err instanceof Error ? err.message : 'Social login failed';
+      this.error.set(err instanceof Error ? err.message : 'Social login failed');
       this.loadingProvider.set(null);
     }
   }

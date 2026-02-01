@@ -92,6 +92,23 @@ export const routes: Routes = [
         path: 'register',
         loadComponent: () => import('./features/auth/register/register').then((m) => m.Register),
       },
+      {
+        path: 'forgot-password',
+        loadComponent: () =>
+          import('./features/auth/forgot-password/forgot-password').then((m) => m.ForgotPassword),
+      },
+    ],
+  },
+  // Reset password (no guestGuard -- user arrives authenticated via Supabase recovery token)
+  {
+    path: '',
+    component: AuthLayout,
+    children: [
+      {
+        path: 'reset-password',
+        loadComponent: () =>
+          import('./features/auth/reset-password/reset-password').then((m) => m.ResetPassword),
+      },
     ],
   },
 ];
