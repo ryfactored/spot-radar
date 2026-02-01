@@ -90,12 +90,12 @@ import { environment } from '@env';
         }
       </mat-form-field>
 
-      @if (error) {
-        <p class="error" role="alert">{{ error }}</p>
+      @if (error()) {
+        <p class="error" role="alert">{{ error() }}</p>
       }
 
-      @if (success) {
-        <p class="success" role="status">{{ success }}</p>
+      @if (success()) {
+        <p class="success" role="status">{{ success() }}</p>
       }
 
       <button
@@ -103,9 +103,9 @@ import { environment } from '@env';
         color="primary"
         class="full-width"
         type="submit"
-        [disabled]="loading"
+        [disabled]="loading()"
       >
-        {{ loading ? 'Creating account...' : 'Sign Up' }}
+        {{ loading() ? 'Creating account...' : 'Sign Up' }}
       </button>
     </form>
 
@@ -145,6 +145,9 @@ import { environment } from '@env';
       text-align: center;
       margin-top: 16px;
     }
+    .footer a {
+      color: var(--mat-sys-primary);
+    }
     .error {
       color: #f44336;
       text-align: center;
@@ -172,10 +175,10 @@ export class Register {
   showPassword = signal(false);
   showConfirmPassword = signal(false);
   passwordValue = signal('');
-  loading = false;
+  loading = signal(false);
   loadingProvider = signal<SocialProvider | null>(null);
-  error = '';
-  success = '';
+  error = signal('');
+  success = signal('');
   socialProviders = environment.socialProviders as unknown as SocialProvider[];
 
   constructor() {
@@ -187,27 +190,27 @@ export class Register {
   async onSubmit() {
     if (this.form.invalid) return;
 
-    this.loading = true;
-    this.error = '';
+    this.loading.set(true);
+    this.error.set('');
 
     try {
       await this.auth.signUp(this.form.value.email!, this.form.value.password!);
-      this.success = 'Account created! Check your email to confirm.';
+      this.success.set('Account created! Check your email to confirm.');
     } catch (err) {
-      this.error = err instanceof Error ? err.message : 'Registration failed';
+      this.error.set(err instanceof Error ? err.message : 'Registration failed');
     } finally {
-      this.loading = false;
+      this.loading.set(false);
     }
   }
 
   async signUpWithProvider(provider: SocialProvider) {
     this.loadingProvider.set(provider);
-    this.error = '';
+    this.error.set('');
     try {
       await this.auth.signInWithProvider(provider);
       // Note: OAuth redirects away, so we won't reach here on success
     } catch (err) {
-      this.error = err instanceof Error ? err.message : 'Social login failed';
+      this.error.set(err instanceof Error ? err.message : 'Social login failed');
       this.loadingProvider.set(null);
     }
   }

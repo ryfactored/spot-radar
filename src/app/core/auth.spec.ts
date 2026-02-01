@@ -16,6 +16,8 @@ describe('AuthService', () => {
         signUp: ReturnType<typeof vi.fn>;
         signInWithPassword: ReturnType<typeof vi.fn>;
         signInWithOAuth: ReturnType<typeof vi.fn>;
+        resetPasswordForEmail: ReturnType<typeof vi.fn>;
+        updateUser: ReturnType<typeof vi.fn>;
       };
     };
   };
@@ -36,6 +38,8 @@ describe('AuthService', () => {
           signUp: vi.fn(),
           signInWithPassword: vi.fn(),
           signInWithOAuth: vi.fn().mockResolvedValue({ error: null }),
+          resetPasswordForEmail: vi.fn().mockResolvedValue({ error: null }),
+          updateUser: vi.fn().mockResolvedValue({ data: {}, error: null }),
         },
       },
     };
@@ -110,6 +114,46 @@ describe('AuthService', () => {
         provider: 'google',
         options: { redirectTo: expect.stringContaining('/dashboard') },
       });
+    });
+  });
+
+  describe('resetPassword', () => {
+    it('should call supabase resetPasswordForEmail', async () => {
+      await service.resetPassword('test@test.com');
+
+      expect(supabaseMock.client.auth.resetPasswordForEmail).toHaveBeenCalledWith('test@test.com', {
+        redirectTo: expect.stringContaining('/reset-password'),
+      });
+    });
+
+    it('should throw mapped error on failure', async () => {
+      supabaseMock.client.auth.resetPasswordForEmail.mockResolvedValue({
+        error: { code: 'over_request_rate_limit', message: 'rate limited' },
+      });
+
+      await expect(service.resetPassword('test@test.com')).rejects.toThrow(
+        'Too many attempts. Please wait and try again.',
+      );
+    });
+  });
+
+  describe('updatePassword', () => {
+    it('should call supabase updateUser', async () => {
+      await service.updatePassword('newpassword123');
+
+      expect(supabaseMock.client.auth.updateUser).toHaveBeenCalledWith({
+        password: 'newpassword123',
+      });
+    });
+
+    it('should throw mapped error on failure', async () => {
+      supabaseMock.client.auth.updateUser.mockResolvedValue({
+        error: { code: 'same_password', message: 'same password' },
+      });
+
+      await expect(service.updatePassword('oldpassword')).rejects.toThrow(
+        'New password must be different from your current password',
+      );
     });
   });
 

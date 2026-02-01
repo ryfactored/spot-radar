@@ -100,6 +100,39 @@ test.describe('Authentication', () => {
     await expect(page.locator('mat-error')).toContainText('Passwords do not match');
   });
 
+  test('should have forgot password link on login page', async ({ page }) => {
+    await page.goto('/login');
+
+    const forgotLink = page.locator('a[href*="forgot-password"]');
+    await expect(forgotLink).toBeVisible();
+    await expect(forgotLink).toContainText('Forgot password');
+  });
+
+  test('should display forgot password page', async ({ page }) => {
+    await page.goto('/forgot-password');
+
+    await expect(page.locator('app-forgot-password h2')).toContainText(/reset password/i);
+    await expect(page.locator('input[type="email"]')).toBeVisible();
+    await expect(page.locator('button[type="submit"]')).toBeVisible();
+  });
+
+  test('should show validation error for empty forgot password submission', async ({ page }) => {
+    await page.goto('/forgot-password');
+
+    await page.locator('button[type="submit"]').click();
+
+    await expect(page.locator('mat-error').first()).toBeVisible();
+  });
+
+  test('should display reset password fallback when no session', async ({ page }) => {
+    await page.goto('/reset-password');
+
+    await expect(page.locator('app-reset-password h2')).toContainText(/set new password/i);
+    // Should show the no-session fallback message
+    await expect(page.locator('text=No active session')).toBeVisible();
+    await expect(page.locator('a[href*="forgot-password"]')).toBeVisible();
+  });
+
   test('should clear mismatch error when passwords match', async ({ page }) => {
     await page.goto('/register');
 

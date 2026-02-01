@@ -39,7 +39,8 @@ import { PreferencesService, COLOR_THEMES, ColorTheme } from '@core';
             class="check-icon"
             [style.visibility]="preferences.colorTheme() === theme.value ? 'visible' : 'hidden'"
             aria-hidden="true"
-          >check</mat-icon>
+            >check</mat-icon
+          >
         </button>
       }
       <mat-divider></mat-divider>

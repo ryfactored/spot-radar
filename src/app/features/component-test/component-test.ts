@@ -187,7 +187,11 @@ import { NotesService, Note } from '../notes/notes';
       left: 0;
       right: 0;
       bottom: 0;
-      background: color-mix(in srgb, var(--mat-card-elevated-container-color, white) 85%, transparent);
+      background: color-mix(
+        in srgb,
+        var(--mat-card-elevated-container-color, white) 85%,
+        transparent
+      );
       display: flex;
       align-items: center;
       justify-content: center;
