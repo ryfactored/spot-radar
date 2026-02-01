@@ -13,6 +13,7 @@ import { PreferencesService, AuthService, UserRole } from '@core';
 import { ThemePicker, LoadingBar, Avatar } from '@shared';
 import { ProfileService } from '@features/profile/profile-service';
 import { environment } from '@env';
+import { routeAnimation } from '../../shared/animations/route-animation';
 
 @Component({
   selector: 'app-shell',
@@ -33,6 +34,7 @@ import { environment } from '@env';
   ],
   templateUrl: './shell.html',
   styleUrl: './shell.scss',
+  animations: [routeAnimation],
 })
 export class Shell implements OnInit {
   @ViewChild('sidenav') sidenav!: MatSidenav;
@@ -44,6 +46,9 @@ export class Shell implements OnInit {
   private profileService = inject(ProfileService);
   private breakpointObserver = inject(BreakpointObserver);
   private router = inject(Router);
+
+  // Route animation key — incremented on each route activation
+  routeKey = signal(0);
 
   // User role for conditional nav items
   userRole = signal<UserRole | null>(null);
@@ -101,6 +106,10 @@ export class Shell implements OnInit {
     } else {
       this.preferences.toggleSidenav();
     }
+  }
+
+  onActivate() {
+    this.routeKey.update((k) => k + 1);
   }
 
   async logout() {

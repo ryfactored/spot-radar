@@ -1,5 +1,4 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -11,14 +10,14 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { NotesService, type Note } from '../notes';
 import { NotesStore } from '../notes-store';
 import { NoteCardSkeleton } from '../note-card-skeleton';
-import { ToastService, ConfirmDialogService, EmptyState } from '@shared';
+import { ToastService, ConfirmDialogService, EmptyState, TimeAgoPipe } from '@shared';
 import { environment } from '@env';
 
 @Component({
   selector: 'app-notes-list',
   standalone: true,
   imports: [
-    DatePipe,
+    TimeAgoPipe,
     FormsModule,
     MatCardModule,
     MatButtonModule,
@@ -71,7 +70,7 @@ import { environment } from '@env';
           <mat-card class="note-card">
             <mat-card-header>
               <mat-card-title>{{ note.title }}</mat-card-title>
-              <mat-card-subtitle>{{ note.created_at | date: 'medium' }}</mat-card-subtitle>
+              <mat-card-subtitle>{{ note.created_at | timeAgo }}</mat-card-subtitle>
             </mat-card-header>
             <mat-card-content>
               <p>{{ note.content || 'No content' }}</p>

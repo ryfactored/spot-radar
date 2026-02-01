@@ -1,18 +1,23 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { DatePipe } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { FilesService, type FileRecord } from '../files';
-import { ToastService, ConfirmDialogService, LoadingSpinner, EmptyState } from '@shared';
+import {
+  ToastService,
+  ConfirmDialogService,
+  LoadingSpinner,
+  EmptyState,
+  TimeAgoPipe,
+} from '@shared';
 
 @Component({
   selector: 'app-files-page',
   standalone: true,
   imports: [
-    DatePipe,
+    TimeAgoPipe,
     MatCardModule,
     MatButtonModule,
     MatIconModule,
@@ -54,7 +59,7 @@ import { ToastService, ConfirmDialogService, LoadingSpinner, EmptyState } from '
               <mat-card-title class="file-name">{{ file.name }}</mat-card-title>
               <mat-card-subtitle>
                 {{ formatFileSize(file.size) }} &middot; {{ file.type }} &middot;
-                {{ file.created_at | date: 'medium' }}
+                {{ file.created_at | timeAgo }}
               </mat-card-subtitle>
             </mat-card-header>
             <mat-card-actions align="end">

@@ -5,6 +5,7 @@ import { routes } from './app.routes';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { GlobalErrorHandler, httpErrorInterceptor } from '@core';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
 /**
  * Application configuration using the standalone bootstrapping pattern.
@@ -19,6 +20,7 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
     { provide: ErrorHandler, useClass: GlobalErrorHandler },
+    provideAnimationsAsync(),
     provideClientHydration(withEventReplay()),
   ],
 };
