@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { StorageService } from './storage';
 import { SupabaseService } from './supabase';
+import { environment } from '@env';
 
 describe('StorageService', () => {
   let service: StorageService;
@@ -55,10 +56,13 @@ describe('StorageService', () => {
       expect(service.validateAvatar(file)).toBeNull();
     });
 
-    it('should return error for file over 5MB', () => {
-      const largeData = new Uint8Array(5 * 1024 * 1024 + 1);
+    it('should return error for file exceeding environment avatar size limit', () => {
+      const maxBytes = environment.upload.avatarMaxSizeMB * 1024 * 1024;
+      const largeData = new Uint8Array(maxBytes + 1);
       const file = new File([largeData], 'large.png', { type: 'image/png' });
-      expect(service.validateAvatar(file)).toBe('Avatar must be less than 5MB');
+      expect(service.validateAvatar(file)).toBe(
+        `Avatar must be less than ${environment.upload.avatarMaxSizeMB}MB`,
+      );
     });
   });
 
@@ -68,10 +72,13 @@ describe('StorageService', () => {
       expect(service.validateAttachment(file)).toBeNull();
     });
 
-    it('should return error for file over 10MB', () => {
-      const largeData = new Uint8Array(10 * 1024 * 1024 + 1);
+    it('should return error for file exceeding environment attachment size limit', () => {
+      const maxBytes = environment.upload.attachmentMaxSizeMB * 1024 * 1024;
+      const largeData = new Uint8Array(maxBytes + 1);
       const file = new File([largeData], 'large.zip', { type: 'application/zip' });
-      expect(service.validateAttachment(file)).toBe('File must be less than 10MB');
+      expect(service.validateAttachment(file)).toBe(
+        `File must be less than ${environment.upload.attachmentMaxSizeMB}MB`,
+      );
     });
   });
 

@@ -1,10 +1,11 @@
 import { Injectable, inject } from '@angular/core';
 import { SupabaseService } from './supabase';
 import { mapToError } from './error-mapper';
+import { environment } from '@env';
 
-const AVATAR_MAX_SIZE = 5 * 1024 * 1024; // 5MB
+const AVATAR_MAX_SIZE = environment.upload.avatarMaxSizeMB * 1024 * 1024;
 const AVATAR_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
-const ATTACHMENT_MAX_SIZE = 10 * 1024 * 1024; // 10MB
+const ATTACHMENT_MAX_SIZE = environment.upload.attachmentMaxSizeMB * 1024 * 1024;
 
 @Injectable({
   providedIn: 'root',
@@ -17,14 +18,14 @@ export class StorageService {
       return 'Only JPEG, PNG, GIF, WebP, and SVG images are allowed';
     }
     if (file.size > AVATAR_MAX_SIZE) {
-      return 'Avatar must be less than 5MB';
+      return `Avatar must be less than ${environment.upload.avatarMaxSizeMB}MB`;
     }
     return null;
   }
 
   validateAttachment(file: File): string | null {
     if (file.size > ATTACHMENT_MAX_SIZE) {
-      return 'File must be less than 10MB';
+      return `File must be less than ${environment.upload.attachmentMaxSizeMB}MB`;
     }
     return null;
   }
@@ -51,7 +52,11 @@ export class StorageService {
     return data.publicUrl;
   }
 
-  async createSignedUrl(bucket: string, path: string, expiresIn = 3600): Promise<string> {
+  async createSignedUrl(
+    bucket: string,
+    path: string,
+    expiresIn = environment.signedUrlExpirationSecs,
+  ): Promise<string> {
     const { data, error } = await this.supabase.client.storage
       .from(bucket)
       .createSignedUrl(path, expiresIn);

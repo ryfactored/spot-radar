@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { SupabaseService, AuthService, unwrap } from '@core';
+import { environment } from '@env';
 
 export interface Message {
   id: string;
@@ -32,7 +33,7 @@ export class ChatService {
         .from('messages')
         .select('*')
         .order('created_at', { ascending: true })
-        .limit(50),
+        .limit(environment.chatMessageLimit),
     );
   }
 

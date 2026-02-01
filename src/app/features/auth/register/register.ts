@@ -61,7 +61,7 @@ import { environment } from '@env';
           <mat-error>Password is required</mat-error>
         }
         @if (form.controls.password.hasError('minlength')) {
-          <mat-error>Password must be at least 8 characters</mat-error>
+          <mat-error>Password must be at least {{ passwordMinLength }} characters</mat-error>
         }
       </mat-form-field>
       <app-password-strength [password]="passwordValue()" id="password-requirements" />
@@ -166,7 +166,7 @@ export class Register {
   form = this.fb.nonNullable.group(
     {
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(8)]],
+      password: ['', [Validators.required, Validators.minLength(environment.passwordMinLength)]],
       confirmPassword: ['', Validators.required],
     },
     { validators: matchValidator('password', 'confirmPassword') },
@@ -179,6 +179,7 @@ export class Register {
   loadingProvider = signal<SocialProvider | null>(null);
   error = signal('');
   success = signal('');
+  passwordMinLength = environment.passwordMinLength;
   socialProviders = environment.socialProviders as unknown as SocialProvider[];
 
   constructor() {

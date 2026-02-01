@@ -1,4 +1,5 @@
 import { Component, input, computed } from '@angular/core';
+import { environment } from '@env';
 
 export type StrengthLevel = 'weak' | 'fair' | 'good' | 'strong';
 
@@ -102,7 +103,8 @@ export class PasswordStrength {
     // - 15+ characters recommended
     // Complexity requirements (mixed case, numbers, symbols) are discouraged
     const len = password.length;
-    const score = len >= 15 ? 4 : len >= 12 ? 3 : len >= 8 ? 2 : 1;
+    const min = environment.passwordMinLength;
+    const score = len >= 15 ? 4 : len >= 12 ? 3 : len >= min ? 2 : 1;
     const levels: StrengthLevel[] = ['weak', 'fair', 'good', 'strong'];
     const labels = ['Weak', 'Fair', 'Good', 'Strong'];
 

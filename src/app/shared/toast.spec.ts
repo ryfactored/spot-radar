@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { vi } from 'vitest';
 import { ToastService } from './toast';
+import { environment } from '@env';
 
 describe('ToastService', () => {
   let service: ToastService;
@@ -25,7 +26,7 @@ describe('ToastService', () => {
       service.success('Success message');
 
       expect(snackBarMock.open).toHaveBeenCalledWith('Success message', 'Close', {
-        duration: 3000,
+        duration: environment.toastDuration.success,
         panelClass: ['toast-success'],
         horizontalPosition: 'end',
         verticalPosition: 'top',
@@ -39,7 +40,7 @@ describe('ToastService', () => {
       service.error('Error message');
 
       expect(snackBarMock.open).toHaveBeenCalledWith('Error message', 'Close', {
-        duration: 5000,
+        duration: environment.toastDuration.error,
         panelClass: ['toast-error'],
         horizontalPosition: 'end',
         verticalPosition: 'top',
@@ -53,7 +54,7 @@ describe('ToastService', () => {
       service.info('Info message');
 
       expect(snackBarMock.open).toHaveBeenCalledWith('Info message', 'Close', {
-        duration: 4000,
+        duration: environment.toastDuration.info,
         panelClass: ['toast-info'],
         horizontalPosition: 'end',
         verticalPosition: 'top',

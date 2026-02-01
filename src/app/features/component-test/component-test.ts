@@ -14,6 +14,7 @@ import {
   PageEvent,
 } from '@shared';
 import { AuthService } from '@core';
+import { environment } from '@env';
 import { NotesService, Note } from '../notes/notes';
 
 @Component({
@@ -97,7 +98,7 @@ import { NotesService, Note } from '../notes/notes';
         <app-search-input
           placeholder="Search notes..."
           label="Search"
-          [debounceMs]="300"
+          [debounceMs]="searchDebounceMs"
           [loading]="searchLoading()"
           (searchChange)="onSearch($event)"
           (cleared)="onSearchCleared()"
@@ -212,6 +213,8 @@ export class ComponentTest implements OnInit {
   private notesService = inject(NotesService);
   private router = inject(Router);
   private auth = inject(AuthService);
+
+  searchDebounceMs = environment.searchDebounceMs;
 
   // Search state
   searchValue = signal('');

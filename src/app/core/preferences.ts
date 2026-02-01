@@ -17,9 +17,9 @@ export interface UserPreferences {
 }
 
 const DEFAULT_PREFERENCES: UserPreferences = {
-  colorTheme: 'default',
-  darkMode: true,
-  sidenavOpened: true,
+  colorTheme: environment.defaults.colorTheme,
+  darkMode: environment.defaults.darkMode,
+  sidenavOpened: environment.defaults.sidenavOpened,
 };
 
 /**

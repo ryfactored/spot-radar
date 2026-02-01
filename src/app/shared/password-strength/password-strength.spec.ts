@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Component, signal } from '@angular/core';
 import { PasswordStrength } from './password-strength';
+import { environment } from '@env';
 
 @Component({
   standalone: true,
@@ -38,8 +39,8 @@ describe('PasswordStrength', () => {
     expect(label.classList.contains('hidden')).toBe(true);
   });
 
-  it('should show weak for password under 8 chars', async () => {
-    host.password.set('short');
+  it('should show weak for password under passwordMinLength', async () => {
+    host.password.set('a'.repeat(environment.passwordMinLength - 1));
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
@@ -48,8 +49,8 @@ describe('PasswordStrength', () => {
     expect(label.classList.contains('weak')).toBe(true);
   });
 
-  it('should show fair for 8-11 char password', async () => {
-    host.password.set('eightchr');
+  it('should show fair for password at passwordMinLength', async () => {
+    host.password.set('a'.repeat(environment.passwordMinLength));
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();

@@ -1,4 +1,5 @@
 import { mapError, mapToError, unwrap, unwrapWithCount } from './error-mapper';
+import { environment } from '@env';
 
 describe('ErrorMapper', () => {
   describe('mapError', () => {
@@ -8,6 +9,9 @@ describe('ErrorMapper', () => {
         'An account with this email already exists',
       );
       expect(mapError({ code: 'PGRST116' }).message).toBe('The requested item was not found');
+      expect(mapError({ code: 'weak_password' }).message).toBe(
+        `Password is too weak. Use at least ${environment.passwordMinLength} characters.`,
+      );
     });
 
     it('should return generic message for unmapped errors', () => {

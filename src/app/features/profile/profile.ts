@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { AuthService, StorageService } from '@core';
 import { Avatar, SkeletonOverlay, ToastService } from '@shared';
 import { ProfileService } from './profile-service';
+import { environment } from '@env';
 
 @Component({
   selector: 'app-profile',
@@ -199,7 +200,7 @@ export class Profile implements OnInit {
         const ext = file.name.split('.').pop() || 'png';
         const path = `${user.id}/avatar.${ext}`;
         const { publicUrl } = await this.storage.upload({
-          bucket: 'avatars',
+          bucket: environment.storageBuckets.avatars,
           path,
           file,
           upsert: true,

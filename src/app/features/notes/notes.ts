@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { SupabaseService, AuthService, unwrap, unwrapWithCount } from '@core';
+import { environment } from '@env';
 
 export interface Note {
   id: string;
@@ -31,7 +32,11 @@ export class NotesService {
   private supabase = inject(SupabaseService);
   private auth = inject(AuthService);
 
-  async list(page = 1, pageSize = 10, search = ''): Promise<NotesResponse> {
+  async list(
+    page = 1,
+    pageSize = environment.pagination.defaultPageSize,
+    search = '',
+  ): Promise<NotesResponse> {
     const from = (page - 1) * pageSize;
     const to = from + pageSize - 1;
 

@@ -4,6 +4,7 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 import { Register } from './register';
 import { AuthService } from '@core';
+import { environment } from '@env';
 
 describe('Register', () => {
   let component: Register;
@@ -26,5 +27,15 @@ describe('Register', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should use environment passwordMinLength for password validator', () => {
+    const shortPassword = 'a'.repeat(environment.passwordMinLength - 1);
+    component.form.controls.password.setValue(shortPassword);
+    expect(component.form.controls.password.hasError('minlength')).toBe(true);
+
+    const validPassword = 'a'.repeat(environment.passwordMinLength);
+    component.form.controls.password.setValue(validPassword);
+    expect(component.form.controls.password.hasError('minlength')).toBe(false);
   });
 });

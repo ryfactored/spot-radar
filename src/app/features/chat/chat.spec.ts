@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { ChatService, Message } from './chat';
 import { SupabaseService, AuthService } from '@core';
+import { environment } from '@env';
 
 describe('ChatService', () => {
   let service: ChatService;
@@ -63,7 +64,7 @@ describe('ChatService', () => {
       expect(supabaseMock.client.from).toHaveBeenCalledWith('messages');
       expect(supabaseMock.client.select).toHaveBeenCalledWith('*');
       expect(supabaseMock.client.order).toHaveBeenCalledWith('created_at', { ascending: true });
-      expect(supabaseMock.client.limit).toHaveBeenCalledWith(50);
+      expect(supabaseMock.client.limit).toHaveBeenCalledWith(environment.chatMessageLimit);
       expect(messages).toEqual(mockMessages);
     });
 
