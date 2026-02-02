@@ -355,6 +355,7 @@ export class Profile implements OnInit, HasUnsavedChanges {
         this.selectedAvatarFile.set(null);
       }
 
+      this.form.markAsPristine();
       this.toast.success('Profile updated!');
     } catch (err) {
       this.toast.error(err instanceof Error ? err.message : 'Failed to save profile');
