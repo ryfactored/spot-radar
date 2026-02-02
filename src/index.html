@@ -2,8 +2,13 @@
 <html lang="en">
   <head>
     <script>
-      // Hide landing page during OAuth callbacks to prevent flash while Supabase processes tokens
-      if (location.search.includes('code=') || location.hash.includes('access_token')) {
+      // Hide prerendered landing page when served as SPA fallback on non-root routes,
+      // or during OAuth callbacks. Angular restores visibility after first navigation.
+      if (
+        location.pathname !== '/' ||
+        location.search.includes('code=') ||
+        location.hash.includes('access_token')
+      ) {
         document.documentElement.style.visibility = 'hidden';
       }
     </script>

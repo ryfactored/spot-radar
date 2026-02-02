@@ -49,19 +49,18 @@ export class App {
       return;
     }
 
-    // Restore visibility after OAuth callback (hidden by inline script in index.html)
+    // Restore visibility after first navigation (hidden by inline script in index.html)
     const router = inject(Router);
-    if (location.search.includes('code=') || location.hash.includes('access_token')) {
+    if (document.documentElement.style.visibility === 'hidden') {
       router.events
         .pipe(
           filter((e): e is NavigationEnd => e instanceof NavigationEnd),
-          filter((e) => e.urlAfterRedirects !== '/'),
           take(1),
         )
         .subscribe(() => {
           document.documentElement.style.visibility = '';
         });
-      // Safety fallback in case auth processing fails
+      // Safety fallback
       setTimeout(() => {
         document.documentElement.style.visibility = '';
       }, 5000);
