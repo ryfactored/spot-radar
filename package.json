@@ -19,7 +19,11 @@
     "prepare": "husky"
   },
   "lint-staged": {
-    "*.{ts,html,scss,json,md,yml,yaml}": "prettier --write"
+    "*.{ts,html}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{scss,json,md,yml,yaml}": "prettier --write"
   },
   "prettier": {
     "printWidth": 100,
