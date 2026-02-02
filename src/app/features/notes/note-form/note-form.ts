@@ -138,6 +138,7 @@ export class NoteForm implements OnInit, HasUnsavedChanges {
         this.store.addNote(created);
         this.toast.success('Note created');
       }
+      this.form.markAsPristine();
       this.router.navigate(['/notes']);
     } catch (err) {
       this.toast.error(err instanceof Error ? err.message : 'Failed to save note');
