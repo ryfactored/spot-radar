@@ -34,4 +34,6 @@ export const environment = {
   searchDebounceMs: 300,
   // Loading bar minimum visible duration in milliseconds
   loadingBarDelayMs: 300,
+  // Feature flags — toggle features without code changes
+  featureFlags: { notes: true, chat: true, files: true, admin: true },
 } satisfies Environment;

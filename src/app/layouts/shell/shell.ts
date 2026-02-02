@@ -9,7 +9,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { toSignal, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { map, filter } from 'rxjs';
-import { PreferencesService, AuthService, UserRole } from '@core';
+import { PreferencesService, AuthService, UserRole, FeatureFlags } from '@core';
 import { ThemePicker, LoadingBar, Avatar } from '@shared';
 import { ProfileService } from '@features/profile/profile-service';
 import { environment } from '@env';
@@ -42,6 +42,7 @@ export class Shell implements OnInit {
 
   siteTitle = environment.siteTitle;
   preferences = inject(PreferencesService);
+  featureFlags = inject(FeatureFlags);
   private auth = inject(AuthService);
   private profileService = inject(ProfileService);
   private breakpointObserver = inject(BreakpointObserver);
