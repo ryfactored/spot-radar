@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { Shell, AuthLayout, PublicLayout } from '@layouts';
-import { authGuard, guestGuard, roleGuard, unsavedChangesGuard } from '@core';
+import { authGuard, guestGuard, roleGuard, unsavedChangesGuard, featureFlagGuard } from '@core';
 
 /**
  * Application routes with lazy-loaded feature components.
@@ -58,35 +58,40 @@ export const routes: Routes = [
         data: { title: 'Notes' },
         loadComponent: () =>
           import('./features/notes/notes-list/notes-list').then((m) => m.NotesList),
+        canActivate: [featureFlagGuard('notes')],
       },
       {
         path: 'notes/new',
         data: { title: 'New Note' },
         loadComponent: () => import('./features/notes/note-form/note-form').then((m) => m.NoteForm),
+        canActivate: [featureFlagGuard('notes')],
         canDeactivate: [unsavedChangesGuard],
       },
       {
         path: 'notes/:id/edit',
         data: { title: 'Edit Note' },
         loadComponent: () => import('./features/notes/note-form/note-form').then((m) => m.NoteForm),
+        canActivate: [featureFlagGuard('notes')],
         canDeactivate: [unsavedChangesGuard],
       },
       {
         path: 'chat',
         data: { title: 'Chat' },
         loadComponent: () => import('./features/chat/chat-room/chat-room').then((m) => m.ChatRoom),
+        canActivate: [featureFlagGuard('chat')],
       },
       {
         path: 'files',
         data: { title: 'Files' },
         loadComponent: () =>
           import('./features/files/files-page/files-page').then((m) => m.FilesPage),
+        canActivate: [featureFlagGuard('files')],
       },
       {
         path: 'admin',
         data: { title: 'Admin' },
         loadComponent: () => import('./features/admin/admin').then((m) => m.Admin),
-        canActivate: [roleGuard('admin')],
+        canActivate: [roleGuard('admin'), featureFlagGuard('admin')],
       },
     ],
   },

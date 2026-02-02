@@ -20,36 +20,42 @@
         <mat-icon matListItemIcon>dashboard</mat-icon>
         <span matListItemTitle>Dashboard</span>
       </a>
-      <a
-        mat-list-item
-        routerLink="/notes"
-        routerLinkActive="active-link"
-        #rlaNotes="routerLinkActive"
-        [attr.aria-current]="rlaNotes.isActive ? 'page' : null"
-      >
-        <mat-icon matListItemIcon>note</mat-icon>
-        <span matListItemTitle>Notes</span>
-      </a>
-      <a
-        mat-list-item
-        routerLink="/chat"
-        routerLinkActive="active-link"
-        #rlaChat="routerLinkActive"
-        [attr.aria-current]="rlaChat.isActive ? 'page' : null"
-      >
-        <mat-icon matListItemIcon>chat</mat-icon>
-        <span matListItemTitle>Chat</span>
-      </a>
-      <a
-        mat-list-item
-        routerLink="/files"
-        routerLinkActive="active-link"
-        #rlaFiles="routerLinkActive"
-        [attr.aria-current]="rlaFiles.isActive ? 'page' : null"
-      >
-        <mat-icon matListItemIcon>folder</mat-icon>
-        <span matListItemTitle>Files</span>
-      </a>
+      @if (featureFlags.isEnabled('notes')) {
+        <a
+          mat-list-item
+          routerLink="/notes"
+          routerLinkActive="active-link"
+          #rlaNotes="routerLinkActive"
+          [attr.aria-current]="rlaNotes.isActive ? 'page' : null"
+        >
+          <mat-icon matListItemIcon>note</mat-icon>
+          <span matListItemTitle>Notes</span>
+        </a>
+      }
+      @if (featureFlags.isEnabled('chat')) {
+        <a
+          mat-list-item
+          routerLink="/chat"
+          routerLinkActive="active-link"
+          #rlaChat="routerLinkActive"
+          [attr.aria-current]="rlaChat.isActive ? 'page' : null"
+        >
+          <mat-icon matListItemIcon>chat</mat-icon>
+          <span matListItemTitle>Chat</span>
+        </a>
+      }
+      @if (featureFlags.isEnabled('files')) {
+        <a
+          mat-list-item
+          routerLink="/files"
+          routerLinkActive="active-link"
+          #rlaFiles="routerLinkActive"
+          [attr.aria-current]="rlaFiles.isActive ? 'page' : null"
+        >
+          <mat-icon matListItemIcon>folder</mat-icon>
+          <span matListItemTitle>Files</span>
+        </a>
+      }
       <a
         mat-list-item
         routerLink="/profile"
@@ -70,7 +76,7 @@
         <mat-icon matListItemIcon>widgets</mat-icon>
         <span matListItemTitle>Components</span>
       </a>
-      @if (isAdmin()) {
+      @if (isAdmin() && featureFlags.isEnabled('admin')) {
         <a
           mat-list-item
           routerLink="/admin"
