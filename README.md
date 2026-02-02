@@ -10,7 +10,7 @@ A production-ready Angular 21 starter template with Supabase backend, signal-bas
 - **File Management** — Upload, download, and manage files with Supabase Storage
 - **User Profile** — Avatar upload, bio, display name, password change, and account deletion
 - **Admin Panel** — Role-based admin page with user management
-- **Theming** — Three color themes (Default, Ocean, Forest) with dark/light mode toggle
+- **Theming** — Three color themes (Default, Teal, Slate) with dark/light mode toggle
 - **SSR** — Server-side rendering with Express and client hydration
 - **Accessibility** — WCAG 2.1 AA compliant with full keyboard navigation and screen reader support
 - **Zoneless** — No zone.js; all reactivity driven by Angular Signals
@@ -67,6 +67,8 @@ src/
 │   │   ├── realtime.ts            # Realtime subscription manager
 │   │   ├── storage.ts             # File upload/download service
 │   │   ├── error-mapper.ts        # Supabase error → user-friendly messages
+│   │   ├── feature-flags.ts          # Feature flag service
+│   │   ├── feature-flag-guard.ts     # Route guard — feature flag check
 │   │   ├── global-error-handler.ts
 │   │   └── http-error-interceptor.ts
 │   │
@@ -111,7 +113,8 @@ src/
 - **Standalone components only** — no NgModules; inline templates and styles
 - **Zoneless change detection** — all reactive state uses `signal()`, `computed()`, and `effect()`
 - **Signal stores** — feature stores use the signal pattern with TTL cache invalidation (see `notes-store.ts`)
-- **Functional route guards** — `authGuard`, `guestGuard`, `roleGuard()`, `unsavedChangesGuard`
+- **Functional route guards** — `authGuard`, `guestGuard`, `roleGuard()`, `unsavedChangesGuard`, `featureFlagGuard()`
+- **Feature flags** — Toggle features on/off via environment config without code changes
 - **SSR with Express** — `provideClientHydration(withEventReplay())`, prerendered landing/auth pages
 - **Three-layer error handling** — `GlobalErrorHandler` + `httpErrorInterceptor` + `error-mapper.ts`
 - **Path aliases** — `@core`, `@shared`, `@layouts`, `@features/*`, `@env`
