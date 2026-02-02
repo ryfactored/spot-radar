@@ -2,7 +2,19 @@
 
 How to cleanly remove each example feature when cloning the template.
 
-Work through one feature at a time. After each removal, run `npm run build` to confirm nothing is broken.
+## Quick: Disable via feature flags
+
+To hide a feature without deleting code, set it to `false` in `src/environments/environment.ts` (and `environment.prod.ts`):
+
+```ts
+featureFlags: { notes: false, chat: true, files: true, admin: true },
+```
+
+This removes the sidenav link and blocks the route (redirects to `/dashboard`). The code stays in the bundle but is unreachable. Use this for quick toggling or gradual rollouts.
+
+## Permanent: Delete the code
+
+To fully remove a feature and reduce bundle size, follow the steps below. Work through one feature at a time. After each removal, run `npm run build` to confirm nothing is broken.
 
 ---
 

@@ -145,6 +145,7 @@ When cloning this template for a new project, update these values:
 | `storageBuckets`          | Bucket names (must match what you created in Supabase).                      |
 | `searchDebounceMs`        | Delay before search input triggers a query.                                  |
 | `loadingBarDelayMs`       | Minimum visible duration for the route loading bar.                          |
+| `featureFlags`            | Enable/disable features (notes, chat, files, admin). Hides routes and nav.   |
 
 ### Branding
 

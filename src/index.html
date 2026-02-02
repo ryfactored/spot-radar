@@ -15,7 +15,7 @@
     <script>
       // Apply theme before first paint to prevent white flash
       try {
-        var t = JSON.parse(localStorage.getItem('angular-starter:theme'));
+        var t = JSON.parse(localStorage.getItem('app:theme'));
         if (t) {
           if (t.darkMode) document.documentElement.classList.add('dark-mode');
           if (t.colorTheme) document.documentElement.classList.add('theme-' + t.colorTheme);

@@ -43,7 +43,7 @@ Signals are the primary state primitive. RxJS is used only where required (route
 
 ### Auth & Routing
 
-AuthService manages state with `currentUser` and `loading` signals. Guards are functional: `authGuard` waits for loading to complete then checks user; `guestGuard` redirects authenticated users to `/dashboard`; `roleGuard('admin')` is a factory checking profile.role. All feature components use `loadComponent()` for lazy loading. Routes without guards (like `/reset-password`) exist for flows where the user arrives authenticated via URL token — use `computed()` with `auth.loading()` to handle the async session establishment.
+AuthService manages state with `currentUser` and `loading` signals. Guards are functional: `authGuard` waits for loading to complete then checks user; `guestGuard` redirects authenticated users to `/dashboard`; `roleGuard('admin')` is a factory checking profile.role; `featureFlagGuard('chat')` checks `environment.featureFlags` and redirects to `/dashboard` when disabled. All feature components use `loadComponent()` for lazy loading. Routes without guards (like `/reset-password`) exist for flows where the user arrives authenticated via URL token — use `computed()` with `auth.loading()` to handle the async session establishment.
 
 ### Error Handling
 

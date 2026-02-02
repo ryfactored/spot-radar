@@ -66,10 +66,7 @@ export class PreferencesService {
     effect(() => {
       const { darkMode, colorTheme } = this.preferences();
       try {
-        localStorage.setItem(
-          `${environment.appName}:theme`,
-          JSON.stringify({ darkMode, colorTheme }),
-        );
+        localStorage.setItem('app:theme', JSON.stringify({ darkMode, colorTheme }));
       } catch {
         // localStorage may be unavailable (e.g. private browsing quota exceeded)
       }
