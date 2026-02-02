@@ -15,7 +15,11 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "serve:ssr": "node dist/angular-starter/server/server.mjs",
-    "serve:ssr:dev": "ng build --configuration development && node dist/angular-starter/server/server.mjs"
+    "serve:ssr:dev": "ng build --configuration development && node dist/angular-starter/server/server.mjs",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,html,scss,json,md,yml,yaml}": "prettier --write"
   },
   "prettier": {
     "printWidth": 100,
@@ -60,7 +64,9 @@
     "angular-eslint": "21.1.0",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
+    "husky": "^9.1.7",
     "jsdom": "^27.1.0",
+    "lint-staged": "^16.2.7",
     "prettier": "^3.8.1",
     "typescript": "~5.9.2",
     "typescript-eslint": "8.47.0",
