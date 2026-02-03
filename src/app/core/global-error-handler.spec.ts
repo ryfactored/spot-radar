@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 
 import { GlobalErrorHandler } from './global-error-handler';
-import { ToastService } from '../shared/toast';
+import { ToastService } from '@shared';
 
 describe('GlobalErrorHandler', () => {
   let handler: GlobalErrorHandler;

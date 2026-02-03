@@ -13,7 +13,7 @@ import { PreferencesService, AuthService, UserRole, FeatureFlags } from '@core';
 import { ThemePicker, LoadingBar, Avatar } from '@shared';
 import { ProfileService } from '@features/profile/profile-service';
 import { environment } from '@env';
-import { routeAnimation } from '../../shared/animations/route-animation';
+import { routeAnimation } from '@shared';
 
 @Component({
   selector: 'app-shell',

@@ -4,7 +4,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { Router } from '@angular/router';
 import { vi } from 'vitest';
 import { httpErrorInterceptor } from './http-error-interceptor';
-import { ToastService } from '../shared/toast';
+import { ToastService } from '@shared';
 
 describe('httpErrorInterceptor', () => {
   let httpClient: HttpClient;

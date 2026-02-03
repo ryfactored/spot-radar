@@ -6,6 +6,7 @@
  */
 
 import { environment } from '@env';
+import { SUPABASE_ERRORS } from './supabase-errors';
 
 const GENERIC_MESSAGE = 'Something went wrong. Please try again.';
 
@@ -27,7 +28,7 @@ const RATE_LIMIT_ERRORS: Record<string, string> = {
 
 // Data/query errors
 const DATA_ERRORS: Record<string, string> = {
-  PGRST116: 'The requested item was not found',
+  [SUPABASE_ERRORS.NO_ROWS_FOUND]: 'The requested item was not found',
 };
 
 // Combined map - only these get custom messages
