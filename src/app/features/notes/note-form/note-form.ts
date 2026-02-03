@@ -90,7 +90,7 @@ export class NoteForm implements OnInit, HasUnsavedChanges {
   loading = signal(false);
   saving = signal(false);
   isEditMode = signal(false);
-  noteId: string | null = null;
+  noteId = signal<string | null>(null);
 
   form = this.fb.nonNullable.group({
     title: ['', Validators.required],
@@ -98,11 +98,11 @@ export class NoteForm implements OnInit, HasUnsavedChanges {
   });
 
   async ngOnInit() {
-    this.noteId = this.route.snapshot.paramMap.get('id');
+    this.noteId.set(this.route.snapshot.paramMap.get('id'));
 
-    if (this.noteId) {
+    if (this.noteId()) {
       this.isEditMode.set(true);
-      await this.loadNote(this.noteId);
+      await this.loadNote(this.noteId()!);
     }
   }
 
@@ -129,8 +129,8 @@ export class NoteForm implements OnInit, HasUnsavedChanges {
 
     this.saving.set(true);
     try {
-      if (this.isEditMode() && this.noteId) {
-        const updated = await this.notesService.update(this.noteId, this.form.getRawValue());
+      if (this.isEditMode() && this.noteId()) {
+        const updated = await this.notesService.update(this.noteId()!, this.form.getRawValue());
         this.store.updateNote(updated);
         this.toast.success('Note updated');
       } else {

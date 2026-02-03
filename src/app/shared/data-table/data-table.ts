@@ -114,11 +114,7 @@ export interface ColumnDef<T = any> {
     }
 
     .clickable:hover {
-      background: rgba(0, 0, 0, 0.04);
-    }
-
-    :host-context(.dark-mode) .clickable:hover {
-      background: rgba(255, 255, 255, 0.04);
+      background: color-mix(in srgb, var(--mat-sys-on-surface) 4%, transparent);
     }
 
     .no-data-row td {

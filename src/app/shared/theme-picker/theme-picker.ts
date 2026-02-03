@@ -62,7 +62,7 @@ import { PreferencesService, COLOR_THEMES, ColorTheme } from '@core';
       padding: 8px 16px;
       font-size: 11px;
       font-weight: 600;
-      color: #71717a;
+      color: var(--mat-sys-on-surface-variant);
       text-transform: uppercase;
       letter-spacing: 0.05em;
     }
@@ -78,7 +78,7 @@ import { PreferencesService, COLOR_THEMES, ColorTheme } from '@core';
       width: 14px;
       height: 14px;
       border-radius: 50%;
-      border: 1.5px solid rgba(0, 0, 0, 0.12);
+      border: 1.5px solid var(--mat-sys-outline-variant);
       flex-shrink: 0;
     }
 
@@ -94,19 +94,7 @@ import { PreferencesService, COLOR_THEMES, ColorTheme } from '@core';
     }
 
     .selected {
-      background: rgba(0, 0, 0, 0.04);
-    }
-
-    :host-context(.dark-mode) .menu-header {
-      color: #a1a1aa;
-    }
-
-    :host-context(.dark-mode) .color-dot {
-      border-color: rgba(255, 255, 255, 0.2);
-    }
-
-    :host-context(.dark-mode) .selected {
-      background: rgba(255, 255, 255, 0.08);
+      background: color-mix(in srgb, var(--mat-sys-on-surface) 8%, transparent);
     }
   `,
 })

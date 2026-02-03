@@ -71,7 +71,8 @@ import { ToastService, ConnectionIndicator, LoadingSpinner, TimeAgoPipe } from '
             <mat-label>Type a message</mat-label>
             <input
               matInput
-              [(ngModel)]="newMessage"
+              [ngModel]="newMessage()"
+              (ngModelChange)="newMessage.set($event)"
               (keyup.enter)="sendMessage()"
               placeholder="Type your message..."
               [disabled]="sending()"
@@ -81,7 +82,7 @@ import { ToastService, ConnectionIndicator, LoadingSpinner, TimeAgoPipe } from '
             mat-fab
             color="primary"
             (click)="sendMessage()"
-            [disabled]="!newMessage.trim() || sending()"
+            [disabled]="!newMessage().trim() || sending()"
             aria-label="Send message"
           >
             <mat-icon>{{ sending() ? 'hourglass_empty' : 'send' }}</mat-icon>
@@ -202,7 +203,7 @@ export class ChatRoom implements OnInit, AfterViewChecked {
   loading = this.store.isLoading;
   connectionStatus = this.store.connectionStatus;
 
-  newMessage = '';
+  newMessage = signal('');
   sending = signal(false);
   private shouldScrollToBottom = false;
 
@@ -244,7 +245,7 @@ export class ChatRoom implements OnInit, AfterViewChecked {
   }
 
   async sendMessage() {
-    const content = this.newMessage.trim();
+    const content = this.newMessage().trim();
     if (!content || this.sending()) return;
 
     this.sending.set(true);
@@ -253,7 +254,7 @@ export class ChatRoom implements OnInit, AfterViewChecked {
       const message = await this.chatService.send(content);
       // Add message optimistically (realtime will skip if already exists)
       this.store.addMessage(message);
-      this.newMessage = '';
+      this.newMessage.set('');
       this.shouldScrollToBottom = true;
     } catch (err) {
       this.toast.error(extractErrorMessage(err, 'Failed to send message'));

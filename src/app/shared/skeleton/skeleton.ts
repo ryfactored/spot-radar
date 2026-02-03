@@ -17,7 +17,12 @@ import { NgStyle } from '@angular/common';
   `,
   styles: `
     .skeleton {
-      background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
+      background: linear-gradient(
+        90deg,
+        var(--mat-sys-surface-container, #e0e0e0) 25%,
+        var(--mat-sys-surface-container-high, #f0f0f0) 50%,
+        var(--mat-sys-surface-container, #e0e0e0) 75%
+      );
       background-size: 200% 100%;
       animation: shimmer 1.5s infinite;
     }
@@ -29,11 +34,6 @@ import { NgStyle } from '@angular/common';
       100% {
         background-position: -200% 0;
       }
-    }
-
-    :host-context(.dark-mode) .skeleton {
-      background: linear-gradient(90deg, #333 25%, #444 50%, #333 75%);
-      background-size: 200% 100%;
     }
   `,
 })

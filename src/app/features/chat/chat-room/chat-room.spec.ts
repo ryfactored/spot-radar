@@ -144,28 +144,28 @@ describe('ChatRoom', () => {
 
   describe('sendMessage', () => {
     it('should send message when content is provided', async () => {
-      component.newMessage = 'Test message';
+      component.newMessage.set('Test message');
       await component.sendMessage();
 
       expect(chatServiceMock.send).toHaveBeenCalledWith('Test message');
     });
 
     it('should add message to store after sending', async () => {
-      component.newMessage = 'Test message';
+      component.newMessage.set('Test message');
       await component.sendMessage();
 
       expect(chatStoreMock.addMessage).toHaveBeenCalled();
     });
 
     it('should clear input after sending', async () => {
-      component.newMessage = 'Test message';
+      component.newMessage.set('Test message');
       await component.sendMessage();
 
-      expect(component.newMessage).toBe('');
+      expect(component.newMessage()).toBe('');
     });
 
     it('should not send empty messages', async () => {
-      component.newMessage = '   ';
+      component.newMessage.set('   ');
       await component.sendMessage();
 
       expect(chatServiceMock.send).not.toHaveBeenCalled();
@@ -173,7 +173,7 @@ describe('ChatRoom', () => {
 
     it('should show error toast when send fails', async () => {
       chatServiceMock.send.mockRejectedValue(new Error('Send failed'));
-      component.newMessage = 'Test message';
+      component.newMessage.set('Test message');
 
       await component.sendMessage();
 

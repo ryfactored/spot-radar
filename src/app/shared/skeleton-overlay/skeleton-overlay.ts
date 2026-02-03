@@ -1,4 +1,4 @@
-import { Directive, HostBinding, input } from '@angular/core';
+import { Directive, input } from '@angular/core';
 
 /**
  * Directive that applies a skeleton loading overlay to any element.
@@ -10,17 +10,11 @@ import { Directive, HostBinding, input } from '@angular/core';
 @Directive({
   selector: '[appSkeletonOverlay]',
   standalone: true,
+  host: {
+    '[class.skeleton-overlay]': 'isLoading()',
+    '[attr.aria-busy]': 'isLoading() ? "true" : null',
+  },
 })
 export class SkeletonOverlay {
   isLoading = input(false, { alias: 'appSkeletonOverlay' });
-
-  @HostBinding('class.skeleton-overlay')
-  get hasOverlay() {
-    return this.isLoading();
-  }
-
-  @HostBinding('attr.aria-busy')
-  get ariaBusy() {
-    return this.isLoading() ? 'true' : null;
-  }
 }
