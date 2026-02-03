@@ -3,10 +3,9 @@ import {
   input,
   output,
   computed,
+  effect,
   ViewChild,
   AfterViewInit,
-  OnChanges,
-  SimpleChanges,
 } from '@angular/core';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatSortModule, MatSort } from '@angular/material/sort';
@@ -131,7 +130,7 @@ export interface ColumnDef<T = any> {
 })
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export class DataTable<T = any> implements AfterViewInit, OnChanges {
+export class DataTable<T = any> implements AfterViewInit {
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
@@ -165,6 +164,13 @@ export class DataTable<T = any> implements AfterViewInit, OnChanges {
     this.selection.changed.subscribe(() => {
       this.selectionChange.emit(this.selection.selected);
     });
+
+    // Update data source when data input changes
+    effect(() => {
+      this.dataSource.data = this.data();
+      // Clear selection when data changes to avoid stale references
+      this.selection.clear();
+    });
   }
 
   ngAfterViewInit() {
@@ -172,17 +178,6 @@ export class DataTable<T = any> implements AfterViewInit, OnChanges {
     // Only connect paginator for client-side pagination (when totalItems is not set)
     if (this.paginate() && this.totalItems() === undefined) {
       this.dataSource.paginator = this.paginator;
-    }
-    // Initial data
-    this.dataSource.data = this.data();
-  }
-
-  // Update data source when data input changes
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['data']) {
-      this.dataSource.data = this.data();
-      // Clear selection when data changes to avoid stale references
-      this.selection.clear();
     }
   }
 

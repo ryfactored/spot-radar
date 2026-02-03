@@ -32,20 +32,31 @@ describe('ConfirmDialog', () => {
 
     fixture = TestBed.createComponent(ConfirmDialog);
     component = fixture.componentInstance;
-    await fixture.whenStable();
+    fixture.detectChanges();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should close with false on cancel', () => {
-    component.onCancel();
+  it('should display dialog data', () => {
+    expect(component.data.title).toBe('Test Title');
+    expect(component.data.message).toBe('Test Message');
+  });
+
+  it('should close with false when cancel button is clicked', () => {
+    const cancelBtn = fixture.nativeElement.querySelector(
+      'button[mat-button]',
+    ) as HTMLButtonElement;
+    cancelBtn.click();
     expect(dialogRefMock.close).toHaveBeenCalledWith(false);
   });
 
-  it('should close with true on confirm', () => {
-    component.onConfirm();
+  it('should close with true when confirm button is clicked', () => {
+    const confirmBtn = fixture.nativeElement.querySelector(
+      'button[mat-raised-button]',
+    ) as HTMLButtonElement;
+    confirmBtn.click();
     expect(dialogRefMock.close).toHaveBeenCalledWith(true);
   });
 });

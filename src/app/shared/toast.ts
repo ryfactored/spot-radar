@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 import { environment } from '@env';
 
 @Injectable({
@@ -10,32 +10,29 @@ export class ToastService {
   private durations = environment.toastDuration;
 
   success(message: string) {
-    this.snackBar.open(message, 'Close', {
-      duration: this.durations.success,
-      panelClass: ['toast-success'],
-      horizontalPosition: 'end',
-      verticalPosition: 'top',
-      politeness: 'polite',
-    });
+    this.show(message, this.durations.success, 'toast-success', 'polite');
   }
 
   error(message: string) {
-    this.snackBar.open(message, 'Close', {
-      duration: this.durations.error,
-      panelClass: ['toast-error'],
-      horizontalPosition: 'end',
-      verticalPosition: 'top',
-      politeness: 'assertive',
-    });
+    this.show(message, this.durations.error, 'toast-error', 'assertive');
   }
 
   info(message: string) {
+    this.show(message, this.durations.info, 'toast-info', 'polite');
+  }
+
+  private show(
+    message: string,
+    duration: number,
+    panelClass: string,
+    politeness: MatSnackBarConfig['politeness'],
+  ) {
     this.snackBar.open(message, 'Close', {
-      duration: this.durations.info,
-      panelClass: ['toast-info'],
+      duration,
+      panelClass: [panelClass],
       horizontalPosition: 'end',
       verticalPosition: 'top',
-      politeness: 'polite',
+      politeness,
     });
   }
 }

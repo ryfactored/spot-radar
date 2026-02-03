@@ -71,11 +71,9 @@ export class ConnectionIndicator {
   icon = computed(() => {
     switch (this.status()) {
       case 'connected':
-        return 'wifi';
       case 'connecting':
         return 'wifi';
       case 'reconnecting':
-        return 'wifi_off';
       case 'disconnected':
         return 'wifi_off';
     }

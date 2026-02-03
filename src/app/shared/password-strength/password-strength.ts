@@ -104,7 +104,12 @@ export class PasswordStrength {
     // Complexity requirements (mixed case, numbers, symbols) are discouraged
     const len = password.length;
     const min = environment.passwordMinLength;
-    const score = len >= 15 ? 4 : len >= 12 ? 3 : len >= min ? 2 : 1;
+
+    let score: number;
+    if (len >= 15) score = 4;
+    else if (len >= 12) score = 3;
+    else if (len >= min) score = 2;
+    else score = 1;
     const levels: StrengthLevel[] = ['weak', 'fair', 'good', 'strong'];
     const labels = ['Weak', 'Fair', 'Good', 'Strong'];
 

@@ -3,7 +3,6 @@ import { Pipe, PipeTransform } from '@angular/core';
 @Pipe({
   name: 'timeAgo',
   standalone: true,
-  pure: true,
 })
 export class TimeAgoPipe implements PipeTransform {
   transform(value: string | Date | null | undefined): string {
@@ -13,7 +12,6 @@ export class TimeAgoPipe implements PipeTransform {
     const now = new Date();
     const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
-    if (seconds < 0) return 'just now';
     if (seconds < 60) return 'just now';
 
     const minutes = Math.floor(seconds / 60);
