@@ -14,14 +14,14 @@ describe('PreferencesService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should have default theme as dark', () => {
-    expect(service.theme()).toBe('dark');
+  it('should have default dark mode as true', () => {
+    expect(service.darkMode()).toBe(true);
   });
 
-  it('should toggle theme', () => {
-    service.toggleTheme();
-    expect(service.theme()).toBe('light');
-    service.toggleTheme();
-    expect(service.theme()).toBe('dark');
+  it('should toggle dark mode', () => {
+    service.toggleDarkMode();
+    expect(service.darkMode()).toBe(false);
+    service.toggleDarkMode();
+    expect(service.darkMode()).toBe(true);
   });
 });

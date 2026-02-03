@@ -207,8 +207,4 @@ export class DataTable<T = any> implements AfterViewInit, OnChanges {
       this.dataSource.data.forEach((row) => this.selection.select(row));
     }
   }
-
-  clearSelection() {
-    this.selection.clear();
-  }
 }

@@ -95,9 +95,4 @@ export class SearchInput implements OnInit {
     this.searchSubject.next('');
     this.cleared.emit();
   }
-
-  setValue(value: string) {
-    this.value.set(value);
-    this.searchSubject.next(value);
-  }
 }

@@ -36,7 +36,6 @@ export class NotesStore {
   readonly currentPage = this.page.asReadonly();
 
   // Computed values
-  readonly noteCount = computed(() => this.notes().length);
   readonly isEmpty = computed(() => this.notes().length === 0);
 
   // Check if cache is stale (based on environment.cacheTtlMinutes)

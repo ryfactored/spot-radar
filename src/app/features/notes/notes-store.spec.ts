@@ -218,11 +218,6 @@ describe('NotesStore', () => {
   });
 
   describe('computed values', () => {
-    it('noteCount should return number of notes', () => {
-      store.setNotes([mockNote, mockNote2], 2, 10, 1);
-      expect(store.noteCount()).toBe(2);
-    });
-
     it('isEmpty should return false when notes exist', () => {
       store.setNotes([mockNote], 1, 10, 1);
       expect(store.isEmpty()).toBe(false);
