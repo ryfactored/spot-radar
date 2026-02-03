@@ -43,9 +43,6 @@ export class PreferencesService {
   readonly darkMode = () => this.preferences().darkMode;
   readonly sidenavOpened = () => this.preferences().sidenavOpened;
 
-  // Legacy support: theme() returns 'light' or 'dark' based on darkMode
-  readonly theme = () => (this.preferences().darkMode ? 'dark' : 'light');
-
   constructor() {
     // Reload preferences when user changes (login/logout)
     effect(() => {
@@ -97,24 +94,11 @@ export class PreferencesService {
     this.preferences.update((prefs) => ({ ...prefs, colorTheme }));
   }
 
-  setDarkMode(darkMode: boolean) {
-    this.preferences.update((prefs) => ({ ...prefs, darkMode }));
-  }
-
   toggleDarkMode() {
     this.preferences.update((prefs) => ({
       ...prefs,
       darkMode: !prefs.darkMode,
     }));
-  }
-
-  // Legacy method for compatibility
-  toggleTheme() {
-    this.toggleDarkMode();
-  }
-
-  setSidenavOpened(opened: boolean) {
-    this.preferences.update((prefs) => ({ ...prefs, sidenavOpened: opened }));
   }
 
   toggleSidenav() {

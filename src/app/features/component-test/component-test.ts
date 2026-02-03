@@ -11,8 +11,8 @@ import {
   DataTable,
   SearchInput,
   ColumnDef,
-  PageEvent,
 } from '@shared';
+import { PageEvent } from '@angular/material/paginator';
 import { AuthService } from '@core';
 import { environment } from '@env';
 import { NotesService, Note } from '../notes/notes';
