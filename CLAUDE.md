@@ -20,11 +20,11 @@ npm run format:check               # Check formatting without modifying
 
 ## Architecture
 
-**Angular 21, standalone components, zoneless (no zone.js), SSR with Express, Supabase backend.**
+**Angular 21, zoneless (no zone.js), SSR with Express, Supabase backend.**
 
 ### Zoneless Change Detection
 
-There is no zone.js. Only **signals** trigger change detection. All reactive component state (`loading`, `error`, `success`, etc.) must use `signal()`, `computed()`, or other signal primitives. Plain property assignments after async operations will NOT update the UI. Existing components like login/register have plain properties that work only because Supabase's `onAuthStateChange` fires a signal update or `router.navigate()` triggers change detection as a side effect.
+There is no zone.js. Only **signals** trigger change detection. All reactive component state (`loading`, `error`, `success`, etc.) must use `signal()`, `computed()`, or other signal primitives. Plain property assignments after async operations will NOT update the UI. For `[(ngModel)]` bindings with signals, use the split binding pattern: `[ngModel]="value()" (ngModelChange)="value.set($event)"`.
 
 ### State Management
 
@@ -43,11 +43,11 @@ Signals are the primary state primitive. RxJS is used only where required (route
 
 ### Auth & Routing
 
-AuthService manages state with `currentUser` and `loading` signals. Guards are functional: `authGuard` waits for loading to complete then checks user; `guestGuard` redirects authenticated users to `/dashboard`; `roleGuard('admin')` is a factory checking profile.role; `featureFlagGuard('chat')` checks `environment.featureFlags` and redirects to `/dashboard` when disabled. All feature components use `loadComponent()` for lazy loading. Routes without guards (like `/reset-password`) exist for flows where the user arrives authenticated via URL token — use `computed()` with `auth.loading()` to handle the async session establishment.
+AuthService manages state with `currentUser` and `loading` signals, initialized solely via Supabase's `onAuthStateChange` (fires `INITIAL_SESSION` on startup — no separate `loadUser()` call). `signOut()` calls `supabase.auth.signOut()` and relies on the `SIGNED_OUT` event to clear state and navigate. Guards are functional: `authGuard` and `guestGuard` are created by a shared `createAuthGuard(requireAuth)` factory in `auth-guard.ts`; `roleGuard('admin')` checks profile.role; `featureFlagGuard('chat')` checks `environment.featureFlags`. All feature components use `loadComponent()` for lazy loading. Routes without guards (like `/reset-password`) exist for flows where the user arrives authenticated via URL token.
 
 ### Error Handling
 
-Three layers: `GlobalErrorHandler` catches unhandled exceptions (uses `NgZone.run()` for UI updates), `httpErrorInterceptor` handles HTTP errors, and `error-mapper.ts` maps Supabase error codes to user-friendly messages. Use `unwrap()` / `unwrapWithCount()` helpers for Supabase `{ data, error }` results. Default is always a generic message — only explicitly mapped codes get custom messages.
+Three layers: `httpErrorInterceptor` handles HTTP errors and marks them with `__handled`, `GlobalErrorHandler` catches remaining unhandled exceptions (skips `__handled` errors, uses `NgZone.run()` for UI updates), and `error-mapper.ts` maps Supabase error codes to user-friendly messages. Use `unwrap()` / `unwrapWithCount()` helpers for Supabase `{ data, error }` results. Use `extractErrorMessage(err, fallback)` to safely extract a message from unknown error types in catch blocks. Default is always a generic message — only explicitly mapped codes get custom messages.
 
 ### SSR
 
@@ -55,7 +55,7 @@ Express-based SSR with `provideClientHydration(withEventReplay())`. Landing, log
 
 ## Conventions
 
-- **Standalone components only** — no NgModules. Inline templates and styles (SCSS) using backticks.
+- **Standalone components only** — no NgModules. `standalone: true` is omitted (Angular 19+ default). Inline templates and styles using backticks.
 - **Component selectors**: `app-` prefix, kebab-case.
 - **Class names**: PascalCase matching the feature (e.g., `export class NotesList`, `export class Login`).
 - **Files**: kebab-case, `.ts` extension for components (not `.component.ts`).
@@ -63,3 +63,5 @@ Express-based SSR with `provideClientHydration(withEventReplay())`. Landing, log
 - **Testing**: Vitest with `vi.fn()` for mocks, `TestBed` for Angular DI, `NoopAnimationsModule` for component tests. Playwright for E2E with `test.describe()` blocks.
 - **ToastService API**: `toast.success(msg)`, `toast.error(msg)`, `toast.info(msg)`.
 - **Forms**: Reactive forms with `fb.nonNullable.group()`. Custom validators in `shared/validators/`.
+- **Theming**: Use `var(--mat-sys-*)` CSS custom properties for colors that adapt to light/dark mode. Override Material component styles via `--mdc-*` tokens (e.g., `--mdc-filled-button-container-color`) instead of `!important`. Auth form components share styles via `AUTH_FORM_STYLES` constant.
+- **Environments**: `environment.base.ts` holds shared values; `environment.ts` and `environment.prod.ts` spread and override. `SocialProvider` type lives in `environments/social-provider.ts`.

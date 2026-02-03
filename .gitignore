@@ -48,6 +48,7 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+nul
 
 # Claude Code
 .claude/settings.local.json
