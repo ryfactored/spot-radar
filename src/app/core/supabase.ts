@@ -8,22 +8,18 @@ import { environment } from '@env';
 })
 export class SupabaseService {
   private supabase: SupabaseClient;
-  private platformId = inject(PLATFORM_ID);
+  readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   constructor() {
     this.supabase = createClient(environment.supabaseUrl, environment.supabaseAnonKey, {
       auth: {
-        persistSession: isPlatformBrowser(this.platformId),
-        autoRefreshToken: isPlatformBrowser(this.platformId),
+        persistSession: this.isBrowser,
+        autoRefreshToken: this.isBrowser,
       },
     });
   }
 
   get client(): SupabaseClient {
     return this.supabase;
-  }
-
-  get isBrowser(): boolean {
-    return isPlatformBrowser(this.platformId);
   }
 }

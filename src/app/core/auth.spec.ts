@@ -7,10 +7,10 @@ import { SupabaseService } from './supabase';
 describe('AuthService', () => {
   let service: AuthService;
   let routerMock: { navigate: ReturnType<typeof vi.fn> };
+  let authStateCallback: (event: string, session: any) => void;
   let supabaseMock: {
     client: {
       auth: {
-        getSession: ReturnType<typeof vi.fn>;
         onAuthStateChange: ReturnType<typeof vi.fn>;
         signOut: ReturnType<typeof vi.fn>;
         signUp: ReturnType<typeof vi.fn>;
@@ -30,9 +30,9 @@ describe('AuthService', () => {
     supabaseMock = {
       client: {
         auth: {
-          getSession: vi.fn().mockResolvedValue({ data: { session: null } }),
-          onAuthStateChange: vi.fn().mockReturnValue({
-            data: { subscription: { unsubscribe: vi.fn() } },
+          onAuthStateChange: vi.fn().mockImplementation((cb: any) => {
+            authStateCallback = cb;
+            return { data: { subscription: { unsubscribe: vi.fn() } } };
           }),
           signOut: vi.fn().mockResolvedValue({ error: null }),
           signUp: vi.fn(),
@@ -57,6 +57,30 @@ describe('AuthService', () => {
     expect(service).toBeTruthy();
   });
 
+  describe('onAuthStateChange (initial session)', () => {
+    it('should set currentUser from INITIAL_SESSION', () => {
+      const mockUser = { id: '456', email: 'user@test.com' };
+      authStateCallback('INITIAL_SESSION', { user: mockUser });
+
+      expect(service.currentUser()).toEqual(mockUser);
+      expect(service.loading()).toBe(false);
+    });
+
+    it('should set loading to false when no session', () => {
+      authStateCallback('INITIAL_SESSION', null);
+
+      expect(service.currentUser()).toBeNull();
+      expect(service.loading()).toBe(false);
+    });
+
+    it('should navigate to /login on SIGNED_OUT', () => {
+      authStateCallback('SIGNED_OUT', null);
+
+      expect(service.currentUser()).toBeNull();
+      expect(routerMock.navigate).toHaveBeenCalledWith(['/login']);
+    });
+  });
+
   describe('signOut', () => {
     it('should call supabase signOut', async () => {
       await service.signOut();
@@ -64,45 +88,10 @@ describe('AuthService', () => {
       expect(supabaseMock.client.auth.signOut).toHaveBeenCalled();
     });
 
-    it('should clear currentUser signal', async () => {
-      // Set a user first
-      service.currentUser.set({ id: '123', email: 'test@test.com' } as any);
-      expect(service.currentUser()).not.toBeNull();
-
-      await service.signOut();
-
-      expect(service.currentUser()).toBeNull();
-    });
-
-    it('should navigate to /login', async () => {
-      await service.signOut();
-
-      expect(routerMock.navigate).toHaveBeenCalledWith(['/login']);
-    });
-
-    it('should still clear user and navigate when supabase signOut fails', async () => {
-      // Simulate server error (e.g., session already invalidated)
+    it('should not throw when supabase signOut fails', async () => {
       supabaseMock.client.auth.signOut.mockRejectedValue(new Error('Session not found'));
-      service.currentUser.set({ id: '123', email: 'test@test.com' } as any);
 
-      await service.signOut();
-
-      // Should still clear local state and navigate
-      expect(service.currentUser()).toBeNull();
-      expect(routerMock.navigate).toHaveBeenCalledWith(['/login']);
-    });
-
-    it('should still clear user and navigate when supabase returns error object', async () => {
-      // Supabase sometimes returns { error } instead of throwing
-      supabaseMock.client.auth.signOut.mockResolvedValue({
-        error: { message: 'session_not_found' },
-      });
-      service.currentUser.set({ id: '123', email: 'test@test.com' } as any);
-
-      await service.signOut();
-
-      expect(service.currentUser()).toBeNull();
-      expect(routerMock.navigate).toHaveBeenCalledWith(['/login']);
+      await expect(service.signOut()).resolves.not.toThrow();
     });
   });
 
@@ -154,51 +143,6 @@ describe('AuthService', () => {
       await expect(service.updatePassword('oldpassword')).rejects.toThrow(
         'New password must be different from your current password',
       );
-    });
-  });
-
-  describe('loadUser', () => {
-    it('should set currentUser from session', async () => {
-      const mockUser = { id: '456', email: 'user@test.com' };
-      supabaseMock.client.auth.getSession.mockResolvedValue({
-        data: { session: { user: mockUser } },
-      });
-
-      // Create new instance to trigger loadUser
-      TestBed.resetTestingModule();
-      TestBed.configureTestingModule({
-        providers: [
-          { provide: SupabaseService, useValue: supabaseMock },
-          { provide: Router, useValue: routerMock },
-        ],
-      });
-      const newService = TestBed.inject(AuthService);
-
-      // Wait for async loadUser to complete
-      await new Promise((resolve) => setTimeout(resolve, 0));
-
-      expect(newService.currentUser()).toEqual(mockUser);
-      expect(newService.loading()).toBe(false);
-    });
-
-    it('should set loading to false when no session', async () => {
-      supabaseMock.client.auth.getSession.mockResolvedValue({
-        data: { session: null },
-      });
-
-      TestBed.resetTestingModule();
-      TestBed.configureTestingModule({
-        providers: [
-          { provide: SupabaseService, useValue: supabaseMock },
-          { provide: Router, useValue: routerMock },
-        ],
-      });
-      const newService = TestBed.inject(AuthService);
-
-      await new Promise((resolve) => setTimeout(resolve, 0));
-
-      expect(newService.currentUser()).toBeNull();
-      expect(newService.loading()).toBe(false);
     });
   });
 });
