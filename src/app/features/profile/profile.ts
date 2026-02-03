@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -6,7 +6,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { AuthService, HasUnsavedChanges, StorageService } from '@core';
+import { AuthService, HasUnsavedChanges, StorageService, extractErrorMessage } from '@core';
 import {
   Avatar,
   ConfirmDialogService,
@@ -247,7 +247,6 @@ export class Profile implements OnInit, HasUnsavedChanges {
   private fb = inject(FormBuilder);
   private toast = inject(ToastService);
   private confirmDialog = inject(ConfirmDialogService);
-  private destroyRef = inject(DestroyRef);
 
   loading = signal(true);
   saving = signal(false);
@@ -277,7 +276,7 @@ export class Profile implements OnInit, HasUnsavedChanges {
 
   constructor() {
     this.passwordForm.controls.password.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(takeUntilDestroyed())
       .subscribe((value) => this.passwordValue.set(value));
   }
 
@@ -299,7 +298,7 @@ export class Profile implements OnInit, HasUnsavedChanges {
         });
       }
     } catch (err) {
-      this.toast.error(err instanceof Error ? err.message : 'Failed to load profile');
+      this.toast.error(extractErrorMessage(err, 'Failed to load profile'));
     } finally {
       this.loading.set(false);
     }
@@ -358,7 +357,7 @@ export class Profile implements OnInit, HasUnsavedChanges {
       this.form.markAsPristine();
       this.toast.success('Profile updated!');
     } catch (err) {
-      this.toast.error(err instanceof Error ? err.message : 'Failed to save profile');
+      this.toast.error(extractErrorMessage(err, 'Failed to save profile'));
     } finally {
       this.saving.set(false);
     }
@@ -374,7 +373,7 @@ export class Profile implements OnInit, HasUnsavedChanges {
       this.passwordForm.reset();
       this.passwordValue.set('');
     } catch (err) {
-      this.toast.error(err instanceof Error ? err.message : 'Failed to change password');
+      this.toast.error(extractErrorMessage(err, 'Failed to change password'));
     } finally {
       this.changingPassword.set(false);
     }
@@ -402,7 +401,7 @@ export class Profile implements OnInit, HasUnsavedChanges {
       await this.auth.signOut();
       this.toast.info('Your account data has been deleted');
     } catch (err) {
-      this.toast.error(err instanceof Error ? err.message : 'Failed to delete account');
+      this.toast.error(extractErrorMessage(err, 'Failed to delete account'));
       this.deleting.set(false);
     }
   }

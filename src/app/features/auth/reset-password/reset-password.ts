@@ -1,4 +1,4 @@
-import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -6,9 +6,10 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { AuthService } from '@core';
+import { AuthService, extractErrorMessage } from '@core';
 import { PasswordStrength, matchValidator, ToastService } from '@shared';
 import { environment } from '@env';
+import { AUTH_FORM_STYLES } from '../auth-form-styles';
 
 @Component({
   selector: 'app-reset-password',
@@ -100,38 +101,24 @@ import { environment } from '@env';
 
     <p class="footer">Back to <a routerLink="/login">Sign in</a></p>
   `,
-  styles: `
-    h2 {
-      text-align: center;
-      margin-bottom: 24px;
-    }
-    .full-width {
-      width: 100%;
-    }
-    mat-form-field {
-      margin-bottom: 16px;
-    }
-    .footer {
-      text-align: center;
-      margin-top: 16px;
-    }
-    .footer a,
-    .no-session a {
-      color: var(--mat-sys-primary);
-    }
-    .no-session,
-    .error {
-      color: #f44336;
-      text-align: center;
-    }
-  `,
+  styles: [
+    AUTH_FORM_STYLES,
+    `
+      .no-session a {
+        color: var(--mat-sys-primary);
+      }
+      .no-session {
+        color: #f44336;
+        text-align: center;
+      }
+    `,
+  ],
 })
 export class ResetPassword {
   private fb = inject(FormBuilder);
   private auth = inject(AuthService);
   private router = inject(Router);
   private toast = inject(ToastService);
-  private destroyRef = inject(DestroyRef);
 
   form = this.fb.nonNullable.group(
     {
@@ -151,7 +138,7 @@ export class ResetPassword {
 
   constructor() {
     this.form.controls.password.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(takeUntilDestroyed())
       .subscribe((value) => this.passwordValue.set(value));
   }
 
@@ -166,7 +153,7 @@ export class ResetPassword {
       this.toast.success('Password updated successfully');
       this.router.navigate(['/dashboard']);
     } catch (err) {
-      this.error.set(err instanceof Error ? err.message : 'Failed to update password');
+      this.error.set(extractErrorMessage(err, 'Failed to update password'));
     } finally {
       this.loading.set(false);
     }

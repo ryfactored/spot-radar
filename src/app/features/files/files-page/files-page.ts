@@ -12,6 +12,7 @@ import {
   EmptyState,
   TimeAgoPipe,
 } from '@shared';
+import { extractErrorMessage } from '@core';
 
 @Component({
   selector: 'app-files-page',
@@ -115,7 +116,7 @@ export class FilesPage implements OnInit {
       const result = await this.filesService.list();
       this.files.set(result);
     } catch (err) {
-      this.toast.error(err instanceof Error ? err.message : 'Failed to load files');
+      this.toast.error(extractErrorMessage(err, 'Failed to load files'));
     } finally {
       this.loading.set(false);
     }
@@ -134,7 +135,7 @@ export class FilesPage implements OnInit {
       }
       this.toast.success('Files uploaded successfully');
     } catch (err) {
-      this.toast.error(err instanceof Error ? err.message : 'Failed to upload file');
+      this.toast.error(extractErrorMessage(err, 'Failed to upload file'));
     } finally {
       this.uploading.set(false);
       input.value = '';
@@ -164,7 +165,7 @@ export class FilesPage implements OnInit {
         this.files.update((existing) => existing.filter((f) => f.id !== file.id));
         this.toast.success('File deleted');
       } catch (err) {
-        this.toast.error(err instanceof Error ? err.message : 'Failed to delete file');
+        this.toast.error(extractErrorMessage(err, 'Failed to delete file'));
       }
     }
   }
