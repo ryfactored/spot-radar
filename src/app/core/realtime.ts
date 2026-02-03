@@ -62,6 +62,8 @@ export class RealtimeService {
 
     const channelName = `${table}-changes-${Date.now()}`;
 
+    this.connectionStatus.set('connecting');
+
     const channel = this.supabase.client
       .channel(channelName)
       .on(
@@ -91,7 +93,6 @@ export class RealtimeService {
       });
 
     this.channels.set(channelName, channel);
-    this.connectionStatus.set('connecting');
 
     // Return cleanup function
     return () => {

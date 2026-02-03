@@ -92,7 +92,7 @@ import { environment } from '@env';
 
       <mat-paginator
         [length]="totalCount()"
-        [pageSize]="pageSize"
+        [pageSize]="pageSize()"
         [pageIndex]="currentPage() - 1"
         [pageSizeOptions]="pageSizeOptions"
         (page)="onPageChange($event)"
@@ -138,14 +138,14 @@ export class NotesList implements OnInit {
   totalCount = this.store.total;
 
   currentPage = signal(1);
-  pageSize = environment.pagination.defaultPageSize;
+  pageSize = signal(environment.pagination.defaultPageSize);
   pageSizeOptions = environment.pagination.pageSizeOptions;
   searchQuery = '';
 
   async ngOnInit() {
     // Skip fetch if store has fresh data and no search
     if (!this.store.isEmpty() && !this.store.isStale() && !this.searchQuery) {
-      this.pageSize = this.store.currentPageSize();
+      this.pageSize.set(this.store.currentPageSize());
       this.currentPage.set(this.store.currentPage());
       return;
     }
@@ -157,10 +157,10 @@ export class NotesList implements OnInit {
     try {
       const response = await this.notesService.list(
         this.currentPage(),
-        this.pageSize,
+        this.pageSize(),
         this.searchQuery,
       );
-      this.store.setNotes(response.data, response.count, this.pageSize, this.currentPage());
+      this.store.setNotes(response.data, response.count, this.pageSize(), this.currentPage());
     } catch (err) {
       this.toast.error(extractErrorMessage(err, 'Failed to load notes'));
     } finally {
@@ -175,7 +175,7 @@ export class NotesList implements OnInit {
 
   onPageChange(event: PageEvent) {
     this.currentPage.set(event.pageIndex + 1);
-    this.pageSize = event.pageSize;
+    this.pageSize.set(event.pageSize);
     this.loadNotes();
   }
 

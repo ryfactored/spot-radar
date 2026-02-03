@@ -179,7 +179,7 @@ describe('NotesList', () => {
 
     it('should update pageSize on page change', () => {
       component.onPageChange({ pageIndex: 0, pageSize: 25, length: 100 });
-      expect(component.pageSize).toBe(25);
+      expect(component.pageSize()).toBe(25);
     });
   });
 
