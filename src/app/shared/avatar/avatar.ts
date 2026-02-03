@@ -3,7 +3,6 @@ import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-avatar',
-  standalone: true,
   imports: [MatIconModule],
   host: {
     '[style.width.px]': 'size()',

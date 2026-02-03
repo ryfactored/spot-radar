@@ -3,7 +3,6 @@ import { NgStyle } from '@angular/common';
 
 @Component({
   selector: 'app-skeleton',
-  standalone: true,
   imports: [NgStyle],
   template: `
     <div

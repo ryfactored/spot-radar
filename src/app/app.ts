@@ -8,7 +8,6 @@ import { environment } from '@env';
 
 @Component({
   selector: 'app-root',
-  standalone: true,
   imports: [RouterOutlet],
   template: `
     <router-outlet />

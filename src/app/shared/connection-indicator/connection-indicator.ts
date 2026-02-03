@@ -3,15 +3,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ConnectionStatus } from '@core';
 
-/**
- * Displays the current realtime connection status.
- *
- * Shows an icon with optional label indicating whether the app
- * is connected to the realtime server for live updates.
- */
 @Component({
   selector: 'app-connection-indicator',
-  standalone: true,
   imports: [MatIconModule, MatTooltipModule],
   template: `
     <div class="connection-indicator" [matTooltip]="tooltip()">

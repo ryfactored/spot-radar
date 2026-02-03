@@ -11,7 +11,6 @@ export interface PasswordStrengthResult {
 
 @Component({
   selector: 'app-password-strength',
-  standalone: true,
   template: `
     <div class="password-strength" aria-live="polite" aria-atomic="true">
       <div class="strength-bar" aria-hidden="true">

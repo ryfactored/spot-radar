@@ -8,7 +8,6 @@ import { environment } from '@env';
 
 @Component({
   selector: 'app-landing',
-  standalone: true,
   imports: [RouterLink, MatButtonModule, MatIconModule, MatCardModule],
   template: `
     <!-- Hero Section -->
@@ -108,6 +107,14 @@ import { environment } from '@env';
   `,
   styles: `
     :host {
+      --landing-bg: #121215;
+      --landing-surface: #1e1e22;
+      --landing-gradient-mid: #262336;
+      --landing-border: #2a2a2e;
+      --landing-border-hover: #3f3f44;
+      --landing-text: #fafafa;
+      --landing-text-muted: #a1a1aa;
+      --landing-text-dim: #52525b;
       display: block;
     }
 
@@ -131,7 +138,13 @@ import { environment } from '@env';
       align-items: center;
       justify-content: center;
       padding: 100px 24px 64px;
-      background: linear-gradient(135deg, #121215 0%, #1e1e22 40%, #262336 70%, #121215 100%);
+      background: linear-gradient(
+        135deg,
+        var(--landing-bg) 0%,
+        var(--landing-surface) 40%,
+        var(--landing-gradient-mid) 70%,
+        var(--landing-bg) 100%
+      );
       background-size: 300% 300%;
       animation: heroGradient 8s ease infinite;
       color: white;
@@ -203,37 +216,37 @@ import { environment } from '@env';
     }
 
     .hero-cta-btn {
-      background: white !important;
-      color: #121215 !important;
+      --mdc-filled-button-container-color: white;
+      --mdc-filled-button-label-text-color: var(--landing-bg);
       font-weight: 600;
     }
 
     .hero-cta-btn:hover {
-      background: #e4e4e7 !important;
+      --mdc-filled-button-container-color: #e4e4e7;
     }
 
     .hero-signin-btn {
-      background: rgba(255, 255, 255, 0.1) !important;
-      color: rgba(255, 255, 255, 0.8) !important;
+      --mdc-filled-button-container-color: rgba(255, 255, 255, 0.1);
+      --mdc-filled-button-label-text-color: rgba(255, 255, 255, 0.8);
       backdrop-filter: blur(4px);
     }
 
     .hero-signin-btn:hover {
-      background: rgba(255, 255, 255, 0.18) !important;
-      color: white !important;
+      --mdc-filled-button-container-color: rgba(255, 255, 255, 0.18);
+      --mdc-filled-button-label-text-color: white;
     }
 
     /* ── Features ──────────────────────────────────── */
     .features {
       padding: 80px 24px;
-      background: #121215;
+      background: var(--landing-bg);
     }
 
     .features h2 {
       text-align: center;
       font-size: 2rem;
       margin: 0 0 48px;
-      color: #fafafa;
+      color: var(--landing-text);
     }
 
     .features h2::after {
@@ -255,15 +268,15 @@ import { environment } from '@env';
     }
 
     .feature-card {
+      --mdc-elevated-card-container-color: var(--landing-surface);
       text-align: center;
       transition: transform 0.2s ease;
-      background: #1e1e22 !important;
-      border: 1px solid #2a2a2e !important;
+      border: 1px solid var(--landing-border);
     }
 
     .feature-card:hover {
       transform: scale(1.02);
-      border-color: #3f3f44 !important;
+      border-color: var(--landing-border-hover);
     }
 
     .feature-icon-wrap {
@@ -288,11 +301,11 @@ import { environment } from '@env';
       font-size: 1.125rem;
       font-weight: 600;
       margin: 0 0 8px;
-      color: #fafafa;
+      color: var(--landing-text);
     }
 
     .feature-card p {
-      color: #a1a1aa;
+      color: var(--landing-text-muted);
       line-height: 1.6;
     }
 
@@ -300,9 +313,9 @@ import { environment } from '@env';
     .footer {
       padding: 32px 24px;
       text-align: center;
-      border-top: 1px solid #2a2a2e;
-      background: #121215;
-      color: #52525b;
+      border-top: 1px solid var(--landing-border);
+      background: var(--landing-bg);
+      color: var(--landing-text-dim);
     }
 
     .footer p {

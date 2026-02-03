@@ -6,7 +6,6 @@ import { AuthService } from '@core';
 
 @Component({
   selector: 'app-not-found',
-  standalone: true,
   imports: [RouterLink, MatButtonModule, MatIconModule],
   template: `
     <div class="not-found">

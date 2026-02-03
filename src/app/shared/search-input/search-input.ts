@@ -11,7 +11,6 @@ import { environment } from '@env';
 
 @Component({
   selector: 'app-search-input',
-  standalone: true,
   imports: [
     FormsModule,
     MatFormFieldModule,

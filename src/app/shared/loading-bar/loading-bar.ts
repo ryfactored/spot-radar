@@ -12,7 +12,6 @@ import { environment } from '@env';
 
 @Component({
   selector: 'app-loading-bar',
-  standalone: true,
   template: `
     @if (loading()) {
       <div class="loading-bar" role="progressbar" aria-label="Page loading"></div>

@@ -19,7 +19,6 @@ import { NotesService, Note } from '../notes/notes';
 
 @Component({
   selector: 'app-component-test',
-  standalone: true,
   imports: [
     MatButtonModule,
     MatCardModule,
@@ -204,11 +203,6 @@ import { NotesService, Note } from '../notes/notes';
     }
   `,
 })
-/**
- * Component showcase page for testing shared UI components.
- * Note: This page requires authentication as it loads user notes for the DataTable demo.
- * It should only be accessible under authenticated routes (Shell layout).
- */
 export class ComponentTest implements OnInit {
   private confirmDialog = inject(ConfirmDialogService);
   private toast = inject(ToastService);
@@ -263,11 +257,6 @@ export class ComponentTest implements OnInit {
   }
 
   async loadNotes() {
-    // Guard against unauthenticated access
-    if (!this.auth.currentUser()) {
-      return;
-    }
-
     this.notesLoading.set(true);
     try {
       const page = this.pageIndex() + 1; // API is 1-indexed

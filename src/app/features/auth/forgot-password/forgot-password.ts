@@ -9,7 +9,6 @@ import { AUTH_FORM_STYLES } from '../auth-form-styles';
 
 @Component({
   selector: 'app-forgot-password',
-  standalone: true,
   imports: [ReactiveFormsModule, RouterLink, MatFormFieldModule, MatInputModule, MatButtonModule],
   template: `
     <h2>Reset Password</h2>

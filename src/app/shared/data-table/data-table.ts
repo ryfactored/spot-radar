@@ -24,7 +24,6 @@ export interface ColumnDef<T = any> {
 
 @Component({
   selector: 'app-data-table',
-  standalone: true,
   imports: [MatTableModule, MatSortModule, MatPaginatorModule, MatCheckboxModule],
   template: `
     <div class="table-container">

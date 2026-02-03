@@ -3,7 +3,6 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SkeletonOverlay } from './skeleton-overlay';
 
 @Component({
-  standalone: true,
   imports: [SkeletonOverlay],
   template: `<div [appSkeletonOverlay]="loading">Content</div>`,
 })

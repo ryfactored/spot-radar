@@ -3,7 +3,6 @@ import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-empty-state',
-  standalone: true,
   imports: [MatIconModule],
   template: `
     <div class="empty-state" role="status">

@@ -2,21 +2,6 @@ import { Routes } from '@angular/router';
 import { Shell, AuthLayout, PublicLayout } from '@layouts';
 import { authGuard, guestGuard, roleGuard, unsavedChangesGuard, featureFlagGuard } from '@core';
 
-/**
- * Application routes with lazy-loaded feature components.
- *
- * Route structure:
- * - PublicLayout: Landing page (guests only, redirects to dashboard if authenticated)
- * - Shell layout (authenticated): Dashboard, Profile, Notes
- * - AuthLayout (guests only): Login, Register
- *
- * Guards prevent unauthorized access:
- * - authGuard: Redirects to /login if not authenticated
- * - guestGuard: Redirects to /dashboard if already authenticated
- *
- * Components are lazy-loaded using loadComponent() for optimal
- * bundle splitting and faster initial load times.
- */
 export const routes: Routes = [
   // Public landing page (guests only - authenticated users go to dashboard)
   {

@@ -17,7 +17,6 @@ import { routeAnimation } from '@shared';
 
 @Component({
   selector: 'app-shell',
-  standalone: true,
   imports: [
     RouterOutlet,
     RouterLink,

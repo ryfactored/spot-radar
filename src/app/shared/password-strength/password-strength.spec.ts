@@ -4,7 +4,6 @@ import { PasswordStrength } from './password-strength';
 import { environment } from '@env';
 
 @Component({
-  standalone: true,
   imports: [PasswordStrength],
   template: `<app-password-strength [password]="password()" />`,
 })
