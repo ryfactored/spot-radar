@@ -20,7 +20,6 @@ import { environment } from '@env';
 
 @Component({
   selector: 'app-profile',
-  standalone: true,
   imports: [
     ReactiveFormsModule,
     MatFormFieldModule,

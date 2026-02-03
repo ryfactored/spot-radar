@@ -3,17 +3,8 @@ import { isPlatformBrowser } from '@angular/common';
 import { ToastService } from '@shared';
 import { mapError } from './error-mapper';
 
-/**
- * Global error handler that catches unhandled exceptions.
- *
- * Provides centralized error handling for the entire application:
- * - Logs errors for debugging (full details in console)
- * - Displays user-friendly toast notifications (mapped messages)
- *
- * Note: NgZone.run() is required because errors may occur outside
- * Angular's zone, and UI updates need to be in-zone to trigger
- * change detection.
- */
+// NgZone.run() is required because errors may occur outside
+// Angular's zone, and UI updates need to be in-zone.
 @Injectable()
 export class GlobalErrorHandler implements ErrorHandler {
   private toast = inject(ToastService);

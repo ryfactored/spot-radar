@@ -5,7 +5,6 @@ import { ConfirmDialogData } from './confirm-dialog-service';
 
 @Component({
   selector: 'app-confirm-dialog',
-  standalone: true,
   imports: [MatDialogModule, MatButtonModule],
   template: `
     <h2 mat-dialog-title>{{ data.title }}</h2>

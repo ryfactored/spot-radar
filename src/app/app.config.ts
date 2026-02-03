@@ -7,13 +7,6 @@ import { GlobalErrorHandler, httpErrorInterceptor } from '@core';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
-/**
- * Application configuration using the standalone bootstrapping pattern.
- *
- * This replaces the traditional NgModule-based app.module.ts with a
- * functional configuration object. Providers are registered here
- * and available application-wide.
- */
 export const appConfig: ApplicationConfig = {
   providers: [
     provideHttpClient(withFetch(), withInterceptors([httpErrorInterceptor])),

@@ -14,7 +14,6 @@ import { AUTH_FORM_STYLES } from '../auth-form-styles';
 
 @Component({
   selector: 'app-register',
-  standalone: true,
   imports: [
     ReactiveFormsModule,
     RouterLink,

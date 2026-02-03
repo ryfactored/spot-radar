@@ -6,7 +6,6 @@ import { environment } from '@env';
 
 @Component({
   selector: 'app-public-layout',
-  standalone: true,
   imports: [RouterOutlet, RouterLink, MatToolbarModule, MatButtonModule],
   template: `
     <header>

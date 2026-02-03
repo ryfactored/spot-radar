@@ -4,12 +4,6 @@ import { AuthService } from './auth';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { filter, map, take } from 'rxjs';
 
-/**
- * Factory that creates auth-related route guards.
- *
- * @param requireAuth - When true, requires an authenticated user (redirects to /login).
- *                      When false, requires NO user (redirects to /dashboard).
- */
 function createAuthGuard(requireAuth: boolean) {
   return () => {
     const auth = inject(AuthService);

@@ -4,7 +4,6 @@ import { Skeleton } from '@shared';
 
 @Component({
   selector: 'app-note-card-skeleton',
-  standalone: true,
   imports: [MatCardModule, Skeleton],
   template: `
     <mat-card class="skeleton-card">

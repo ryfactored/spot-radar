@@ -4,7 +4,6 @@ import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-admin',
-  standalone: true,
   imports: [MatCardModule, MatIconModule],
   template: `
     <div class="page-header">

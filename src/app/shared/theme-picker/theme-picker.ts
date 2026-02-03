@@ -8,7 +8,6 @@ import { PreferencesService, COLOR_THEMES, ColorTheme } from '@core';
 
 @Component({
   selector: 'app-theme-picker',
-  standalone: true,
   imports: [MatButtonModule, MatIconModule, MatMenuModule, MatTooltipModule, MatDividerModule],
   template: `
     <button

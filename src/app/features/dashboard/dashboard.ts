@@ -6,7 +6,6 @@ import { AuthService } from '@core';
 
 @Component({
   selector: 'app-dashboard',
-  standalone: true,
   imports: [RouterLink, MatCardModule, MatIconModule],
   template: `
     <div class="page-header">

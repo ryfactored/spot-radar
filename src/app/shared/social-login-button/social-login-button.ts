@@ -6,7 +6,6 @@ import { SocialProvider } from '@core';
 
 @Component({
   selector: 'app-social-login-button',
-  standalone: true,
   imports: [MatButtonModule, MatProgressSpinnerModule],
   template: `
     <button

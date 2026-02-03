@@ -8,19 +8,7 @@ import { filter, map, take, from, switchMap } from 'rxjs';
 
 export type UserRole = 'user' | 'admin';
 
-/**
- * Factory function that creates a role-based route guard.
- *
- * Usage in routes:
- *   canActivate: [roleGuard('admin')]
- *   canActivate: [roleGuard('admin', 'moderator')]
- *
- * The guard:
- * 1. Waits for auth to load
- * 2. Checks if user is authenticated (redirects to /login if not)
- * 3. Fetches user's role from profile
- * 4. Allows access if role matches, otherwise redirects to /dashboard
- */
+/** Creates a role-based route guard. Redirects to /dashboard if role doesn't match. */
 export const roleGuard = (...allowedRoles: UserRole[]) => {
   return () => {
     const auth = inject(AuthService);

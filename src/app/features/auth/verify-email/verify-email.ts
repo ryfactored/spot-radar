@@ -7,7 +7,6 @@ import { AuthService } from '@core';
 
 @Component({
   selector: 'app-verify-email',
-  standalone: true,
   imports: [RouterLink, MatButtonModule, MatIconModule, MatProgressSpinnerModule],
   template: `
     @if (isLoading()) {

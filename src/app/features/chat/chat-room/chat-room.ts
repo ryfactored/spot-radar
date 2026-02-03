@@ -21,7 +21,6 @@ import { ToastService, ConnectionIndicator, LoadingSpinner, TimeAgoPipe } from '
 
 @Component({
   selector: 'app-chat-room',
-  standalone: true,
   imports: [
     TimeAgoPipe,
     FormsModule,

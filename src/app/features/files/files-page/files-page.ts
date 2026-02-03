@@ -16,7 +16,6 @@ import { extractErrorMessage } from '@core';
 
 @Component({
   selector: 'app-files-page',
-  standalone: true,
   imports: [
     TimeAgoPipe,
     MatCardModule,

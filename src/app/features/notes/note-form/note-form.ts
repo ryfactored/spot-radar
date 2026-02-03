@@ -12,7 +12,6 @@ import { HasUnsavedChanges, extractErrorMessage } from '@core';
 
 @Component({
   selector: 'app-note-form',
-  standalone: true,
   imports: [
     ReactiveFormsModule,
     MatCardModule,

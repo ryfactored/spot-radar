@@ -9,7 +9,6 @@ import { Directive, input } from '@angular/core';
  */
 @Directive({
   selector: '[appSkeletonOverlay]',
-  standalone: true,
   host: {
     '[class.skeleton-overlay]': 'isLoading()',
     '[attr.aria-busy]': 'isLoading() ? "true" : null',

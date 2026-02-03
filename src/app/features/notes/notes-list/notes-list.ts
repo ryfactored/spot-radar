@@ -16,7 +16,6 @@ import { environment } from '@env';
 
 @Component({
   selector: 'app-notes-list',
-  standalone: true,
   imports: [
     TimeAgoPipe,
     FormsModule,

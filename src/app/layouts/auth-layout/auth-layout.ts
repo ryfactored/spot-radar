@@ -6,7 +6,6 @@ import { routeAnimation } from '@shared';
 
 @Component({
   selector: 'app-auth-layout',
-  standalone: true,
   imports: [RouterOutlet, LoadingBar],
   animations: [routeAnimation],
   template: `
