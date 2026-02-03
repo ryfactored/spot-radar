@@ -10,32 +10,20 @@ import { SUPABASE_ERRORS } from './supabase-errors';
 
 const GENERIC_MESSAGE = 'Something went wrong. Please try again.';
 
-// Auth errors (login, registration, session)
-const AUTH_ERRORS: Record<string, string> = {
+// Only explicitly mapped error codes get custom user-facing messages.
+const ERROR_MAP: Record<string, string> = {
+  // Auth
   invalid_credentials: 'Invalid email or password',
   invalid_grant: 'Invalid email or password',
   user_already_exists: 'An account with this email already exists',
   email_not_confirmed: 'Please check your email to confirm your account',
   same_password: 'New password must be different from your current password',
   weak_password: `Password is too weak. Use at least ${environment.passwordMinLength} characters.`,
-};
-
-// Rate limiting
-const RATE_LIMIT_ERRORS: Record<string, string> = {
+  // Rate limiting
   over_request_rate_limit: 'Too many attempts. Please wait and try again.',
   over_email_send_rate_limit: 'Too many emails sent. Please wait a few minutes and try again.',
-};
-
-// Data/query errors
-const DATA_ERRORS: Record<string, string> = {
+  // Data/query
   [SUPABASE_ERRORS.NO_ROWS_FOUND]: 'The requested item was not found',
-};
-
-// Combined map - only these get custom messages
-const ERROR_MAP: Record<string, string> = {
-  ...AUTH_ERRORS,
-  ...RATE_LIMIT_ERRORS,
-  ...DATA_ERRORS,
 };
 
 export function mapError(error: unknown): { message: string } {

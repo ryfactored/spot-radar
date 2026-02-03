@@ -15,7 +15,7 @@ import { environment } from '@env';
  */
 @Injectable({ providedIn: 'root' })
 export class FeatureFlags {
-  private flags: Record<string, boolean> = { ...environment.featureFlags };
+  private flags = environment.featureFlags;
 
   /** Returns true if the feature is enabled (defaults to true for unknown flags). */
   isEnabled(feature: string): boolean {

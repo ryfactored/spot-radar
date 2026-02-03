@@ -31,7 +31,8 @@ export class AuthService {
   loading = signal(true);
 
   constructor() {
-    this.loadUser();
+    // onAuthStateChange fires immediately with INITIAL_SESSION,
+    // so no separate loadUser() / getSession() call is needed.
     this.supabase.client.auth.onAuthStateChange((event, session) => {
       this.currentUser.set(session?.user ?? null);
       this.loading.set(false);
@@ -41,12 +42,6 @@ export class AuthService {
         this.router.navigate(['/login']);
       }
     });
-  }
-
-  private async loadUser() {
-    const { data } = await this.supabase.client.auth.getSession();
-    this.currentUser.set(data.session?.user ?? null);
-    this.loading.set(false);
   }
 
   async signUp(email: string, password: string) {
@@ -94,11 +89,9 @@ export class AuthService {
     try {
       await this.supabase.client.auth.signOut();
     } catch {
-      // Ignore - session may already be invalid server-side
+      // Ignore - session may already be invalid server-side.
+      // The Supabase client still clears the local session and fires
+      // SIGNED_OUT via onAuthStateChange, which handles redirect.
     }
-    // Clear local state regardless of server response
-    // (guestGuard checks currentUser before allowing /login)
-    this.currentUser.set(null);
-    this.router.navigate(['/login']);
   }
 }

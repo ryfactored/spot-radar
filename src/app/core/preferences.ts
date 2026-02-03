@@ -1,4 +1,4 @@
-import { Injectable, inject, signal, effect } from '@angular/core';
+import { Injectable, inject, signal, effect, computed } from '@angular/core';
 import { AuthService } from './auth';
 import { environment } from '@env';
 
@@ -38,10 +38,10 @@ export class PreferencesService {
   private auth = inject(AuthService);
   private preferences = signal<UserPreferences>(DEFAULT_PREFERENCES);
 
-  // Expose individual preferences as readonly signals
-  readonly colorTheme = () => this.preferences().colorTheme;
-  readonly darkMode = () => this.preferences().darkMode;
-  readonly sidenavOpened = () => this.preferences().sidenavOpened;
+  // Expose individual preferences as readonly computed signals
+  readonly colorTheme = computed(() => this.preferences().colorTheme);
+  readonly darkMode = computed(() => this.preferences().darkMode);
+  readonly sidenavOpened = computed(() => this.preferences().sidenavOpened);
 
   constructor() {
     // Reload preferences when user changes (login/logout)
