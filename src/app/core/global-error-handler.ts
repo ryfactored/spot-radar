@@ -24,6 +24,9 @@ export class GlobalErrorHandler implements ErrorHandler {
     // Log full error for debugging (only visible in console)
     console.error('Global error:', error);
 
+    // Skip toast if already handled by httpErrorInterceptor
+    if (error instanceof Error && '__handled' in error) return;
+
     // Only show toast in browser (not during SSR)
     if (isPlatformBrowser(this.platformId)) {
       // Map to user-friendly message (hides internal details)
