@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { ConfirmDialogData } from './confirm-dialog-service';
 
@@ -13,20 +13,13 @@ import { ConfirmDialogData } from './confirm-dialog-service';
       <p>{{ data.message }}</p>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
-      <button mat-button (click)="onCancel()">{{ data.cancelText }}</button>
-      <button mat-raised-button color="warn" (click)="onConfirm()">{{ data.confirmText }}</button>
+      <button mat-button [mat-dialog-close]="false">{{ data.cancelText }}</button>
+      <button mat-raised-button color="warn" [mat-dialog-close]="true">
+        {{ data.confirmText }}
+      </button>
     </mat-dialog-actions>
   `,
 })
 export class ConfirmDialog {
   data = inject<ConfirmDialogData>(MAT_DIALOG_DATA);
-  private dialogRef = inject(MatDialogRef<ConfirmDialog>);
-
-  onCancel() {
-    this.dialogRef.close(false);
-  }
-
-  onConfirm() {
-    this.dialogRef.close(true);
-  }
 }

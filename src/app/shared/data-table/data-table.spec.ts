@@ -68,9 +68,10 @@ describe('DataTable', () => {
     expect(component.selection.selected.length).toBe(0);
   });
 
-  it('should update data source on changes', () => {
+  it('should update data source when data input changes', () => {
     const newData = [{ id: 3, name: 'Item 3' }];
-    component.ngOnChanges({ data: { currentValue: newData } } as any);
-    expect(component.dataSource.data).toEqual(testData); // Still original since input didn't change
+    fixture.componentRef.setInput('data', newData);
+    fixture.detectChanges();
+    expect(component.dataSource.data).toEqual(newData);
   });
 });

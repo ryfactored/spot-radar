@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { firstValueFrom } from 'rxjs';
 import { ConfirmDialog } from './confirm-dialog';
 
 export interface ConfirmDialogData {
@@ -15,7 +16,7 @@ export interface ConfirmDialogData {
 export class ConfirmDialogService {
   private dialog = inject(MatDialog);
 
-  confirm(data: ConfirmDialogData): Promise<boolean> {
+  async confirm(data: ConfirmDialogData): Promise<boolean> {
     const dialogRef = this.dialog.open(ConfirmDialog, {
       width: '400px',
       data: {
@@ -26,10 +27,7 @@ export class ConfirmDialogService {
       },
     });
 
-    return new Promise((resolve) => {
-      dialogRef.afterClosed().subscribe((result) => {
-        resolve(result === true);
-      });
-    });
+    const result = await firstValueFrom(dialogRef.afterClosed());
+    return result === true;
   }
 }
