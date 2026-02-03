@@ -17,3 +17,4 @@ export { ConnectionIndicator } from './connection-indicator/connection-indicator
 export { LoadingBar } from './loading-bar/loading-bar';
 export { Avatar } from './avatar/avatar';
 export { TimeAgoPipe } from './pipes/time-ago.pipe';
+export { routeAnimation } from './animations/route-animation';

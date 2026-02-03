@@ -1,6 +1,6 @@
 import { ErrorHandler, Injectable, inject, NgZone, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { ToastService } from '../shared/toast';
+import { ToastService } from '@shared';
 import { mapError } from './error-mapper';
 
 /**

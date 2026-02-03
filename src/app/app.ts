@@ -3,7 +3,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { Title } from '@angular/platform-browser';
 import { Router, NavigationEnd, ActivatedRoute, RouterOutlet } from '@angular/router';
 import { filter, map, take } from 'rxjs';
-import { PreferencesService, COLOR_THEMES } from './core/preferences';
+import { PreferencesService, COLOR_THEMES } from '@core';
 import { environment } from '@env';
 
 @Component({

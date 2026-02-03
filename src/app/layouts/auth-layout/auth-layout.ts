@@ -2,7 +2,7 @@ import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { LoadingBar } from '@shared';
 import { environment } from '@env';
-import { routeAnimation } from '../../shared/animations/route-animation';
+import { routeAnimation } from '@shared';
 
 @Component({
   selector: 'app-auth-layout',
