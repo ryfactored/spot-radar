@@ -16,7 +16,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { ChatService, Message } from '../chat';
 import { ChatStore } from '../chat-store';
-import { AuthService } from '@core';
+import { AuthService, extractErrorMessage } from '@core';
 import { ToastService, ConnectionIndicator, LoadingSpinner, TimeAgoPipe } from '@shared';
 
 @Component({
@@ -237,7 +237,7 @@ export class ChatRoom implements OnInit, AfterViewChecked {
       this.store.setMessages(messages);
       this.shouldScrollToBottom = true;
     } catch (err) {
-      this.toast.error(err instanceof Error ? err.message : 'Failed to load messages');
+      this.toast.error(extractErrorMessage(err, 'Failed to load messages'));
     } finally {
       this.store.setLoading(false);
     }
@@ -256,7 +256,7 @@ export class ChatRoom implements OnInit, AfterViewChecked {
       this.newMessage = '';
       this.shouldScrollToBottom = true;
     } catch (err) {
-      this.toast.error(err instanceof Error ? err.message : 'Failed to send message');
+      this.toast.error(extractErrorMessage(err, 'Failed to send message'));
     } finally {
       this.sending.set(false);
     }

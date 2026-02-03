@@ -11,6 +11,7 @@ import { NotesService, type Note } from '../notes';
 import { NotesStore } from '../notes-store';
 import { NoteCardSkeleton } from '../note-card-skeleton';
 import { ToastService, ConfirmDialogService, EmptyState, TimeAgoPipe } from '@shared';
+import { extractErrorMessage } from '@core';
 import { environment } from '@env';
 
 @Component({
@@ -161,7 +162,7 @@ export class NotesList implements OnInit {
       );
       this.store.setNotes(response.data, response.count, this.pageSize, this.currentPage());
     } catch (err) {
-      this.toast.error(err instanceof Error ? err.message : 'Failed to load notes');
+      this.toast.error(extractErrorMessage(err, 'Failed to load notes'));
     } finally {
       this.store.setLoading(false);
     }
@@ -200,7 +201,7 @@ export class NotesList implements OnInit {
         this.store.removeNote(note.id);
         this.toast.success('Note deleted');
       } catch (err) {
-        this.toast.error(err instanceof Error ? err.message : 'Failed to delete note');
+        this.toast.error(extractErrorMessage(err, 'Failed to delete note'));
         this.loadNotes(); // Refetch on error
       }
     }

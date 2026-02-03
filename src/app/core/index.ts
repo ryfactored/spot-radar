@@ -1,7 +1,6 @@
 export { AuthService } from './auth';
 export type { SocialProvider } from './auth';
-export { authGuard } from './auth-guard';
-export { guestGuard } from './guest-guard';
+export { authGuard, guestGuard } from './auth-guard';
 export { roleGuard } from './role-guard';
 export type { UserRole } from './role-guard';
 export { SupabaseService } from './supabase';
@@ -11,6 +10,7 @@ export type { ColorTheme } from './preferences';
 export { GlobalErrorHandler } from './global-error-handler';
 export { httpErrorInterceptor } from './http-error-interceptor';
 export { mapError, mapToError, unwrap, unwrapWithCount } from './error-mapper';
+export { extractErrorMessage } from './extract-error-message';
 export { RealtimeService } from './realtime';
 export type { ConnectionStatus, RealtimeEventType, RealtimePayload } from './realtime';
 export { StorageService } from './storage';

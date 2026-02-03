@@ -6,9 +6,10 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
-import { AuthService, SocialProvider } from '@core';
+import { AuthService, SocialProvider, extractErrorMessage } from '@core';
 import { SocialLoginButton } from '@shared';
 import { environment } from '@env';
+import { AUTH_FORM_STYLES } from '../auth-form-styles';
 
 @Component({
   selector: 'app-login',
@@ -89,41 +90,19 @@ import { environment } from '@env';
 
     <p class="footer">Don't have an account? <a routerLink="/register">Sign up</a></p>
   `,
-  styles: `
-    h2 {
-      text-align: center;
-      margin-bottom: 24px;
-    }
-    .full-width {
-      width: 100%;
-    }
-    mat-form-field {
-      margin-bottom: 16px;
-    }
-    .divider {
-      margin: 24px 0;
-    }
-    .social-buttons {
-      margin-bottom: 16px;
-    }
-    .footer {
-      text-align: center;
-      margin-top: 16px;
-    }
-    .forgot-link {
-      text-align: right;
-      margin-bottom: 16px;
-      font-size: 14px;
-    }
-    .forgot-link a,
-    .footer a {
-      color: var(--mat-sys-primary);
-    }
-    .error {
-      color: #f44336;
-      text-align: center;
-    }
-  `,
+  styles: [
+    AUTH_FORM_STYLES,
+    `
+      .forgot-link {
+        text-align: right;
+        margin-bottom: 16px;
+        font-size: 14px;
+      }
+      .forgot-link a {
+        color: var(--mat-sys-primary);
+      }
+    `,
+  ],
 })
 export class Login {
   private fb = inject(FormBuilder);
@@ -139,7 +118,7 @@ export class Login {
   loading = signal(false);
   loadingProvider = signal<SocialProvider | null>(null);
   error = signal('');
-  socialProviders = environment.socialProviders as unknown as SocialProvider[];
+  socialProviders = environment.socialProviders;
 
   async onSubmit() {
     if (this.form.invalid) return;
@@ -151,7 +130,7 @@ export class Login {
       await this.auth.signIn(this.form.value.email!, this.form.value.password!);
       this.router.navigate(['/dashboard']);
     } catch (err) {
-      this.error.set(err instanceof Error ? err.message : 'Login failed');
+      this.error.set(extractErrorMessage(err, 'Login failed'));
     } finally {
       this.loading.set(false);
     }
@@ -164,7 +143,7 @@ export class Login {
       await this.auth.signInWithProvider(provider);
       // Note: OAuth redirects away, so we won't reach here on success
     } catch (err) {
-      this.error.set(err instanceof Error ? err.message : 'Social login failed');
+      this.error.set(extractErrorMessage(err, 'Social login failed'));
       this.loadingProvider.set(null);
     }
   }

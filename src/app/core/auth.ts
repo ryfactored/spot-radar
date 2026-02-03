@@ -6,7 +6,8 @@ import { User, Provider } from '@supabase/supabase-js';
 import { mapToError } from './error-mapper';
 import { environment } from '@env';
 
-export type SocialProvider = 'google' | 'github' | 'spotify' | 'discord' | 'apple';
+import type { SocialProvider } from '../../environments/social-provider';
+export type { SocialProvider };
 
 /**
  * Authentication service using Supabase Auth.

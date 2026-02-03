@@ -1,9 +1,11 @@
+import type { SocialProvider } from './social-provider';
+
 export interface Environment {
   appName: string;
   production: boolean;
   supabaseUrl: string;
   supabaseAnonKey: string;
-  socialProviders: readonly ('google' | 'github' | 'spotify' | 'discord' | 'apple')[];
+  socialProviders: readonly SocialProvider[];
   siteUrl: string;
   siteTitle: string;
   siteDescription: string;

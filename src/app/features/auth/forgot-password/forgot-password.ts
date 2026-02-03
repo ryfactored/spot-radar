@@ -4,7 +4,8 @@ import { RouterLink } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { AuthService } from '@core';
+import { AuthService, extractErrorMessage } from '@core';
+import { AUTH_FORM_STYLES } from '../auth-form-styles';
 
 @Component({
   selector: 'app-forgot-password',
@@ -46,33 +47,7 @@ import { AuthService } from '@core';
 
     <p class="footer">Remember your password? <a routerLink="/login">Sign in</a></p>
   `,
-  styles: `
-    h2 {
-      text-align: center;
-      margin-bottom: 24px;
-    }
-    .full-width {
-      width: 100%;
-    }
-    mat-form-field {
-      margin-bottom: 16px;
-    }
-    .footer {
-      text-align: center;
-      margin-top: 16px;
-    }
-    .footer a {
-      color: var(--mat-sys-primary);
-    }
-    .error {
-      color: #f44336;
-      text-align: center;
-    }
-    .success {
-      color: #4caf50;
-      text-align: center;
-    }
-  `,
+  styles: AUTH_FORM_STYLES,
 })
 export class ForgotPassword {
   private fb = inject(FormBuilder);
@@ -96,7 +71,7 @@ export class ForgotPassword {
       await this.auth.resetPassword(this.form.value.email!);
       this.success.set(true);
     } catch (err) {
-      this.error.set(err instanceof Error ? err.message : 'Failed to send reset link');
+      this.error.set(extractErrorMessage(err, 'Failed to send reset link'));
     } finally {
       this.loading.set(false);
     }

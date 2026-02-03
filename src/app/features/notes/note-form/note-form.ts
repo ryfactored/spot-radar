@@ -8,7 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { NotesService } from '../notes';
 import { NotesStore } from '../notes-store';
 import { ToastService, LoadingSpinner } from '@shared';
-import { HasUnsavedChanges } from '@core';
+import { HasUnsavedChanges, extractErrorMessage } from '@core';
 
 @Component({
   selector: 'app-note-form',
@@ -117,7 +117,7 @@ export class NoteForm implements OnInit, HasUnsavedChanges {
         });
       }
     } catch (err) {
-      this.toast.error(err instanceof Error ? err.message : 'Failed to load note');
+      this.toast.error(extractErrorMessage(err, 'Failed to load note'));
       this.router.navigate(['/notes']);
     } finally {
       this.loading.set(false);
@@ -141,7 +141,7 @@ export class NoteForm implements OnInit, HasUnsavedChanges {
       this.form.markAsPristine();
       this.router.navigate(['/notes']);
     } catch (err) {
-      this.toast.error(err instanceof Error ? err.message : 'Failed to save note');
+      this.toast.error(extractErrorMessage(err, 'Failed to save note'));
     } finally {
       this.saving.set(false);
     }
