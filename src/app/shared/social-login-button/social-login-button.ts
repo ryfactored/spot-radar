@@ -22,7 +22,7 @@ import { SocialProvider } from '@core';
           <span class="label">Connecting...</span>
         } @else {
           <span class="icon" [innerHTML]="safeProviderIcon()"></span>
-          <span class="label">Continue with {{ providerLabel }}</span>
+          <span class="label">Continue with {{ providerLabel() }}</span>
         }
       </span>
     </button>
@@ -103,9 +103,7 @@ export class SocialLoginButton {
   loading = input(false);
   clicked = output<void>();
 
-  safeProviderIcon = computed(() => this.sanitizer.bypassSecurityTrustHtml(this.providerIcon));
-
-  get providerLabel(): string {
+  providerLabel = computed(() => {
     const labels: Record<SocialProvider, string> = {
       google: 'Google',
       github: 'GitHub',
@@ -114,9 +112,9 @@ export class SocialLoginButton {
       apple: 'Apple',
     };
     return labels[this.provider()];
-  }
+  });
 
-  get providerIcon(): string {
+  providerIcon = computed(() => {
     const icons: Record<SocialProvider, string> = {
       google: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -138,5 +136,7 @@ export class SocialLoginButton {
       </svg>`,
     };
     return icons[this.provider()];
-  }
+  });
+
+  safeProviderIcon = computed(() => this.sanitizer.bypassSecurityTrustHtml(this.providerIcon()));
 }

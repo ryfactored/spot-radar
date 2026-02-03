@@ -22,11 +22,11 @@ describe('SocialLoginButton', () => {
   });
 
   it('should display correct provider label', () => {
-    expect(component.providerLabel).toBe('Google');
+    expect(component.providerLabel()).toBe('Google');
 
     fixture.componentRef.setInput('provider', 'github');
     fixture.detectChanges();
-    expect(component.providerLabel).toBe('GitHub');
+    expect(component.providerLabel()).toBe('GitHub');
   });
 
   it('should emit clicked event', () => {
@@ -44,7 +44,7 @@ describe('SocialLoginButton', () => {
     providers.forEach((provider) => {
       fixture.componentRef.setInput('provider', provider);
       fixture.detectChanges();
-      expect(component.providerIcon).toContain('<svg');
+      expect(component.providerIcon()).toContain('<svg');
     });
   });
 });

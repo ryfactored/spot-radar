@@ -1,4 +1,4 @@
-import { Component, input, output, OnInit, DestroyRef, inject } from '@angular/core';
+import { Component, input, output, signal, OnInit, DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -27,14 +27,14 @@ import { environment } from '@env';
       <input
         matInput
         [placeholder]="placeholder()"
-        [(ngModel)]="value"
+        [ngModel]="value()"
         (ngModelChange)="onInput($event)"
         (keydown.escape)="clear()"
       />
 
       @if (loading()) {
         <mat-spinner matSuffix diameter="20"></mat-spinner>
-      } @else if (value) {
+      } @else if (value()) {
         <button mat-icon-button matSuffix (click)="clear()" aria-label="Clear">
           <mat-icon>close</mat-icon>
         </button>
@@ -69,10 +69,10 @@ export class SearchInput implements OnInit {
   cleared = output<void>();
 
   // Internal state
-  value = '';
+  value = signal('');
 
   ngOnInit() {
-    this.value = this.initialValue();
+    this.value.set(this.initialValue());
 
     this.searchSubject
       .pipe(
@@ -86,17 +86,18 @@ export class SearchInput implements OnInit {
   }
 
   onInput(value: string) {
+    this.value.set(value);
     this.searchSubject.next(value);
   }
 
   clear() {
-    this.value = '';
+    this.value.set('');
     this.searchSubject.next('');
     this.cleared.emit();
   }
 
   setValue(value: string) {
-    this.value = value;
+    this.value.set(value);
     this.searchSubject.next(value);
   }
 }

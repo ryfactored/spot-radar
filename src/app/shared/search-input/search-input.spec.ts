@@ -38,16 +38,16 @@ describe('SearchInput', () => {
     const clearedSpy = vi.fn();
     component.cleared.subscribe(clearedSpy);
 
-    component.value = 'test';
+    component.value.set('test');
     component.clear();
 
-    expect(component.value).toBe('');
+    expect(component.value()).toBe('');
     expect(clearedSpy).toHaveBeenCalled();
   });
 
   it('should set initial value from input', () => {
     fixture.componentRef.setInput('initialValue', 'initial');
     component.ngOnInit();
-    expect(component.value).toBe('initial');
+    expect(component.value()).toBe('initial');
   });
 });

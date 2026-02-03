@@ -1,6 +1,7 @@
 import {
   Component,
   inject,
+  signal,
   OnInit,
   DestroyRef,
   ViewChild,
@@ -202,8 +203,7 @@ export class ChatRoom implements OnInit, AfterViewChecked {
   connectionStatus = this.store.connectionStatus;
 
   newMessage = '';
-  sending = () => false;
-  private _sending = false;
+  sending = signal(false);
   private shouldScrollToBottom = false;
 
   async ngOnInit() {
@@ -245,10 +245,9 @@ export class ChatRoom implements OnInit, AfterViewChecked {
 
   async sendMessage() {
     const content = this.newMessage.trim();
-    if (!content || this._sending) return;
+    if (!content || this.sending()) return;
 
-    this._sending = true;
-    this.sending = () => true;
+    this.sending.set(true);
 
     try {
       const message = await this.chatService.send(content);
@@ -259,8 +258,7 @@ export class ChatRoom implements OnInit, AfterViewChecked {
     } catch (err) {
       this.toast.error(err instanceof Error ? err.message : 'Failed to send message');
     } finally {
-      this._sending = false;
-      this.sending = () => false;
+      this.sending.set(false);
     }
   }
 
