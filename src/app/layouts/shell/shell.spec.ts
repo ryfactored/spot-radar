@@ -102,7 +102,7 @@ describe('Shell', () => {
       await setupTest({ user: null });
 
       expect(profileMock.getProfile).not.toHaveBeenCalled();
-      expect(component.userRole()).toBeNull();
+      expect(component.isAdmin()).toBe(false);
     });
   });
 
