@@ -1,6 +1,6 @@
 # Angular Starter - Phase 8: Angular 21 Best Practices Alignment
 
-**Goal**: Align the codebase with the latest Angular 21 APIs and best practices identified via the official Angular documentation. Adopt `provideZonelessChangeDetection()`, `ChangeDetectionStrategy.OnPush`, signal-based queries, `resource()` API, `linkedSignal()`, and ES private fields.
+**Goal**: Align the codebase with the latest Angular 21 APIs and best practices identified via the official Angular documentation. Adopt `provideZonelessChangeDetection()`, `ChangeDetectionStrategy.OnPush`, signal-based queries, `resource()` API, and `linkedSignal()`.
 
 **Status at start of Phase 8**: Iterations 66-74 complete.
 
@@ -92,35 +92,9 @@ Skipped: `SelectionModel` is from Angular CDK and is not signal-based. There is 
 
 ---
 
-## Iteration 80 — Use ES private `#` fields in stores and services
+## ~~Iteration 80 — Use ES private `#` fields in stores and services~~ — Reverted
 
-TypeScript `private` is compile-time only. ES private fields (`#`) provide runtime encapsulation. The Angular Tips best practices recommend `#` for store internals to prevent external access even through type assertions.
-
-### 80a. `notes-store.ts` — Migrate to `#` private fields
-
-**Problem:** `notes-store.ts:9-14` uses TypeScript `private` for internal signals (`private notes`, `private loading`, `private lastFetch`, etc.). These are accessible at runtime via type assertions.
-
-**Plan:** Convert all `private` signal fields to ES private `#` fields:
-
-```typescript
-#notes = signal<Note[]>([]);
-#loading = signal(false);
-#lastFetch = signal<Date | null>(null);
-```
-
-Update all internal references from `this.notes` to `this.#notes`, etc.
-
-### 80b. `chat-store.ts` — Migrate to `#` private fields
-
-**Problem:** Same pattern as notes-store — internal signals and state use TypeScript `private`.
-
-**Plan:** Convert private fields to `#` prefix. Update internal references.
-
-### 80c. `preferences.ts` — Migrate to `#` private fields
-
-**Problem:** The preferences service uses TypeScript `private` for its internal `preferences` signal and helper methods.
-
-**Plan:** Convert private fields to `#` prefix.
+Reverted: The ES `#` private field recommendation came from Angular Tips (a community guide), not official Angular documentation. The official Angular style guide does not recommend `#` over TypeScript `private`. Additionally, `viewChild()` is incompatible with `#` fields (Angular compiler error NG1053), forcing an inconsistent mix. All `#` changes were reverted to TypeScript `private`.
 
 ---
 
@@ -156,15 +130,16 @@ Most shared components already use the modern `input()` / `output()` functions. 
 
 ## Summary
 
-| Iteration | Name                                   | Category      | Items | Status  |
-| --------- | -------------------------------------- | ------------- | ----- | ------- |
-| 75        | Enable zoneless change detection       | Configuration | 1     | Done    |
-| 76        | Add OnPush to all components           | Performance   | 1     | Done    |
-| 77        | Migrate @ViewChild to viewChild()      | API Migration | 3     | Done    |
-| 78        | Adopt resource() for data loading      | API Migration | 1     | Done    |
-| 79        | Use linkedSignal() for dependent state | API Migration | 0     | Skipped |
-| 80        | Use ES private # fields in stores      | Encapsulation | 3     | Done    |
-| 81        | Convert plain properties to signals    | Consistency   | 2     | Done    |
-| 82        | Verify input/output consistency        | Consistency   | 1     | Done    |
+| Iteration | Name                                   | Category      | Items | Status   |
+| --------- | -------------------------------------- | ------------- | ----- | -------- |
+| 75        | Enable zoneless change detection       | Configuration | 1     | Done     |
+| 76        | Add OnPush to all components           | Performance   | 1     | Done     |
+| 77        | Migrate @ViewChild to viewChild()      | API Migration | 3     | Done     |
+| 78        | Adopt resource() for data loading      | API Migration | 1     | Done     |
+| 79        | Use linkedSignal() for dependent state | API Migration | 0     | Skipped  |
+| 80        | ~~Use ES private # fields in stores~~  | Encapsulation | 3     | Reverted |
+| 81        | Convert plain properties to signals    | Consistency   | 2     | Done     |
+| 82        | Verify input/output consistency        | Consistency   | 1     | Done     |
+| 83        | ~~Extend ES # fields to all files~~    | Encapsulation | 1     | Reverted |
 
-**Total iterations**: 8 (75-82). **Total items**: 16.
+**Total iterations**: 9 (75-83). **Effective items**: 13 (4 reverted).
