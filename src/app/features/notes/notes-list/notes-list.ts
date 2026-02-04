@@ -42,7 +42,8 @@ import { environment } from '@env';
       <mat-label>Search notes</mat-label>
       <input
         matInput
-        [(ngModel)]="searchQuery"
+        [ngModel]="searchQuery()"
+        (ngModelChange)="searchQuery.set($event)"
         (keyup.enter)="search()"
         placeholder="Search by title..."
       />
@@ -140,11 +141,11 @@ export class NotesList implements OnInit {
   currentPage = signal(1);
   pageSize = signal(environment.pagination.defaultPageSize);
   pageSizeOptions = environment.pagination.pageSizeOptions;
-  searchQuery = '';
+  searchQuery = signal('');
 
   async ngOnInit() {
     // Skip fetch if store has fresh data and no search
-    if (!this.store.isEmpty() && !this.store.isStale() && !this.searchQuery) {
+    if (!this.store.isEmpty() && !this.store.isStale() && !this.searchQuery()) {
       this.pageSize.set(this.store.currentPageSize());
       this.currentPage.set(this.store.currentPage());
       return;
@@ -158,7 +159,7 @@ export class NotesList implements OnInit {
       const response = await this.notesService.list(
         this.currentPage(),
         this.pageSize(),
-        this.searchQuery,
+        this.searchQuery(),
       );
       this.store.setNotes(response.data, response.count, this.pageSize(), this.currentPage());
     } catch (err) {
