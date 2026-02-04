@@ -3,12 +3,14 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 import { FilesPage } from './files-page';
 import { FilesService, FileRecord } from '../files';
+import { FilesStore } from '../files-store';
 import { ToastService, ConfirmDialogService } from '@shared';
 
 describe('FilesPage', () => {
   let component: FilesPage;
   let fixture: ComponentFixture<FilesPage>;
   let filesServiceMock: any;
+  let store: FilesStore;
   let toastMock: any;
   let confirmDialogMock: any;
 
@@ -61,6 +63,7 @@ describe('FilesPage', () => {
       ],
     }).compileComponents();
 
+    store = TestBed.inject(FilesStore);
     fixture = TestBed.createComponent(FilesPage);
     component = fixture.componentInstance;
     await fixture.whenStable();

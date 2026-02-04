@@ -20,6 +20,7 @@ import { map, filter } from 'rxjs';
 import { PreferencesService, AuthService, UserRole, FeatureFlags } from '@core';
 import { ThemePicker, LoadingBar, Avatar } from '@shared';
 import { ProfileService } from '@features/profile/profile-service';
+import { ProfileStore } from '@features/profile/profile-store';
 import { environment } from '@env';
 import { routeAnimation } from '@shared';
 
@@ -53,6 +54,7 @@ export class Shell {
   featureFlags = inject(FeatureFlags);
   private auth = inject(AuthService);
   private profileService = inject(ProfileService);
+  private profileStore = inject(ProfileStore);
   private breakpointObserver = inject(BreakpointObserver);
   private router = inject(Router);
 
@@ -67,14 +69,15 @@ export class Shell {
     },
     loader: async ({ params }) => {
       const profile = await this.profileService.getProfile(params.userId);
+      this.profileStore.setProfile(profile);
       return (profile?.role as UserRole) ?? null;
     },
   });
   isAdmin = computed(() => this.userRoleResource.value() === 'admin');
 
-  // User avatar and display name (shared via ProfileService)
-  avatarUrl = this.profileService.avatarUrl;
-  displayName = this.profileService.displayName;
+  // User avatar and display name (shared via ProfileStore)
+  avatarUrl = this.profileStore.avatarUrl;
+  displayName = this.profileStore.displayName;
   // Detect mobile breakpoint (< 768px)
   private isMobile$ = this.breakpointObserver
     .observe(['(max-width: 767px)'])

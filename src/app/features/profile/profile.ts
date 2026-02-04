@@ -23,6 +23,7 @@ import {
   matchValidator,
 } from '@shared';
 import { ProfileService } from './profile-service';
+import { ProfileStore } from './profile-store';
 import { environment } from '@env';
 
 @Component({
@@ -55,7 +56,7 @@ import { environment } from '@env';
             (keydown.enter)="avatarInput.click()"
           >
             <app-avatar
-              [src]="avatarPreview() || profileService.avatarUrl()"
+              [src]="avatarPreview() || profileStore.avatarUrl()"
               [name]="form.value.display_name"
               [size]="100"
             />
@@ -249,13 +250,14 @@ import { environment } from '@env';
 })
 export class Profile implements OnInit, HasUnsavedChanges {
   private auth = inject(AuthService);
-  profileService = inject(ProfileService);
+  private profileService = inject(ProfileService);
+  profileStore = inject(ProfileStore);
   private storage = inject(StorageService);
   private fb = inject(FormBuilder);
   private toast = inject(ToastService);
   private confirmDialog = inject(ConfirmDialogService);
 
-  loading = signal(true);
+  readonly loading = this.profileStore.isLoading;
   saving = signal(false);
   changingPassword = signal(false);
   deleting = signal(false);
@@ -295,8 +297,10 @@ export class Profile implements OnInit, HasUnsavedChanges {
     const user = this.auth.currentUser();
     if (!user) return;
 
+    this.profileStore.setLoading(true);
     try {
       const profile = await this.profileService.getProfile(user.id);
+      this.profileStore.setProfile(profile);
       if (profile) {
         this.form.patchValue({
           email: profile.email,
@@ -307,7 +311,7 @@ export class Profile implements OnInit, HasUnsavedChanges {
     } catch (err) {
       this.toast.error(extractErrorMessage(err, 'Failed to load profile'));
     } finally {
-      this.loading.set(false);
+      this.profileStore.setLoading(false);
     }
   }
 
@@ -351,12 +355,13 @@ export class Profile implements OnInit, HasUnsavedChanges {
         updates['avatar_url'] = publicUrl;
       }
 
-      await this.profileService.updateProfile(user.id, updates);
+      const result = await this.profileService.updateProfile(user.id, updates);
+      this.profileStore.setProfile(result);
 
       if (updates['avatar_url']) {
         // Bust browser cache: the storage URL doesn't change on upsert,
         // so the browser would serve the cached old image without this.
-        this.profileService.avatarUrl.set(`${updates['avatar_url']}?t=${Date.now()}`);
+        this.profileStore.setAvatarUrl(`${updates['avatar_url']}?t=${Date.now()}`);
         this.avatarPreview.set(null);
         this.selectedAvatarFile.set(null);
       }
@@ -402,6 +407,7 @@ export class Profile implements OnInit, HasUnsavedChanges {
       const user = this.auth.currentUser();
       if (user) {
         await this.profileService.deleteProfile(user.id);
+        this.profileStore.clear();
       }
       // Sign out after deleting data. Full auth.users row deletion
       // requires a Supabase Edge Function with service_role key.

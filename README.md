@@ -56,21 +56,25 @@ See [docs/setup.md](docs/setup.md) for the full setup guide including database m
 ```
 src/
 ├── app/
-│   ├── core/                      # Singleton services & guards
-│   │   ├── auth.ts                # Auth service (signals, Supabase Auth)
-│   │   ├── auth-guard.ts          # Route guard — authenticated users
-│   │   ├── guest-guard.ts         # Route guard — guests only
-│   │   ├── role-guard.ts          # Route guard — role-based (admin)
-│   │   ├── unsaved-changes-guard.ts # canDeactivate guard for dirty forms
-│   │   ├── supabase.ts            # Supabase client wrapper
+│   ├── core/                      # Singleton services & guards (barrel-exported via @core)
+│   │   ├── auth/
+│   │   │   ├── auth.ts            # Auth service (signals, Supabase Auth)
+│   │   │   ├── auth-guard.ts      # authGuard & guestGuard (shared factory)
+│   │   │   └── role-guard.ts      # Route guard — role-based (admin)
+│   │   ├── errors/
+│   │   │   ├── error-mapper.ts    # Supabase error → user-friendly messages
+│   │   │   ├── extract-error-message.ts
+│   │   │   ├── global-error-handler.ts
+│   │   │   ├── http-error-interceptor.ts
+│   │   │   └── supabase-errors.ts # Error code constants
+│   │   ├── supabase/
+│   │   │   ├── supabase.ts        # Supabase client wrapper
+│   │   │   ├── storage.ts         # File upload/download service
+│   │   │   └── realtime.ts        # Realtime subscription manager
 │   │   ├── preferences.ts         # User preferences store (theme, sidenav)
-│   │   ├── realtime.ts            # Realtime subscription manager
-│   │   ├── storage.ts             # File upload/download service
-│   │   ├── error-mapper.ts        # Supabase error → user-friendly messages
-│   │   ├── feature-flags.ts          # Feature flag service
-│   │   ├── feature-flag-guard.ts     # Route guard — feature flag check
-│   │   ├── global-error-handler.ts
-│   │   └── http-error-interceptor.ts
+│   │   ├── feature-flags.ts       # Feature flag service
+│   │   ├── feature-flag-guard.ts  # Route guard — feature flag check
+│   │   └── unsaved-changes-guard.ts # canDeactivate guard for dirty forms
 │   │
 │   ├── features/                  # Lazy-loaded feature areas
 │   │   ├── admin/                 # Admin panel (role-gated)
@@ -112,7 +116,7 @@ src/
 
 - **Standalone components only** — no NgModules; inline templates and styles
 - **Zoneless change detection** — all reactive state uses `signal()`, `computed()`, and `effect()`
-- **Signal stores** — feature stores use the signal pattern with TTL cache invalidation (see `notes-store.ts`)
+- **Signal stores** — all features use the Service → Store → Component pattern; stores are pure state containers, services handle data access, components orchestrate (see `notes-store.ts` for TTL cache invalidation)
 - **Functional route guards** — `authGuard`, `guestGuard`, `roleGuard()`, `unsavedChangesGuard`, `featureFlagGuard()`
 - **Feature flags** — Toggle features on/off via environment config without code changes
 - **SSR with Express** — `provideClientHydration(withEventReplay())`, prerendered landing/auth pages

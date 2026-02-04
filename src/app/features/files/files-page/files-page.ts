@@ -5,6 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { FilesService, type FileRecord } from '../files';
+import { FilesStore } from '../files-store';
 import {
   ToastService,
   ConfirmDialogService,
@@ -99,11 +100,12 @@ import { extractErrorMessage } from '@core';
 })
 export class FilesPage implements OnInit {
   private filesService = inject(FilesService);
+  private store = inject(FilesStore);
   private toast = inject(ToastService);
   private confirmDialog = inject(ConfirmDialogService);
 
-  files = signal<FileRecord[]>([]);
-  loading = signal(false);
+  readonly files = this.store.allFiles;
+  readonly loading = this.store.isLoading;
   uploading = signal(false);
 
   async ngOnInit() {
@@ -111,14 +113,14 @@ export class FilesPage implements OnInit {
   }
 
   async loadFiles() {
-    this.loading.set(true);
+    this.store.setLoading(true);
     try {
       const result = await this.filesService.list();
-      this.files.set(result);
+      this.store.setFiles(result);
     } catch (err) {
       this.toast.error(extractErrorMessage(err, 'Failed to load files'));
     } finally {
-      this.loading.set(false);
+      this.store.setLoading(false);
     }
   }
 
@@ -131,7 +133,7 @@ export class FilesPage implements OnInit {
     try {
       for (const file of selectedFiles) {
         const record = await this.filesService.upload(file);
-        this.files.update((existing) => [record, ...existing]);
+        this.store.addFile(record);
       }
       this.toast.success('Files uploaded successfully');
     } catch (err) {
@@ -162,7 +164,7 @@ export class FilesPage implements OnInit {
     if (confirmed) {
       try {
         await this.filesService.delete(file);
-        this.files.update((existing) => existing.filter((f) => f.id !== file.id));
+        this.store.removeFile(file.id);
         this.toast.success('File deleted');
       } catch (err) {
         this.toast.error(extractErrorMessage(err, 'Failed to delete file'));
