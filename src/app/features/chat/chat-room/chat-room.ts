@@ -1,12 +1,13 @@
 import {
-  Component,
-  inject,
-  signal,
-  OnInit,
-  DestroyRef,
-  ViewChild,
-  ElementRef,
   AfterViewChecked,
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  ElementRef,
+  inject,
+  OnInit,
+  signal,
+  ViewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -21,6 +22,7 @@ import { ToastService, ConnectionIndicator, LoadingSpinner, TimeAgoPipe } from '
 
 @Component({
   selector: 'app-chat-room',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     TimeAgoPipe,
     FormsModule,

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -16,6 +16,7 @@ import { extractErrorMessage } from '@core';
 
 @Component({
   selector: 'app-files-page',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     TimeAgoPipe,
     MatCardModule,

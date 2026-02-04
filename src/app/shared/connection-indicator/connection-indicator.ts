@@ -1,10 +1,11 @@
-import { Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ConnectionStatus } from '@core';
 
 @Component({
   selector: 'app-connection-indicator',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatIconModule, MatTooltipModule],
   template: `
     <div class="connection-indicator" [matTooltip]="tooltip()">

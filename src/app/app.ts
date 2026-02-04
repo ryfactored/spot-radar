@@ -1,4 +1,4 @@
-import { Component, inject, effect, PLATFORM_ID } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, effect, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Title } from '@angular/platform-browser';
 import { Router, NavigationEnd, ActivatedRoute, RouterOutlet } from '@angular/router';
@@ -8,6 +8,7 @@ import { environment } from '@env';
 
 @Component({
   selector: 'app-root',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterOutlet],
   template: `
     <router-outlet />

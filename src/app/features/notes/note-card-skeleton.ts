@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { Skeleton } from '@shared';
 
 @Component({
   selector: 'app-note-card-skeleton',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatCardModule, Skeleton],
   template: `
     <mat-card class="skeleton-card">

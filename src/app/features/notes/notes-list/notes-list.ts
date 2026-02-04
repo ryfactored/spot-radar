@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -16,6 +16,7 @@ import { environment } from '@env';
 
 @Component({
   selector: 'app-notes-list',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     TimeAgoPipe,
     FormsModule,

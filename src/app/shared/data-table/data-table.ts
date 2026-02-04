@@ -1,11 +1,12 @@
 import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
-  input,
-  output,
   computed,
   effect,
+  input,
+  output,
   ViewChild,
-  AfterViewInit,
 } from '@angular/core';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatSortModule, MatSort } from '@angular/material/sort';
@@ -24,6 +25,7 @@ export interface ColumnDef<T = any> {
 
 @Component({
   selector: 'app-data-table',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatTableModule, MatSortModule, MatPaginatorModule, MatCheckboxModule],
   template: `
     <div class="table-container">
