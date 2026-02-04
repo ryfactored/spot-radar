@@ -35,25 +35,25 @@ const DEFAULT_PREFERENCES: UserPreferences = {
   providedIn: 'root',
 })
 export class PreferencesService {
-  private auth = inject(AuthService);
-  private preferences = signal<UserPreferences>(DEFAULT_PREFERENCES);
+  #auth = inject(AuthService);
+  #preferences = signal<UserPreferences>(DEFAULT_PREFERENCES);
 
   // Expose individual preferences as readonly computed signals
-  readonly colorTheme = computed(() => this.preferences().colorTheme);
-  readonly darkMode = computed(() => this.preferences().darkMode);
-  readonly sidenavOpened = computed(() => this.preferences().sidenavOpened);
+  readonly colorTheme = computed(() => this.#preferences().colorTheme);
+  readonly darkMode = computed(() => this.#preferences().darkMode);
+  readonly sidenavOpened = computed(() => this.#preferences().sidenavOpened);
 
   constructor() {
     // Reload preferences when user changes (login/logout)
     effect(() => {
-      const user = this.auth.currentUser();
-      this.preferences.set(this.loadFromStorage(user?.id));
+      const user = this.#auth.currentUser();
+      this.#preferences.set(this.#loadFromStorage(user?.id));
     });
 
     // Auto-save to localStorage whenever preferences change (only for authenticated users)
     effect(() => {
-      const prefs = this.preferences();
-      const key = this.getStorageKey();
+      const prefs = this.#preferences();
+      const key = this.#getStorageKey();
       if (key) {
         localStorage.setItem(key, JSON.stringify(prefs));
       }
@@ -61,7 +61,7 @@ export class PreferencesService {
 
     // Cache theme to non-user-scoped key for the inline script in index.html
     effect(() => {
-      const { darkMode, colorTheme } = this.preferences();
+      const { darkMode, colorTheme } = this.#preferences();
       try {
         localStorage.setItem('app:theme', JSON.stringify({ darkMode, colorTheme }));
       } catch {
@@ -70,12 +70,12 @@ export class PreferencesService {
     });
   }
 
-  private getStorageKey(): string | null {
-    const userId = this.auth.currentUser()?.id;
+  #getStorageKey(): string | null {
+    const userId = this.#auth.currentUser()?.id;
     return userId ? `${environment.appName}:preferences:${userId}` : null;
   }
 
-  private loadFromStorage(userId?: string): UserPreferences {
+  #loadFromStorage(userId?: string): UserPreferences {
     if (!userId) return DEFAULT_PREFERENCES;
 
     try {
@@ -91,18 +91,18 @@ export class PreferencesService {
   }
 
   setColorTheme(colorTheme: ColorTheme) {
-    this.preferences.update((prefs) => ({ ...prefs, colorTheme }));
+    this.#preferences.update((prefs) => ({ ...prefs, colorTheme }));
   }
 
   toggleDarkMode() {
-    this.preferences.update((prefs) => ({
+    this.#preferences.update((prefs) => ({
       ...prefs,
       darkMode: !prefs.darkMode,
     }));
   }
 
   toggleSidenav() {
-    this.preferences.update((prefs) => ({
+    this.#preferences.update((prefs) => ({
       ...prefs,
       sidenavOpened: !prefs.sidenavOpened,
     }));

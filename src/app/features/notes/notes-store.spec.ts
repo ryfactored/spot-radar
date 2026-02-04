@@ -196,11 +196,9 @@ describe('NotesStore', () => {
       const baseTime = new Date('2024-01-01T00:00:00Z').getTime();
       vi.setSystemTime(baseTime);
       store.setNotes([mockNote], 1, 10, 1);
-      expect(store.isStale()).toBe(false);
 
-      // Advance time just under TTL and force recompute via lastFetch signal
+      // Advance time just under TTL — read isStale while computed is still dirty
       vi.setSystemTime(baseTime + ttl - 1);
-      (store as any).lastFetch.set(new Date(baseTime));
       expect(store.isStale()).toBe(false);
     });
 
@@ -208,11 +206,9 @@ describe('NotesStore', () => {
       const baseTime = new Date('2024-01-01T00:00:00Z').getTime();
       vi.setSystemTime(baseTime);
       store.setNotes([mockNote], 1, 10, 1);
-      expect(store.isStale()).toBe(false);
 
-      // Advance time past TTL and force recompute via lastFetch signal
+      // Advance time past TTL — read isStale while computed is still dirty
       vi.setSystemTime(baseTime + ttl + 1);
-      (store as any).lastFetch.set(new Date(baseTime));
       expect(store.isStale()).toBe(true);
     });
   });

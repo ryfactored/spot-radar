@@ -82,25 +82,13 @@ Skipped: One-time load with form patching and error-redirect side effects. Using
 
 `linkedSignal()` creates a writable signal that automatically resets when a source signal changes. This is useful for pagination state that should reset on search, or selection state that should clear on data changes.
 
-### 79a. `notes-list.ts:139-173` — Pagination reset on search
+### ~~79a. `notes-list.ts:139-173`~~ — Skipped
 
-**Problem:** `currentPage` and `pageSize` are independent signals. When `search()` is called, `currentPage` is manually reset to 1. This imperative reset is easy to forget in new code paths.
+Skipped: The page reset is triggered by a user action (pressing Enter / clicking search), not by a signal change. `searchQuery` updates on every keystroke via `ngModel`, so linking `currentPage` to it would reset the page on every character typed. The manual `currentPage.set(1)` in `search()` is the correct pattern.
 
-**Plan:** Convert `currentPage` to a `linkedSignal` that resets to 1 whenever `searchQuery` changes:
+### ~~79b. `data-table.ts:167-168`~~ — Skipped
 
-```typescript
-searchQuery = signal('');
-currentPage = linkedSignal(() => {
-  this.searchQuery();
-  return 1;
-});
-```
-
-### 79b. `data-table.ts:167-168` — Selection clear on data change
-
-**Problem:** An `effect()` clears the selection model when data changes. This is the exact use case for `linkedSignal()` if selection were signal-based.
-
-**Plan:** Evaluate whether the `SelectionModel` can be replaced with a signal-based selection pattern using `linkedSignal`. If `SelectionModel` is still needed for Material table integration, keep the current `effect()` approach and document why.
+Skipped: `SelectionModel` is from Angular CDK and is not signal-based. There is no signal to link to. The current `effect()` that clears selection when `data()` changes is already the right approach.
 
 ---
 
@@ -174,8 +162,8 @@ Most shared components already use the modern `input()` / `output()` functions. 
 | 76        | Add OnPush to all components           | Performance   | 1     | Done    |
 | 77        | Migrate @ViewChild to viewChild()      | API Migration | 3     | Done    |
 | 78        | Adopt resource() for data loading      | API Migration | 1     | Done    |
-| 79        | Use linkedSignal() for dependent state | API Migration | 2     | Pending |
-| 80        | Use ES private # fields in stores      | Encapsulation | 3     | Pending |
+| 79        | Use linkedSignal() for dependent state | API Migration | 0     | Skipped |
+| 80        | Use ES private # fields in stores      | Encapsulation | 3     | Done    |
 | 81        | Convert plain properties to signals    | Consistency   | 2     | Pending |
 | 82        | Verify input/output consistency        | Consistency   | 1     | Pending |
 
