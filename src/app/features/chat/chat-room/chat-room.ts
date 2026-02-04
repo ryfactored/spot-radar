@@ -1,5 +1,4 @@
 import {
-  AfterViewChecked,
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
@@ -7,7 +6,7 @@ import {
   inject,
   OnInit,
   signal,
-  ViewChild,
+  viewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -190,14 +189,14 @@ import { ToastService, ConnectionIndicator, LoadingSpinner, TimeAgoPipe } from '
     }
   `,
 })
-export class ChatRoom implements OnInit, AfterViewChecked {
+export class ChatRoom implements OnInit {
   private chatService = inject(ChatService);
   private store = inject(ChatStore);
   private auth = inject(AuthService);
   private toast = inject(ToastService);
   private destroyRef = inject(DestroyRef);
 
-  @ViewChild('messagesContainer') private messagesContainer!: ElementRef<HTMLDivElement>;
+  private messagesContainer = viewChild<ElementRef<HTMLDivElement>>('messagesContainer');
 
   // Delegate to store
   messages = this.store.allMessages;
@@ -206,7 +205,6 @@ export class ChatRoom implements OnInit, AfterViewChecked {
 
   newMessage = signal('');
   sending = signal(false);
-  private shouldScrollToBottom = false;
 
   async ngOnInit() {
     await this.loadMessages();
@@ -220,13 +218,6 @@ export class ChatRoom implements OnInit, AfterViewChecked {
     });
   }
 
-  ngAfterViewChecked() {
-    if (this.shouldScrollToBottom) {
-      this.scrollToBottom();
-      this.shouldScrollToBottom = false;
-    }
-  }
-
   isOwnMessage(message: Message): boolean {
     const user = this.auth.currentUser();
     return user?.id === message.user_id;
@@ -237,7 +228,7 @@ export class ChatRoom implements OnInit, AfterViewChecked {
     try {
       const messages = await this.chatService.list();
       this.store.setMessages(messages);
-      this.shouldScrollToBottom = true;
+      this.scrollToBottom();
     } catch (err) {
       this.toast.error(extractErrorMessage(err, 'Failed to load messages'));
     } finally {
@@ -256,7 +247,7 @@ export class ChatRoom implements OnInit, AfterViewChecked {
       // Add message optimistically (realtime will skip if already exists)
       this.store.addMessage(message);
       this.newMessage.set('');
-      this.shouldScrollToBottom = true;
+      this.scrollToBottom();
     } catch (err) {
       this.toast.error(extractErrorMessage(err, 'Failed to send message'));
     } finally {
@@ -265,9 +256,12 @@ export class ChatRoom implements OnInit, AfterViewChecked {
   }
 
   private scrollToBottom() {
-    if (this.messagesContainer) {
-      const el = this.messagesContainer.nativeElement;
-      el.scrollTop = el.scrollHeight;
-    }
+    // Defer to next frame so the DOM has updated with new messages
+    requestAnimationFrame(() => {
+      const el = this.messagesContainer()?.nativeElement;
+      if (el) {
+        el.scrollTop = el.scrollHeight;
+      }
+    });
   }
 }

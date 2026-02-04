@@ -176,7 +176,7 @@ Most shared components already use the modern `input()` / `output()` functions. 
 | --------- | -------------------------------------- | ------------- | ----- | ------- |
 | 75        | Enable zoneless change detection       | Configuration | 1     | Done    |
 | 76        | Add OnPush to all components           | Performance   | 1     | Done    |
-| 77        | Migrate @ViewChild to viewChild()      | API Migration | 3     | Pending |
+| 77        | Migrate @ViewChild to viewChild()      | API Migration | 3     | Done    |
 | 78        | Adopt resource() for data loading      | API Migration | 3     | Pending |
 | 79        | Use linkedSignal() for dependent state | API Migration | 2     | Pending |
 | 80        | Use ES private # fields in stores      | Encapsulation | 3     | Pending |
