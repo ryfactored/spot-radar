@@ -5,7 +5,7 @@ import { firstValueFrom, timeout } from 'rxjs';
 
 import { roleGuard } from './role-guard';
 import { AuthService } from './auth';
-import { SupabaseService } from './supabase';
+import { SupabaseService } from '../supabase/supabase';
 import { ToastService } from '@shared';
 
 describe('roleGuard', () => {

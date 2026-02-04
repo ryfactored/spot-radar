@@ -1,5 +1,5 @@
 import { Injectable, inject, signal, effect, computed } from '@angular/core';
-import { AuthService } from './auth';
+import { AuthService } from './auth/auth';
 import { environment } from '@env';
 
 export const COLOR_THEMES = [

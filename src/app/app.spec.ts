@@ -3,7 +3,7 @@ import { provideRouter } from '@angular/router';
 import { signal } from '@angular/core';
 
 import { App } from './app';
-import { PreferencesService } from './core/preferences';
+import { PreferencesService } from '@core';
 
 describe('App', () => {
   beforeEach(async () => {
