@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { SupabaseService } from './supabase';
-import { mapToError } from './error-mapper';
+import { mapToError } from '../errors/error-mapper';
 import { environment } from '@env';
 
 const AVATAR_MAX_SIZE = environment.upload.avatarMaxSizeMB * 1024 * 1024;

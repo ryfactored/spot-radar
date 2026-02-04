@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 
 import { AuthService } from './auth';
-import { SupabaseService } from './supabase';
+import { SupabaseService } from '../supabase/supabase';
 
 describe('AuthService', () => {
   let service: AuthService;

@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from './auth';
-import { SupabaseService } from './supabase';
+import { SupabaseService } from '../supabase/supabase';
 import { ToastService } from '@shared';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { filter, map, take, from, switchMap } from 'rxjs';

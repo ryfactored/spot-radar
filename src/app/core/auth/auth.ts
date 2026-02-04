@@ -1,12 +1,12 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { SupabaseService } from './supabase';
-import { RealtimeService } from './realtime';
+import { SupabaseService } from '../supabase/supabase';
+import { RealtimeService } from '../supabase/realtime';
 import { User, Provider } from '@supabase/supabase-js';
-import { mapToError } from './error-mapper';
+import { mapToError } from '../errors/error-mapper';
 import { environment } from '@env';
 
-import type { SocialProvider } from '../../environments/social-provider';
+import type { SocialProvider } from '../../../environments/social-provider';
 export type { SocialProvider };
 
 /**
