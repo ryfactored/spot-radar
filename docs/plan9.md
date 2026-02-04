@@ -156,12 +156,32 @@ Extracted local component state into dedicated stores for the Profile and Files 
 
 ---
 
+## Iteration 87 — Add contributing guide and update docs
+
+Added a `docs/contributing.md` file and updated `CLAUDE.md` and `README.md` to reflect the current state of the codebase.
+
+### New files
+
+| File                   | Description                                                                                                                                                                                                    |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `docs/contributing.md` | Contributing guide covering setup, commands, pre-submit checklist, code conventions, three-layer architecture pattern with code examples, project layout, error handling, forms, theming, and testing patterns |
+
+### Modified files
+
+| File        | Changes                                                                                                                                                                                                               |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `CLAUDE.md` | Expanded State Management section to document the Service/Store/Component pattern and list all four stores                                                                                                            |
+| `README.md` | Fixed stale `core/` project structure tree to reflect `auth/`/`errors/`/`supabase/` sub-folders from Iteration 85. Updated signal stores Architecture Highlight. Added contributing.md link to Documentation section. |
+
+---
+
 ## Summary
 
-| Iteration | Name                                       | Category     | Items | Status |
-| --------- | ------------------------------------------ | ------------ | ----- | ------ |
-| 84        | Normalize git author names                 | Housekeeping | 1     | Done   |
-| 85        | Reorganize `core/` into domain sub-folders | Housekeeping | 4     | Done   |
-| 86        | Add ProfileStore and FilesStore            | Architecture | 11    | Done   |
+| Iteration | Name                                       | Category      | Items | Status |
+| --------- | ------------------------------------------ | ------------- | ----- | ------ |
+| 84        | Normalize git author names                 | Housekeeping  | 1     | Done   |
+| 85        | Reorganize `core/` into domain sub-folders | Housekeeping  | 4     | Done   |
+| 86        | Add ProfileStore and FilesStore            | Architecture  | 11    | Done   |
+| 87        | Add contributing guide and update docs     | Documentation | 3     | Done   |
 
-**Total iterations**: 3 (84–86).
+**Total iterations**: 4 (84–87).
