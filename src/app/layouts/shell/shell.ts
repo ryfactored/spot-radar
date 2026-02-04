@@ -3,7 +3,7 @@ import {
   Component,
   computed,
   inject,
-  OnInit,
+  resource,
   signal,
   viewChild,
 } from '@angular/core';
@@ -44,7 +44,7 @@ import { routeAnimation } from '@shared';
   styleUrl: './shell.scss',
   animations: [routeAnimation],
 })
-export class Shell implements OnInit {
+export class Shell {
   private sidenav = viewChild<MatSidenav>('sidenav');
   private sidenavContent = viewChild(MatSidenavContent);
 
@@ -59,9 +59,18 @@ export class Shell implements OnInit {
   // Route animation key — incremented on each route activation
   routeKey = signal(0);
 
-  // User role for conditional nav items
-  userRole = signal<UserRole | null>(null);
-  isAdmin = computed(() => this.userRole() === 'admin');
+  // User role — loaded reactively when currentUser changes
+  private userRoleResource = resource({
+    params: () => {
+      const userId = this.auth.currentUser()?.id;
+      return userId ? { userId } : undefined;
+    },
+    loader: async ({ params }) => {
+      const profile = await this.profileService.getProfile(params.userId);
+      return (profile?.role as UserRole) ?? null;
+    },
+  });
+  isAdmin = computed(() => this.userRoleResource.value() === 'admin');
 
   // User avatar and display name (shared via ProfileService)
   avatarUrl = this.profileService.avatarUrl;
@@ -93,20 +102,6 @@ export class Shell implements OnInit {
         // Scroll content to top — the scroll container is mat-sidenav-content, not the viewport
         this.sidenavContent()?.getElementRef().nativeElement.scrollTo(0, 0);
       });
-  }
-
-  async ngOnInit() {
-    await this.loadUserRole();
-  }
-
-  private async loadUserRole() {
-    const user = this.auth.currentUser();
-    if (!user) return;
-
-    const profile = await this.profileService.getProfile(user.id);
-    if (profile?.role) {
-      this.userRole.set(profile.role as UserRole);
-    }
   }
 
   toggleSidenav() {

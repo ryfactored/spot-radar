@@ -62,11 +62,9 @@ Five instances of the decorator-based `@ViewChild` remain. The signal-based `vie
 
 The codebase manually manages `loading`, `error`, and data signals for every async operation with repetitive `try/catch/finally` blocks. Angular 21 provides the `resource()` API which handles loading states, error states, and request cancellation automatically.
 
-### 78a. `notes-list.ts` — Replace manual loading pattern with `resource()`
+### ~~78a. `notes-list.ts`~~ — Skipped
 
-**Problem:** `notes-list.ts:154-168` manually sets `loading(true)`, wraps a service call in try/catch, and sets `loading(false)` in finally. This pattern is repeated for every data-fetching component.
-
-**Plan:** Replace with a `resource()` that reacts to `currentPage`, `pageSize`, and `searchQuery` signals. The resource provides built-in `isLoading()`, `value()`, and `error()` signals, eliminating the manual boilerplate. Evaluate the interaction with `NotesStore` — the resource may replace the store's loading state management or feed into it.
+Skipped: The `NotesStore` is a shared cache with TTL, optimistic mutations, and pagination state. `resource()` manages its own value/loading state, which conflicts with the store as source of truth.
 
 ### 78b. `shell.ts:89-101` — Replace `ngOnInit` role loading with `resource()`
 
@@ -74,11 +72,9 @@ The codebase manually manages `loading`, `error`, and data signals for every asy
 
 **Plan:** Replace with a `resource()` that loads the user role reactively based on `auth.currentUser()`. When the user changes, the resource automatically re-fetches. Remove the `ngOnInit` lifecycle hook.
 
-### 78c. `note-form.ts` — Replace edit-mode loading with `resource()`
+### ~~78c. `note-form.ts`~~ — Skipped
 
-**Problem:** The note form component loads an existing note by ID from route params in `ngOnInit`, managing loading/error state manually.
-
-**Plan:** Use a `resource()` keyed on the route param `id`. The resource loads the note when the param is present and provides loading/error states. This eliminates the imperative `ngOnInit` loading pattern.
+Skipped: One-time load with form patching and error-redirect side effects. Using `resource()` would split into three separate pieces (resource, form-patching effect, error effect) — more complexity than the current `loadNote()` method.
 
 ---
 
@@ -177,7 +173,7 @@ Most shared components already use the modern `input()` / `output()` functions. 
 | 75        | Enable zoneless change detection       | Configuration | 1     | Done    |
 | 76        | Add OnPush to all components           | Performance   | 1     | Done    |
 | 77        | Migrate @ViewChild to viewChild()      | API Migration | 3     | Done    |
-| 78        | Adopt resource() for data loading      | API Migration | 3     | Pending |
+| 78        | Adopt resource() for data loading      | API Migration | 1     | Done    |
 | 79        | Use linkedSignal() for dependent state | API Migration | 2     | Pending |
 | 80        | Use ES private # fields in stores      | Encapsulation | 3     | Pending |
 | 81        | Convert plain properties to signals    | Consistency   | 2     | Pending |
