@@ -147,6 +147,7 @@ The app uses SSR with Express. See [docs/setup.md](docs/setup.md) for Vercel, Do
 ## Documentation
 
 - [Setup Guide](docs/setup.md) — Full clone-to-deploy walkthrough
+- [Contributing](docs/contributing.md) — Code conventions, architecture patterns, and testing
 - [Theming Guide](docs/theming.md) — Customize colors and add new themes
 - [Feature Removal](docs/feature-removal.md) — Strip example features you don't need
 - [Accessibility](docs/accessibility.md) — Audit results and patterns used
