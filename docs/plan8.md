@@ -165,6 +165,6 @@ Most shared components already use the modern `input()` / `output()` functions. 
 | 79        | Use linkedSignal() for dependent state | API Migration | 0     | Skipped |
 | 80        | Use ES private # fields in stores      | Encapsulation | 3     | Done    |
 | 81        | Convert plain properties to signals    | Consistency   | 2     | Done    |
-| 82        | Verify input/output consistency        | Consistency   | 1     | Pending |
+| 82        | Verify input/output consistency        | Consistency   | 1     | Done    |
 
 **Total iterations**: 8 (75-82). **Total items**: 16.
