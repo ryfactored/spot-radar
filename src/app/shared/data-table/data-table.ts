@@ -1,12 +1,11 @@
 import {
-  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   computed,
   effect,
   input,
   output,
-  ViewChild,
+  viewChild,
 } from '@angular/core';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatSortModule, MatSort } from '@angular/material/sort';
@@ -127,9 +126,9 @@ export interface ColumnDef<T = any> {
 })
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export class DataTable<T = any> implements AfterViewInit {
-  @ViewChild(MatSort) sort!: MatSort;
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
+export class DataTable<T = any> {
+  private sort = viewChild(MatSort);
+  private paginator = viewChild(MatPaginator);
 
   // Inputs
   columns = input.required<ColumnDef<T>[]>();
@@ -168,14 +167,22 @@ export class DataTable<T = any> implements AfterViewInit {
       // Clear selection when data changes to avoid stale references
       this.selection.clear();
     });
-  }
 
-  ngAfterViewInit() {
-    this.dataSource.sort = this.sort;
-    // Only connect paginator for client-side pagination (when totalItems is not set)
-    if (this.paginate() && this.totalItems() === undefined) {
-      this.dataSource.paginator = this.paginator;
-    }
+    // Wire up sort and paginator when view children become available
+    effect(() => {
+      const sort = this.sort();
+      if (sort) {
+        this.dataSource.sort = sort;
+      }
+    });
+
+    effect(() => {
+      const paginator = this.paginator();
+      // Only connect paginator for client-side pagination (when totalItems is not set)
+      if (paginator && this.paginate() && this.totalItems() === undefined) {
+        this.dataSource.paginator = paginator;
+      }
+    });
   }
 
   onRowClick(row: T) {

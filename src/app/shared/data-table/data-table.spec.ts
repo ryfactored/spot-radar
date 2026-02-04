@@ -59,7 +59,6 @@ describe('DataTable', () => {
   it('should toggle all rows selection', () => {
     fixture.componentRef.setInput('selectable', true);
     fixture.detectChanges();
-    component.ngAfterViewInit();
 
     component.toggleAllRows();
     expect(component.selection.selected.length).toBe(2);
