@@ -1,8 +1,9 @@
-import { Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-loading-spinner',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatProgressSpinnerModule],
   template: `
     <div class="loading-container" role="status" aria-live="polite">

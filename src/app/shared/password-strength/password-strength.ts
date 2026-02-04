@@ -1,4 +1,4 @@
-import { Component, input, computed } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, computed } from '@angular/core';
 import { environment } from '@env';
 
 export type StrengthLevel = 'weak' | 'fair' | 'good' | 'strong';
@@ -11,6 +11,7 @@ export interface PasswordStrengthResult {
 
 @Component({
   selector: 'app-password-strength',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="password-strength" aria-live="polite" aria-atomic="true">
       <div class="strength-bar" aria-hidden="true">

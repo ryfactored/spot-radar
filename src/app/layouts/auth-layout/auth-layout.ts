@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { LoadingBar } from '@shared';
 import { environment } from '@env';
@@ -6,6 +6,7 @@ import { routeAnimation } from '@shared';
 
 @Component({
   selector: 'app-auth-layout',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterOutlet, LoadingBar],
   animations: [routeAnimation],
   template: `

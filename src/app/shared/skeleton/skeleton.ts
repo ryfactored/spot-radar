@@ -1,8 +1,9 @@
-import { Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { NgStyle } from '@angular/common';
 
 @Component({
   selector: 'app-skeleton',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [NgStyle],
   template: `
     <div

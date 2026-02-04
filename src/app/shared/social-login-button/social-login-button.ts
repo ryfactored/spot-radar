@@ -1,4 +1,4 @@
-import { Component, input, output, inject, computed } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output, inject, computed } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -6,6 +6,7 @@ import { SocialProvider } from '@core';
 
 @Component({
   selector: 'app-social-login-button',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatButtonModule, MatProgressSpinnerModule],
   template: `
     <button

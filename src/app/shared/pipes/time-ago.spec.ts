@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { TimeAgoPipe } from './time-ago.pipe';
+import { TimeAgoPipe } from './time-ago';
 
 describe('TimeAgoPipe', () => {
   const pipe = new TimeAgoPipe();

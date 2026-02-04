@@ -1,8 +1,9 @@
-import { Component, computed, effect, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, input, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-avatar',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatIconModule],
   host: {
     '[style.width.px]': 'size()',

@@ -1,4 +1,12 @@
-import { Component, inject, computed, ViewChild, signal, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  computed,
+  ViewChild,
+  signal,
+  OnInit,
+} from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSidenav, MatSidenavContent, MatSidenavModule } from '@angular/material/sidenav';
@@ -17,6 +25,7 @@ import { routeAnimation } from '@shared';
 
 @Component({
   selector: 'app-shell',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterOutlet,
     RouterLink,

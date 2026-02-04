@@ -1,4 +1,4 @@
-import { Component, inject, signal, DestroyRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal, DestroyRef } from '@angular/core';
 import {
   Router,
   NavigationStart,
@@ -12,6 +12,7 @@ import { environment } from '@env';
 
 @Component({
   selector: 'app-loading-bar',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (loading()) {
       <div class="loading-bar" role="progressbar" aria-label="Page loading"></div>

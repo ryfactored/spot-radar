@@ -13,7 +13,12 @@
         "@schematics/angular:component": {
           "style": "scss",
           "inlineTemplate": true,
-          "inlineStyle": true
+          "inlineStyle": true,
+          "changeDetection": "OnPush",
+          "type": ""
+        },
+        "@schematics/angular:directive": {
+          "type": ""
         }
       },
       "root": "",
