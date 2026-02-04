@@ -157,14 +157,14 @@ describe('NotesList', () => {
   describe('search', () => {
     it('should reset to page 1 when searching', () => {
       component.currentPage.set(3);
-      component.searchQuery = 'test';
+      component.searchQuery.set('test');
       component.search();
 
       expect(component.currentPage()).toBe(1);
     });
 
     it('should call loadNotes when searching', () => {
-      component.searchQuery = 'test';
+      component.searchQuery.set('test');
       component.search();
 
       expect(notesStoreMock.setLoading).toHaveBeenCalledWith(true);

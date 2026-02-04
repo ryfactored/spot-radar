@@ -37,15 +37,14 @@ import { environment } from '@env';
 })
 export class App {
   private preferences = inject(PreferencesService);
-  private platformId = inject(PLATFORM_ID);
 
   isProd = environment.production;
-  isBrowser = false;
+  readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private colorThemeClasses = COLOR_THEMES.map((t) => t.value);
 
   constructor() {
     // Skip theme handling on server (no document)
-    if (!isPlatformBrowser(this.platformId)) {
+    if (!this.isBrowser) {
       return;
     }
 
@@ -65,9 +64,6 @@ export class App {
         document.documentElement.style.visibility = '';
       }, 5000);
     }
-
-    // Enable dev badge (only in browser to avoid hydration mismatch)
-    this.isBrowser = true;
 
     // Update page title on navigation
     const titleService = inject(Title);
