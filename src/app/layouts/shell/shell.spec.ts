@@ -6,17 +6,26 @@ import { signal } from '@angular/core';
 import { Shell } from './shell';
 import { PreferencesService, AuthService } from '@core';
 import { ProfileService } from '@features/profile/profile-service';
+import { ProfileStore } from '@features/profile/profile-store';
 
 describe('Shell', () => {
   let component: Shell;
   let fixture: ComponentFixture<Shell>;
   let profileMock: ReturnType<typeof createProfileMock>;
+  let profileStore: ProfileStore;
 
   function createProfileMock(role = 'user') {
     return {
-      avatarUrl: signal<string | null>(null),
-      displayName: signal<string | null>(null),
-      getProfile: vi.fn().mockResolvedValue({ role, avatar_url: null, display_name: null }),
+      getProfile: vi.fn().mockResolvedValue({
+        role,
+        avatar_url: null,
+        display_name: null,
+        id: '123',
+        email: 'test@test.com',
+        bio: null,
+        created_at: '2024-01-01T00:00:00Z',
+        updated_at: '2024-01-01T00:00:00Z',
+      }),
     };
   }
 
@@ -56,6 +65,7 @@ describe('Shell', () => {
       ],
     }).compileComponents();
 
+    profileStore = TestBed.inject(ProfileStore);
     fixture = TestBed.createComponent(Shell);
     component = fixture.componentInstance;
     await fixture.whenStable();
@@ -103,6 +113,14 @@ describe('Shell', () => {
 
       expect(profileMock.getProfile).not.toHaveBeenCalled();
       expect(component.isAdmin()).toBe(false);
+    });
+  });
+
+  describe('profile store integration', () => {
+    it('should populate profile store after loading', async () => {
+      await setupTest();
+
+      expect(profileStore.currentProfile()).toBeTruthy();
     });
   });
 

@@ -28,7 +28,15 @@ There is no zone.js. Only **signals** trigger change detection. All reactive com
 
 ### State Management
 
-Signals are the primary state primitive. RxJS is used only where required (route guards via `toObservable()`, breakpoint detection via `toSignal()`). Feature stores use the signal store pattern — see `notes-store.ts` for the reference implementation with computed derived state and 5-minute TTL cache invalidation. Use `effect()` for side effects like auto-persisting to localStorage.
+Signals are the primary state primitive. RxJS is used only where required (route guards via `toObservable()`, breakpoint detection via `toSignal()`). Use `effect()` for side effects like auto-persisting to localStorage.
+
+All features with shared or list data use the three-layer pattern:
+
+- **Service** — Pure data access. Async methods that call Supabase and return data. No signals, no state.
+- **Store** — `providedIn: 'root'` injectable holding domain data in signals. Exposes readonly signals and mutation methods. Never calls services or makes network requests.
+- **Component** — Orchestrator. Injects both service and store. Calls the service, pushes results into the store. Templates bind to store signals. Transient UI flags (`saving`, `uploading`, `deleting`) stay as local component signals.
+
+Stores: `NotesStore`, `ChatStore`, `FilesStore`, `ProfileStore`. See `notes-store.ts` for the reference implementation with computed derived state and 5-minute TTL cache invalidation.
 
 ### Project Layout
 

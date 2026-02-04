@@ -6,6 +6,7 @@ import { signal } from '@angular/core';
 import { Profile } from './profile';
 import { AuthService, StorageService } from '@core';
 import { ProfileService } from './profile-service';
+import { ProfileStore } from './profile-store';
 import { ConfirmDialogService, ToastService } from '@shared';
 import { environment } from '@env';
 
@@ -15,8 +16,20 @@ describe('Profile', () => {
   let authMock: any;
   let storageMock: any;
   let profileMock: any;
+  let profileStore: ProfileStore;
   let toastMock: any;
   let confirmMock: any;
+
+  const mockProfileData = {
+    id: 'user-123',
+    email: 'test@test.com',
+    display_name: 'Test User',
+    avatar_url: 'https://example.com/avatar.png',
+    bio: '',
+    role: 'user' as const,
+    created_at: '2024-01-01T00:00:00Z',
+    updated_at: '2024-01-01T00:00:00Z',
+  };
 
   beforeEach(async () => {
     authMock = {
@@ -26,21 +39,8 @@ describe('Profile', () => {
     };
 
     profileMock = {
-      avatarUrl: signal<string | null>(null),
-      displayName: signal<string | null>(null),
-      getProfile: vi.fn().mockImplementation(async () => {
-        const profile = {
-          id: 'user-123',
-          email: 'test@test.com',
-          display_name: 'Test User',
-          avatar_url: 'https://example.com/avatar.png',
-          bio: '',
-        };
-        profileMock.avatarUrl.set(profile.avatar_url);
-        profileMock.displayName.set(profile.display_name);
-        return profile;
-      }),
-      updateProfile: vi.fn().mockResolvedValue({}),
+      getProfile: vi.fn().mockResolvedValue(mockProfileData),
+      updateProfile: vi.fn().mockResolvedValue(mockProfileData),
       deleteProfile: vi.fn().mockResolvedValue(undefined),
     };
 
@@ -74,6 +74,7 @@ describe('Profile', () => {
       ],
     }).compileComponents();
 
+    profileStore = TestBed.inject(ProfileStore);
     fixture = TestBed.createComponent(Profile);
     component = fixture.componentInstance;
     await fixture.whenStable();
@@ -83,8 +84,8 @@ describe('Profile', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should load avatar_url from profile', () => {
-    expect(profileMock.avatarUrl()).toBe('https://example.com/avatar.png');
+  it('should load avatar_url from profile into store', () => {
+    expect(profileStore.avatarUrl()).toBe('https://example.com/avatar.png');
   });
 
   it('should show avatar image when avatarUrl is set', () => {
@@ -135,6 +136,20 @@ describe('Profile', () => {
         avatar_url: 'https://example.com/new-avatar.png',
       }),
     );
+  });
+
+  it('should update store profile after submit', async () => {
+    await component.onSubmit();
+
+    expect(profileStore.currentProfile()).toEqual(mockProfileData);
+  });
+
+  it('should clear store on delete', async () => {
+    confirmMock.confirm.mockResolvedValue(true);
+
+    await component.onDeleteAccount();
+
+    expect(profileStore.currentProfile()).toBeNull();
   });
 
   describe('change password', () => {
