@@ -37,6 +37,7 @@ export const routes: Routes = [
         data: { title: 'Components' },
         loadComponent: () =>
           import('./features/component-test/component-test').then((m) => m.ComponentTest),
+        canActivate: [featureFlagGuard('components')],
       },
       {
         path: 'notes',
@@ -86,6 +87,16 @@ export const routes: Routes = [
         },
         loadComponent: () =>
           import('./features/admin/users-list/users-list').then((m) => m.UsersList),
+        canActivate: [roleGuard('admin'), featureFlagGuard('admin')],
+      },
+      {
+        path: 'admin/feature-flags',
+        data: {
+          title: 'Feature Flags',
+          breadcrumb: [{ label: 'Admin', route: '/admin' }, { label: 'Feature Flags' }],
+        },
+        loadComponent: () =>
+          import('./features/admin/feature-flags/feature-flags').then((m) => m.FeatureFlagsPage),
         canActivate: [roleGuard('admin'), featureFlagGuard('admin')],
       },
     ],

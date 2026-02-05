@@ -66,16 +66,18 @@
         <mat-icon matListItemIcon>person</mat-icon>
         <span matListItemTitle>Profile</span>
       </a>
-      <a
-        mat-list-item
-        routerLink="/components"
-        routerLinkActive="active-link"
-        #rlaComponents="routerLinkActive"
-        [attr.aria-current]="rlaComponents.isActive ? 'page' : null"
-      >
-        <mat-icon matListItemIcon>widgets</mat-icon>
-        <span matListItemTitle>Components</span>
-      </a>
+      @if (featureFlags.isEnabled('components')) {
+        <a
+          mat-list-item
+          routerLink="/components"
+          routerLinkActive="active-link"
+          #rlaComponents="routerLinkActive"
+          [attr.aria-current]="rlaComponents.isActive ? 'page' : null"
+        >
+          <mat-icon matListItemIcon>widgets</mat-icon>
+          <span matListItemTitle>Components</span>
+        </a>
+      }
       @if (isAdmin() && featureFlags.isEnabled('admin')) {
         <button
           mat-list-item
@@ -112,6 +114,15 @@
             >
               <mat-icon matListItemIcon>group</mat-icon>
               <span matListItemTitle>Users</span>
+            </a>
+            <a
+              mat-list-item
+              class="submenu-item"
+              routerLink="/admin/feature-flags"
+              routerLinkActive="active-link"
+            >
+              <mat-icon matListItemIcon>toggle_on</mat-icon>
+              <span matListItemTitle>Feature Flags</span>
             </a>
           </div>
         }
