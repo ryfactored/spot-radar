@@ -5,8 +5,10 @@ import {
   effect,
   input,
   output,
+  TemplateRef,
   viewChild,
 } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatSortModule, MatSort } from '@angular/material/sort';
 import { MatPaginatorModule, MatPaginator, PageEvent } from '@angular/material/paginator';
@@ -20,12 +22,13 @@ export interface ColumnDef<T = any> {
   header: string;
   sortable?: boolean;
   cell?: (row: T) => string;
+  cellTemplate?: TemplateRef<unknown>;
 }
 
 @Component({
   selector: 'app-data-table',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatTableModule, MatSortModule, MatPaginatorModule, MatCheckboxModule],
+  imports: [MatTableModule, MatSortModule, MatPaginatorModule, MatCheckboxModule, NgTemplateOutlet],
   template: `
     <div class="table-container">
       <table mat-table [dataSource]="dataSource" matSort>
@@ -66,7 +69,13 @@ export interface ColumnDef<T = any> {
               </th>
             }
             <td mat-cell *matCellDef="let row">
-              {{ column.cell ? column.cell(row) : row[column.key] }}
+              @if (column.cellTemplate) {
+                <ng-container
+                  *ngTemplateOutlet="column.cellTemplate; context: { $implicit: row }"
+                ></ng-container>
+              } @else {
+                {{ column.cell ? column.cell(row) : row[column.key] }}
+              }
             </td>
           </ng-container>
         }

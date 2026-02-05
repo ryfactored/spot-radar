@@ -1,37 +1,48 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
+import { UsersService } from './users-service';
 
 @Component({
   selector: 'app-admin',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatCardModule, MatIconModule],
+  imports: [RouterLink, MatCardModule, MatIconModule],
   template: `
     <div class="page-header">
       <h1>Admin</h1>
     </div>
 
-    <mat-card class="admin-card">
-      <mat-card-header>
-        <mat-icon mat-card-avatar class="admin-avatar">admin_panel_settings</mat-icon>
-        <mat-card-title>Admin Dashboard</mat-card-title>
-        <mat-card-subtitle>Manage your application</mat-card-subtitle>
-      </mat-card-header>
-      <mat-card-content>
-        <p>This page is only accessible to users with the <strong>admin</strong> role.</p>
-        <p>Add your admin functionality here:</p>
-        <ul>
-          <li>User management</li>
-          <li>System settings</li>
-          <li>Analytics dashboard</li>
-          <li>Content moderation</li>
-        </ul>
-      </mat-card-content>
-    </mat-card>
+    <div class="admin-grid">
+      <mat-card class="admin-link-card" routerLink="/admin/users">
+        <mat-card-header>
+          <mat-icon mat-card-avatar class="admin-avatar">group</mat-icon>
+          <mat-card-title>Users</mat-card-title>
+          <mat-card-subtitle>
+            @if (userCount() !== null) {
+              {{ userCount() }} registered {{ userCount() === 1 ? 'user' : 'users' }}
+            } @else {
+              View registered users
+            }
+          </mat-card-subtitle>
+        </mat-card-header>
+      </mat-card>
+    </div>
   `,
   styles: `
-    .admin-card {
-      max-width: 800px;
+    .admin-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .admin-link-card {
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+
+    .admin-link-card:hover {
+      transform: scale(1.02);
     }
 
     .admin-avatar {
@@ -44,16 +55,18 @@ import { MatIconModule } from '@angular/material/icon';
       align-items: center;
       justify-content: center;
     }
-
-    ul {
-      margin: 16px 0 0;
-      padding-left: 20px;
-    }
-
-    li {
-      margin: 8px 0;
-      color: var(--mat-sys-on-surface-variant);
-    }
   `,
 })
-export class Admin {}
+export class Admin implements OnInit {
+  private usersService = inject(UsersService);
+
+  userCount = signal<number | null>(null);
+
+  async ngOnInit() {
+    try {
+      this.userCount.set(await this.usersService.count());
+    } catch {
+      // keep default subtitle
+    }
+  }
+}

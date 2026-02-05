@@ -118,6 +118,19 @@ describe('Profile', () => {
     expect(component.avatarPreview()).toBeTruthy();
   });
 
+  it('should render blob preview in avatar after file selection', () => {
+    const file = new File(['data'], 'avatar.png', { type: 'image/png' });
+    const event = { target: { files: [file] } } as unknown as Event;
+
+    component.onAvatarSelected(event);
+    fixture.detectChanges();
+
+    const avatar = fixture.nativeElement.querySelector('app-avatar');
+    const img = avatar.querySelector('img');
+    expect(img).toBeTruthy();
+    expect(img.src).toContain('blob:');
+  });
+
   it('should upload avatar on submit when file is selected', async () => {
     const file = new File(['data'], 'avatar.png', { type: 'image/png' });
     component.selectedAvatarFile.set(file);

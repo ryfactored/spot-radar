@@ -76,6 +76,17 @@ describe('Avatar', () => {
     expect(initials.textContent.trim()).toBe('TU');
   });
 
+  it('should render blob URLs using plain src attribute', () => {
+    const blobUrl = 'blob:http://localhost:4200/fake-blob-id';
+    fixture.componentRef.setInput('src', blobUrl);
+    fixture.detectChanges();
+
+    const img = fixture.nativeElement.querySelector('img');
+    expect(img).toBeTruthy();
+    expect(img.src).toBe(blobUrl);
+    expect(img.getAttribute('ngSrc')).toBeNull();
+  });
+
   it('should apply correct size to host element', () => {
     fixture.componentRef.setInput('size', 64);
     fixture.detectChanges();

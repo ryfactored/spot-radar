@@ -18,7 +18,7 @@ import { BreakpointObserver } from '@angular/cdk/layout';
 import { toSignal, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { map, filter } from 'rxjs';
 import { PreferencesService, AuthService, UserRole, FeatureFlags } from '@core';
-import { ThemePicker, LoadingBar, Avatar } from '@shared';
+import { ThemePicker, LoadingBar, Avatar, Breadcrumb } from '@shared';
 import { ProfileService } from '@features/profile/profile-service';
 import { ProfileStore } from '@features/profile/profile-store';
 import { environment } from '@env';
@@ -40,6 +40,7 @@ import { routeAnimation } from '@shared';
     ThemePicker,
     LoadingBar,
     Avatar,
+    Breadcrumb,
   ],
   templateUrl: './shell.html',
   styleUrl: './shell.scss',
@@ -60,6 +61,10 @@ export class Shell {
 
   // Route animation key — incremented on each route activation
   routeKey = signal(0);
+
+  // Expandable submenu groups — derived from routes with slashes (e.g. admin/users → group "admin")
+  private readonly groupPrefixes: Set<string>;
+  expandedGroups = signal(new Set<string>());
 
   // User role — loaded reactively when currentUser changes
   private userRoleResource = resource({
@@ -92,15 +97,35 @@ export class Shell {
   sidenavOpened = computed(() => (this.isMobile() ? false : this.preferences.sidenavOpened()));
 
   constructor() {
-    // Close sidenav on navigation when on mobile
+    // Derive expandable group prefixes from Shell's child routes
+    // Any route with a slash (e.g. "admin/users") makes its prefix ("admin") a group
+    const shellRoute = this.router.config.find((r) => r.component === Shell);
+    const childPaths = new Set((shellRoute?.children ?? []).map((r) => r.path).filter(Boolean));
+    this.groupPrefixes = new Set<string>();
+    for (const path of childPaths) {
+      const slash = path!.indexOf('/');
+      if (slash > 0) {
+        const prefix = path!.substring(0, slash);
+        if (childPaths.has(prefix)) {
+          this.groupPrefixes.add(prefix);
+        }
+      }
+    }
+
+    // Close sidenav on navigation when on mobile, auto-expand matching submenu groups
     this.router.events
       .pipe(
-        filter((event) => event instanceof NavigationEnd),
+        filter((event): event is NavigationEnd => event instanceof NavigationEnd),
         takeUntilDestroyed(),
       )
-      .subscribe(() => {
+      .subscribe((event) => {
         if (this.isMobile()) {
           this.sidenav()?.close();
+        }
+        for (const prefix of this.groupPrefixes) {
+          if (event.urlAfterRedirects.startsWith(`/${prefix}`)) {
+            this.expandedGroups.update((g) => new Set(g).add(prefix));
+          }
         }
         // Scroll content to top — the scroll container is mat-sidenav-content, not the viewport
         this.sidenavContent()?.getElementRef().nativeElement.scrollTo(0, 0);
@@ -112,6 +137,20 @@ export class Shell {
       this.sidenav()?.toggle();
     } else {
       this.preferences.toggleSidenav();
+    }
+  }
+
+  toggleGroup(group: string, navigateTo?: string) {
+    const next = new Set(this.expandedGroups());
+    const expanding = !next.has(group);
+    if (expanding) {
+      next.add(group);
+    } else {
+      next.delete(group);
+    }
+    this.expandedGroups.set(next);
+    if (expanding && navigateTo) {
+      this.router.navigate([navigateTo]);
     }
   }
 
