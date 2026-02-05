@@ -61,4 +61,16 @@ describe('Admin', () => {
     await setupTest(mock);
     expect(fixture.nativeElement.textContent).toContain('View registered users');
   });
+
+  it('should have a link to feature flags', async () => {
+    await setupTest();
+    const cards = fixture.nativeElement.querySelectorAll('.admin-link-card');
+    expect(cards.length).toBe(2);
+    expect(fixture.nativeElement.textContent).toContain('Feature Flags');
+  });
+
+  it('should display enabled flags summary', async () => {
+    await setupTest();
+    expect(fixture.nativeElement.textContent).toMatch(/\d+ of \d+ enabled/);
+  });
 });

@@ -169,8 +169,7 @@ import { environment } from '@env';
       </mat-card-header>
       <mat-card-content>
         <p class="danger-description">
-          Permanently delete your account data including your profile, notes, messages, and files.
-          This action cannot be undone.
+          Permanently delete your account and all associated data. This action cannot be undone.
         </p>
         <button
           mat-raised-button

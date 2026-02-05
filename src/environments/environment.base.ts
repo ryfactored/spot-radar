@@ -25,5 +25,12 @@ export const environmentBase: Environment = {
   storageBuckets: { avatars: 'avatars', files: 'user-files' },
   searchDebounceMs: 300,
   loadingBarDelayMs: 300,
-  featureFlags: { notes: true, chat: true, files: true, admin: true, breadcrumb: true },
+  featureFlags: {
+    notes: true,
+    chat: true,
+    files: true,
+    admin: true,
+    breadcrumb: true,
+    components: true,
+  },
 };

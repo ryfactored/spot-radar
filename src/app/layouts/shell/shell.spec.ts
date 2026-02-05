@@ -157,7 +157,7 @@ describe('Shell', () => {
       expect(submenu).toBeNull();
     });
 
-    it('should show Overview and Users links when expanded', async () => {
+    it('should show Overview, Users, and Feature Flags links when expanded', async () => {
       await setupTest({ role: 'admin' });
 
       const toggle = fixture.nativeElement.querySelector('.admin-toggle') as HTMLElement;
@@ -165,9 +165,10 @@ describe('Shell', () => {
       fixture.detectChanges();
 
       const links = fixture.nativeElement.querySelectorAll('#admin-submenu a');
-      expect(links.length).toBe(2);
+      expect(links.length).toBe(3);
       expect(links[0].textContent).toContain('Overview');
       expect(links[1].textContent).toContain('Users');
+      expect(links[2].textContent).toContain('Feature Flags');
     });
 
     it('should have correct routerLink values on child links', async () => {

@@ -1,7 +1,15 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
+import { FeatureFlags } from '@core';
 import { UsersService } from './users-service';
 
 @Component({
@@ -25,6 +33,14 @@ import { UsersService } from './users-service';
               View registered users
             }
           </mat-card-subtitle>
+        </mat-card-header>
+      </mat-card>
+
+      <mat-card class="admin-link-card" routerLink="/admin/feature-flags">
+        <mat-card-header>
+          <mat-icon mat-card-avatar class="admin-avatar">toggle_on</mat-icon>
+          <mat-card-title>Feature Flags</mat-card-title>
+          <mat-card-subtitle>{{ enabledFlagsSummary() }}</mat-card-subtitle>
         </mat-card-header>
       </mat-card>
     </div>
@@ -59,8 +75,15 @@ import { UsersService } from './users-service';
 })
 export class Admin implements OnInit {
   private usersService = inject(UsersService);
+  private featureFlags = inject(FeatureFlags);
 
   userCount = signal<number | null>(null);
+
+  enabledFlagsSummary = computed(() => {
+    const flags = this.featureFlags.allFlags();
+    const enabled = flags.filter((f) => f.enabled).length;
+    return `${enabled} of ${flags.length} enabled`;
+  });
 
   async ngOnInit() {
     try {
