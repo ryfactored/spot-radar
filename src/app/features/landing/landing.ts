@@ -26,85 +26,92 @@ import { environment } from '@env';
       </div>
     </section>
 
-    <!-- Features Section -->
-    <section class="features">
-      <h2>Everything You Need</h2>
-      <div class="features-grid">
-        <mat-card class="feature-card">
-          <mat-card-content>
-            <div class="feature-icon-wrap">
-              <mat-icon class="feature-icon">security</mat-icon>
-            </div>
-            <h3>Authentication</h3>
-            <p>
-              Email/password and social login with Google, GitHub, and more. Password reset and
-              email verification included.
-            </p>
-          </mat-card-content>
-        </mat-card>
+    @defer (on idle) {
+      <!-- Features Section -->
+      <section class="features">
+        <h2>Everything You Need</h2>
+        <div class="features-grid">
+          <mat-card class="feature-card">
+            <mat-card-content>
+              <div class="feature-icon-wrap">
+                <mat-icon class="feature-icon">security</mat-icon>
+              </div>
+              <h3>Authentication</h3>
+              <p>
+                Email/password and social login with Google, GitHub, and more. Password reset and
+                email verification included.
+              </p>
+            </mat-card-content>
+          </mat-card>
 
-        <mat-card class="feature-card">
-          <mat-card-content>
-            <div class="feature-icon-wrap">
-              <mat-icon class="feature-icon">note</mat-icon>
-            </div>
-            <h3>Notes &amp; CRUD</h3>
-            <p>
-              Full create, read, update, and delete with pagination, search, and realtime updates.
-            </p>
-          </mat-card-content>
-        </mat-card>
+          <mat-card class="feature-card">
+            <mat-card-content>
+              <div class="feature-icon-wrap">
+                <mat-icon class="feature-icon">note</mat-icon>
+              </div>
+              <h3>Notes &amp; CRUD</h3>
+              <p>
+                Full create, read, update, and delete with pagination, search, and realtime updates.
+              </p>
+            </mat-card-content>
+          </mat-card>
 
-        <mat-card class="feature-card">
-          <mat-card-content>
-            <div class="feature-icon-wrap">
-              <mat-icon class="feature-icon">chat</mat-icon>
-            </div>
-            <h3>Realtime Chat</h3>
-            <p>Live messaging with presence indicators powered by Supabase Realtime.</p>
-          </mat-card-content>
-        </mat-card>
+          <mat-card class="feature-card">
+            <mat-card-content>
+              <div class="feature-icon-wrap">
+                <mat-icon class="feature-icon">chat</mat-icon>
+              </div>
+              <h3>Realtime Chat</h3>
+              <p>Live messaging with presence indicators powered by Supabase Realtime.</p>
+            </mat-card-content>
+          </mat-card>
 
-        <mat-card class="feature-card">
-          <mat-card-content>
-            <div class="feature-icon-wrap">
-              <mat-icon class="feature-icon">cloud_upload</mat-icon>
-            </div>
-            <h3>File Storage</h3>
-            <p>Upload, download, and manage files with avatar support and signed URLs.</p>
-          </mat-card-content>
-        </mat-card>
+          <mat-card class="feature-card">
+            <mat-card-content>
+              <div class="feature-icon-wrap">
+                <mat-icon class="feature-icon">cloud_upload</mat-icon>
+              </div>
+              <h3>File Storage</h3>
+              <p>Upload, download, and manage files with avatar support and signed URLs.</p>
+            </mat-card-content>
+          </mat-card>
 
-        <mat-card class="feature-card">
-          <mat-card-content>
-            <div class="feature-icon-wrap">
-              <mat-icon class="feature-icon">palette</mat-icon>
-            </div>
-            <h3>Theming</h3>
-            <p>
-              Three color themes with dark and light mode. User preferences persist automatically.
-            </p>
-          </mat-card-content>
-        </mat-card>
+          <mat-card class="feature-card">
+            <mat-card-content>
+              <div class="feature-icon-wrap">
+                <mat-icon class="feature-icon">palette</mat-icon>
+              </div>
+              <h3>Theming</h3>
+              <p>
+                Three color themes with dark and light mode. User preferences persist automatically.
+              </p>
+            </mat-card-content>
+          </mat-card>
 
-        <mat-card class="feature-card">
-          <mat-card-content>
-            <div class="feature-icon-wrap">
-              <mat-icon class="feature-icon">speed</mat-icon>
-            </div>
-            <h3>SSR &amp; Signals</h3>
-            <p>
-              Server-side rendered, zoneless, and signal-driven. Fast first paint with zero zone.js.
-            </p>
-          </mat-card-content>
-        </mat-card>
-      </div>
-    </section>
+          <mat-card class="feature-card">
+            <mat-card-content>
+              <div class="feature-icon-wrap">
+                <mat-icon class="feature-icon">speed</mat-icon>
+              </div>
+              <h3>SSR &amp; Signals</h3>
+              <p>
+                Server-side rendered, zoneless, and signal-driven. Fast first paint with zero
+                zone.js.
+              </p>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </section>
 
-    <!-- Footer -->
-    <footer class="footer">
-      <p>Built with Angular &amp; Angular Material</p>
-    </footer>
+      <!-- Footer -->
+      <footer class="footer">
+        <p>Built with Angular &amp; Angular Material</p>
+      </footer>
+    } @placeholder {
+      <section class="features">
+        <h2>Everything You Need</h2>
+      </section>
+    }
   `,
   styles: `
     :host {

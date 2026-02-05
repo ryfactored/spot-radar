@@ -175,13 +175,108 @@ Added a `docs/contributing.md` file and updated `CLAUDE.md` and `README.md` to r
 
 ---
 
+## Iteration 88 — Route preloading strategy
+
+Add `PreloadAllModules` to the router so lazy route chunks download in the background after initial page load. Currently chunks only fetch when the user navigates to a route, causing a brief delay. With preloading, the JS is already cached and navigation feels instant.
+
+### Changes
+
+**File:** `src/app/app.config.ts`
+
+- Imported `withPreloading` and `PreloadAllModules` from `@angular/router`
+- Added `withPreloading(PreloadAllModules)` as a second argument to `provideRouter(routes)`
+
+### How it works
+
+After the initial page finishes loading and the browser is idle, Angular's preloading scheduler fetches every lazy route chunk in the background. When the user clicks a sidenav link, the component is already in the browser cache. Guarded routes still preload the JS — the guard only blocks navigation, not the download.
+
+`PreloadAllModules` is the right choice here because the app has a small number of lazy chunks (each is a single `loadComponent()` call, not a full module). A custom strategy would add complexity for no measurable gain.
+
+This only runs in the browser — during SSR, no preloading occurs.
+
+### Test impact
+
+None. Tests use `provideRouter([])` which ignores preloading config.
+
+---
+
+## Iteration 89 — NgOptimizedImage in Avatar
+
+Replace the plain `<img [src]>` in the Avatar component with Angular's `NgOptimizedImage` directive for automatic lazy loading, proper `srcset` hints, and Largest Contentful Paint optimization.
+
+### Changes
+
+**File:** `src/app/shared/avatar/avatar.ts`
+
+- Imported `NgOptimizedImage` from `@angular/common`
+- Added it to the component's `imports` array
+- Changed the template `<img>` from `[src]="src()"` to `[ngSrc]="src()!"` with `[width]="size()"` and `[height]="size()"`
+
+### How it works
+
+`NgOptimizedImage` wraps the native `<img>` element with performance best practices:
+
+- **Lazy loading** — adds `loading="lazy"` by default so off-screen images don't block page load
+- **Dimension hints** — `[width]` and `[height]` tell the browser exact dimensions, preventing Cumulative Layout Shift (CLS)
+- **srcset generation** — automatically generates responsive image sizes if an image loader is configured (not needed here since Supabase URLs are used directly)
+
+The `src()!` non-null assertion is safe because the `<img>` only renders inside `@if (showImage())`, which requires `!!this.src()`. The `(error)` handler still fires on the underlying DOM element — the fallback to initials/icon is fully preserved. Cache-busting query params (`?t=Date.now()`) pass through unchanged.
+
+### Why lazy loading is fine for the toolbar avatar
+
+The Shell toolbar avatar only renders after authentication completes and the profile loads from Supabase — it's never in the critical rendering path. By the time the avatar URL exists, the page is already interactive.
+
+### Test impact
+
+None. Existing tests check `img.src` and dispatch `error` events on the DOM `<img>` element. `NgOptimizedImage` produces a standard `<img>` in the DOM, so they work unchanged.
+
+---
+
+## Iteration 90 — Supabase preconnect (reverted)
+
+~~Add a `<link rel="preconnect">` hint in `index.html` so the browser establishes TCP + TLS to the Supabase server early, before any JavaScript runs.~~
+
+### Outcome
+
+Implemented and then **reverted**. The hardcoded Supabase URL in `index.html` is a maintenance risk — it can drift from the actual `supabaseUrl` in the environment files with no build-time check. There's no clean way to inject environment values into `index.html` with Angular's standard tooling, and a runtime script would defeat the purpose of preconnect. Removed.
+
+---
+
+## Iteration 91 — @defer on landing page below-fold content
+
+Wrap the landing page's features section and footer in `@defer (on idle)` so Angular prioritizes rendering the hero section (above the fold) and defers the 6 feature cards until the browser is idle.
+
+### Changes
+
+**File:** `src/app/features/landing/landing.ts`
+
+Wrapped the features section + footer (lines 29–113) in `@defer (on idle)` with a lightweight `@placeholder` containing just the section heading.
+
+**File:** `src/app/features/landing/landing.spec.ts`
+
+Updated the feature cards test to use Angular's `DeferBlockState` testing API — calls `fixture.getDeferBlocks()` and renders the first block in `DeferBlockState.Complete` before querying `.feature-card` elements.
+
+### How it works
+
+`@defer (on idle)` uses `requestIdleCallback` — Angular skips rendering the deferred block until the main thread has no pending work. Since the hero section takes `min-height: 100vh`, the features and footer are always below the fold on initial load. The user never sees the placeholder because the deferred content renders within milliseconds, well before they scroll down.
+
+**SSR/prerender behavior:** The landing page is prerendered (`RenderMode.Prerender` in `app.routes.server.ts`). During SSR, `@defer` renders the `@placeholder`, not the full content. The prerendered HTML will contain the hero + the "Everything You Need" heading — sufficient for SEO. The full cards hydrate on the client almost immediately.
+
+**Chunk splitting note:** Since `MatCardModule` and `MatIconModule` are already in the component's `imports` array, `@defer` won't create a separate JS chunk for them. The benefit is deferred **DOM creation** — Angular skips instantiating 6 card components and their templates until idle, making the hero paint faster.
+
+---
+
 ## Summary
 
-| Iteration | Name                                       | Category      | Items | Status |
-| --------- | ------------------------------------------ | ------------- | ----- | ------ |
-| 84        | Normalize git author names                 | Housekeeping  | 1     | Done   |
-| 85        | Reorganize `core/` into domain sub-folders | Housekeeping  | 4     | Done   |
-| 86        | Add ProfileStore and FilesStore            | Architecture  | 11    | Done   |
-| 87        | Add contributing guide and update docs     | Documentation | 3     | Done   |
+| Iteration | Name                                       | Category      | Items | Status   |
+| --------- | ------------------------------------------ | ------------- | ----- | -------- |
+| 84        | Normalize git author names                 | Housekeeping  | 1     | Done     |
+| 85        | Reorganize `core/` into domain sub-folders | Housekeeping  | 4     | Done     |
+| 86        | Add ProfileStore and FilesStore            | Architecture  | 11    | Done     |
+| 87        | Add contributing guide and update docs     | Documentation | 3     | Done     |
+| 88        | Route preloading strategy                  | Performance   | 1     | Done     |
+| 89        | NgOptimizedImage in Avatar                 | Performance   | 1     | Done     |
+| 90        | Supabase preconnect                        | Performance   | 1     | Reverted |
+| 91        | @defer on landing page                     | Performance   | 2     | Done     |
 
-**Total iterations**: 4 (84–87).
+**Total iterations**: 8 (84–91).

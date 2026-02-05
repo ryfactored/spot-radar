@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, DeferBlockState, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 
 import { Landing } from './landing';
@@ -28,7 +28,10 @@ describe('Landing', () => {
     expect(hero.textContent).toContain('Build Modern Web Apps Faster');
   });
 
-  it('should display feature cards', () => {
+  it('should display feature cards', async () => {
+    const deferBlock = (await fixture.getDeferBlocks())[0];
+    await deferBlock.render(DeferBlockState.Complete);
+    fixture.detectChanges();
     const cards = fixture.nativeElement.querySelectorAll('.feature-card');
     expect(cards.length).toBe(6);
   });
