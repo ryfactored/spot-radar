@@ -1,10 +1,11 @@
 import { ChangeDetectionStrategy, Component, computed, effect, input, signal } from '@angular/core';
+import { NgOptimizedImage } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-avatar',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatIconModule],
+  imports: [MatIconModule, NgOptimizedImage],
   host: {
     '[style.width.px]': 'size()',
     '[style.height.px]': 'size()',
@@ -13,7 +14,13 @@ import { MatIconModule } from '@angular/material/icon';
   },
   template: `
     @if (showImage()) {
-      <img [src]="src()" alt="Avatar" (error)="imgError.set(true)" />
+      <img
+        [ngSrc]="src()!"
+        alt="Avatar"
+        [width]="size()"
+        [height]="size()"
+        (error)="imgError.set(true)"
+      />
     } @else if (initials()) {
       <span class="initials">{{ initials() }}</span>
     } @else {
