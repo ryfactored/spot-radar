@@ -77,16 +77,44 @@
         <span matListItemTitle>Components</span>
       </a>
       @if (isAdmin() && featureFlags.isEnabled('admin')) {
-        <a
+        <button
           mat-list-item
-          routerLink="/admin"
-          routerLinkActive="active-link"
-          #rlaAdmin="routerLinkActive"
-          [attr.aria-current]="rlaAdmin.isActive ? 'page' : null"
+          class="admin-toggle"
+          (click)="toggleGroup('admin', '/admin')"
+          [attr.aria-expanded]="expandedGroups().has('admin')"
+          aria-controls="admin-submenu"
         >
           <mat-icon matListItemIcon>admin_panel_settings</mat-icon>
           <span matListItemTitle>Admin</span>
-        </a>
+          <span matListItemMeta>
+            <mat-icon class="admin-chevron" [class.expanded]="expandedGroups().has('admin')">
+              expand_more
+            </mat-icon>
+          </span>
+        </button>
+        @if (expandedGroups().has('admin')) {
+          <div id="admin-submenu" role="group" aria-label="Admin submenu">
+            <a
+              mat-list-item
+              class="submenu-item"
+              routerLink="/admin"
+              routerLinkActive="active-link"
+              [routerLinkActiveOptions]="{ exact: true }"
+            >
+              <mat-icon matListItemIcon>dashboard</mat-icon>
+              <span matListItemTitle>Overview</span>
+            </a>
+            <a
+              mat-list-item
+              class="submenu-item"
+              routerLink="/admin/users"
+              routerLinkActive="active-link"
+            >
+              <mat-icon matListItemIcon>group</mat-icon>
+              <span matListItemTitle>Users</span>
+            </a>
+          </div>
+        }
       }
     </mat-nav-list>
   </mat-sidenav>
@@ -113,6 +141,9 @@
     </mat-toolbar>
 
     <main id="main-content" class="content" role="main" [@routeAnimation]="routeKey()">
+      @if (featureFlags.isEnabled('breadcrumb')) {
+        <app-breadcrumb />
+      }
       <router-outlet (activate)="onActivate()" />
     </main>
   </mat-sidenav-content>

@@ -18,3 +18,5 @@ export { LoadingBar } from './loading-bar/loading-bar';
 export { Avatar } from './avatar/avatar';
 export { TimeAgoPipe } from './pipes/time-ago';
 export { routeAnimation } from './animations/route-animation';
+export { Breadcrumb } from './breadcrumb/breadcrumb';
+export type { BreadcrumbItem } from './breadcrumb/breadcrumb';

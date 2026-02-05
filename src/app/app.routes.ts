@@ -78,6 +78,16 @@ export const routes: Routes = [
         loadComponent: () => import('./features/admin/admin').then((m) => m.Admin),
         canActivate: [roleGuard('admin'), featureFlagGuard('admin')],
       },
+      {
+        path: 'admin/users',
+        data: {
+          title: 'Users',
+          breadcrumb: [{ label: 'Admin', route: '/admin' }, { label: 'Users' }],
+        },
+        loadComponent: () =>
+          import('./features/admin/users-list/users-list').then((m) => m.UsersList),
+        canActivate: [roleGuard('admin'), featureFlagGuard('admin')],
+      },
     ],
   },
   // Auth routes (guests only)

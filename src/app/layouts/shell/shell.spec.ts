@@ -94,18 +94,18 @@ describe('Shell', () => {
       expect(component.isAdmin()).toBe(true);
     });
 
-    it('should not show admin link for regular users', async () => {
+    it('should not show admin toggle for regular users', async () => {
       await setupTest({ role: 'user' });
 
-      const adminLink = fixture.nativeElement.querySelector('a[routerLink="/admin"]');
-      expect(adminLink).toBeNull();
+      const adminToggle = fixture.nativeElement.querySelector('.admin-toggle');
+      expect(adminToggle).toBeNull();
     });
 
-    it('should show admin link for admin users', async () => {
+    it('should show admin toggle for admin users', async () => {
       await setupTest({ role: 'admin' });
 
-      const adminLink = fixture.nativeElement.querySelector('a[routerLink="/admin"]');
-      expect(adminLink).not.toBeNull();
+      const adminToggle = fixture.nativeElement.querySelector('.admin-toggle');
+      expect(adminToggle).not.toBeNull();
     });
 
     it('should not fetch role when user is not logged in', async () => {
@@ -121,6 +121,68 @@ describe('Shell', () => {
       await setupTest();
 
       expect(profileStore.currentProfile()).toBeTruthy();
+    });
+  });
+
+  describe('admin submenu', () => {
+    it('should start collapsed', async () => {
+      await setupTest({ role: 'admin' });
+
+      const submenu = fixture.nativeElement.querySelector('#admin-submenu');
+      expect(submenu).toBeNull();
+    });
+
+    it('should expand on toggle click', async () => {
+      await setupTest({ role: 'admin' });
+
+      const toggle = fixture.nativeElement.querySelector('.admin-toggle') as HTMLElement;
+      toggle.click();
+      fixture.detectChanges();
+
+      const submenu = fixture.nativeElement.querySelector('#admin-submenu');
+      expect(submenu).not.toBeNull();
+    });
+
+    it('should collapse on second click', async () => {
+      await setupTest({ role: 'admin' });
+
+      const toggle = fixture.nativeElement.querySelector('.admin-toggle') as HTMLElement;
+      toggle.click();
+      fixture.detectChanges();
+
+      toggle.click();
+      fixture.detectChanges();
+
+      const submenu = fixture.nativeElement.querySelector('#admin-submenu');
+      expect(submenu).toBeNull();
+    });
+
+    it('should show Overview and Users links when expanded', async () => {
+      await setupTest({ role: 'admin' });
+
+      const toggle = fixture.nativeElement.querySelector('.admin-toggle') as HTMLElement;
+      toggle.click();
+      fixture.detectChanges();
+
+      const links = fixture.nativeElement.querySelectorAll('#admin-submenu a');
+      expect(links.length).toBe(2);
+      expect(links[0].textContent).toContain('Overview');
+      expect(links[1].textContent).toContain('Users');
+    });
+
+    it('should have correct routerLink values on child links', async () => {
+      await setupTest({ role: 'admin' });
+
+      const toggle = fixture.nativeElement.querySelector('.admin-toggle') as HTMLElement;
+      toggle.click();
+      fixture.detectChanges();
+
+      const overviewLink = fixture.nativeElement.querySelector('#admin-submenu a[href="/admin"]');
+      const usersLink = fixture.nativeElement.querySelector(
+        '#admin-submenu a[href="/admin/users"]',
+      );
+      expect(overviewLink).not.toBeNull();
+      expect(usersLink).not.toBeNull();
     });
   });
 

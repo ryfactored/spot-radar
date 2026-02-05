@@ -27,14 +27,42 @@ mat-sidenav {
   }
 }
 
-.active-link {
+.active-link:not(.submenu-item) {
   border-radius: 8px;
   margin: 2px 8px;
   background: color-mix(in srgb, var(--mat-sys-primary, #3b82f6) 12%, transparent);
 }
 
-:host-context(.dark-mode) .active-link {
+:host-context(.dark-mode) .active-link:not(.submenu-item) {
   background: color-mix(in srgb, var(--mat-sys-primary, #3b82f6) 16%, transparent);
+}
+
+.admin-toggle {
+  cursor: pointer;
+  user-select: none;
+  background: transparent;
+  border: none;
+  margin: 0;
+}
+
+.admin-chevron {
+  transition: transform 0.2s ease;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  color: var(--mat-sys-on-surface-variant, #6b7280);
+}
+
+.admin-chevron.expanded {
+  transform: rotate(180deg);
+}
+
+.submenu-item {
+  padding-left: 48px !important;
+  border-radius: 0;
+  margin: 0;
+  --mdc-list-list-item-one-line-container-height: 40px;
+  font-size: 14px;
 }
 
 .spacer {
