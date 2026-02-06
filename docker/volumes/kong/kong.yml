@@ -1,0 +1,110 @@
+_format_version: '2.1'
+_transform: true
+
+###
+### Kong Configuration for Supabase Lite
+### Routes API requests to GoTrue (auth) and PostgREST (rest)
+###
+
+consumers:
+  - username: ANON
+    keyauth_credentials:
+      - key: ${SUPABASE_ANON_KEY}
+  - username: SERVICE
+    keyauth_credentials:
+      - key: ${SUPABASE_SERVICE_KEY}
+
+acls:
+  - consumer: ANON
+    group: anon
+  - consumer: SERVICE
+    group: admin
+
+services:
+  ## Auth Service (GoTrue)
+  - name: auth-v1
+    url: http://auth:9999/
+    routes:
+      - name: auth-v1-route
+        strip_path: true
+        paths:
+          - /auth/v1/
+    plugins:
+      - name: cors
+        config:
+          origins:
+            - '*'
+          methods:
+            - GET
+            - POST
+            - PUT
+            - PATCH
+            - DELETE
+            - OPTIONS
+          headers:
+            - Accept
+            - Accept-Encoding
+            - Authorization
+            - Content-Type
+            - apikey
+            - x-client-info
+            - x-supabase-api-version
+          exposed_headers:
+            - Content-Range
+          credentials: true
+          max_age: 3600
+
+  ## REST Service (PostgREST)
+  - name: rest-v1
+    url: http://rest:3000/
+    routes:
+      - name: rest-v1-route
+        strip_path: true
+        paths:
+          - /rest/v1/
+    plugins:
+      - name: cors
+        config:
+          origins:
+            - '*'
+          methods:
+            - GET
+            - POST
+            - PUT
+            - PATCH
+            - DELETE
+            - OPTIONS
+          headers:
+            - Accept
+            - Accept-Encoding
+            - Accept-Profile
+            - Authorization
+            - Content-Profile
+            - Content-Type
+            - Prefer
+            - Range
+            - apikey
+            - x-client-info
+            - x-supabase-api-version
+          exposed_headers:
+            - Content-Range
+            - Range
+          credentials: true
+          max_age: 3600
+      - name: key-auth
+        config:
+          hide_credentials: false
+          key_names:
+            - apikey
+      - name: acl
+        config:
+          hide_groups_header: true
+          allow:
+            - anon
+            - admin
+      - name: request-transformer
+        config:
+          add:
+            headers:
+              - 'Content-Profile:public'
+              - 'Accept-Profile:public'

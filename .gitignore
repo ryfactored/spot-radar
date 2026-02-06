@@ -52,3 +52,6 @@ nul
 
 # Claude Code
 .claude/settings.local.json
+
+# Docker secrets
+docker/.env

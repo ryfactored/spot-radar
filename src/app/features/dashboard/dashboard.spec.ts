@@ -3,7 +3,7 @@ import { provideRouter } from '@angular/router';
 import { signal } from '@angular/core';
 
 import { Dashboard } from './dashboard';
-import { AuthService } from '@core';
+import { AuthService, FeatureFlags } from '@core';
 
 describe('Dashboard', () => {
   let component: Dashboard;
@@ -14,12 +14,20 @@ describe('Dashboard', () => {
       id: '123',
       email: 'test@example.com',
     },
+    featureOverrides: Record<string, boolean> = {},
   ) {
     const authMock = { currentUser: signal(user) };
+    const featureFlagsMock = {
+      isEnabled: (feature: string) => featureOverrides[feature] ?? true,
+    };
 
     await TestBed.configureTestingModule({
       imports: [Dashboard],
-      providers: [provideRouter([]), { provide: AuthService, useValue: authMock }],
+      providers: [
+        provideRouter([]),
+        { provide: AuthService, useValue: authMock },
+        { provide: FeatureFlags, useValue: featureFlagsMock },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(Dashboard);

@@ -1,0 +1,46 @@
+# Dependencies
+node_modules
+
+# Source code (using pre-built dist instead)
+src
+e2e
+public
+
+# Docker folder (avoid recursive copying)
+docker
+
+# IDE and editor
+.idea
+.vscode
+*.swp
+*.swo
+
+# Git
+.git
+.gitignore
+
+# Test and coverage
+coverage
+.nyc_output
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment files (secrets)
+.env
+.env.local
+.env.*.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Playwright
+test-results
+playwright-report
+
+# Misc
+*.md
+!README.md
+LICENSE
