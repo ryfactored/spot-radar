@@ -192,11 +192,11 @@ if (fs.existsSync(kongPath)) {
   // Match JWT pattern: eyJ...base64...
   kongContent = kongContent.replace(
     /(username: ANON[\s\S]*?keyauth_credentials:[\s\S]*?-\s*key:\s*)(eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+)/,
-    `$1${anonKey}`
+    `$1${anonKey}`,
   );
   kongContent = kongContent.replace(
     /(username: SERVICE[\s\S]*?keyauth_credentials:[\s\S]*?-\s*key:\s*)(eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+)/,
-    `$1${serviceRoleKey}`
+    `$1${serviceRoleKey}`,
   );
 
   fs.writeFileSync(kongPath, kongContent);

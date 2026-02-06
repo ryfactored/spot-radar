@@ -23,7 +23,7 @@
       "eslint --fix",
       "prettier --write"
     ],
-    "*.{scss,json,md,yml,yaml}": "prettier --write"
+    "*.{js,scss,json,md,yml,yaml}": "prettier --write"
   },
   "prettier": {
     "printWidth": 100,
