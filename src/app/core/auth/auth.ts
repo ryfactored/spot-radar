@@ -1,4 +1,5 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, PLATFORM_ID, inject, signal } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { SupabaseService } from '../supabase/supabase';
 import { RealtimeService } from '../supabase/realtime';
@@ -26,6 +27,7 @@ export class AuthService {
   private supabase = inject(SupabaseService);
   private realtime = inject(RealtimeService);
   private router = inject(Router);
+  private isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   currentUser = signal<User | null>(null);
   loading = signal(true);
@@ -49,7 +51,7 @@ export class AuthService {
       email,
       password,
       options: {
-        emailRedirectTo: `${environment.siteUrl}/verify-email`,
+        emailRedirectTo: `${this.getRedirectOrigin()}/verify-email`,
       },
     });
     if (error) throw mapToError(error);
@@ -72,7 +74,7 @@ export class AuthService {
 
   async resetPassword(email: string): Promise<void> {
     const { error } = await this.supabase.client.auth.resetPasswordForEmail(email, {
-      redirectTo: `${environment.siteUrl}/reset-password`,
+      redirectTo: `${this.getRedirectOrigin()}/reset-password`,
     });
     if (error) throw mapToError(error);
   }
@@ -93,5 +95,17 @@ export class AuthService {
       // The Supabase client still clears the local session and fires
       // SIGNED_OUT via onAuthStateChange, which handles redirect.
     }
+  }
+
+  /**
+   * Returns the origin for auth redirect URLs.
+   * Browser: uses window.location.origin (works from any hostname)
+   * SSR: uses configured siteUrl
+   */
+  private getRedirectOrigin(): string {
+    if (this.isBrowser) {
+      return window.location.origin;
+    }
+    return environment.siteUrl;
   }
 }
