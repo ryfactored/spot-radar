@@ -75,6 +75,13 @@ After running 002, enable Realtime for the Chat feature:
 1. Go to **Database > Replication** in the Supabase dashboard.
 2. Toggle on Realtime for the `messages` table.
 
+### Admin features (optional)
+
+Run [`supabase/migrations/003_admin_features.sql`](../supabase/migrations/003_admin_features.sql) if you're using the admin feature. This creates:
+
+- `is_admin()` helper function (SECURITY DEFINER to avoid RLS recursion)
+- RLS policy allowing admins to view all profiles
+
 ---
 
 ## 5. Configure authentication
