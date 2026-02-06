@@ -416,6 +416,42 @@ Made `FeatureFlags` service reactive by converting the plain `flags` object to a
 
 ---
 
+## Iteration 95 — Route-level navigation settings
+
+Refactored child navigation and breadcrumb visibility to be controlled via route data settings, giving each parent route explicit control over its navigation UI.
+
+### Changes
+
+**Breadcrumb visibility is now opt-in at the route level.** Previously, breadcrumbs showed whenever the `breadcrumb` feature flag was enabled (except when tabs were shown). Now routes must explicitly set `showBreadcrumb: true` in route data. This gives finer control — e.g., admin routes can show breadcrumbs while component routes with tabs do not.
+
+**Admin menu arrow always shows.** Fixed the admin expandable menu toggle (with chevron arrow) to always display when admin has child routes, regardless of the current route's `childNavStyle`. Previously it only showed when on a route with `childNavStyle: 'sidenav'`.
+
+**Breadcrumb deduplication.** Fixed "Admin → Admin" duplicate breadcrumb by skipping consecutive items with the same label.
+
+### Route data settings
+
+| Setting          | Type                            | Default  | Description                                         |
+| ---------------- | ------------------------------- | -------- | --------------------------------------------------- |
+| `childNavMode`   | `'tabs' \| 'sidenav' \| 'none'` | `'none'` | How child pages are navigated                       |
+| `showBreadcrumb` | `boolean`                       | `false`  | Whether to show breadcrumbs (requires feature flag) |
+| `childNav`       | `{ label, route, icon }[]`      | —        | Items for tab bar or sidenav submenu                |
+
+### Modified files
+
+| File                              | Changes                                                                                                                                                                                                               |
+| --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `layouts/shell/shell.ts`          | Added `routeShowBreadcrumb` signal, `showBreadcrumb` computed (combines feature flag + route data), `hasExpandableGroups` computed. Renamed `updateRouteChildNavMode()` to `updateRouteData()` to read both settings. |
+| `layouts/shell/shell.html`        | Changed breadcrumb condition from inline feature flag check to `showBreadcrumb()`. Changed admin menu condition from `showSidenavSubmenus()` to `hasExpandableGroups()`.                                              |
+| `shared/breadcrumb/breadcrumb.ts` | Skip consecutive duplicate labels in `updateBreadcrumbs()`.                                                                                                                                                           |
+| `app.routes.ts`                   | Added `showBreadcrumb: true` to admin route. Removed `showBreadcrumb: false` from components route (false is now the default).                                                                                        |
+
+### Verification
+
+- `npm run build` — passes
+- `npm test -- --no-watch` — all 498 tests pass
+
+---
+
 ## Summary
 
 | Iteration | Name                                       | Category      | Items | Status   |
@@ -431,5 +467,6 @@ Made `FeatureFlags` service reactive by converting the plain `flags` object to a
 | 92        | Admin Users list                           | Feature       | 9     | Done     |
 | 93        | Expandable admin submenu + breadcrumb      | Feature       | 8     | Done     |
 | 94        | Admin Feature Flags page                   | Feature       | 9     | Done     |
+| 95        | Route-level navigation settings            | Feature       | 4     | Done     |
 
-**Total iterations**: 11 (84–94).
+**Total iterations**: 12 (84–95).

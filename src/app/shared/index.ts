@@ -20,3 +20,5 @@ export { TimeAgoPipe } from './pipes/time-ago';
 export { routeAnimation } from './animations/route-animation';
 export { Breadcrumb } from './breadcrumb/breadcrumb';
 export type { BreadcrumbItem } from './breadcrumb/breadcrumb';
+export { ChildNav } from './child-nav/child-nav';
+export type { ChildNavItem } from './child-nav/child-nav';

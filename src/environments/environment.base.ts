@@ -9,7 +9,7 @@ export const environmentBase: Environment = {
   production: false,
   supabaseUrl: 'https://gksnkorbarmijdhpbpgc.supabase.co',
   supabaseAnonKey: 'sb_publishable_hyoKI14ohHz8Qx5LJXYo4A_9YVLnNCV',
-  socialProviders: ['google', 'github', 'spotify', 'apple'],
+  socialProviders: ['google', 'github', 'spotify', 'apple'], // 'google' | 'github' | 'spotify' | 'discord' | 'apple'
   siteUrl: 'http://localhost:4200',
   siteTitle: 'Angular Starter Template',
   siteDescription:
@@ -17,7 +17,7 @@ export const environmentBase: Environment = {
   toastDuration: { success: 2000, info: 3000, error: 4000 },
   upload: { avatarMaxSizeMB: 5, attachmentMaxSizeMB: 10 },
   passwordMinLength: 8,
-  defaults: { colorTheme: 'default', darkMode: true, sidenavOpened: true },
+  defaults: { colorTheme: 'default', darkMode: true, sidenavOpened: true }, // colorTheme: 'default' | 'teal' | 'slate'
   cacheTtlMinutes: 5,
   pagination: { defaultPageSize: 10, pageSizeOptions: [5, 10, 25, 50] },
   chatMessageLimit: 50,
@@ -32,5 +32,6 @@ export const environmentBase: Environment = {
     admin: true,
     breadcrumb: true,
     components: true,
+    defaultChildNavMode: 'none', // 'none' | 'tabs' | 'sidenav'
   },
 };

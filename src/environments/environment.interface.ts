@@ -20,5 +20,5 @@ export interface Environment {
   storageBuckets: { avatars: string; files: string };
   searchDebounceMs: number;
   loadingBarDelayMs: number;
-  featureFlags: Record<string, boolean>;
+  featureFlags: Record<string, boolean | string>;
 }

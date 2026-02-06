@@ -7,7 +7,14 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { RouterOutlet, RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
+import {
+  RouterOutlet,
+  RouterLink,
+  RouterLinkActive,
+  Router,
+  NavigationEnd,
+  ActivatedRoute,
+} from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSidenav, MatSidenavContent, MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
@@ -18,7 +25,16 @@ import { BreakpointObserver } from '@angular/cdk/layout';
 import { toSignal, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { map, filter } from 'rxjs';
 import { PreferencesService, AuthService, UserRole, FeatureFlags } from '@core';
-import { ThemePicker, LoadingBar, Avatar, Breadcrumb } from '@shared';
+
+/** Navigation mode for routes with child pages */
+export const CHILD_NAV_MODE = {
+  SIDENAV: 'sidenav',
+  TABS: 'tabs',
+  NONE: 'none',
+} as const;
+
+export type ChildNavMode = (typeof CHILD_NAV_MODE)[keyof typeof CHILD_NAV_MODE];
+import { ThemePicker, LoadingBar, Avatar, Breadcrumb, ChildNav } from '@shared';
 import { ProfileService } from '@features/profile/profile-service';
 import { ProfileStore } from '@features/profile/profile-store';
 import { environment } from '@env';
@@ -41,6 +57,7 @@ import { routeAnimation } from '@shared';
     LoadingBar,
     Avatar,
     Breadcrumb,
+    ChildNav,
   ],
   templateUrl: './shell.html',
   styleUrl: './shell.scss',
@@ -58,9 +75,14 @@ export class Shell {
   private profileStore = inject(ProfileStore);
   private breakpointObserver = inject(BreakpointObserver);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   // Route animation key — incremented on each route activation
   routeKey = signal(0);
+
+  // Route-level overrides (read from route data)
+  private routeChildNavMode = signal<ChildNavMode | undefined>(undefined);
+  private routeShowBreadcrumb = signal<boolean | undefined>(undefined);
 
   // Expandable submenu groups — derived from routes with slashes (e.g. admin/users → group "admin")
   private readonly groupPrefixes: Set<string>;
@@ -96,6 +118,25 @@ export class Shell {
   // Sidenav opened state: closed on mobile by default, respects preference on desktop
   sidenavOpened = computed(() => (this.isMobile() ? false : this.preferences.sidenavOpened()));
 
+  // Child navigation mode — controls how subpages are navigated
+  // Set via route data `childNavMode: 'tabs' | 'sidenav' | 'none'`
+  // Falls back to featureFlags.defaultChildNavMode, then CHILD_NAV_MODE.NONE
+  private defaultChildNavMode = computed(() => {
+    const configured = this.featureFlags.getString('defaultChildNavMode');
+    return (configured as ChildNavMode) ?? CHILD_NAV_MODE.NONE;
+  });
+  childNavMode = computed(() => this.routeChildNavMode() ?? this.defaultChildNavMode());
+  showSidenavSubmenus = computed(() => this.childNavMode() === CHILD_NAV_MODE.SIDENAV);
+  showChildNavTabs = computed(() => this.childNavMode() === CHILD_NAV_MODE.TABS);
+  hasExpandableGroups = computed(() => this.groupPrefixes.size > 0);
+
+  // Breadcrumb visibility — controlled by feature flag and route data `showBreadcrumb: boolean`
+  // Defaults to false if not specified in route data
+  showBreadcrumb = computed(() => {
+    if (!this.featureFlags.isEnabled('breadcrumb')) return false;
+    return this.routeShowBreadcrumb() ?? false;
+  });
+
   constructor() {
     // Derive expandable group prefixes from Shell's child routes
     // Any route with a slash (e.g. "admin/users") makes its prefix ("admin") a group
@@ -129,7 +170,43 @@ export class Shell {
         }
         // Scroll content to top — the scroll container is mat-sidenav-content, not the viewport
         this.sidenavContent()?.getElementRef().nativeElement.scrollTo(0, 0);
+
+        // Update route-level childNavMode
+        this.updateRouteData();
       });
+
+    // Initial route check
+    this.updateRouteData();
+  }
+
+  private updateRouteData(): void {
+    // Traverse to deepest child route
+    let child = this.route;
+    while (child.firstChild) child = child.firstChild;
+
+    // Walk up looking for route data settings
+    let current: ActivatedRoute | null = child;
+    let foundChildNavMode = false;
+    let foundShowBreadcrumb = false;
+
+    while (current) {
+      const data = current.snapshot?.data;
+      if (data) {
+        if (!foundChildNavMode && data['childNavMode'] !== undefined) {
+          this.routeChildNavMode.set(data['childNavMode'] as ChildNavMode);
+          foundChildNavMode = true;
+        }
+        if (!foundShowBreadcrumb && data['showBreadcrumb'] !== undefined) {
+          this.routeShowBreadcrumb.set(data['showBreadcrumb'] as boolean);
+          foundShowBreadcrumb = true;
+        }
+      }
+      if (foundChildNavMode && foundShowBreadcrumb) break;
+      current = current.parent;
+    }
+
+    if (!foundChildNavMode) this.routeChildNavMode.set(undefined);
+    if (!foundShowBreadcrumb) this.routeShowBreadcrumb.set(undefined);
   }
 
   toggleSidenav() {

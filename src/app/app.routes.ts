@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { Shell, AuthLayout, PublicLayout } from '@layouts';
+import { Shell, AuthLayout, PublicLayout, CHILD_NAV_MODE } from '@layouts';
 import { authGuard, guestGuard, roleGuard, unsavedChangesGuard, featureFlagGuard } from '@core';
 
 export const routes: Routes = [
@@ -34,10 +34,34 @@ export const routes: Routes = [
       },
       {
         path: 'components',
-        data: { title: 'Components' },
         loadComponent: () =>
           import('./features/component-test/component-test').then((m) => m.ComponentTest),
         canActivate: [featureFlagGuard('components')],
+        data: {
+          title: 'Components',
+          childNavMode: CHILD_NAV_MODE.TABS,
+          childNav: [
+            { label: 'Feedback', route: '/components', icon: 'notifications' },
+            { label: 'Display', route: '/components/display', icon: 'visibility' },
+            { label: 'Data', route: '/components/data', icon: 'table_chart' },
+          ],
+        },
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import('./features/component-test/feedback/feedback').then((m) => m.Feedback),
+          },
+          {
+            path: 'display',
+            loadComponent: () =>
+              import('./features/component-test/display/display').then((m) => m.Display),
+          },
+          {
+            path: 'data',
+            loadComponent: () => import('./features/component-test/data/data').then((m) => m.Data),
+          },
+        ],
       },
       {
         path: 'notes',
@@ -75,29 +99,37 @@ export const routes: Routes = [
       },
       {
         path: 'admin',
-        data: { title: 'Admin' },
-        loadComponent: () => import('./features/admin/admin').then((m) => m.Admin),
-        canActivate: [roleGuard('admin'), featureFlagGuard('admin')],
-      },
-      {
-        path: 'admin/users',
         data: {
-          title: 'Users',
-          breadcrumb: [{ label: 'Admin', route: '/admin' }, { label: 'Users' }],
+          title: 'Admin',
+          childNavMode: CHILD_NAV_MODE.SIDENAV,
+          showBreadcrumb: true,
+          childNav: [
+            { label: 'Overview', route: '/admin', icon: 'dashboard' },
+            { label: 'Users', route: '/admin/users', icon: 'group' },
+            { label: 'Feature Flags', route: '/admin/feature-flags', icon: 'toggle_on' },
+          ],
         },
-        loadComponent: () =>
-          import('./features/admin/users-list/users-list').then((m) => m.UsersList),
         canActivate: [roleGuard('admin'), featureFlagGuard('admin')],
-      },
-      {
-        path: 'admin/feature-flags',
-        data: {
-          title: 'Feature Flags',
-          breadcrumb: [{ label: 'Admin', route: '/admin' }, { label: 'Feature Flags' }],
-        },
-        loadComponent: () =>
-          import('./features/admin/feature-flags/feature-flags').then((m) => m.FeatureFlagsPage),
-        canActivate: [roleGuard('admin'), featureFlagGuard('admin')],
+        children: [
+          {
+            path: '',
+            loadComponent: () => import('./features/admin/admin').then((m) => m.Admin),
+          },
+          {
+            path: 'users',
+            data: { title: 'Users' },
+            loadComponent: () =>
+              import('./features/admin/users-list/users-list').then((m) => m.UsersList),
+          },
+          {
+            path: 'feature-flags',
+            data: { title: 'Feature Flags' },
+            loadComponent: () =>
+              import('./features/admin/feature-flags/feature-flags').then(
+                (m) => m.FeatureFlagsPage,
+              ),
+          },
+        ],
       },
     ],
   },
