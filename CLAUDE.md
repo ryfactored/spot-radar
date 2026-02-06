@@ -53,6 +53,44 @@ Stores: `NotesStore`, `ChatStore`, `FilesStore`, `ProfileStore`. See `notes-stor
 
 AuthService manages state with `currentUser` and `loading` signals, initialized solely via Supabase's `onAuthStateChange` (fires `INITIAL_SESSION` on startup — no separate `loadUser()` call). `signOut()` calls `supabase.auth.signOut()` and relies on the `SIGNED_OUT` event to clear state and navigate. Guards are functional: `authGuard` and `guestGuard` are created by a shared `createAuthGuard(requireAuth)` factory in `auth-guard.ts`; `roleGuard('admin')` checks profile.role; `featureFlagGuard('chat')` checks `environment.featureFlags`. All feature components use `loadComponent()` for lazy loading. Routes without guards (like `/reset-password`) exist for flows where the user arrives authenticated via URL token.
 
+### Route Navigation Settings
+
+Parent routes can configure child navigation and breadcrumb visibility via route data:
+
+- **`childNavMode`** — Controls how child pages are navigated. Values: `'tabs'` (horizontal tab bar), `'sidenav'` (expandable menu in shell sidenav), `'none'`. Routes without an explicit `childNavMode` use the `defaultChildNavMode` feature flag (defaults to `'none'`).
+- **`showBreadcrumb`** — Controls breadcrumb visibility for the route. Requires the `breadcrumb` feature flag to be enabled. Defaults to `false` — routes must explicitly set `showBreadcrumb: true` to show breadcrumbs.
+- **`childNav`** — Array of `{ label, route, icon }` items for the child navigation UI.
+
+Example route with tabs navigation and no breadcrumbs:
+
+```typescript
+{
+  path: 'components',
+  data: {
+    title: 'Components',
+    childNavMode: CHILD_NAV_MODE.TABS,
+    childNav: [
+      { label: 'Feedback', route: '/components', icon: 'notifications' },
+      { label: 'Display', route: '/components/display', icon: 'visibility' },
+    ],
+  },
+}
+```
+
+Example route with sidenav submenu and breadcrumbs:
+
+```typescript
+{
+  path: 'admin',
+  data: {
+    title: 'Admin',
+    childNavMode: CHILD_NAV_MODE.SIDENAV,
+    showBreadcrumb: true,
+    childNav: [...],
+  },
+}
+```
+
 ### Error Handling
 
 Three layers: `httpErrorInterceptor` handles HTTP errors and marks them with `__handled`, `GlobalErrorHandler` catches remaining unhandled exceptions (skips `__handled` errors, uses `NgZone.run()` for UI updates), and `error-mapper.ts` maps Supabase error codes to user-friendly messages. Use `unwrap()` / `unwrapWithCount()` helpers for Supabase `{ data, error }` results. Use `extractErrorMessage(err, fallback)` to safely extract a message from unknown error types in catch blocks. Default is always a generic message — only explicitly mapped codes get custom messages.

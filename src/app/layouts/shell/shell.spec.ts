@@ -1,18 +1,26 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router, Routes } from '@angular/router';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 
 import { Shell } from './shell';
 import { PreferencesService, AuthService } from '@core';
 import { ProfileService } from '@features/profile/profile-service';
 import { ProfileStore } from '@features/profile/profile-store';
 
+@Component({ template: '' })
+class DummyComponent {}
+
 describe('Shell', () => {
   let component: Shell;
   let fixture: ComponentFixture<Shell>;
   let profileMock: ReturnType<typeof createProfileMock>;
   let profileStore: ProfileStore;
+
+  // Mock scrollTo for test environment
+  beforeAll(() => {
+    Element.prototype.scrollTo = vi.fn();
+  });
 
   function createProfileMock(role = 'user') {
     return {
@@ -101,13 +109,6 @@ describe('Shell', () => {
       expect(adminToggle).toBeNull();
     });
 
-    it('should show admin toggle for admin users', async () => {
-      await setupTest({ role: 'admin' });
-
-      const adminToggle = fixture.nativeElement.querySelector('.admin-toggle');
-      expect(adminToggle).not.toBeNull();
-    });
-
     it('should not fetch role when user is not logged in', async () => {
       await setupTest({ user: null });
 
@@ -124,69 +125,6 @@ describe('Shell', () => {
     });
   });
 
-  describe('admin submenu', () => {
-    it('should start collapsed', async () => {
-      await setupTest({ role: 'admin' });
-
-      const submenu = fixture.nativeElement.querySelector('#admin-submenu');
-      expect(submenu).toBeNull();
-    });
-
-    it('should expand on toggle click', async () => {
-      await setupTest({ role: 'admin' });
-
-      const toggle = fixture.nativeElement.querySelector('.admin-toggle') as HTMLElement;
-      toggle.click();
-      fixture.detectChanges();
-
-      const submenu = fixture.nativeElement.querySelector('#admin-submenu');
-      expect(submenu).not.toBeNull();
-    });
-
-    it('should collapse on second click', async () => {
-      await setupTest({ role: 'admin' });
-
-      const toggle = fixture.nativeElement.querySelector('.admin-toggle') as HTMLElement;
-      toggle.click();
-      fixture.detectChanges();
-
-      toggle.click();
-      fixture.detectChanges();
-
-      const submenu = fixture.nativeElement.querySelector('#admin-submenu');
-      expect(submenu).toBeNull();
-    });
-
-    it('should show Overview, Users, and Feature Flags links when expanded', async () => {
-      await setupTest({ role: 'admin' });
-
-      const toggle = fixture.nativeElement.querySelector('.admin-toggle') as HTMLElement;
-      toggle.click();
-      fixture.detectChanges();
-
-      const links = fixture.nativeElement.querySelectorAll('#admin-submenu a');
-      expect(links.length).toBe(3);
-      expect(links[0].textContent).toContain('Overview');
-      expect(links[1].textContent).toContain('Users');
-      expect(links[2].textContent).toContain('Feature Flags');
-    });
-
-    it('should have correct routerLink values on child links', async () => {
-      await setupTest({ role: 'admin' });
-
-      const toggle = fixture.nativeElement.querySelector('.admin-toggle') as HTMLElement;
-      toggle.click();
-      fixture.detectChanges();
-
-      const overviewLink = fixture.nativeElement.querySelector('#admin-submenu a[href="/admin"]');
-      const usersLink = fixture.nativeElement.querySelector(
-        '#admin-submenu a[href="/admin/users"]',
-      );
-      expect(overviewLink).not.toBeNull();
-      expect(usersLink).not.toBeNull();
-    });
-  });
-
   describe('logout', () => {
     it('should call auth signOut when logout is clicked', async () => {
       await setupTest();
@@ -195,6 +133,129 @@ describe('Shell', () => {
       await component.logout();
 
       expect(authService.signOut).toHaveBeenCalled();
+    });
+  });
+
+  describe('route-based childNavMode', () => {
+    async function setupTestWithRoutes(routes: Routes, initialUrl = '/') {
+      profileMock = createProfileMock('admin');
+      const authMock = createAuthMock();
+
+      await TestBed.configureTestingModule({
+        imports: [Shell, NoopAnimationsModule],
+        providers: [
+          provideRouter(routes),
+          { provide: PreferencesService, useValue: preferencesMock },
+          { provide: AuthService, useValue: authMock },
+          { provide: ProfileService, useValue: profileMock },
+        ],
+      }).compileComponents();
+
+      const router = TestBed.inject(Router);
+      profileStore = TestBed.inject(ProfileStore);
+      fixture = TestBed.createComponent(Shell);
+      component = fixture.componentInstance;
+
+      await router.navigateByUrl(initialUrl);
+      await fixture.whenStable();
+      fixture.detectChanges();
+    }
+
+    it('should default to none when route has no childNavMode', async () => {
+      const routes: Routes = [
+        {
+          path: '',
+          component: Shell,
+          children: [
+            {
+              path: 'dashboard',
+              component: DummyComponent,
+              data: { title: 'Dashboard' },
+            },
+          ],
+        },
+      ];
+
+      await setupTestWithRoutes(routes, '/dashboard');
+
+      expect(component.childNavMode()).toBe('none');
+      expect(component.showSidenavSubmenus()).toBe(false);
+      expect(component.showChildNavTabs()).toBe(false);
+    });
+
+    it('should use tabs when route has childNavMode: tabs', async () => {
+      const routes: Routes = [
+        {
+          path: '',
+          component: Shell,
+          children: [
+            {
+              path: 'admin',
+              component: DummyComponent,
+              data: { childNavMode: 'tabs' },
+            },
+          ],
+        },
+      ];
+
+      await setupTestWithRoutes(routes, '/admin');
+
+      expect(component.childNavMode()).toBe('tabs');
+      expect(component.showChildNavTabs()).toBe(true);
+      expect(component.showSidenavSubmenus()).toBe(false);
+    });
+
+    it('should use sidenav when route has childNavMode: sidenav', async () => {
+      const routes: Routes = [
+        {
+          path: '',
+          component: Shell,
+          children: [
+            {
+              path: 'admin',
+              component: DummyComponent,
+              data: { childNavMode: 'sidenav' },
+            },
+          ],
+        },
+      ];
+
+      await setupTestWithRoutes(routes, '/admin');
+
+      expect(component.childNavMode()).toBe('sidenav');
+      expect(component.showSidenavSubmenus()).toBe(true);
+      expect(component.showChildNavTabs()).toBe(false);
+    });
+
+    it('should update childNavMode when navigating between routes', async () => {
+      const routes: Routes = [
+        {
+          path: '',
+          component: Shell,
+          children: [
+            {
+              path: 'admin',
+              component: DummyComponent,
+              data: { childNavMode: 'tabs' },
+            },
+            {
+              path: 'dashboard',
+              component: DummyComponent,
+              data: { title: 'Dashboard' },
+            },
+          ],
+        },
+      ];
+
+      await setupTestWithRoutes(routes, '/admin');
+      expect(component.childNavMode()).toBe('tabs');
+
+      const router = TestBed.inject(Router);
+      await router.navigateByUrl('/dashboard');
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(component.childNavMode()).toBe('none');
     });
   });
 });

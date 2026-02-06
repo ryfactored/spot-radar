@@ -81,22 +81,41 @@ export class Breadcrumb {
   items = signal<BreadcrumbItem[]>([]);
 
   constructor() {
-    // Read initial route data (NavigationEnd fires before the component exists on refresh)
-    let child = this.route;
-    while (child.firstChild) child = child.firstChild;
-    this.items.set(child.snapshot?.data['breadcrumb'] ?? []);
+    this.updateBreadcrumbs();
 
-    // Then subscribe for future navigations
     this.router.events
       .pipe(
         filter((event): event is NavigationEnd => event instanceof NavigationEnd),
         takeUntilDestroyed(),
       )
-      .subscribe(() => {
-        let child = this.route;
-        while (child.firstChild) child = child.firstChild;
-        const breadcrumb = child.snapshot.data['breadcrumb'] as BreadcrumbItem[] | undefined;
-        this.items.set(breadcrumb ?? []);
-      });
+      .subscribe(() => this.updateBreadcrumbs());
+  }
+
+  private updateBreadcrumbs(): void {
+    const items: BreadcrumbItem[] = [];
+    let current: ActivatedRoute | null = this.route.root;
+    let path = '';
+
+    // Walk down the route tree collecting titles
+    while (current) {
+      const segment = current.snapshot?.url.map((s) => s.path).join('/');
+      if (segment) path += '/' + segment;
+
+      const title = current.snapshot?.data?.['title'] as string | undefined;
+      // Skip duplicate consecutive labels (e.g., "Admin -> Admin")
+      if (title && title !== items[items.length - 1]?.label) {
+        items.push({ label: title, route: path || '/' });
+      }
+
+      current = current.firstChild;
+    }
+
+    // Last item (current page) doesn't need a route
+    if (items.length > 0) {
+      items[items.length - 1].route = undefined;
+    }
+
+    // Only show breadcrumbs if there's more than one level
+    this.items.set(items.length > 1 ? items : []);
   }
 }
