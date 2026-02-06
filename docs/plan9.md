@@ -373,6 +373,49 @@ Non-admins still only see their own row via the existing `auth.uid() = id` polic
 
 ---
 
+## Iteration 94 — Admin Feature Flags page
+
+Added a runtime feature flags management page at `/admin/feature-flags`. Admins can toggle any feature flag on/off via slide toggles. Changes are session-scoped (in-memory only, reset on page reload). Also added `components` as a feature flag and genericized the profile delete account description.
+
+### Core changes
+
+Made `FeatureFlags` service reactive by converting the plain `flags` object to a `signal<Record<string, boolean>>`. This means `isEnabled()` is now signal-tracked — toggling a flag in the admin UI immediately updates the shell nav, breadcrumb visibility, and route guards.
+
+**File:** `src/app/core/feature-flags.ts`
+
+- `private flags` → `signal<Record<string, boolean>>({...environment.featureFlags})`
+- `isEnabled()` → reads `this.flags()` (signal-tracked)
+- Added `setEnabled(feature, enabled)` — updates one flag at runtime
+- Added `readonly allFlags` — computed signal returning `{ name, enabled }[]`
+
+### New files
+
+| File                                                 | Description                                                                                                                                                                                |
+| ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `features/admin/feature-flags/feature-flags.ts`      | `FeatureFlagsPage` component — `MatSlideToggle` for each flag, iterates `featureFlags.allFlags()`, calls `setEnabled()` on change. Includes info subtitle noting changes are session-only. |
+| `features/admin/feature-flags/feature-flags.spec.ts` | 6 tests: creation, heading, subtitle, toggle count, flag names, setEnabled interaction                                                                                                     |
+
+### Modified files
+
+| File                               | Changes                                                                                                                                                               |
+| ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `core/feature-flags.ts`            | Converted to signal-based reactivity with `setEnabled()` and `allFlags`                                                                                               |
+| `core/feature-flags.spec.ts`       | Added 3 tests for `setEnabled`, `allFlags`, and reactivity                                                                                                            |
+| `app.routes.ts`                    | Added `/admin/feature-flags` route with breadcrumb, `roleGuard('admin')`, `featureFlagGuard('admin')`. Added `featureFlagGuard('components')` to `/components` route. |
+| `features/admin/admin.ts`          | Added Feature Flags card with `toggle_on` icon and "X of Y enabled" computed subtitle                                                                                 |
+| `features/admin/admin.spec.ts`     | Added 2 tests for new card rendering and enabled flags summary                                                                                                        |
+| `layouts/shell/shell.html`         | Added "Feature Flags" link in admin submenu. Wrapped Components nav link in `@if (featureFlags.isEnabled('components'))`.                                             |
+| `layouts/shell/shell.spec.ts`      | Updated submenu test to expect 3 links (Overview, Users, Feature Flags)                                                                                               |
+| `environments/environment.base.ts` | Added `components: true` to `featureFlags`                                                                                                                            |
+| `features/profile/profile.ts`      | Genericized delete account description to remove hardcoded feature names                                                                                              |
+
+### Verification
+
+- `npm run build` — passes
+- `npm test -- --no-watch` — all 458 tests pass (62 test files)
+
+---
+
 ## Summary
 
 | Iteration | Name                                       | Category      | Items | Status   |
@@ -387,5 +430,6 @@ Non-admins still only see their own row via the existing `auth.uid() = id` polic
 | 91        | @defer on landing page                     | Performance   | 2     | Done     |
 | 92        | Admin Users list                           | Feature       | 9     | Done     |
 | 93        | Expandable admin submenu + breadcrumb      | Feature       | 8     | Done     |
+| 94        | Admin Feature Flags page                   | Feature       | 9     | Done     |
 
-**Total iterations**: 10 (84–93).
+**Total iterations**: 11 (84–94).
