@@ -9,33 +9,53 @@
 @include mat.all-component-themes(themes.$default-light-theme);
 
 // Primary color token (M2 doesn't generate --mat-sys-primary, so we define it per theme)
+// Toast colors adapt per theme; defaults are set here
 :root {
   --mat-sys-primary: #3b82f6;
+  --app-toast-success-bg: #4caf50;
+  --app-toast-error-bg: #f44336;
+  --app-toast-info-bg: #2196f3;
+  --app-toast-fg: white;
 }
 
 // Dark mode variants
 .dark-mode {
   --mat-sys-primary: #60a5fa;
+  --app-toast-success-bg: #388e3c;
+  --app-toast-error-bg: #d32f2f;
+  --app-toast-info-bg: #1976d2;
   @include mat.all-component-colors(themes.$default-dark-theme);
 }
 
 .theme-teal:not(.dark-mode) {
   --mat-sys-primary: #14b8a6;
+  --app-toast-success-bg: #2e7d32;
+  --app-toast-error-bg: #c62828;
+  --app-toast-info-bg: #0d9488;
   @include mat.all-component-colors(themes.$teal-light-theme);
 }
 
 .theme-teal.dark-mode {
   --mat-sys-primary: #2dd4bf;
+  --app-toast-success-bg: #1b5e20;
+  --app-toast-error-bg: #b71c1c;
+  --app-toast-info-bg: #0f766e;
   @include mat.all-component-colors(themes.$teal-dark-theme);
 }
 
 .theme-slate:not(.dark-mode) {
   --mat-sys-primary: #64748b;
+  --app-toast-success-bg: #43a047;
+  --app-toast-error-bg: #e53935;
+  --app-toast-info-bg: #546e7a;
   @include mat.all-component-colors(themes.$slate-light-theme);
 }
 
 .theme-slate.dark-mode {
   --mat-sys-primary: #94a3b8;
+  --app-toast-success-bg: #2e7d32;
+  --app-toast-error-bg: #c62828;
+  --app-toast-info-bg: #455a64;
   @include mat.all-component-colors(themes.$slate-dark-theme);
 }
 
@@ -254,29 +274,40 @@ textarea:focus:not(:focus-visible) {
   outline: none;
 }
 
-// Toast styling
+// Toast styling — uses CSS custom properties for theme adaptability
+// panelClass is applied to the CDK overlay pane; !important needed to override Material's own styles
 .toast-success .mdc-snackbar__surface {
-  background-color: #4caf50 !important;
-  color: white !important;
+  background-color: var(--app-toast-success-bg) !important;
+  color: var(--app-toast-fg) !important;
 }
 .toast-success .mat-mdc-button {
-  color: white !important;
+  color: var(--app-toast-fg) !important;
 }
 
 .toast-error .mdc-snackbar__surface {
-  background-color: #f44336 !important;
-  color: white !important;
+  background-color: var(--app-toast-error-bg) !important;
+  color: var(--app-toast-fg) !important;
 }
 .toast-error .mat-mdc-button {
-  color: white !important;
+  color: var(--app-toast-fg) !important;
 }
 
 .toast-info .mdc-snackbar__surface {
-  background-color: #2196f3 !important;
-  color: white !important;
+  background-color: var(--app-toast-info-bg) !important;
+  color: var(--app-toast-fg) !important;
 }
 .toast-info .mat-mdc-button {
-  color: white !important;
+  color: var(--app-toast-fg) !important;
+}
+
+// Windows High Contrast mode: ensure toasts remain visible
+@media (forced-colors: active) {
+  .toast-success .mdc-snackbar__surface,
+  .toast-error .mdc-snackbar__surface,
+  .toast-info .mdc-snackbar__surface {
+    forced-color-adjust: none;
+    border: 1px solid CanvasText;
+  }
 }
 
 // Skeleton Overlay
@@ -318,7 +349,7 @@ textarea:focus:not(:focus-visible) {
   input,
   textarea,
   select {
-    background: #e0e0e0 !important;
+    background: var(--mat-sys-surface-container, #e0e0e0) !important;
     border-color: transparent !important;
     color: transparent !important;
 
@@ -329,7 +360,7 @@ textarea:focus:not(:focus-visible) {
 
   // Style buttons as skeleton
   button {
-    background: #e0e0e0 !important;
+    background: var(--mat-sys-surface-container, #e0e0e0) !important;
     color: transparent !important;
     border-color: transparent !important;
     box-shadow: none !important;
@@ -344,7 +375,7 @@ textarea:focus:not(:focus-visible) {
     }
 
     .mat-mdc-form-field-flex {
-      background: #e0e0e0 !important;
+      background: var(--mat-sys-surface-container, #e0e0e0) !important;
       border-radius: 4px;
     }
 
@@ -364,17 +395,6 @@ textarea:focus:not(:focus-visible) {
       transparent 75%
     );
     background-size: 200% 100%;
-  }
-
-  input,
-  textarea,
-  select,
-  button {
-    background: #27272a !important;
-  }
-
-  .mat-mdc-form-field .mat-mdc-form-field-flex {
-    background: #27272a !important;
   }
 }
 

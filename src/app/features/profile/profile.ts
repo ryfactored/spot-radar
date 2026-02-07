@@ -105,7 +105,7 @@ import { environment } from '@env';
         </mat-card-header>
         <mat-card-content>
           <form [formGroup]="passwordForm" (ngSubmit)="onChangePassword()">
-            <mat-form-field appearance="outline" class="full-width" subscriptSizing="fixed">
+            <mat-form-field appearance="outline" class="full-width">
               <mat-label>New Password</mat-label>
               <input
                 matInput
@@ -132,7 +132,7 @@ import { environment } from '@env';
             </mat-form-field>
             <app-password-strength [password]="passwordValue()" />
 
-            <mat-form-field appearance="outline" class="full-width" subscriptSizing="fixed">
+            <mat-form-field appearance="outline" class="full-width">
               <mat-label>Confirm New Password</mat-label>
               <input
                 matInput

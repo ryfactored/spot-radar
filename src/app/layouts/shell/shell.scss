@@ -159,6 +159,8 @@ mat-sidenav {
 
 .content {
   padding: 20px;
+  max-width: 1200px;
+  margin-inline: auto;
 }
 
 .toolbar-avatar {
@@ -178,6 +180,13 @@ mat-sidenav {
 .toolbar-avatar app-avatar {
   --avatar-bg: transparent;
   --avatar-color: white;
+}
+
+/* Large screen styles */
+@media (min-width: 1200px) {
+  .content {
+    padding: 32px;
+  }
 }
 
 /* Mobile styles */

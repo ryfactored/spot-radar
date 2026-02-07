@@ -103,6 +103,8 @@
                 routerLink="/admin"
                 routerLinkActive="active-link"
                 [routerLinkActiveOptions]="{ exact: true }"
+                #rlaAdminOverview="routerLinkActive"
+                [attr.aria-current]="rlaAdminOverview.isActive ? 'page' : null"
               >
                 <mat-icon matListItemIcon>dashboard</mat-icon>
                 <span matListItemTitle>Overview</span>
@@ -112,6 +114,8 @@
                 class="submenu-item"
                 routerLink="/admin/users"
                 routerLinkActive="active-link"
+                #rlaAdminUsers="routerLinkActive"
+                [attr.aria-current]="rlaAdminUsers.isActive ? 'page' : null"
               >
                 <mat-icon matListItemIcon>group</mat-icon>
                 <span matListItemTitle>Users</span>
@@ -121,6 +125,8 @@
                 class="submenu-item"
                 routerLink="/admin/feature-flags"
                 routerLinkActive="active-link"
+                #rlaAdminFlags="routerLinkActive"
+                [attr.aria-current]="rlaAdminFlags.isActive ? 'page' : null"
               >
                 <mat-icon matListItemIcon>toggle_on</mat-icon>
                 <span matListItemTitle>Feature Flags</span>

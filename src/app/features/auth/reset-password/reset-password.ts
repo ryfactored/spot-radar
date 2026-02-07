@@ -33,7 +33,7 @@ import { AUTH_FORM_STYLES } from '../auth-form-styles';
       <p class="footer"><a routerLink="/forgot-password">Request reset link</a></p>
     } @else {
       <form [formGroup]="form" (ngSubmit)="onSubmit()">
-        <mat-form-field appearance="outline" class="full-width" subscriptSizing="fixed">
+        <mat-form-field appearance="outline" class="full-width">
           <mat-label>New Password</mat-label>
           <input
             matInput
@@ -59,7 +59,7 @@ import { AUTH_FORM_STYLES } from '../auth-form-styles';
         </mat-form-field>
         <app-password-strength [password]="passwordValue()" id="password-requirements" />
 
-        <mat-form-field appearance="outline" class="full-width" subscriptSizing="fixed">
+        <mat-form-field appearance="outline" class="full-width">
           <mat-label>Confirm Password</mat-label>
           <input
             matInput

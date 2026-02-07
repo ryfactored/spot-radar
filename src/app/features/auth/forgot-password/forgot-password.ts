@@ -18,7 +18,7 @@ import { AUTH_FORM_STYLES } from '../auth-form-styles';
       <p class="success" role="status">Check your email for a password reset link.</p>
     } @else {
       <form [formGroup]="form" (ngSubmit)="onSubmit()">
-        <mat-form-field appearance="outline" class="full-width" subscriptSizing="fixed">
+        <mat-form-field appearance="outline" class="full-width">
           <mat-label>Email</mat-label>
           <input matInput formControlName="email" type="email" />
           @if (form.controls.email.hasError('required')) {
