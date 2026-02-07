@@ -63,10 +63,10 @@ import { AuthService } from '@core';
       margin-bottom: 16px;
     }
     .status-icon.success {
-      color: #4caf50;
+      color: var(--status-success, #4caf50);
     }
     .status-icon.error {
-      color: #f44336;
+      color: var(--mat-sys-error, #f44336);
     }
     .status-icon.info {
       color: var(--mat-sys-primary);
