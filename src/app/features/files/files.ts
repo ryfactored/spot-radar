@@ -67,7 +67,8 @@ export class FilesService {
   }
 
   async delete(record: FileRecord): Promise<void> {
-    unwrap(await this.supabase.client.from('files').delete().eq('id', record.id));
+    // Remove storage first — if this fails, the DB record remains and the user can retry.
     await this.storage.remove(environment.storageBuckets.files, [record.storage_path]);
+    unwrap(await this.supabase.client.from('files').delete().eq('id', record.id));
   }
 }
