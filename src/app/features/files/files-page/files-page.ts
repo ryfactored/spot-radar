@@ -6,14 +6,8 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { FilesService, type FileRecord } from '../files';
 import { FilesStore } from '../files-store';
-import {
-  ToastService,
-  ConfirmDialogService,
-  LoadingSpinner,
-  EmptyState,
-  TimeAgoPipe,
-  FileSizePipe,
-} from '@shared';
+import { ToastService, ConfirmDialogService, EmptyState, TimeAgoPipe, FileSizePipe } from '@shared';
+import { FileCardSkeleton } from '../file-card-skeleton';
 import { extractErrorMessage } from '@core';
 
 @Component({
@@ -27,7 +21,7 @@ import { extractErrorMessage } from '@core';
     MatIconModule,
     MatProgressBarModule,
     MatTooltipModule,
-    LoadingSpinner,
+    FileCardSkeleton,
     EmptyState,
   ],
   template: `
@@ -45,7 +39,11 @@ import { extractErrorMessage } from '@core';
     }
 
     @if (loading()) {
-      <app-loading-spinner message="Loading files..." />
+      <div class="files-grid">
+        @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+          <app-file-card-skeleton />
+        }
+      </div>
     } @else if (files().length === 0) {
       <app-empty-state
         icon="folder_open"

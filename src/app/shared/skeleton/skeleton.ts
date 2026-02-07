@@ -19,9 +19,9 @@ import { NgStyle } from '@angular/common';
     .skeleton {
       background: linear-gradient(
         90deg,
-        var(--mat-sys-surface-container, #e0e0e0) 25%,
-        var(--mat-sys-surface-container-high, #f0f0f0) 50%,
-        var(--mat-sys-surface-container, #e0e0e0) 75%
+        var(--app-inset-bg) 25%,
+        var(--mat-card-elevated-container-color, var(--app-inset-bg)) 50%,
+        var(--app-inset-bg) 75%
       );
       background-size: 200% 100%;
       animation: shimmer 1.5s infinite;

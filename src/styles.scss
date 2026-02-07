@@ -320,12 +320,7 @@ textarea:focus:not(:focus-visible) {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(
-      90deg,
-      transparent 25%,
-      rgba(255, 255, 255, 0.4) 50%,
-      transparent 75%
-    );
+    background: linear-gradient(90deg, transparent 25%, var(--app-inset-bg) 50%, transparent 75%);
     background-size: 200% 100%;
     animation: skeleton-shimmer 1.5s infinite;
     z-index: 10;
@@ -349,7 +344,7 @@ textarea:focus:not(:focus-visible) {
   input,
   textarea,
   select {
-    background: var(--mat-sys-surface-container, #e0e0e0) !important;
+    background: var(--app-inset-bg) !important;
     border-color: transparent !important;
     color: transparent !important;
 
@@ -360,7 +355,7 @@ textarea:focus:not(:focus-visible) {
 
   // Style buttons as skeleton
   button {
-    background: var(--mat-sys-surface-container, #e0e0e0) !important;
+    background: var(--app-inset-bg) !important;
     color: transparent !important;
     border-color: transparent !important;
     box-shadow: none !important;
@@ -375,26 +370,13 @@ textarea:focus:not(:focus-visible) {
     }
 
     .mat-mdc-form-field-flex {
-      background: var(--mat-sys-surface-container, #e0e0e0) !important;
+      background: var(--app-inset-bg) !important;
       border-radius: 4px;
     }
 
     .mdc-floating-label {
       color: transparent !important;
     }
-  }
-}
-
-// Dark mode support
-.dark-mode .skeleton-overlay {
-  &::before {
-    background: linear-gradient(
-      90deg,
-      transparent 25%,
-      rgba(255, 255, 255, 0.1) 50%,
-      transparent 75%
-    );
-    background-size: 200% 100%;
   }
 }
 
