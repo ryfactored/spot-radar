@@ -17,11 +17,11 @@ export const AUTH_FORM_STYLES = `
     color: var(--mat-sys-primary);
   }
   .error {
-    color: #f44336;
+    color: var(--mat-sys-error, #f44336);
     text-align: center;
   }
   .success {
-    color: #4caf50;
+    color: var(--status-success, #4caf50);
     text-align: center;
   }
   .divider {

@@ -108,7 +108,7 @@ import { AUTH_FORM_STYLES } from '../auth-form-styles';
         color: var(--mat-sys-primary);
       }
       .no-session {
-        color: #f44336;
+        color: var(--mat-sys-error, #f44336);
         text-align: center;
       }
     `,
