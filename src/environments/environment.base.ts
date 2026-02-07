@@ -20,7 +20,6 @@ export const environmentBase: Environment = {
   defaults: { colorTheme: 'default', darkMode: true, sidenavOpened: true }, // colorTheme: 'default' | 'teal' | 'slate'
   cacheTtlMinutes: 5,
   pagination: { defaultPageSize: 10, pageSizeOptions: [5, 10, 25, 50] },
-  chatMessageLimit: 50,
   signedUrlExpirationSecs: 3600,
   storageBuckets: { avatars: 'avatars', files: 'user-files' },
   searchDebounceMs: 300,

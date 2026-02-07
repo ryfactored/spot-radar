@@ -46,6 +46,7 @@ describe('Profile', () => {
 
     storageMock = {
       validateAvatar: vi.fn().mockReturnValue(null),
+      getExtensionFromMime: vi.fn().mockReturnValue('png'),
       upload: vi.fn().mockResolvedValue({
         path: 'user-123/avatar.png',
         publicUrl: 'https://example.com/new-avatar.png',

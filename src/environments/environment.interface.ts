@@ -15,7 +15,6 @@ export interface Environment {
   defaults: { colorTheme: 'default'; darkMode: boolean; sidenavOpened: boolean };
   cacheTtlMinutes: number;
   pagination: { defaultPageSize: number; pageSizeOptions: number[] };
-  chatMessageLimit: number;
   signedUrlExpirationSecs: number;
   storageBuckets: { avatars: string; files: string };
   searchDebounceMs: number;
