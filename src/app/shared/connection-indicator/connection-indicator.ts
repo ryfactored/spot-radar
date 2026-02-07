@@ -30,12 +30,12 @@ import { ConnectionStatus } from '@core';
     }
 
     mat-icon.connected {
-      color: #4caf50;
+      color: var(--connection-status-connected, #4caf50);
     }
 
     mat-icon.connecting,
     mat-icon.reconnecting {
-      color: #ff9800;
+      color: var(--connection-status-warning, #ff9800);
       animation: pulse 1.5s infinite;
     }
 

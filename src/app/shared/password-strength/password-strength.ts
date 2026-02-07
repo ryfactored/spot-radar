@@ -46,21 +46,21 @@ export interface PasswordStrengthResult {
     }
     .segment {
       flex: 1;
-      background: #e0e0e0;
+      background: var(--mat-sys-surface-variant, #e0e0e0);
       border-radius: 2px;
       transition: background-color 0.2s;
     }
     .segment.weak {
-      background: #f44336;
+      background: var(--mat-sys-error, #f44336);
     }
     .segment.fair {
-      background: #ff9800;
+      background: var(--password-strength-fair, #ff9800);
     }
     .segment.good {
-      background: #ffc107;
+      background: var(--password-strength-good, #ffc107);
     }
     .segment.strong {
-      background: #4caf50;
+      background: var(--password-strength-strong, #4caf50);
     }
     .strength-label {
       display: block;
@@ -70,16 +70,16 @@ export interface PasswordStrengthResult {
       text-transform: capitalize;
     }
     .strength-label.weak {
-      color: #f44336;
+      color: var(--mat-sys-error, #f44336);
     }
     .strength-label.fair {
-      color: #ff9800;
+      color: var(--password-strength-fair, #ff9800);
     }
     .strength-label.good {
-      color: #ffc107;
+      color: var(--password-strength-good, #ffc107);
     }
     .strength-label.strong {
-      color: #4caf50;
+      color: var(--password-strength-strong, #4caf50);
     }
     .strength-label.hidden {
       visibility: hidden;
