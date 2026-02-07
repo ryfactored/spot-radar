@@ -3,10 +3,12 @@ import { Router } from '@angular/router';
 
 import { AuthService } from './auth';
 import { SupabaseService } from '../supabase/supabase';
+import { ToastService } from '@shared';
 
 describe('AuthService', () => {
   let service: AuthService;
   let routerMock: { navigate: ReturnType<typeof vi.fn> };
+  let toastMock: { info: ReturnType<typeof vi.fn> };
   let authStateCallback: (event: string, session: any) => void;
   let supabaseMock: {
     client: {
@@ -25,6 +27,10 @@ describe('AuthService', () => {
   beforeEach(() => {
     routerMock = {
       navigate: vi.fn(),
+    };
+
+    toastMock = {
+      info: vi.fn(),
     };
 
     supabaseMock = {
@@ -48,6 +54,7 @@ describe('AuthService', () => {
       providers: [
         { provide: SupabaseService, useValue: supabaseMock },
         { provide: Router, useValue: routerMock },
+        { provide: ToastService, useValue: toastMock },
       ],
     });
     service = TestBed.inject(AuthService);
@@ -79,6 +86,24 @@ describe('AuthService', () => {
       expect(service.currentUser()).toBeNull();
       expect(routerMock.navigate).toHaveBeenCalledWith(['/login']);
     });
+
+    it('should show session expired notification when signed out unexpectedly', () => {
+      // First set a user
+      authStateCallback('INITIAL_SESSION', { user: { id: '123' } });
+
+      // Then sign out unexpectedly (not via signOut method)
+      authStateCallback('SIGNED_OUT', null);
+
+      expect(toastMock.info).toHaveBeenCalledWith(
+        'Your session has expired. Please sign in again.',
+      );
+    });
+
+    it('should NOT show session expired notification on initial load without user', () => {
+      authStateCallback('SIGNED_OUT', null);
+
+      expect(toastMock.info).not.toHaveBeenCalled();
+    });
   });
 
   describe('signOut', () => {
@@ -92,6 +117,17 @@ describe('AuthService', () => {
       supabaseMock.client.auth.signOut.mockRejectedValue(new Error('Session not found'));
 
       await expect(service.signOut()).resolves.not.toThrow();
+    });
+
+    it('should NOT show session expired notification on user-initiated sign out', async () => {
+      // First set a user
+      authStateCallback('INITIAL_SESSION', { user: { id: '123' } });
+
+      // User initiates sign out
+      await service.signOut();
+      authStateCallback('SIGNED_OUT', null);
+
+      expect(toastMock.info).not.toHaveBeenCalled();
     });
   });
 

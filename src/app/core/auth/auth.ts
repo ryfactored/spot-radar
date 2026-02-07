@@ -6,6 +6,7 @@ import { RealtimeService } from '../supabase/realtime';
 import { User, Provider } from '@supabase/supabase-js';
 import { mapToError } from '../errors/error-mapper';
 import { environment } from '@env';
+import { ToastService } from '@shared';
 
 import type { SocialProvider } from '../../../environments/social-provider';
 export type { SocialProvider };
@@ -27,20 +28,29 @@ export class AuthService {
   private supabase = inject(SupabaseService);
   private realtime = inject(RealtimeService);
   private router = inject(Router);
+  private toast = inject(ToastService);
   private isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   currentUser = signal<User | null>(null);
   loading = signal(true);
 
+  /** Tracks whether sign out was initiated by user action */
+  private isUserInitiatedSignOut = false;
+
   constructor() {
     // onAuthStateChange fires immediately with INITIAL_SESSION,
     // so no separate loadUser() / getSession() call is needed.
     this.supabase.client.auth.onAuthStateChange((event, session) => {
+      const hadUser = this.currentUser() !== null;
       this.currentUser.set(session?.user ?? null);
       this.loading.set(false);
 
-      // Auto-redirect on sign out
+      // Handle sign out (user-initiated or session expired)
       if (event === 'SIGNED_OUT') {
+        if (!this.isUserInitiatedSignOut && hadUser) {
+          this.toast.info('Your session has expired. Please sign in again.');
+        }
+        this.isUserInitiatedSignOut = false;
         this.router.navigate(['/login']);
       }
     });
@@ -85,6 +95,9 @@ export class AuthService {
   }
 
   async signOut() {
+    // Mark as user-initiated to skip "session expired" notification
+    this.isUserInitiatedSignOut = true;
+
     // Disconnect all realtime subscriptions
     this.realtime.disconnectAll();
 
