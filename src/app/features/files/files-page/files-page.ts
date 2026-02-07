@@ -150,8 +150,8 @@ export class FilesPage implements OnInit {
     try {
       const url = await this.filesService.download(file);
       window.open(url, '_blank');
-    } catch {
-      this.toast.error('Failed to download file');
+    } catch (err) {
+      this.toast.error(extractErrorMessage(err, 'Failed to download file'));
     }
   }
 
