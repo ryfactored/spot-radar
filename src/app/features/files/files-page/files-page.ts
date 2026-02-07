@@ -89,7 +89,7 @@ import { extractErrorMessage } from '@core';
       overflow: hidden;
     }
     .file-icon {
-      color: var(--mat-sys-on-surface-variant, #757575);
+      color: var(--mat-sys-primary, #3b82f6);
     }
     .file-name {
       overflow: hidden;

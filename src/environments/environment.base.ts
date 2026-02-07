@@ -31,6 +31,7 @@ export const environmentBase: Environment = {
     admin: true,
     breadcrumb: true,
     components: true,
+    centerContent: true,
     defaultChildNavMode: 'none', // 'none' | 'tabs' | 'sidenav'
   },
 };

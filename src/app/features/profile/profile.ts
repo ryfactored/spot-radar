@@ -229,7 +229,7 @@ import { environment } from '@env';
     .avatar-hint {
       margin-top: 8px;
       font-size: 12px;
-      color: var(--mat-sys-on-surface-variant, #757575);
+      color: var(--mat-card-subtitle-text-color, #666);
     }
     .password-card {
       margin-top: 24px;
@@ -240,7 +240,7 @@ import { environment } from '@env';
     }
     .danger-description {
       margin-bottom: 16px;
-      color: var(--mat-sys-on-surface-variant, #757575);
+      color: var(--mat-card-subtitle-text-color, #666);
     }
     .delete-button {
       background-color: var(--mat-sys-error, #f44336);

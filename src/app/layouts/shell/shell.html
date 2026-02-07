@@ -170,7 +170,13 @@
       </button>
     </mat-toolbar>
 
-    <main id="main-content" class="content" role="main" [@routeAnimation]="routeKey()">
+    <main
+      id="main-content"
+      class="content"
+      [class.content-left]="!contentCentered()"
+      role="main"
+      [@routeAnimation]="routeKey()"
+    >
       @if (showBreadcrumb()) {
         <app-breadcrumb />
       }
