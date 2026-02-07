@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  DestroyRef,
   inject,
   OnInit,
   signal,
@@ -286,6 +287,8 @@ export class Profile implements OnInit, HasUnsavedChanges {
     this.passwordForm.controls.password.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe((value) => this.passwordValue.set(value));
+
+    inject(DestroyRef).onDestroy(() => this.revokeAvatarPreview());
   }
 
   hasUnsavedChanges(): boolean {
@@ -325,8 +328,14 @@ export class Profile implements OnInit, HasUnsavedChanges {
       return;
     }
 
+    this.revokeAvatarPreview();
     this.selectedAvatarFile.set(file);
     this.avatarPreview.set(URL.createObjectURL(file));
+  }
+
+  private revokeAvatarPreview() {
+    const url = this.avatarPreview();
+    if (url) URL.revokeObjectURL(url);
   }
 
   async onSubmit() {
@@ -361,6 +370,7 @@ export class Profile implements OnInit, HasUnsavedChanges {
         // Bust browser cache: the storage URL doesn't change on upsert,
         // so the browser would serve the cached old image without this.
         this.profileStore.setAvatarUrl(`${updates['avatar_url']}?t=${Date.now()}`);
+        this.revokeAvatarPreview();
         this.avatarPreview.set(null);
         this.selectedAvatarFile.set(null);
       }
