@@ -169,7 +169,7 @@ export class Shell {
         takeUntilDestroyed(),
       )
       .subscribe((event) => {
-        if (this.isMobile()) {
+        if (this.isTabletOrMobile()) {
           this.sidenav()?.close();
         }
         for (const prefix of this.groupPrefixes) {
@@ -219,7 +219,7 @@ export class Shell {
   }
 
   toggleSidenav() {
-    if (this.isMobile()) {
+    if (this.isTabletOrMobile()) {
       this.sidenav()?.toggle();
     } else {
       this.preferences.toggleSidenav();
