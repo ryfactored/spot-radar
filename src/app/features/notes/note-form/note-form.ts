@@ -7,7 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { NotesService } from '../notes';
 import { NotesStore } from '../notes-store';
-import { ToastService, LoadingSpinner } from '@shared';
+import { ToastService, SkeletonOverlay } from '@shared';
 import { HasUnsavedChanges, extractErrorMessage } from '@core';
 
 @Component({
@@ -19,47 +19,43 @@ import { HasUnsavedChanges, extractErrorMessage } from '@core';
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
-    LoadingSpinner,
+    SkeletonOverlay,
   ],
   template: `
     <div class="page-header">
       <h1>{{ isEditMode() ? 'Edit Note' : 'New Note' }}</h1>
     </div>
 
-    @if (loading()) {
-      <app-loading-spinner message="Loading..." />
-    } @else {
-      <mat-card class="form-card">
-        <mat-card-content>
-          <form [formGroup]="form" (ngSubmit)="onSubmit()">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Title</mat-label>
-              <input matInput formControlName="title" placeholder="Enter note title" />
-              @if (form.controls.title.hasError('required')) {
-                <mat-error>Title is required</mat-error>
-              }
-            </mat-form-field>
+    <mat-card class="form-card" [appSkeletonOverlay]="loading()">
+      <mat-card-content>
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Title</mat-label>
+            <input matInput formControlName="title" placeholder="Enter note title" />
+            @if (form.controls.title.hasError('required')) {
+              <mat-error>Title is required</mat-error>
+            }
+          </mat-form-field>
 
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Content</mat-label>
-              <textarea
-                matInput
-                formControlName="content"
-                rows="6"
-                placeholder="Enter note content"
-              ></textarea>
-            </mat-form-field>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Content</mat-label>
+            <textarea
+              matInput
+              formControlName="content"
+              rows="6"
+              placeholder="Enter note content"
+            ></textarea>
+          </mat-form-field>
 
-            <div class="actions">
-              <button mat-button type="button" (click)="cancel()">Cancel</button>
-              <button mat-raised-button color="primary" type="submit" [disabled]="saving()">
-                {{ saving() ? 'Saving...' : isEditMode() ? 'Update' : 'Create' }}
-              </button>
-            </div>
-          </form>
-        </mat-card-content>
-      </mat-card>
-    }
+          <div class="actions">
+            <button mat-button type="button" (click)="cancel()">Cancel</button>
+            <button mat-raised-button color="primary" type="submit" [disabled]="saving()">
+              {{ saving() ? 'Saving...' : isEditMode() ? 'Update' : 'Create' }}
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
   `,
   styles: `
     .form-card {

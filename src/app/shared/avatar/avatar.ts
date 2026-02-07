@@ -26,7 +26,7 @@ import { MatIconModule } from '@angular/material/icon';
       align-items: center;
       justify-content: center;
       overflow: hidden;
-      background: var(--avatar-bg, var(--mat-sys-surface-variant, #e0e0e0));
+      background: var(--avatar-bg, var(--app-inset-bg, #e0e0e0));
       color: var(--avatar-color, var(--mat-sys-on-surface-variant, #666));
     }
     img {

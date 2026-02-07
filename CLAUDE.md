@@ -95,6 +95,15 @@ Example route with sidenav submenu and breadcrumbs:
 
 Three layers: `httpErrorInterceptor` handles HTTP errors and marks them with `__handled`, `GlobalErrorHandler` catches remaining unhandled exceptions (skips `__handled` errors, uses `NgZone.run()` for UI updates), and `error-mapper.ts` maps Supabase error codes to user-friendly messages. Use `unwrap()` / `unwrapWithCount()` helpers for Supabase `{ data, error }` results. Use `extractErrorMessage(err, fallback)` to safely extract a message from unknown error types in catch blocks. Default is always a generic message — only explicitly mapped codes get custom messages.
 
+### Loading States
+
+Two primary patterns:
+
+- **Skeleton cards** — List/grid views. Create a `*CardSkeleton` component matching the real card shape using `Skeleton` from `@shared`. Render 6 in the same grid container. See `NoteCardSkeleton`, `FileCardSkeleton`.
+- **SkeletonOverlay** — Forms and pre-filled content where the DOM structure already exists. Apply `[appSkeletonOverlay]="loading()"` on the container. See Profile, NoteForm.
+
+`LoadingSpinner` remains available for edge cases (e.g., Chat message stream) but is not the default for page-level loading.
+
 ### SSR
 
 Express-based SSR with `provideClientHydration(withEventReplay())`. Landing, login, and register are prerendered. Authenticated routes use client-side rendering. A script in index.html hides content on non-landing routes to prevent flash during hydration.
