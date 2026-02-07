@@ -12,6 +12,7 @@ import {
   LoadingSpinner,
   EmptyState,
   TimeAgoPipe,
+  FileSizePipe,
 } from '@shared';
 import { extractErrorMessage } from '@core';
 
@@ -20,6 +21,7 @@ import { extractErrorMessage } from '@core';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     TimeAgoPipe,
+    FileSizePipe,
     MatCardModule,
     MatButtonModule,
     MatIconModule,
@@ -60,7 +62,7 @@ import { extractErrorMessage } from '@core';
               <mat-icon mat-card-avatar class="file-icon">description</mat-icon>
               <mat-card-title class="file-name">{{ file.name }}</mat-card-title>
               <mat-card-subtitle>
-                {{ formatFileSize(file.size) }} &middot; {{ file.type }} &middot;
+                {{ file.size | fileSize }} &middot; {{ file.type }} &middot;
                 {{ file.created_at | timeAgo }}
               </mat-card-subtitle>
             </mat-card-header>
@@ -170,11 +172,5 @@ export class FilesPage implements OnInit {
         this.toast.error(extractErrorMessage(err, 'Failed to delete file'));
       }
     }
-  }
-
-  formatFileSize(bytes: number): string {
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   }
 }
