@@ -13,7 +13,8 @@
 
 | Command                        | Description                         |
 | ------------------------------ | ----------------------------------- |
-| `npm test`                     | Run unit tests                      |
+| `npm test`                     | Run unit tests (watch mode)         |
+| `npm test -- --no-watch`       | Run unit tests once                 |
 | `npm run test:coverage`        | Run unit tests with coverage report |
 | `npm run e2e`                  | Run Playwright E2E tests            |
 | `npm run e2e:ui`               | Run E2E tests with interactive UI   |
