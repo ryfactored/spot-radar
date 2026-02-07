@@ -15,11 +15,10 @@ export class UsersService {
   private supabase = inject(SupabaseService);
 
   async count(): Promise<number> {
-    const result = await this.supabase.client
-      .from('profiles')
-      .select('*', { count: 'exact', head: true });
-    if (result.error) throw result.error;
-    return result.count ?? 0;
+    const { count } = unwrapWithCount<unknown[]>(
+      await this.supabase.client.from('profiles').select('*', { count: 'exact', head: true }),
+    );
+    return count;
   }
 
   async list(page = 1, pageSize = environment.pagination.defaultPageSize): Promise<UsersResponse> {
