@@ -131,11 +131,6 @@ export const routes: Routes = [
           },
         ],
       },
-      {
-        path: '**',
-        data: { title: 'Page Not Found' },
-        loadComponent: () => import('./features/not-found/not-found').then((m) => m.NotFound),
-      },
     ],
   },
   // Auth routes (guests only)
