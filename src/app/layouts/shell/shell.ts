@@ -141,6 +141,8 @@ export class Shell {
 
   // Breadcrumb visibility — controlled by feature flag and route data `showBreadcrumb: boolean`
   // Defaults to false if not specified in route data
+  contentCentered = computed(() => this.featureFlags.isEnabled('centerContent'));
+
   showBreadcrumb = computed(() => {
     if (!this.featureFlags.isEnabled('breadcrumb')) return false;
     return this.routeShowBreadcrumb() ?? false;

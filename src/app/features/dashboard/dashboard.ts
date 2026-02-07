@@ -34,7 +34,7 @@ import { AuthService, FeatureFlags } from '@core';
   styles: `
     .welcome {
       margin-bottom: 32px;
-      color: var(--mat-sys-on-surface-variant, #666);
+      color: var(--mat-card-subtitle-text-color, #666);
     }
     .quick-links {
       display: grid;
@@ -65,7 +65,7 @@ import { AuthService, FeatureFlags } from '@core';
     }
     .card-body p {
       margin: 0;
-      color: var(--mat-sys-on-surface-variant, #666);
+      color: var(--mat-card-subtitle-text-color, #666);
       font-size: 14px;
     }
   `,
