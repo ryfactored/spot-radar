@@ -1,4 +1,5 @@
-import { Injectable, inject, signal, effect, computed } from '@angular/core';
+import { Injectable, PLATFORM_ID, inject, signal, effect, computed } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { AuthService } from './auth/auth';
 import { environment } from '@env';
 
@@ -36,6 +37,7 @@ const DEFAULT_PREFERENCES: UserPreferences = {
 })
 export class PreferencesService {
   private auth = inject(AuthService);
+  private isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private preferences = signal<UserPreferences>(DEFAULT_PREFERENCES);
 
   // Expose individual preferences as readonly computed signals
@@ -44,6 +46,8 @@ export class PreferencesService {
   readonly sidenavOpened = computed(() => this.preferences().sidenavOpened);
 
   constructor() {
+    if (!this.isBrowser) return;
+
     // Reload preferences when user changes (login/logout)
     effect(() => {
       const user = this.auth.currentUser();

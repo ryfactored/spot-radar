@@ -77,7 +77,7 @@ export class AuthService {
   async signInWithProvider(provider: SocialProvider) {
     const { error } = await this.supabase.client.auth.signInWithOAuth({
       provider: provider as Provider,
-      options: { redirectTo: `${window.location.origin}/dashboard` },
+      options: { redirectTo: `${this.getRedirectOrigin()}/dashboard` },
     });
     if (error) throw mapToError(error);
   }
