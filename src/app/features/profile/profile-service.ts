@@ -1,7 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { SupabaseService, AuthService, SUPABASE_ERRORS, mapToError, unwrap } from '@core';
-
-export type UserRole = 'user' | 'admin';
+import { SupabaseService, AuthService, SUPABASE_ERRORS, mapToError, unwrap, UserRole } from '@core';
 
 export interface Profile {
   id: string;

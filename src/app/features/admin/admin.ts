@@ -9,7 +9,7 @@ import {
 import { RouterLink } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { FeatureFlags } from '@core';
+import { FeatureFlags, extractErrorMessage } from '@core';
 import { UsersService } from './users-service';
 
 @Component({
@@ -88,8 +88,8 @@ export class Admin implements OnInit {
   async ngOnInit() {
     try {
       this.userCount.set(await this.usersService.count());
-    } catch {
-      // keep default subtitle
+    } catch (err) {
+      console.warn('Failed to load user count:', extractErrorMessage(err));
     }
   }
 }

@@ -10,7 +10,7 @@ import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { PageEvent } from '@angular/material/paginator';
 import { ToastService, LoadingSpinner, DataTable, SearchInput, ColumnDef } from '@shared';
-import { AuthService } from '@core';
+import { AuthService, extractErrorMessage } from '@core';
 import { environment } from '@env';
 import { NotesService, Note } from '../../notes/notes';
 
@@ -176,8 +176,8 @@ export class Data implements OnInit {
       const response = await this.notesService.list(page, this.pageSize(), this.searchValue());
       this.notes.set(response.data);
       this.totalNotes.set(response.count);
-    } catch (_error) {
-      this.toast.error('Failed to load notes. Please ensure you are logged in.');
+    } catch (err) {
+      this.toast.error(extractErrorMessage(err, 'Failed to load notes'));
     } finally {
       this.notesLoading.set(false);
     }
