@@ -270,8 +270,8 @@ export class Profile implements OnInit, HasUnsavedChanges {
 
   form = this.fb.nonNullable.group({
     email: [{ value: '', disabled: true }],
-    display_name: [''],
-    bio: [''],
+    display_name: ['', [Validators.maxLength(100)]],
+    bio: ['', [Validators.maxLength(500)]],
   });
 
   passwordForm = this.fb.nonNullable.group(
@@ -343,7 +343,7 @@ export class Profile implements OnInit, HasUnsavedChanges {
 
       const file = this.selectedAvatarFile();
       if (file) {
-        const ext = file.name.split('.').pop() || 'png';
+        const ext = this.storage.getExtensionFromMime(file.type);
         const path = `${user.id}/avatar.${ext}`;
         const { publicUrl } = await this.storage.upload({
           bucket: environment.storageBuckets.avatars,

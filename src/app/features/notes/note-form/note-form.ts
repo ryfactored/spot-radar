@@ -93,8 +93,8 @@ export class NoteForm implements OnInit, HasUnsavedChanges {
   noteId = signal<string | null>(null);
 
   form = this.fb.nonNullable.group({
-    title: ['', Validators.required],
-    content: [''],
+    title: ['', [Validators.required, Validators.maxLength(255)]],
+    content: ['', [Validators.maxLength(10000)]],
   });
 
   async ngOnInit() {

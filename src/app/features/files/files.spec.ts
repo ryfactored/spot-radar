@@ -42,6 +42,9 @@ describe('FilesService', () => {
 
     storageMock = {
       validateAttachment: vi.fn().mockReturnValue(null),
+      sanitizeFilename: vi.fn((name: string) =>
+        name.replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 255),
+      ),
       upload: vi.fn().mockResolvedValue({ path: 'user-123/file.pdf', publicUrl: '' }),
       createSignedUrl: vi.fn().mockResolvedValue('https://example.com/signed-url'),
       remove: vi.fn().mockResolvedValue(undefined),

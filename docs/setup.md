@@ -147,7 +147,6 @@ When cloning this template for a new project, update these values:
 | `defaults`                | Default theme, dark mode, and sidenav state for new users.                   |
 | `cacheTtlMinutes`         | How long signal stores cache data before refetching.                         |
 | `pagination`              | Default page size and page size options for lists.                           |
-| `chatMessageLimit`        | Number of recent messages loaded in Chat.                                    |
 | `signedUrlExpirationSecs` | How long signed storage URLs are valid.                                      |
 | `storageBuckets`          | Bucket names (must match what you created in Supabase).                      |
 | `searchDebounceMs`        | Delay before search input triggers a query.                                  |

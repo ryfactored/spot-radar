@@ -6,6 +6,27 @@ import { environment } from '@env';
 const AVATAR_MAX_SIZE = environment.upload.avatarMaxSizeMB * 1024 * 1024;
 const AVATAR_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
 const ATTACHMENT_MAX_SIZE = environment.upload.attachmentMaxSizeMB * 1024 * 1024;
+const ATTACHMENT_TYPES = [
+  'application/pdf',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/vnd.ms-excel',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  'text/plain',
+  'text/csv',
+  'image/jpeg',
+  'image/png',
+  'image/gif',
+  'image/webp',
+];
+
+const MIME_TO_EXT: Record<string, string> = {
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'image/gif': 'gif',
+  'image/webp': 'webp',
+  'image/svg+xml': 'svg',
+};
 
 @Injectable({
   providedIn: 'root',
@@ -24,10 +45,29 @@ export class StorageService {
   }
 
   validateAttachment(file: File): string | null {
+    if (!ATTACHMENT_TYPES.includes(file.type)) {
+      return 'Only PDF, Word, Excel, text, CSV, and image files are allowed';
+    }
     if (file.size > ATTACHMENT_MAX_SIZE) {
       return `File must be less than ${environment.upload.attachmentMaxSizeMB}MB`;
     }
     return null;
+  }
+
+  /**
+   * Sanitizes a filename by removing unsafe characters and limiting length.
+   * Use this before constructing storage paths.
+   */
+  sanitizeFilename(filename: string): string {
+    return filename.replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 255);
+  }
+
+  /**
+   * Returns a safe file extension based on MIME type.
+   * Use this instead of extracting extension from user-provided filename.
+   */
+  getExtensionFromMime(mimeType: string): string {
+    return MIME_TO_EXT[mimeType] || 'bin';
   }
 
   async upload(options: {

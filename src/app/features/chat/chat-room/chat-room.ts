@@ -19,6 +19,8 @@ import { ChatStore } from '../chat-store';
 import { AuthService, extractErrorMessage } from '@core';
 import { ToastService, ConnectionIndicator, LoadingSpinner, TimeAgoPipe } from '@shared';
 
+const MESSAGE_MAX_LENGTH = 2000;
+
 @Component({
   selector: 'app-chat-room',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -239,6 +241,11 @@ export class ChatRoom implements OnInit {
   async sendMessage() {
     const content = this.newMessage().trim();
     if (!content || this.sending()) return;
+
+    if (content.length > MESSAGE_MAX_LENGTH) {
+      this.toast.error(`Message must be less than ${MESSAGE_MAX_LENGTH} characters`);
+      return;
+    }
 
     this.sending.set(true);
 

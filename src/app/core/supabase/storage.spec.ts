@@ -67,18 +67,77 @@ describe('StorageService', () => {
   });
 
   describe('validateAttachment', () => {
-    it('should return null for file under 10MB', () => {
+    it('should return null for valid PDF under size limit', () => {
       const file = new File(['data'], 'doc.pdf', { type: 'application/pdf' });
       expect(service.validateAttachment(file)).toBeNull();
+    });
+
+    it('should return null for valid Word document', () => {
+      const file = new File(['data'], 'doc.docx', {
+        type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      });
+      expect(service.validateAttachment(file)).toBeNull();
+    });
+
+    it('should return null for valid image file', () => {
+      const file = new File(['data'], 'image.png', { type: 'image/png' });
+      expect(service.validateAttachment(file)).toBeNull();
+    });
+
+    it('should return error for disallowed MIME type', () => {
+      const file = new File(['data'], 'app.exe', { type: 'application/octet-stream' });
+      expect(service.validateAttachment(file)).toBe(
+        'Only PDF, Word, Excel, text, CSV, and image files are allowed',
+      );
+    });
+
+    it('should return error for zip files', () => {
+      const file = new File(['data'], 'archive.zip', { type: 'application/zip' });
+      expect(service.validateAttachment(file)).toBe(
+        'Only PDF, Word, Excel, text, CSV, and image files are allowed',
+      );
     });
 
     it('should return error for file exceeding environment attachment size limit', () => {
       const maxBytes = environment.upload.attachmentMaxSizeMB * 1024 * 1024;
       const largeData = new Uint8Array(maxBytes + 1);
-      const file = new File([largeData], 'large.zip', { type: 'application/zip' });
+      const file = new File([largeData], 'large.pdf', { type: 'application/pdf' });
       expect(service.validateAttachment(file)).toBe(
         `File must be less than ${environment.upload.attachmentMaxSizeMB}MB`,
       );
+    });
+  });
+
+  describe('sanitizeFilename', () => {
+    it('should preserve safe characters', () => {
+      expect(service.sanitizeFilename('document.pdf')).toBe('document.pdf');
+      expect(service.sanitizeFilename('my-file_v2.txt')).toBe('my-file_v2.txt');
+    });
+
+    it('should replace unsafe characters with underscores', () => {
+      expect(service.sanitizeFilename('file name.pdf')).toBe('file_name.pdf');
+      expect(service.sanitizeFilename('../../../etc/passwd')).toBe('.._.._.._etc_passwd');
+      expect(service.sanitizeFilename('file<script>.pdf')).toBe('file_script_.pdf');
+    });
+
+    it('should limit filename length to 255 characters', () => {
+      const longName = 'a'.repeat(300) + '.pdf';
+      expect(service.sanitizeFilename(longName).length).toBe(255);
+    });
+  });
+
+  describe('getExtensionFromMime', () => {
+    it('should return correct extension for known MIME types', () => {
+      expect(service.getExtensionFromMime('image/jpeg')).toBe('jpg');
+      expect(service.getExtensionFromMime('image/png')).toBe('png');
+      expect(service.getExtensionFromMime('image/gif')).toBe('gif');
+      expect(service.getExtensionFromMime('image/webp')).toBe('webp');
+      expect(service.getExtensionFromMime('image/svg+xml')).toBe('svg');
+    });
+
+    it('should return bin for unknown MIME types', () => {
+      expect(service.getExtensionFromMime('application/octet-stream')).toBe('bin');
+      expect(service.getExtensionFromMime('unknown/type')).toBe('bin');
     });
   });
 

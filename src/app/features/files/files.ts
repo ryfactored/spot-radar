@@ -38,7 +38,8 @@ export class FilesService {
     if (!user) throw new Error('Please sign in to continue');
 
     const timestamp = Date.now();
-    const path = `${user.id}/${timestamp}-${file.name}`;
+    const safeFilename = this.storage.sanitizeFilename(file.name);
+    const path = `${user.id}/${timestamp}-${safeFilename}`;
 
     await this.storage.upload({
       bucket: environment.storageBuckets.files,
