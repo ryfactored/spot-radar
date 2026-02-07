@@ -112,11 +112,20 @@ export class Shell {
 
   isMobile = toSignal(this.isMobile$, { initialValue: false });
 
-  // Sidenav mode: 'over' on mobile, 'side' on desktop
-  sidenavMode = computed(() => (this.isMobile() ? 'over' : 'side'));
+  // Detect tablet breakpoint (768-1024px) — sidenav uses 'over' mode on tablets
+  private isTablet$ = this.breakpointObserver
+    .observe(['(max-width: 1024px)'])
+    .pipe(map((result) => result.matches));
 
-  // Sidenav opened state: closed on mobile by default, respects preference on desktop
-  sidenavOpened = computed(() => (this.isMobile() ? false : this.preferences.sidenavOpened()));
+  private isTabletOrMobile = toSignal(this.isTablet$, { initialValue: false });
+
+  // Sidenav mode: 'over' on mobile/tablet, 'side' on desktop (> 1024px)
+  sidenavMode = computed(() => (this.isTabletOrMobile() ? 'over' : 'side'));
+
+  // Sidenav opened state: closed on mobile/tablet by default, respects preference on desktop
+  sidenavOpened = computed(() =>
+    this.isTabletOrMobile() ? false : this.preferences.sidenavOpened(),
+  );
 
   // Child navigation mode — controls how subpages are navigated
   // Set via route data `childNavMode: 'tabs' | 'sidenav' | 'none'`

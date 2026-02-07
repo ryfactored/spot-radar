@@ -94,11 +94,18 @@ const MESSAGE_MAX_LENGTH = 2000;
     </div>
   `,
   styles: `
+    :host {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
     .chat-container {
       display: flex;
       flex-direction: column;
-      height: calc(100dvh - 120px);
-      max-height: 800px;
+      flex: 1;
+      min-height: 0;
+      max-height: calc(100dvh - 64px - 40px);
     }
 
     .messages-card {

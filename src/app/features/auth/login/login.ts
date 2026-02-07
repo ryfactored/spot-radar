@@ -28,7 +28,7 @@ import { AUTH_FORM_STYLES } from '../auth-form-styles';
     <h2>Sign In</h2>
 
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
-      <mat-form-field appearance="outline" class="full-width" subscriptSizing="fixed">
+      <mat-form-field appearance="outline" class="full-width">
         <mat-label>Email</mat-label>
         <input matInput formControlName="email" type="email" />
         @if (form.controls.email.hasError('required')) {
@@ -39,7 +39,7 @@ import { AUTH_FORM_STYLES } from '../auth-form-styles';
         }
       </mat-form-field>
 
-      <mat-form-field appearance="outline" class="full-width" subscriptSizing="fixed">
+      <mat-form-field appearance="outline" class="full-width">
         <mat-label>Password</mat-label>
         <input matInput formControlName="password" [type]="showPassword() ? 'text' : 'password'" />
         <button

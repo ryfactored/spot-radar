@@ -12,6 +12,7 @@ import { Directive, input } from '@angular/core';
   host: {
     '[class.skeleton-overlay]': 'isLoading()',
     '[attr.aria-busy]': 'isLoading() ? "true" : null',
+    '[attr.aria-hidden]': 'isLoading() ? "true" : null',
   },
 })
 export class SkeletonOverlay {
