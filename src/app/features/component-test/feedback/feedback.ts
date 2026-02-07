@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { SupabaseService } from '@core';
 import { ConfirmDialogService, ToastService } from '@shared';
 
 @Component({
@@ -34,6 +35,20 @@ import { ConfirmDialogService, ToastService } from '@shared';
         </div>
       </mat-card-content>
     </mat-card>
+
+    <mat-card class="section">
+      <mat-card-header>
+        <mat-card-title>Session Timeout</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p>Simulate session expiration to test the timeout notification.</p>
+        <div class="button-row">
+          <button mat-raised-button color="warn" (click)="simulateSessionExpiry()">
+            Expire Session
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
   `,
   styles: `
     .section {
@@ -48,6 +63,7 @@ import { ConfirmDialogService, ToastService } from '@shared';
   `,
 })
 export class Feedback {
+  private supabase = inject(SupabaseService);
   private confirmDialog = inject(ConfirmDialogService);
   private toast = inject(ToastService);
 
@@ -80,5 +96,13 @@ export class Feedback {
 
   testError() {
     throw new Error('Test error!');
+  }
+
+  /**
+   * Simulates session expiration by signing out directly via Supabase,
+   * bypassing AuthService.signOut() which would suppress the notification.
+   */
+  async simulateSessionExpiry() {
+    await this.supabase.client.auth.signOut();
   }
 }
