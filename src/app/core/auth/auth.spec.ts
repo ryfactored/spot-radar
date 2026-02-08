@@ -113,10 +113,15 @@ describe('AuthService', () => {
       expect(supabaseMock.client.auth.signOut).toHaveBeenCalled();
     });
 
-    it('should not throw when supabase signOut fails', async () => {
-      supabaseMock.client.auth.signOut.mockRejectedValue(new Error('Session not found'));
+    it('should fall back to local sign out when server sign out fails', async () => {
+      supabaseMock.client.auth.signOut
+        .mockResolvedValueOnce({ error: { message: 'Session not found' } })
+        .mockResolvedValueOnce({ error: null });
 
-      await expect(service.signOut()).resolves.not.toThrow();
+      await service.signOut();
+
+      expect(supabaseMock.client.auth.signOut).toHaveBeenCalledTimes(2);
+      expect(supabaseMock.client.auth.signOut).toHaveBeenLastCalledWith({ scope: 'local' });
     });
 
     it('should NOT show session expired notification on user-initiated sign out', async () => {
