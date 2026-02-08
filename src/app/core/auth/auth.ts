@@ -101,12 +101,12 @@ export class AuthService {
     // Disconnect all realtime subscriptions
     this.realtime.disconnectAll();
 
-    try {
-      await this.supabase.client.auth.signOut();
-    } catch {
-      // Ignore - session may already be invalid server-side.
-      // The Supabase client still clears the local session and fires
-      // SIGNED_OUT via onAuthStateChange, which handles redirect.
+    const { error } = await this.supabase.client.auth.signOut();
+    if (error) {
+      // Server-side session may already be invalid (e.g. expired).
+      // Fall back to local-only sign out which clears the local session
+      // and fires SIGNED_OUT without contacting the server.
+      await this.supabase.client.auth.signOut({ scope: 'local' });
     }
   }
 
