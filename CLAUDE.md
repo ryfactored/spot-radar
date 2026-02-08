@@ -119,4 +119,4 @@ Express-based SSR with `provideClientHydration(withEventReplay())`. Landing, log
 - **ToastService API**: `toast.success(msg)`, `toast.error(msg)`, `toast.info(msg)`.
 - **Forms**: Reactive forms with `fb.nonNullable.group()`. Custom validators in `shared/validators/`.
 - **Theming**: Use `var(--mat-sys-*)` CSS custom properties for colors that adapt to light/dark mode. Override Material component styles via `--mdc-*` tokens (e.g., `--mdc-filled-button-container-color`) instead of `!important`. Auth form components share styles via `AUTH_FORM_STYLES` constant.
-- **Environments**: `environment.base.ts` holds shared values; `environment.ts` and `environment.prod.ts` spread and override. `SocialProvider` type lives in `environments/social-provider.ts`.
+- **Environments**: `environment.base.ts` holds shared values with placeholders for secrets. `environment.local.ts` (gitignored) provides real Supabase credentials via `localOverrides`; copy `environment.local.example.ts` to get started. `environment.ts` and `environment.prod.ts` spread base + local overrides. `SocialProvider` type lives in `environments/social-provider.ts`.

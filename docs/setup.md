@@ -31,16 +31,26 @@ npm install
 
 ---
 
-## 3. Configure environment files
+## 3. Configure environment
 
-Open `src/environments/environment.base.ts` and replace the Supabase credentials:
+Copy the example local overrides file and fill in your Supabase credentials:
 
-```ts
-supabaseUrl: 'https://YOUR_PROJECT.supabase.co',
-supabaseAnonKey: 'YOUR_ANON_KEY',
+```bash
+cp src/environments/environment.local.example.ts src/environments/environment.local.ts
 ```
 
-Then update `siteUrl` in `src/environments/environment.prod.ts` to your production domain:
+Open `environment.local.ts` and set your project URL and anon key:
+
+```ts
+export const localOverrides: Partial<Environment> = {
+  supabaseUrl: 'https://YOUR_PROJECT.supabase.co',
+  supabaseAnonKey: 'YOUR_ANON_KEY',
+};
+```
+
+This file is gitignored. The committed environment files (`environment.ts`, `environment.prod.ts`) import these overrides automatically.
+
+To set your production domain, update `siteUrl` in `environment.prod.ts`:
 
 ```ts
 siteUrl: 'https://your-domain.com',
@@ -137,7 +147,7 @@ When cloning this template for a new project, update these values:
 
 ### Environment files (`src/environments/environment.base.ts` + `environment.prod.ts`)
 
-All shared values live in `environment.base.ts`. Override per-environment values in `environment.prod.ts`.
+All shared values live in `environment.base.ts`. Override per-environment values in `environment.prod.ts`. Supabase credentials live in `environment.local.ts` (gitignored).
 
 | Field                     | What it does                                                                 |
 | ------------------------- | ---------------------------------------------------------------------------- |
@@ -190,7 +200,13 @@ This app uses SSR with Express. Vercel auto-detects Angular SSR projects.
 3. Vercel should auto-detect the framework. If not, set:
    - **Build Command**: `npm run build`
    - **Output Directory**: `dist/angular-starter`
-4. No environment variables needed in Vercel — credentials are baked into `environment.prod.ts` via Angular's file replacement at build time.
+4. Add environment variables in Vercel's dashboard (**Settings > Environment Variables**):
+   - `SUPABASE_URL` — your Supabase project URL (auto-set by the Supabase Vercel integration)
+   - `SUPABASE_ANON_KEY` — your Supabase anon/public key (auto-set by the integration)
+   - `SITE_URL` — your production domain (e.g. `https://your-domain.vercel.app`)
+
+   The `prebuild` script auto-matches any env var whose `SCREAMING_SNAKE_CASE` name corresponds to a string property in the `Environment` interface (e.g. `SUPABASE_URL` → `supabaseUrl`). You can also use `ENV_`-prefixed variables for direct key mapping (e.g. `ENV_siteTitle` → `siteTitle`). Locally the file already exists (gitignored), so the script is a no-op.
+
 5. After deploying, update Supabase:
    - **Authentication > URL Configuration > Site URL**: set to your Vercel domain.
    - **Authentication > URL Configuration > Redirect URLs**: add `https://your-domain.vercel.app/**`.
