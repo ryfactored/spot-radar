@@ -10,7 +10,12 @@ export interface Environment {
   siteTitle: string;
   siteDescription: string;
   toastDuration: { success: number; info: number; error: number };
-  upload: { avatarMaxSizeMB: number; attachmentMaxSizeMB: number };
+  upload: {
+    avatarMaxSizeMB: number;
+    avatarTypes: readonly string[];
+    attachmentMaxSizeMB: number;
+    attachmentTypes: readonly string[];
+  };
   passwordMinLength: number;
   defaults: { colorTheme: 'default'; darkMode: boolean; sidenavOpened: boolean };
   cacheTtlMinutes: number;

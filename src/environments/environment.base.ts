@@ -15,7 +15,25 @@ export const environmentBase: Environment = {
   siteDescription:
     'A production-ready Angular starter with authentication, theming, and reusable components.',
   toastDuration: { success: 2000, info: 3000, error: 4000 },
-  upload: { avatarMaxSizeMB: 5, attachmentMaxSizeMB: 10 },
+  upload: {
+    avatarMaxSizeMB: 5,
+    avatarTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'],
+    attachmentMaxSizeMB: 10,
+    attachmentTypes: [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'text/plain',
+      'text/csv',
+      'image/jpeg',
+      'image/png',
+      'image/gif',
+      'image/webp',
+      'image/svg+xml',
+    ],
+  },
   passwordMinLength: 8,
   defaults: { colorTheme: 'default', darkMode: true, sidenavOpened: true }, // colorTheme: 'default' | 'teal' | 'slate'
   cacheTtlMinutes: 5,

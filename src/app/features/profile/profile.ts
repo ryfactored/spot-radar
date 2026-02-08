@@ -68,7 +68,7 @@ import { environment } from '@env';
           <input
             #avatarInput
             type="file"
-            accept="image/jpeg,image/png,image/gif,image/webp,image/svg+xml"
+            [accept]="avatarAccept"
             hidden
             (change)="onAvatarSelected($event)"
           />
@@ -267,6 +267,7 @@ export class Profile implements OnInit, HasUnsavedChanges {
   showConfirmPassword = signal(false);
   passwordValue = signal('');
   passwordMinLength = environment.passwordMinLength;
+  avatarAccept = environment.upload.avatarTypes.join(',');
   isEmailUser = computed(() => this.auth.currentUser()?.app_metadata?.['provider'] === 'email');
 
   form = this.fb.nonNullable.group({

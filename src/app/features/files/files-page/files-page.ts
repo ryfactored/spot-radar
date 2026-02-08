@@ -162,12 +162,13 @@ export class FilesPage implements OnInit {
     });
 
     if (confirmed) {
+      this.store.removeFile(file.id);
       try {
         await this.filesService.delete(file);
-        this.store.removeFile(file.id);
         this.toast.success('File deleted');
       } catch (err) {
         this.toast.error(extractErrorMessage(err, 'Failed to delete file'));
+        this.loadFiles(); // Refetch on error to restore correct state
       }
     }
   }
