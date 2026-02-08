@@ -4,17 +4,19 @@ How to cleanly remove each example feature when cloning the template.
 
 ## Quick: Disable via feature flags
 
-To hide a feature without deleting code, set it to `false` in `src/environments/environment.ts` (and `environment.prod.ts`):
+To hide a feature without deleting code, set it to `false` in `src/environments/environment.base.ts`:
 
 ```ts
-featureFlags: { notes: false, chat: true, files: true, admin: true },
+featureFlags: { notes: false, chat: true, files: true, admin: true, components: true, ... },
 ```
 
-This removes the sidenav link and blocks the route (redirects to `/dashboard`). The code stays in the bundle but is unreachable. Use this for quick toggling or gradual rollouts.
+This removes the sidenav link, hides the dashboard card, and blocks the route (redirects to `/dashboard`). The code stays in the bundle but is unreachable. Use this for quick toggling or gradual rollouts.
 
 ## Permanent: Delete the code
 
 To fully remove a feature and reduce bundle size, follow the steps below. Work through one feature at a time. After each removal, run `npm run build` to confirm nothing is broken.
+
+> **Note**: Sidenav links and dashboard cards are already gated by feature flags (`@if (featureFlags.isEnabled(...))` in the template, `computed()` filter in Dashboard). Disabling a feature flag hides them automatically. The steps below are for permanent removal of the code.
 
 ---
 
@@ -31,7 +33,7 @@ e2e/notes.spec.ts
 
 ### Routes
 
-Remove these three route objects from the Shell `children` array in `src/app/app.routes.ts` (lines 56-70):
+Remove these three route objects from the Shell `children` array in `src/app/app.routes.ts`:
 
 ```ts
 {
@@ -50,18 +52,11 @@ Remove these three route objects from the Shell `children` array in `src/app/app
 
 ### Sidenav
 
-Remove the Notes link from `src/app/layouts/shell/shell.html` (lines 23-32):
-
-```html
-<a mat-list-item routerLink="/notes" ...>
-  <mat-icon matListItemIcon>note</mat-icon>
-  <span matListItemTitle>Notes</span>
-</a>
-```
+Remove the `@if (featureFlags.isEnabled('notes'))` block (containing the Notes link) from `src/app/layouts/shell/shell.html`.
 
 ### Dashboard
 
-Remove the Notes card from the `links` array in `src/app/features/dashboard/dashboard.ts` (lines 78-82):
+Remove the Notes entry from the `allLinks` array in `src/app/features/dashboard/dashboard.ts`:
 
 ```ts
 {
@@ -69,6 +64,7 @@ Remove the Notes card from the `links` array in `src/app/features/dashboard/dash
   icon: 'note',
   title: 'Notes',
   description: 'Create and manage your notes',
+  feature: 'notes',
 },
 ```
 
@@ -78,8 +74,9 @@ Remove the Notes card from the `links` array in `src/app/features/dashboard/dash
 
 ### Gotchas
 
-- **Component Test depends on Notes.** `component-test.ts` imports `NotesService` and `Note` from `../notes/notes` for the DataTable demo. If removing Notes, also remove Component Test — or replace the demo data source with static data.
+- **Component Test depends on Notes.** The `data.ts` child page imports `NotesService` and `Note` from `../../notes/notes` for the DataTable demo. If removing Notes, also remove Component Test — or replace the demo data source with static data.
 - `e2e/navigation.spec.ts` has a test that navigates to `/notes`. Remove or update that test case.
+- `e2e/dashboard.spec.ts` has a test that clicks through to `/notes`. Remove or update it.
 
 ---
 
@@ -91,34 +88,29 @@ Real-time messaging room with Supabase Realtime subscriptions and a signal store
 
 ```
 src/app/features/chat/           (6 files)
+e2e/chat.spec.ts
 ```
 
 ### Routes
 
-Remove the Chat route from the Shell `children` array in `src/app/app.routes.ts` (lines 72-75):
+Remove the Chat route from the Shell `children` array in `src/app/app.routes.ts`:
 
 ```ts
 {
   path: 'chat',
   data: { title: 'Chat' },
   loadComponent: () => import('./features/chat/chat-room/chat-room').then((m) => m.ChatRoom),
+  canActivate: [featureFlagGuard('chat')],
 },
 ```
 
 ### Sidenav
 
-Remove the Chat link from `src/app/layouts/shell/shell.html` (lines 33-42):
-
-```html
-<a mat-list-item routerLink="/chat" ...>
-  <mat-icon matListItemIcon>chat</mat-icon>
-  <span matListItemTitle>Chat</span>
-</a>
-```
+Remove the `@if (featureFlags.isEnabled('chat'))` block (containing the Chat link) from `src/app/layouts/shell/shell.html`.
 
 ### Dashboard
 
-Remove the Chat card from the `links` array in `src/app/features/dashboard/dashboard.ts` (lines 83-87):
+Remove the Chat entry from the `allLinks` array in `src/app/features/dashboard/dashboard.ts`:
 
 ```ts
 {
@@ -126,6 +118,7 @@ Remove the Chat card from the `links` array in `src/app/features/dashboard/dashb
   icon: 'chat',
   title: 'Chat',
   description: 'Real-time messaging with others',
+  feature: 'chat',
 },
 ```
 
@@ -147,12 +140,13 @@ File upload/download feature using Supabase Storage with a metadata table.
 ### Delete
 
 ```
-src/app/features/files/          (4 files)
+src/app/features/files/          (7 files)
+e2e/files.spec.ts
 ```
 
 ### Routes
 
-Remove the Files route from the Shell `children` array in `src/app/app.routes.ts` (lines 77-81):
+Remove the Files route from the Shell `children` array in `src/app/app.routes.ts`:
 
 ```ts
 {
@@ -160,23 +154,17 @@ Remove the Files route from the Shell `children` array in `src/app/app.routes.ts
   data: { title: 'Files' },
   loadComponent: () =>
     import('./features/files/files-page/files-page').then((m) => m.FilesPage),
+  canActivate: [featureFlagGuard('files')],
 },
 ```
 
 ### Sidenav
 
-Remove the Files link from `src/app/layouts/shell/shell.html` (lines 43-52):
-
-```html
-<a mat-list-item routerLink="/files" ...>
-  <mat-icon matListItemIcon>folder</mat-icon>
-  <span matListItemTitle>Files</span>
-</a>
-```
+Remove the `@if (featureFlags.isEnabled('files'))` block (containing the Files link) from `src/app/layouts/shell/shell.html`.
 
 ### Dashboard
 
-Remove the Files card from the `links` array in `src/app/features/dashboard/dashboard.ts` (lines 88-92):
+Remove the Files entry from the `allLinks` array in `src/app/features/dashboard/dashboard.ts`:
 
 ```ts
 {
@@ -184,6 +172,7 @@ Remove the Files card from the `links` array in `src/app/features/dashboard/dash
   icon: 'folder',
   title: 'Files',
   description: 'Upload and manage your files',
+  feature: 'files',
 },
 ```
 
@@ -200,37 +189,41 @@ Remove the Files card from the `links` array in `src/app/features/dashboard/dash
 
 ## Component Test
 
-Showcase page demonstrating shared UI components (Toast, ConfirmDialog, LoadingSpinner, EmptyState, SearchInput, DataTable).
+Showcase page demonstrating shared UI components, organized into tabbed child pages: Feedback (Toast, ConfirmDialog, LoadingSpinner, EmptyState), Display (Skeleton, Avatar, PasswordStrength), and Data (SearchInput, DataTable).
 
 ### Delete
 
 ```
-src/app/features/component-test/ (1 file)
+src/app/features/component-test/ (4 files)
+e2e/components.spec.ts
 ```
 
 ### Routes
 
-Remove the Components route from the Shell `children` array in `src/app/app.routes.ts` (lines 50-54):
+Remove the entire Components route (parent + children) from the Shell `children` array in `src/app/app.routes.ts`:
 
 ```ts
 {
   path: 'components',
-  data: { title: 'Components' },
   loadComponent: () =>
     import('./features/component-test/component-test').then((m) => m.ComponentTest),
+  canActivate: [featureFlagGuard('components')],
+  data: {
+    title: 'Components',
+    childNavMode: CHILD_NAV_MODE.TABS,
+    childNav: [...],
+  },
+  children: [
+    { path: '', loadComponent: () => import('./features/component-test/feedback/feedback')... },
+    { path: 'display', loadComponent: () => import('./features/component-test/display/display')... },
+    { path: 'data', loadComponent: () => import('./features/component-test/data/data')... },
+  ],
 },
 ```
 
 ### Sidenav
 
-Remove the Components link from `src/app/layouts/shell/shell.html` (lines 63-72):
-
-```html
-<a mat-list-item routerLink="/components" ...>
-  <mat-icon matListItemIcon>widgets</mat-icon>
-  <span matListItemTitle>Components</span>
-</a>
-```
+Remove the `@if (featureFlags.isEnabled('components'))` block (containing the Components link) from `src/app/layouts/shell/shell.html`.
 
 ### Dashboard
 
@@ -242,45 +235,46 @@ None.
 
 ### Gotchas
 
-- **Depends on Notes.** `component-test.ts` imports `NotesService` and `Note` from `../notes/notes`. If Notes is still present but Component Test is removed, there's nothing to worry about. If removing both, remove Component Test first (or at the same time).
+- **Depends on Notes.** The `data.ts` child page imports `NotesService` and `Note` from `../../notes/notes` for the DataTable demo. If Notes is still present but Component Test is removed, there's nothing to worry about. If removing both, remove Component Test first (or at the same time).
+- Remove the `CHILD_NAV_MODE` import from `src/app/app.routes.ts` if no other route uses it (Admin also uses it).
 
 ---
 
 ## Admin
 
-Admin panel gated by `roleGuard('admin')` with conditional sidenav visibility.
+Admin panel with overview dashboard, user management, and feature flags page. Gated by `roleGuard('admin')` and `featureFlagGuard('admin')`. Uses sidenav child navigation mode with breadcrumbs.
 
 ### Delete
 
 ```
-src/app/features/admin/          (2 files)
+src/app/features/admin/          (10 files)
 ```
 
 ### Routes
 
-Remove the Admin route from the Shell `children` array in `src/app/app.routes.ts` (lines 82-87):
+Remove the entire Admin route (parent + children) from the Shell `children` array in `src/app/app.routes.ts`:
 
 ```ts
 {
   path: 'admin',
-  data: { title: 'Admin' },
-  loadComponent: () => import('./features/admin/admin').then((m) => m.Admin),
-  canActivate: [roleGuard('admin')],
+  data: {
+    title: 'Admin',
+    childNavMode: CHILD_NAV_MODE.SIDENAV,
+    showBreadcrumb: true,
+    childNav: [...],
+  },
+  canActivate: [roleGuard('admin'), featureFlagGuard('admin')],
+  children: [
+    { path: '', loadComponent: () => import('./features/admin/admin')... },
+    { path: 'users', loadComponent: () => import('./features/admin/users-list/users-list')... },
+    { path: 'feature-flags', loadComponent: () => import('./features/admin/feature-flags/feature-flags')... },
+  ],
 },
 ```
 
 ### Sidenav
 
-Remove the conditional Admin link block from `src/app/layouts/shell/shell.html` (lines 73-84):
-
-```html
-@if (isAdmin()) {
-<a mat-list-item routerLink="/admin" ...>
-  <mat-icon matListItemIcon>admin_panel_settings</mat-icon>
-  <span matListItemTitle>Admin</span>
-</a>
-}
-```
+Remove the `@if (isAdmin() && featureFlags.isEnabled('admin'))` block from `src/app/layouts/shell/shell.html`. This is a large block containing both the expandable submenu version (with toggle button and submenu items) and the simple link fallback.
 
 ### Dashboard
 
@@ -293,14 +287,11 @@ No dashboard card for this feature.
 ### Gotchas
 
 - **Shell has admin-specific code.** In `src/app/layouts/shell/shell.ts`, remove:
-  - The `UserRole` import from `@core` (line 12)
-  - The `ProfileService` import from `@features/profile/profile-service` (line 14)
-  - The `userRole` signal, `isAdmin` computed, and `loadUserRole()` method (lines 48-49, 81-93)
-  - The `profileService` injection (line 43)
-  - The `ngOnInit` lifecycle hook if `loadUserRole()` was its only call (lines 81-83)
-  - The `OnInit` import and `implements OnInit` (line 1, line 37)
-- The `roleGuard` export in `core/index.ts` and the `UserRole` type can stay (harmless, tree-shaken away) or be removed along with `src/app/core/role-guard.ts` and `src/app/core/role-guard.spec.ts`.
-- Remove `roleGuard` from the imports in `src/app/app.routes.ts` line 3 if no other route uses it.
+  - The `UserRole` import from `@core`
+  - The `userRoleResource` (resource that loads the user profile and checks admin role) and `isAdmin` computed signal
+  - The `ProfileService` import and injection can stay — it's also used for loading the avatar and display name
+- **Route imports.** Remove `roleGuard` from the imports in `src/app/app.routes.ts`. If Component Test is also removed, remove `CHILD_NAV_MODE` too.
+- The `roleGuard` export in `core/index.ts` and the `UserRole` type can stay (harmless, tree-shaken away) or be removed along with `src/app/core/auth/role-guard.ts` and its spec.
 
 ---
 
@@ -317,7 +308,7 @@ src/app/layouts/public-layout/   (2 files)
 
 ### Routes
 
-Remove the entire public landing route block from `src/app/app.routes.ts` (lines 22-32):
+Remove the entire public landing route block from `src/app/app.routes.ts`:
 
 ```ts
 {
@@ -357,15 +348,15 @@ None.
 
 ### Gotchas
 
-- **Layouts barrel export.** Remove the `PublicLayout` export from `src/app/layouts/index.ts` (line 3):
+- **Layouts barrel export.** Remove the `PublicLayout` export from `src/app/layouts/index.ts`:
   ```ts
   export { PublicLayout } from './public-layout/public-layout';
   ```
-- **Remove the `PublicLayout` import** from `src/app/app.routes.ts` line 2 (remove it from the destructured import).
-- **SSR prerender.** Remove `{ path: '', renderMode: RenderMode.Prerender }` from `src/app/app.routes.server.ts` (line 5). The `/login` and `/register` prerender entries should remain.
+- **Remove the `PublicLayout` import** from `src/app/app.routes.ts` (remove it from the destructured import).
+- **SSR prerender.** Remove the `{ path: '', renderMode: RenderMode.Prerender }` entry from `src/app/app.routes.server.ts`. The `/login` and `/register` prerender entries should remain.
 - **E2E tests.** `e2e/visual.spec.ts` has a "landing page" screenshot test and `e2e/accessibility.spec.ts` has a landing page a11y test. Remove or update both.
 - **`guestGuard` stays.** It's still needed for the auth routes (`/login`, `/register`, `/forgot-password`).
-- **`index.html` hydration script.** If you have a script that hides content on non-landing routes to prevent flash, review whether it's still needed.
+- **`index.html` hydration script.** The script that hides content on non-root routes to prevent flash may no longer be needed. Review whether it's still useful for your auth pages.
 
 ---
 
@@ -375,18 +366,17 @@ After removing **all** example features (Notes, Chat, Files, Component Test, Adm
 
 ### Auth
 
-- `src/app/features/auth/` — Login, Register, Forgot Password, Reset Password, Verify Email (10 files)
-- `src/app/core/auth.ts` — AuthService with Supabase auth
-- `src/app/core/auth-guard.ts` — Redirects to `/login` if not authenticated
-- `src/app/core/guest-guard.ts` — Redirects to `/dashboard` if already authenticated
+- `src/app/features/auth/` — Login, Register, Forgot Password, Reset Password, Verify Email (11 files)
+- `src/app/core/auth/auth.ts` — AuthService with Supabase auth
+- `src/app/core/auth/auth-guard.ts` — authGuard and guestGuard (shared factory)
 
 ### Dashboard
 
-- `src/app/features/dashboard/` — Empty dashboard (remove the `links` array entries, keep the welcome message)
+- `src/app/features/dashboard/` — Dashboard page (remove the `allLinks` array entries, keep the welcome message)
 
 ### Profile
 
-- `src/app/features/profile/` — Profile page with avatar upload (4 files)
+- `src/app/features/profile/` — Profile page with avatar upload (6 files)
 
 ### Layout
 
@@ -396,14 +386,14 @@ After removing **all** example features (Notes, Chat, Files, Component Test, Adm
 
 ### Core
 
-- `auth.ts`, `auth-guard.ts`, `guest-guard.ts` — Authentication
-- `supabase.ts`, `supabase-errors.ts` — Supabase client and error codes
-- `error-mapper.ts` — User-friendly error messages
-- `global-error-handler.ts` — Global exception handler
-- `http-error-interceptor.ts` — HTTP error interceptor
+- `auth/auth.ts`, `auth/auth-guard.ts` — Authentication and guards
+- `supabase/supabase.ts` — Supabase client wrapper
+- `supabase/realtime.ts` — RealtimeService (used by AuthService; keep it)
+- `supabase/storage.ts` — StorageService (used by Profile avatar upload; keep it)
+- `errors/` — Error mapper, global error handler, HTTP interceptor, error constants
 - `preferences.ts` — Theme and sidenav preferences (localStorage)
-- `realtime.ts` — RealtimeService (used by AuthService; keep it)
-- `storage.ts` — StorageService (used by Profile avatar upload; keep it)
+- `feature-flags.ts`, `feature-flag-guard.ts` — Feature flag service and guard
+- `unsaved-changes-guard.ts` — Dirty form guard
 
 ### Shared
 
@@ -411,13 +401,15 @@ All shared components stay (they're reusable building blocks):
 
 - Toast, ConfirmDialog, LoadingSpinner, EmptyState, Skeleton, SkeletonOverlay
 - DataTable, SearchInput, ThemePicker, SocialLoginButton, PasswordStrength
-- LoadingBar, Avatar, ConnectionIndicator
+- LoadingBar, Avatar, Breadcrumb, ChildNav, ConnectionIndicator
+- Pipes: TimeAgo, FileSize
 - Validators (`match.validator.ts`)
+- Animations (`route-animation.ts`)
 
 ### Other
 
 - `src/app/features/not-found/` — 404 page
 - `src/app/app.routes.ts` — Simplified to auth routes + dashboard + profile
 - `src/app/app.routes.server.ts` — Remove landing prerender entry
-- `e2e/` — Keep `auth.spec.ts`, `auth-flow.spec.ts`, `profile.spec.ts`; remove `notes.spec.ts`; update `navigation.spec.ts`, `visual.spec.ts`, `accessibility.spec.ts`
-- All config files (`angular.json`, `tsconfig`, `vite`, `playwright`, etc.) stay unchanged
+- `e2e/` — Keep `auth.spec.ts`, `auth-flow.spec.ts`, `profile.spec.ts`, `dashboard.spec.ts`, `toast-colors.spec.ts`; remove `notes.spec.ts`, `chat.spec.ts`, `files.spec.ts`, `components.spec.ts`; update `navigation.spec.ts`, `visual.spec.ts`, `accessibility.spec.ts`
+- All config files (`angular.json`, `tsconfig`, `playwright`, etc.) stay unchanged
