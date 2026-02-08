@@ -212,6 +212,110 @@ describe('Profile', () => {
     });
   });
 
+  describe('ngOnInit edge cases', () => {
+    it('should early return when no user', async () => {
+      authMock.currentUser.set(null);
+      profileMock.getProfile.mockClear();
+
+      await component.ngOnInit();
+
+      expect(profileMock.getProfile).not.toHaveBeenCalled();
+    });
+
+    it('should show error toast on load failure', async () => {
+      profileMock.getProfile.mockRejectedValue(new Error('Network error'));
+
+      await component.ngOnInit();
+
+      expect(toastMock.error).toHaveBeenCalledWith('Network error');
+    });
+  });
+
+  describe('onSubmit edge cases', () => {
+    it('should early return when no user', async () => {
+      authMock.currentUser.set(null);
+
+      await component.onSubmit();
+
+      expect(profileMock.updateProfile).not.toHaveBeenCalled();
+    });
+
+    it('should update profile without uploading when no avatar file', async () => {
+      component.selectedAvatarFile.set(null);
+
+      await component.onSubmit();
+
+      expect(storageMock.upload).not.toHaveBeenCalled();
+      expect(profileMock.updateProfile).toHaveBeenCalledWith(
+        'user-123',
+        expect.not.objectContaining({ avatar_url: expect.anything() }),
+      );
+    });
+
+    it('should show error toast on submit failure', async () => {
+      profileMock.updateProfile.mockRejectedValue(new Error('Save failed'));
+
+      await component.onSubmit();
+
+      expect(toastMock.error).toHaveBeenCalledWith('Save failed');
+    });
+
+    it('should set saving signal during submit', async () => {
+      let resolveFn!: () => void;
+      profileMock.updateProfile.mockReturnValue(
+        new Promise((resolve) => {
+          resolveFn = () => resolve(mockProfileData);
+        }),
+      );
+
+      const submitPromise = component.onSubmit();
+      expect(component.saving()).toBe(true);
+
+      resolveFn();
+      await submitPromise;
+      expect(component.saving()).toBe(false);
+    });
+  });
+
+  describe('hasUnsavedChanges', () => {
+    it('should return false when pristine', () => {
+      expect(component.hasUnsavedChanges()).toBe(false);
+    });
+
+    it('should return true when form is dirty', () => {
+      component.form.controls.display_name.setValue('New Name');
+      component.form.controls.display_name.markAsDirty();
+      expect(component.hasUnsavedChanges()).toBe(true);
+    });
+
+    it('should return false when saving', () => {
+      component.form.controls.display_name.setValue('New Name');
+      component.form.controls.display_name.markAsDirty();
+      component.saving.set(true);
+      expect(component.hasUnsavedChanges()).toBe(false);
+    });
+  });
+
+  describe('isEmailUser', () => {
+    it('should return true when provider is email', () => {
+      authMock.currentUser.set({
+        id: 'user-123',
+        email: 'test@test.com',
+        app_metadata: { provider: 'email' },
+      });
+      expect(component.isEmailUser()).toBe(true);
+    });
+
+    it('should return false when provider is not email', () => {
+      authMock.currentUser.set({
+        id: 'user-123',
+        email: 'test@test.com',
+        app_metadata: { provider: 'google' },
+      });
+      expect(component.isEmailUser()).toBe(false);
+    });
+  });
+
   describe('delete account', () => {
     it('should not delete when confirm dialog is cancelled', async () => {
       confirmMock.confirm.mockResolvedValue(false);
