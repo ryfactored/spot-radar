@@ -145,14 +145,24 @@ describe('FilesPage', () => {
       );
     });
 
-    it('should delete and remove from list when confirmed', async () => {
+    it('should optimistically remove from list then call service', async () => {
       confirmDialogMock.confirm.mockResolvedValue(true);
 
       await component.deleteFile(mockFiles[0]);
 
-      expect(filesServiceMock.delete).toHaveBeenCalledWith(mockFiles[0]);
       expect(component.files().length).toBe(1);
       expect(component.files()[0].id).toBe('file-2');
+      expect(filesServiceMock.delete).toHaveBeenCalledWith(mockFiles[0]);
+    });
+
+    it('should refetch files on delete error', async () => {
+      confirmDialogMock.confirm.mockResolvedValue(true);
+      filesServiceMock.delete.mockRejectedValue(new Error('Delete failed'));
+
+      await component.deleteFile(mockFiles[0]);
+
+      expect(toastMock.error).toHaveBeenCalledWith('Delete failed');
+      expect(filesServiceMock.list).toHaveBeenCalledTimes(2); // initial + refetch
     });
 
     it('should not delete when cancelled', async () => {

@@ -46,9 +46,7 @@ describe('StorageService', () => {
 
     it('should return error for invalid type', () => {
       const file = new File(['data'], 'doc.pdf', { type: 'application/pdf' });
-      expect(service.validateAvatar(file)).toBe(
-        'Only JPEG, PNG, GIF, WebP, and SVG images are allowed',
-      );
+      expect(service.validateAvatar(file)).toBe('File type not supported');
     });
 
     it('should return null for valid SVG', () => {
@@ -86,16 +84,17 @@ describe('StorageService', () => {
 
     it('should return error for disallowed MIME type', () => {
       const file = new File(['data'], 'app.exe', { type: 'application/octet-stream' });
-      expect(service.validateAttachment(file)).toBe(
-        'Only PDF, Word, Excel, text, CSV, and image files are allowed',
-      );
+      expect(service.validateAttachment(file)).toBe('File type not supported');
     });
 
     it('should return error for zip files', () => {
       const file = new File(['data'], 'archive.zip', { type: 'application/zip' });
-      expect(service.validateAttachment(file)).toBe(
-        'Only PDF, Word, Excel, text, CSV, and image files are allowed',
-      );
+      expect(service.validateAttachment(file)).toBe('File type not supported');
+    });
+
+    it('should return null for valid SVG file', () => {
+      const file = new File(['<svg></svg>'], 'diagram.svg', { type: 'image/svg+xml' });
+      expect(service.validateAttachment(file)).toBeNull();
     });
 
     it('should return error for file exceeding environment attachment size limit', () => {
