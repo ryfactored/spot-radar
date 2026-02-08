@@ -53,5 +53,8 @@ nul
 # Claude Code
 .claude/settings.local.json
 
+# Local environment override (contains real Supabase credentials)
+src/environments/environment.local.ts
+
 # Docker secrets
 docker/.env

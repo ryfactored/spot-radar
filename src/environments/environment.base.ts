@@ -7,8 +7,8 @@ import { Environment } from './environment.interface';
 export const environmentBase: Environment = {
   appName: 'angular-starter',
   production: false,
-  supabaseUrl: 'https://gksnkorbarmijdhpbpgc.supabase.co',
-  supabaseAnonKey: 'sb_publishable_hyoKI14ohHz8Qx5LJXYo4A_9YVLnNCV',
+  supabaseUrl: 'https://YOUR_PROJECT.supabase.co',
+  supabaseAnonKey: 'YOUR_SUPABASE_ANON_KEY',
   socialProviders: ['google', 'github', 'spotify', 'apple'], // 'google' | 'github' | 'spotify' | 'discord' | 'apple'
   siteUrl: 'http://localhost:4200',
   siteTitle: 'Angular Starter Template',
