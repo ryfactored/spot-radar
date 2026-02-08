@@ -4,6 +4,7 @@ import { signal } from '@angular/core';
 
 import { Dashboard } from './dashboard';
 import { AuthService, FeatureFlags } from '@core';
+import { ProfileStore } from '@features/profile/profile-store';
 
 describe('Dashboard', () => {
   let component: Dashboard;
@@ -15,10 +16,14 @@ describe('Dashboard', () => {
       email: 'test@example.com',
     },
     featureOverrides: Record<string, boolean> = {},
+    displayName: string | null = null,
   ) {
     const authMock = { currentUser: signal(user) };
     const featureFlagsMock = {
       isEnabled: (feature: string) => featureOverrides[feature] ?? true,
+    };
+    const profileStoreMock = {
+      displayName: signal(displayName),
     };
 
     await TestBed.configureTestingModule({
@@ -27,6 +32,7 @@ describe('Dashboard', () => {
         provideRouter([]),
         { provide: AuthService, useValue: authMock },
         { provide: FeatureFlags, useValue: featureFlagsMock },
+        { provide: ProfileStore, useValue: profileStoreMock },
       ],
     }).compileComponents();
 
@@ -45,8 +51,13 @@ describe('Dashboard', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should display welcome message with user email', async () => {
-    await setupTest({ id: '1', email: 'jane@example.com' });
+  it('should display welcome message with display name', async () => {
+    await setupTest({ id: '1', email: 'jane@example.com' }, {}, 'Jane');
+    expect(fixture.nativeElement.textContent).toContain('Welcome back, Jane');
+  });
+
+  it('should fall back to email when no display name', async () => {
+    await setupTest({ id: '1', email: 'jane@example.com' }, {}, null);
     expect(fixture.nativeElement.textContent).toContain('Welcome back, jane@example.com');
   });
 

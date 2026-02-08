@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService, FeatureFlags } from '@core';
+import { ProfileStore } from '@features/profile/profile-store';
 
 @Component({
   selector: 'app-dashboard',
@@ -13,7 +14,7 @@ import { AuthService, FeatureFlags } from '@core';
       <h1>Dashboard</h1>
     </div>
 
-    <p class="welcome">Welcome back, {{ currentUser()?.email }}</p>
+    <p class="welcome">Welcome back, {{ greeting() }}</p>
 
     <div class="quick-links">
       @for (link of links(); track link.route) {
@@ -73,8 +74,11 @@ import { AuthService, FeatureFlags } from '@core';
 export class Dashboard {
   private auth = inject(AuthService);
   private featureFlags = inject(FeatureFlags);
+  private profileStore = inject(ProfileStore);
 
-  readonly currentUser = this.auth.currentUser;
+  readonly greeting = computed(
+    () => this.profileStore.displayName() || this.auth.currentUser()?.email,
+  );
 
   private allLinks = [
     {
