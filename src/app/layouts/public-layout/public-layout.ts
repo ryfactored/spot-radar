@@ -9,6 +9,7 @@ import { environment } from '@env';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterOutlet, RouterLink, MatToolbarModule, MatButtonModule],
   template: `
+    <a class="skip-link" href="#main-content">Skip to main content</a>
     <header>
       <mat-toolbar class="toolbar" role="navigation" aria-label="Main navigation">
         <a routerLink="/" class="logo">{{ siteTitle }}</a>
@@ -17,7 +18,7 @@ import { environment } from '@env';
         <a mat-flat-button class="toolbar-cta" routerLink="/register">Get Started</a>
       </mat-toolbar>
     </header>
-    <main>
+    <main id="main-content">
       <router-outlet />
     </main>
   `,

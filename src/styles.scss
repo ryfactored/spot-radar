@@ -255,6 +255,23 @@ mat-card,
   }
 }
 
+// Accessibility: Skip link for keyboard navigation
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--mat-sys-primary, #3b82f6);
+  color: white;
+  padding: 8px 16px;
+  z-index: 1001;
+  text-decoration: none;
+  font-weight: 500;
+
+  &:focus {
+    top: 0;
+  }
+}
+
 // Accessibility: Enhanced focus indicators
 *:focus-visible {
   outline: 2px solid var(--mat-sys-primary, #3b82f6);

@@ -4,6 +4,7 @@ import {
   isMainModule,
   writeResponseToNodeResponse,
 } from '@angular/ssr/node';
+import compression from 'compression';
 import express from 'express';
 import { join } from 'node:path';
 
@@ -23,6 +24,8 @@ const angularApp = new AngularNodeAppEngine();
  * });
  * ```
  */
+
+app.use(compression());
 
 /**
  * Serve static files from /browser

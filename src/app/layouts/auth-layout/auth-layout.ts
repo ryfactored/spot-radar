@@ -10,8 +10,9 @@ import { routeAnimation } from '@shared';
   imports: [RouterOutlet, LoadingBar],
   animations: [routeAnimation],
   template: `
+    <a class="skip-link" href="#main-content">Skip to main content</a>
     <app-loading-bar />
-    <main class="auth-container">
+    <main id="main-content" class="auth-container">
       <div class="auth-card" [@routeAnimation]="routeKey()">
         <h1 class="app-title">{{ siteTitle }}</h1>
         <router-outlet (activate)="onActivate()" />
