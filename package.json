@@ -14,6 +14,7 @@
     "lint": "ng lint",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "ci": "npm run lint && npm run format:check && npm run build && npm test -- --no-watch && npm run e2e",
     "serve:ssr": "node dist/angular-starter/server/server.mjs",
     "serve:ssr:dev": "ng build --configuration development && node dist/angular-starter/server/server.mjs",
     "prepare": "husky"
