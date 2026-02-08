@@ -33,24 +33,20 @@ npm install
 
 ## 3. Configure environment files
 
-Open `src/environments/environment.ts` (dev) and `src/environments/environment.prod.ts` (production) and replace the placeholder Supabase credentials:
+Open `src/environments/environment.base.ts` and replace the Supabase credentials:
 
 ```ts
 supabaseUrl: 'https://YOUR_PROJECT.supabase.co',
 supabaseAnonKey: 'YOUR_ANON_KEY',
 ```
 
-Update `siteUrl` in each file:
+Then update `siteUrl` in `src/environments/environment.prod.ts` to your production domain:
 
 ```ts
-// environment.ts (dev)
-siteUrl: 'http://localhost:4200',
-
-// environment.prod.ts (production)
 siteUrl: 'https://your-domain.com',
 ```
 
-`siteUrl` is used for email redirect links (password reset, email verification, OAuth callbacks).
+`siteUrl` is used for email redirect links (password reset, email verification, OAuth callbacks). The dev default (`http://localhost:4200`) is set in `environment.base.ts` and doesn't need changing.
 
 ---
 
@@ -130,7 +126,18 @@ Open [http://localhost:4200](http://localhost:4200). Register an account, confir
 
 When cloning this template for a new project, update these values:
 
-### Environment files (`src/environments/environment.ts` + `environment.prod.ts`)
+### Project files
+
+| File             | Field / Location      | What to change                                                     |
+| ---------------- | --------------------- | ------------------------------------------------------------------ |
+| `package.json`   | `name`                | Your project name (used in `npm` commands and the `dist/` folder). |
+| `angular.json`   | Top-level project key | Must match `package.json` name (referenced in build output paths). |
+| `src/index.html` | `<title>`             | Browser tab title.                                                 |
+| `src/index.html` | `<meta description>`  | SEO description (keep in sync with `siteDescription` below).       |
+
+### Environment files (`src/environments/environment.base.ts` + `environment.prod.ts`)
+
+All shared values live in `environment.base.ts`. Override per-environment values in `environment.prod.ts`.
 
 | Field                     | What it does                                                                 |
 | ------------------------- | ---------------------------------------------------------------------------- |
@@ -162,10 +169,11 @@ When cloning this template for a new project, update these values:
 
 ### localStorage key
 
-The `appName` field (default: `angular-starter`) is used as a prefix for all localStorage keys:
+The `appName` field (default: `angular-starter`) is used as a prefix for user preference keys:
 
 - `{appName}:preferences:{userId}` — user preferences (theme, sidenav)
-- `{appName}:theme` — theme snapshot for flash prevention
+
+A separate `app:theme` key (not prefixed with `appName`) is used by the inline script in `index.html` to prevent a white flash on page load.
 
 Change `appName` to your project name to avoid collisions if multiple apps run on the same domain.
 
@@ -272,3 +280,5 @@ Content-Security-Policy:
 - [Feature Removal Guide](./feature-removal.md) — how to strip example features you don't need
 - [Theming Guide](./theming.md) — how to customize colors and add new themes
 - [Accessibility Notes](./accessibility.md) — accessibility audit results and patterns used
+- [Self-Hosted Setup](./self-hosted-setup.md) — deploy on a Synology NAS or Docker-capable server
+- [Command Reference](./commands.md) — full list of npm scripts
