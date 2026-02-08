@@ -103,10 +103,12 @@ export class AuthService {
 
     const { error } = await this.supabase.client.auth.signOut();
     if (error) {
-      // Server-side session may already be invalid (e.g. expired).
-      // Fall back to local-only sign out which clears the local session
-      // and fires SIGNED_OUT without contacting the server.
-      await this.supabase.client.auth.signOut({ scope: 'local' });
+      // Server returned an error (e.g. 403 session_not_found). The Supabase
+      // client only auto-clears the local session for 401/404, so we must
+      // force-clear state and redirect ourselves.
+      this.currentUser.set(null);
+      this.isUserInitiatedSignOut = false;
+      this.router.navigate(['/login']);
     }
   }
 
