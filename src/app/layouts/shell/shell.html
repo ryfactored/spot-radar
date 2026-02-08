@@ -156,7 +156,9 @@
       </button>
       <span class="toolbar-title">{{ siteTitle }}</span>
       <span class="spacer"></span>
-      <app-theme-picker />
+      @if (featureFlags.isEnabled('themePicker')) {
+        <app-theme-picker />
+      }
       <a
         routerLink="/profile"
         class="toolbar-avatar"
