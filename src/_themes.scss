@@ -1,10 +1,46 @@
 @use '@angular/material' as mat;
 
 // ============================================
+// Material Theme Configuration
+// ============================================
+//
+// This file defines Angular Material color palettes and theme configurations.
+// Palettes must be synchronized with CSS variables in src/styles/_design-tokens.scss
+//
+// Available Themes: Default (Blue), Teal, Slate
+//
+// ⚠️ CRITICAL: PALETTE SYNCHRONIZATION
+//
+// When changing theme colors, you MUST update BOTH files:
+//
+// 1. THIS FILE (_themes.scss):
+//    - Material SCSS palettes below (e.g., $blue-palette, $teal-palette)
+//    - These are used at BUILD TIME by Material's theme system
+//
+// 2. src/styles/_design-tokens.scss:
+//    - CSS custom properties for each theme
+//    - These are used at RUNTIME for theme switching
+//
+// The primary color (500 value in palettes) MUST MATCH the --color-primary
+// in _design-tokens.scss for each theme, or you'll get visual inconsistencies.
+//
+// Example: For the Blue theme
+//    - Here: $blue-palette 500: #3b82f6
+//    - In _design-tokens.scss: --color-primary: #3b82f6
+//    - These MUST be the same hex color!
+//
+// Contrast values (in the contrast maps below) determine text color per shade:
+//    - rgba(0, 0, 0, 0.87) = dark text (for light backgrounds)
+//    - white = light text (for dark backgrounds)
+//
+// ============================================
+
+// ============================================
 // Custom Palette Maps
 // ============================================
 
 // Blue (Tailwind Blue, primary: #3b82f6)
+// ⚠️ Sync with .theme-default in _design-tokens.scss
 $blue-palette: (
   50: #eff6ff,
   100: #dbeafe,
@@ -39,6 +75,7 @@ $blue-palette: (
 );
 
 // Teal (Tailwind Teal, primary: #14b8a6)
+// ⚠️ Sync with .theme-teal in _design-tokens.scss
 $teal-palette: (
   50: #f0fdfa,
   100: #ccfbf1,
@@ -73,6 +110,8 @@ $teal-palette: (
 );
 
 // Slate (Tailwind Slate, primary: #475569)
+// ⚠️ Sync with .theme-slate in _design-tokens.scss
+// Note: Using 600 (#475569) as primary instead of 500 (#64748b)
 $slate-palette: (
   50: #f8fafc,
   100: #f1f5f9,

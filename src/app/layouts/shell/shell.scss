@@ -1,3 +1,5 @@
+// Uses design tokens from src/styles/_design-tokens.scss
+
 .shell-container {
   height: 100vh;
 }
@@ -11,13 +13,9 @@ mat-sidenav {
 }
 
 .active-link:not(.submenu-item) {
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   margin: 2px 8px;
-  background: color-mix(in srgb, var(--mat-sys-primary, #3b82f6) 12%, transparent);
-}
-
-:host-context(.dark-mode) .active-link:not(.submenu-item) {
-  background: color-mix(in srgb, var(--mat-sys-primary, #3b82f6) 16%, transparent);
+  background: color-mix(in srgb, var(--color-primary) 12%, transparent);
 }
 
 .admin-toggle {
@@ -33,7 +31,7 @@ mat-sidenav {
   font-size: 20px;
   width: 20px;
   height: 20px;
-  color: var(--mat-sys-on-surface-variant, #6b7280);
+  color: var(--color-text-secondary);
 }
 
 .admin-chevron.expanded {
@@ -56,92 +54,27 @@ mat-sidenav {
   position: sticky;
   top: 0;
   z-index: 2;
-}
-
-:host-context(.theme-default.dark-mode) .toolbar {
-  background-color: #1c1a2e;
-  color: #fafafa;
-  border-bottom: 1px solid #2d2a45;
-}
-
-:host-context(.theme-default.dark-mode) mat-sidenav {
-  background-color: #15132a;
-  border-right-color: #2d2a45;
-}
-
-:host-context(.theme-default.dark-mode) .toolbar-avatar {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-// Teal theme light mode: teal-tinted sidenav
-:host-context(.theme-teal:not(.dark-mode)) mat-sidenav {
-  background-color: #e6faf6;
-  border-right-color: #99f6e4;
-}
-
-:host-context(.theme-teal:not(.dark-mode)) .active-link {
-  background: color-mix(in srgb, #14b8a6 18%, transparent);
-}
-
-// Teal theme dark mode: vibrant toolbar + saturated teal surfaces
-:host-context(.theme-teal.dark-mode) .toolbar {
-  background-color: #0d9488;
-  color: white;
-  border-bottom: none;
-}
-
-:host-context(.theme-teal.dark-mode) mat-sidenav {
-  background-color: #0a2320;
-  border-right-color: #287068;
-}
-
-:host-context(.theme-teal.dark-mode) .toolbar-avatar {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-:host-context(.theme-teal.dark-mode) .active-link {
-  background: color-mix(in srgb, #14b8a6 30%, transparent);
-}
-
-// Slate theme light mode: cool blue-gray sidenav
-:host-context(.theme-slate:not(.dark-mode)) mat-sidenav {
-  background-color: #f1f5f9;
-  border-right-color: #cbd5e1;
-}
-
-:host-context(.theme-slate:not(.dark-mode)) .active-link {
-  background: color-mix(in srgb, #475569 14%, transparent);
-}
-
-// Slate theme dark mode: deep navy toolbar + dark blue-gray surfaces
-:host-context(.theme-slate.dark-mode) .toolbar {
-  background-color: #1e293b;
-  color: #f1f5f9;
-  border-bottom: 1px solid #334155;
-}
-
-:host-context(.theme-slate.dark-mode) mat-sidenav {
-  background-color: #0b1222;
-  border-right-color: #334155;
-}
-
-:host-context(.theme-slate.dark-mode) .toolbar-avatar {
-  background: rgba(255, 255, 255, 0.12);
-}
-
-:host-context(.theme-slate.dark-mode) .active-link {
-  background: color-mix(in srgb, #38bdf8 20%, transparent);
+  background-color: var(--color-surface);
+  color: var(--color-primary);
+  box-shadow: var(--shadow-sm);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .toolbar-title {
-  margin-left: 8px;
+  margin-left: var(--space-sm);
+  font-weight: 600;
+  color: var(--color-text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+:host-context(.dark-mode) .toolbar-title {
+  color: rgba(255, 255, 255, 0.95);
+}
+
 .content {
-  padding: 20px;
+  padding: var(--space-lg);
   max-width: 1200px;
   margin-inline: auto;
 
@@ -158,28 +91,32 @@ mat-sidenav {
   height: 32px;
   border-radius: 50%;
   overflow: hidden;
-  margin: 0 4px;
+  margin: 0 var(--space-xs);
   cursor: pointer;
   text-decoration: none;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.08);
+}
+
+:host-context(.dark-mode) .toolbar-avatar {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .toolbar-avatar app-avatar {
   --avatar-bg: transparent;
-  --avatar-color: white;
+  --avatar-color: var(--color-primary);
 }
 
 /* Large screen styles */
 @media (min-width: 1200px) {
   .content {
-    padding: 32px;
+    padding: var(--space-xl);
   }
 }
 
 /* Mobile styles */
 @media (max-width: 767px) {
   .toolbar {
-    padding: 0 4px;
+    padding: 0 var(--space-xs);
   }
 
   .toolbar-title {
@@ -189,6 +126,6 @@ mat-sidenav {
   }
 
   .content {
-    padding: 16px;
+    padding: var(--space-md);
   }
 }

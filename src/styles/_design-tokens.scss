@@ -1,0 +1,304 @@
+// ============================================
+// Design Tokens - Single Source of Truth
+// ============================================
+//
+// This file defines all CSS custom properties (variables) for theming.
+//
+// ARCHITECTURE:
+// 1. :root - Contains global constants (typography, spacing, radius, effects)
+// 2. .theme-default - Default Blue theme (Tailwind Blue)
+// 3. .theme-teal - Teal theme (Tailwind Teal)
+// 4. .theme-slate - Slate theme (Tailwind Slate)
+// 5. .dark-mode variants for each theme
+//
+// HOW THEMING WORKS:
+// - JavaScript applies theme classes to <html> element (e.g., "theme-teal dark-mode")
+// - CSS variables cascade from theme classes to all components
+// - Components reference semantic tokens (--color-background, --color-primary, etc.)
+// - Material components pick up these via overrides in _material-overrides.scss and styles.scss
+//
+// ADDING A NEW THEME:
+// 1. Add theme config to COLOR_THEMES in src/app/core/preferences.ts
+// 2. Define .theme-{name} selector here with brand colors + semantic tokens
+// 3. Define .theme-{name}.dark-mode selector with dark variants
+// 4. Create Material palette in src/_themes.scss (MUST match colors here!)
+// 5. Add theme include in src/styles.scss
+//
+// CHANGING THEME COLORS:
+// ⚠️ CRITICAL: Colors must be updated in TWO places:
+//    1. THIS FILE (_design-tokens.scss) - the CSS variables
+//    2. src/_themes.scss - the Material SCSS palette
+//    Both MUST have the same primary/accent colors or theme won't look consistent!
+//
+// Example: To change Teal primary color:
+//    - Update --color-primary in .theme-teal below
+//    - Update $teal-palette 500 value in _themes.scss
+//    - Both should be the same hex color
+//
+// KEY CONCEPTS:
+// - Brand colors (--color-blue-500, --color-teal-500, etc.) are theme-specific raw values
+// - Semantic tokens (--color-primary, --color-background, etc.) map to brand colors
+// - Components should ONLY use semantic tokens, never brand colors directly
+//
+// ============================================
+
+:root {
+  // ============================================
+  // Typography (Global)
+  // ============================================
+  --font-body: Inter, system-ui, -apple-system, sans-serif;
+
+  // ============================================
+  // Spacing (8px base unit - Global)
+  // ============================================
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+
+  // ============================================
+  // Border Radius (Global)
+  // ============================================
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 20px;
+
+  // ============================================
+  // Effects (Global)
+  // ============================================
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.3s ease;
+
+  // ============================================
+  // Global Shadows
+  // ============================================
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+
+// ============================================
+// Default Theme: Blue (Tailwind Blue)
+// ============================================
+// ⚠️ Material palette in _themes.scss: $blue-palette
+// Primary color MUST match between both files!
+:root,
+.theme-default {
+  // ============================================
+  // Blue Brand Colors
+  // ============================================
+  --color-blue-50: #eff6ff;
+  --color-blue-100: #dbeafe;
+  --color-blue-300: #93c5fd;
+  --color-blue-400: #60a5fa;
+  --color-blue-500: #3b82f6; // Primary
+
+  // ============================================
+  // Semantic Tokens (Map to Brand Colors)
+  // ============================================
+  --color-primary: var(--color-blue-500);
+  --color-primary-light: var(--color-blue-400);
+  --color-background: #ffffff;
+  --color-surface: var(--color-blue-50);
+  --color-border: var(--color-blue-100);
+  --color-border-hover: var(--color-blue-300);
+  --color-inset: var(--color-blue-100);
+  --color-text-primary: rgba(0, 0, 0, 0.87);
+  --color-text-secondary: rgba(0, 0, 0, 0.6);
+
+  // ============================================
+  // Toast Colors
+  // ============================================
+  --app-toast-success-bg: #4caf50;
+  --app-toast-error-bg: #f44336;
+  --app-toast-info-bg: #2196f3;
+  --app-toast-fg: white;
+}
+
+// Default theme dark mode
+.theme-default.dark-mode,
+.dark-mode:not(.theme-teal):not(.theme-slate) {
+  // ============================================
+  // Dark Mode Brand Colors
+  // ============================================
+  --color-blue-400: #60a5fa;
+  --color-dark-bg: #110f1d;
+  --color-dark-surface: #221e3d;
+  --color-dark-border: #352f58;
+  --color-dark-border-hover: #4a4478;
+  --color-dark-inset: #1a1736;
+  --color-dark-divider: #2d2a45;
+
+  // ============================================
+  // Dark Mode Semantic Tokens
+  // ============================================
+  --color-primary: var(--color-blue-400);
+  --color-background: var(--color-dark-bg);
+  --color-surface: var(--color-dark-surface);
+  --color-border: var(--color-dark-border);
+  --color-border-hover: var(--color-dark-border-hover);
+  --color-inset: var(--color-dark-inset);
+  --color-divider: var(--color-dark-divider);
+  --color-text-primary: rgba(255, 255, 255, 0.95);
+  --color-text-secondary: rgba(255, 255, 255, 0.7);
+
+  // ============================================
+  // Dark Mode Toast Colors
+  // ============================================
+  --app-toast-success-bg: #388e3c;
+  --app-toast-error-bg: #d32f2f;
+  --app-toast-info-bg: #1976d2;
+}
+
+// ============================================
+// Teal Theme (Tailwind Teal)
+// ============================================
+// ⚠️ Material palette in _themes.scss: $teal-palette
+// Primary color MUST match between both files!
+.theme-teal {
+  // ============================================
+  // Teal Brand Colors
+  // ============================================
+  --color-teal-50: #f0fdfa;
+  --color-teal-100: #ccfbf1;
+  --color-teal-200: #99f6e4;
+  --color-teal-300: #5eead4;
+  --color-teal-400: #2dd4bf;
+  --color-teal-500: #14b8a6; // Primary
+  --color-teal-600: #0d9488;
+
+  --color-teal-surface-light: #e6faf6;
+  --color-teal-border-light: #b2f5ea;
+
+  // ============================================
+  // Semantic Tokens (Light Mode)
+  // ============================================
+  --color-primary: var(--color-teal-500);
+  --color-primary-light: var(--color-teal-400);
+  --color-background: var(--color-teal-50);
+  --color-surface: var(--color-teal-surface-light);
+  --color-border: var(--color-teal-border-light);
+  --color-border-hover: var(--color-teal-300);
+  --color-inset: var(--color-teal-100);
+  --color-divider: var(--color-teal-200);
+  --color-text-primary: rgba(0, 0, 0, 0.87);
+  --color-text-secondary: rgba(0, 0, 0, 0.6);
+
+  // ============================================
+  // Toast Colors (Light Mode)
+  // ============================================
+  --app-toast-success-bg: #2e7d32;
+  --app-toast-error-bg: #c62828;
+  --app-toast-info-bg: var(--color-teal-600);
+}
+
+// Teal theme dark mode
+.theme-teal.dark-mode {
+  // ============================================
+  // Dark Mode Brand Colors
+  // ============================================
+  --color-teal-dark-bg: #0e2a26;
+  --color-teal-dark-surface: #1c4f48;
+  --color-teal-dark-border: #2e8a80;
+  --color-teal-dark-border-hover: #3aa89c;
+  --color-teal-dark-inset: #163d37;
+  --color-teal-dark-divider: #287068;
+
+  // ============================================
+  // Dark Mode Semantic Tokens
+  // ============================================
+  --color-primary: var(--color-teal-400);
+  --color-background: var(--color-teal-dark-bg);
+  --color-surface: var(--color-teal-dark-surface);
+  --color-border: var(--color-teal-dark-border);
+  --color-border-hover: var(--color-teal-dark-border-hover);
+  --color-inset: var(--color-teal-dark-inset);
+  --color-divider: var(--color-teal-dark-divider);
+  --color-text-primary: rgba(255, 255, 255, 0.95);
+  --color-text-secondary: rgba(255, 255, 255, 0.7);
+
+  // ============================================
+  // Dark Mode Toast Colors
+  // ============================================
+  --app-toast-success-bg: #1b5e20;
+  --app-toast-error-bg: #b71c1c;
+  --app-toast-info-bg: #0f766e;
+}
+
+// ============================================
+// Slate Theme (Tailwind Slate)
+// ============================================
+// ⚠️ Material palette in _themes.scss: $slate-palette
+// Primary color MUST match between both files!
+.theme-slate {
+  // ============================================
+  // Slate Brand Colors
+  // ============================================
+  --color-slate-50: #f8fafc;
+  --color-slate-100: #f1f5f9;
+  --color-slate-300: #cbd5e1;
+  --color-slate-400: #94a3b8;
+  --color-slate-500: #64748b; // Primary
+  --color-slate-600: #475569;
+
+  --color-slate-surface-light: #edf2f8;
+  --color-slate-border-light: #d0d9e5;
+  --color-slate-inset-light: #dce4ef;
+
+  // ============================================
+  // Semantic Tokens (Light Mode)
+  // ============================================
+  --color-primary: var(--color-slate-500);
+  --color-primary-light: var(--color-slate-400);
+  --color-background: var(--color-slate-50);
+  --color-surface: var(--color-slate-surface-light);
+  --color-border: var(--color-slate-border-light);
+  --color-border-hover: var(--color-slate-400);
+  --color-inset: var(--color-slate-inset-light);
+  --color-divider: var(--color-slate-300);
+  --color-text-primary: rgba(0, 0, 0, 0.87);
+  --color-text-secondary: rgba(0, 0, 0, 0.6);
+
+  // ============================================
+  // Toast Colors (Light Mode)
+  // ============================================
+  --app-toast-success-bg: #43a047;
+  --app-toast-error-bg: #e53935;
+  --app-toast-info-bg: #546e7a;
+}
+
+// Slate theme dark mode
+.theme-slate.dark-mode {
+  // ============================================
+  // Dark Mode Brand Colors
+  // ============================================
+  --color-slate-dark-bg: #0f172a;
+  --color-slate-dark-surface: #1f3050;
+  --color-slate-dark-border: #395270;
+  --color-slate-dark-border-hover: #4e6a88;
+  --color-slate-dark-inset: #1a2842;
+  --color-slate-dark-divider: #334155;
+
+  // ============================================
+  // Dark Mode Semantic Tokens
+  // ============================================
+  --color-primary: var(--color-slate-400);
+  --color-background: var(--color-slate-dark-bg);
+  --color-surface: var(--color-slate-dark-surface);
+  --color-border: var(--color-slate-dark-border);
+  --color-border-hover: var(--color-slate-dark-border-hover);
+  --color-inset: var(--color-slate-dark-inset);
+  --color-divider: var(--color-slate-dark-divider);
+  --color-text-primary: rgba(255, 255, 255, 0.95);
+  --color-text-secondary: rgba(255, 255, 255, 0.7);
+
+  // ============================================
+  // Dark Mode Toast Colors
+  // ============================================
+  --app-toast-success-bg: #2e7d32;
+  --app-toast-error-bg: #c62828;
+  --app-toast-info-bg: #455a64;
+}

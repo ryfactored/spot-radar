@@ -1,173 +1,406 @@
+// ============================================
+// MASTER THEMING GUIDE
+// ============================================
+//
+// This application uses a robust dual-layer theming system that enables
+// runtime theme switching with proper Material Design integration.
+//
+// FILE STRUCTURE:
+// ├── src/_themes.scss               - Material SCSS theme definitions (compile-time)
+// ├── src/styles.scss                - Theme application + critical overrides (THIS FILE)
+// ├── src/styles/_design-tokens.scss - CSS variables per theme (runtime)
+// └── src/styles/_material-overrides.scss - Material CSS variable mappings
+//
+// HOW IT WORKS:
+//
+// 1. USER SWITCHES THEME
+//    - User clicks theme picker → PreferencesService.setColorTheme('teal')
+//    - App component applies classes to <html>: "theme-teal dark-mode"
+//
+// 2. CSS VARIABLES UPDATE
+//    - _design-tokens.scss provides .theme-teal selector with new colors
+//    - --color-primary, --color-background, etc. change instantly
+//
+// 3. COMPONENTS RE-RENDER
+//    - Material components reference CSS variables from _material-overrides.scss
+//    - Background overrides (below) force CSS variables to take precedence
+//    - Theme change is instant - no page reload needed
+//
+// CRITICAL ARCHITECTURE DECISIONS:
+//
+// ⚠️ Material's SCSS themes compile to hardcoded colors (e.g., background: #1a1a1a)
+//    These override CSS variables, breaking runtime theme switching.
+//
+// ✅ Solution: Use !important overrides (see "Background & Surface Overrides" below)
+//    to force all backgrounds to use CSS variables.
+//
+// ⚠️ Text contrast issues can occur in dark mode with certain theme colors.
+//
+// ✅ Solution: Override Material text color CSS variables in dark mode
+//    (handled in _design-tokens.scss and _material-overrides.scss).
+//
+// TROUBLESHOOTING:
+//
+// Problem: New Material component backgrounds don't change with theme
+// Fix: Add override in "Background & Surface Overrides" section below
+//
+// Problem: Text is hard to read in dark mode
+// Fix: Add override in dark mode section below or in _design-tokens.scss
+//
+// Problem: Theme colors look the same in all themes
+// Fix: Check _design-tokens.scss - ensure each .theme-* has distinct colors
+//
+// ============================================
+
 @use '@angular/material' as mat;
 @use 'themes' as themes;
+@use 'styles/design-tokens'; // Brand design tokens (colors, fonts, spacing)
+@use 'styles/material-overrides'; // Material component customizations
 
 // ============================================
-// Apply Themes
+// THEMING ARCHITECTURE
+// ============================================
+// This app uses a dual-layer theming system:
+//
+// 1. SCSS Layer (Compile-time):
+//    - Material theme mixins provide component colors (buttons, inputs, etc.)
+//    - Compiled once at build time with specific color palettes
+//    - See _themes.scss for theme definitions
+//
+// 2. CSS Variables Layer (Runtime):
+//    - Design tokens in _design-tokens.scss define colors per theme
+//    - Applied via theme classes (.theme-default, .theme-teal, .theme-slate)
+//    - Enables dynamic theme switching without rebuild
+//
+// CRITICAL: Material's compiled colors override CSS variables by default.
+// The overrides below force CSS variables to take precedence for backgrounds,
+// ensuring theme switching works at runtime.
+//
 // ============================================
 
-// Base theme (default light)
-@include mat.all-component-themes(themes.$default-light-theme);
+// ============================================
+// Apply Material Themes (SCSS Layer)
+// ============================================
 
-// Primary color token (M2 doesn't generate --mat-sys-primary, so we define it per theme)
-// Toast colors adapt per theme; defaults are set here
-:root {
-  --mat-sys-primary: #3b82f6;
-  --app-toast-success-bg: #4caf50;
-  --app-toast-error-bg: #f44336;
-  --app-toast-info-bg: #2196f3;
-  --app-toast-fg: white;
+// Base Material theme structure (typography, density, etc.) - apply once
+@include mat.all-component-typographies(themes.$default-light-theme);
+@include mat.all-component-densities(themes.$default-light-theme);
+
+// Default theme (Blue) - applies to :root and .theme-default
+:root,
+.theme-default {
+  @include mat.all-component-colors(themes.$default-light-theme);
 }
 
-// Dark mode variants
-.dark-mode {
-  --mat-sys-primary: #60a5fa;
-  --app-toast-success-bg: #388e3c;
-  --app-toast-error-bg: #d32f2f;
-  --app-toast-info-bg: #1976d2;
+.theme-default.dark-mode,
+.dark-mode:not(.theme-teal):not(.theme-slate) {
   @include mat.all-component-colors(themes.$default-dark-theme);
 }
 
+// Teal theme
 .theme-teal:not(.dark-mode) {
-  --mat-sys-primary: #14b8a6;
-  --app-toast-success-bg: #2e7d32;
-  --app-toast-error-bg: #c62828;
-  --app-toast-info-bg: #0d9488;
   @include mat.all-component-colors(themes.$teal-light-theme);
 }
 
 .theme-teal.dark-mode {
-  --mat-sys-primary: #2dd4bf;
-  --app-toast-success-bg: #1b5e20;
-  --app-toast-error-bg: #b71c1c;
-  --app-toast-info-bg: #0f766e;
   @include mat.all-component-colors(themes.$teal-dark-theme);
 }
 
+// Slate theme
 .theme-slate:not(.dark-mode) {
-  --mat-sys-primary: #64748b;
-  --app-toast-success-bg: #43a047;
-  --app-toast-error-bg: #e53935;
-  --app-toast-info-bg: #546e7a;
   @include mat.all-component-colors(themes.$slate-light-theme);
 }
 
 .theme-slate.dark-mode {
-  --mat-sys-primary: #94a3b8;
-  --app-toast-success-bg: #2e7d32;
-  --app-toast-error-bg: #c62828;
-  --app-toast-info-bg: #455a64;
   @include mat.all-component-colors(themes.$slate-dark-theme);
+}
+
+// ============================================
+// CRITICAL: Background & Surface Overrides
+// ============================================
+//
+// WHY THIS IS NEEDED:
+// Material's SCSS themes compile to hardcoded colors like background: #1a1a1a.
+// These compiled values have higher specificity than our CSS variables.
+// Without these overrides, theme switching won't work - all themes would look the same.
+//
+// WHAT THIS DOES:
+// Forces ALL Material components to use our CSS variables with !important.
+// This makes backgrounds controlled by _design-tokens.scss, enabling runtime theme switching.
+//
+// WHEN ADDING NEW MATERIAL COMPONENTS:
+// If a new Material component has a background that doesn't theme correctly,
+// add an override here following the pattern below.
+//
+// DO NOT REMOVE THESE OVERRIDES - they are what makes theming work!
+// ============================================
+
+// Main layout backgrounds
+body,
+html {
+  background-color: var(--color-background) !important;
+}
+
+// Sidenav/drawer backgrounds
+.mat-drawer-container,
+.mat-sidenav-container {
+  background-color: var(--color-background) !important;
+}
+
+.mat-drawer,
+.mat-sidenav {
+  background-color: var(--color-surface) !important;
+}
+
+.mat-drawer-content,
+.mat-sidenav-content {
+  background-color: var(--color-background) !important;
+}
+
+// All card variants
+mat-card,
+.mat-mdc-card,
+.mat-card,
+.mat-mdc-card-content {
+  background-color: var(--color-surface) !important;
+}
+
+// Dialogs
+.mat-mdc-dialog-container,
+.mat-dialog-container,
+.mdc-dialog__surface {
+  background-color: var(--color-surface) !important;
+}
+
+// Tables
+.mat-mdc-table,
+.mat-table,
+mat-table {
+  background-color: var(--color-surface) !important;
+}
+
+// Paginator
+.mat-mdc-paginator,
+.mat-paginator {
+  background-color: var(--color-surface) !important;
+}
+
+// Expansion panels
+.mat-expansion-panel,
+.mat-mdc-expansion-panel {
+  background-color: var(--color-surface) !important;
+}
+
+// Menus
+.mat-mdc-menu-panel,
+.mat-menu-panel {
+  background-color: var(--color-surface) !important;
+}
+
+// Toolbar (if not using custom background)
+.mat-toolbar:not([style*='background']) {
+  background-color: var(--color-surface) !important;
+}
+
+// List backgrounds
+.mat-mdc-list-base {
+  background-color: transparent !important;
+}
+
+// Bottom sheet
+.mat-bottom-sheet-container {
+  background-color: var(--color-surface) !important;
+}
+
+// ============================================
+// CONSOLIDATED Dark Mode Overrides
+// ============================================
+//
+// All dark mode specific overrides in one place for maintainability.
+// This includes text contrast, focus states, and Material component fixes.
+//
+// ============================================
+
+.dark-mode {
+  // ----------------------------------------
+  // Tabs
+  // ----------------------------------------
+  --mat-tab-header-label-text-color: rgba(255, 255, 255, 0.6);
+  --mat-tab-header-active-label-text-color: rgba(255, 255, 255, 0.95);
+
+  .mat-mdc-tab-labels .mdc-tab__text-label {
+    color: rgba(255, 255, 255, 0.6) !important;
+  }
+
+  .mdc-tab--active .mdc-tab__text-label {
+    color: rgba(255, 255, 255, 0.95) !important;
+  }
+
+  // ----------------------------------------
+  // Form Fields - Input Text & Placeholders
+  // ----------------------------------------
+  --mdc-outlined-text-field-input-text-color: rgba(255, 255, 255, 0.95);
+  --mdc-outlined-text-field-input-text-placeholder-color: rgba(255, 255, 255, 0.5);
+  --mdc-filled-text-field-input-text-color: rgba(255, 255, 255, 0.95);
+  --mdc-filled-text-field-input-text-placeholder-color: rgba(255, 255, 255, 0.5);
+
+  // Form field labels
+  --mdc-outlined-text-field-label-text-color: rgba(255, 255, 255, 0.6);
+  --mdc-outlined-text-field-focus-label-text-color: rgba(255, 255, 255, 0.95);
+
+  // Form field borders/outlines
+  --mdc-outlined-text-field-focus-outline-color: rgba(255, 255, 255, 0.8);
+  --mdc-outlined-text-field-hover-outline-color: rgba(255, 255, 255, 0.4);
+  --mdc-outlined-text-field-outline-color: rgba(255, 255, 255, 0.3);
+  --mdc-filled-text-field-focus-active-indicator-color: rgba(255, 255, 255, 0.8);
+  --mdc-filled-text-field-active-indicator-color: rgba(255, 255, 255, 0.4);
+
+  // ----------------------------------------
+  // Form Fields - Class-Based Overrides
+  // ----------------------------------------
+  // Placeholder should only be visible when focused (to avoid overlapping with label)
+  input::placeholder,
+  textarea::placeholder,
+  .mat-mdc-input-element::placeholder {
+    color: rgba(255, 255, 255, 0.5) !important;
+    opacity: 0 !important;
+  }
+
+  // Show placeholder when focused
+  input:focus::placeholder,
+  textarea:focus::placeholder,
+  .mat-mdc-input-element:focus::placeholder {
+    opacity: 1 !important;
+  }
+
+  .mat-mdc-form-field {
+    // Default outline
+    .mdc-notched-outline__leading,
+    .mdc-notched-outline__notch,
+    .mdc-notched-outline__trailing {
+      border-color: rgba(255, 255, 255, 0.3) !important;
+    }
+
+    // Focused state
+    &.mat-focused {
+      .mdc-notched-outline__leading,
+      .mdc-notched-outline__notch,
+      .mdc-notched-outline__trailing {
+        border-color: rgba(255, 255, 255, 0.9) !important;
+        border-width: 2px !important;
+      }
+
+      .mdc-floating-label {
+        color: rgba(255, 255, 255, 0.95) !important;
+      }
+    }
+
+    // Hover state
+    &:hover:not(.mat-focused) {
+      .mdc-notched-outline__leading,
+      .mdc-notched-outline__notch,
+      .mdc-notched-outline__trailing {
+        border-color: rgba(255, 255, 255, 0.5) !important;
+      }
+    }
+
+    .mdc-floating-label {
+      color: rgba(255, 255, 255, 0.6) !important;
+      padding-left: 4px !important;
+    }
+  }
+
+  // ----------------------------------------
+  // Cards - Hover Effects
+  // ----------------------------------------
+  a mat-card:hover,
+  a .mat-mdc-card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  }
+
+  // ----------------------------------------
+  // Toast Colors
+  // ----------------------------------------
+  --app-toast-success-bg: #388e3c;
+  --app-toast-error-bg: #d32f2f;
+  --app-toast-info-bg: #1976d2;
+
+  // ----------------------------------------
+  // Accessibility - Focus Indicators
+  // ----------------------------------------
+  *:focus-visible {
+    outline-color: var(--mat-sys-primary, #93c5fd);
+  }
+}
+
+// ============================================
+// Form Field Polish & Fixes
+// ============================================
+//
+// Fix input text positioning and ensure proper padding
+// ============================================
+
+.mat-mdc-form-field {
+  // Ensure input text doesn't overlap borders
+  .mat-mdc-input-element {
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+  }
+
+  // Fix outlined fields specifically
+  &.mat-form-field-appearance-outline {
+    .mat-mdc-text-field-wrapper {
+      padding-left: 0;
+      padding-right: 0;
+    }
+
+    .mat-mdc-form-field-infix {
+      padding-left: 4px;
+      padding-right: 4px;
+    }
+  }
 }
 
 // ============================================
 // Theme Surface Overrides
 // ============================================
-// Each theme defines: card colors, table colors, borders, and inset backgrounds.
-// Card borders use --app-card-border-color / --app-card-hover-border-color
-// so the selector only needs to appear once globally.
+// Maps Material CSS variables to design tokens
+// This ensures Material components use theme colors
 
-// Default light
-.theme-default:not(.dark-mode) {
-  --mat-card-elevated-container-color: #eff6ff;
-  --mat-card-outlined-container-color: #eff6ff;
-  --mat-card-filled-container-color: #eff6ff;
-  --mat-dialog-container-color: #eff6ff;
-  --mat-table-background-color: #eff6ff;
-  --mat-table-row-item-outline-color: #dbeafe;
-  --mat-paginator-container-background-color: #eff6ff;
-  --app-inset-bg: #dbeafe;
-  --app-card-border-color: #dbeafe;
-  --app-card-hover-border-color: #93c5fd;
+// Light mode (default)
+:root {
+  --mat-app-background-color: var(--color-background);
+  --mat-sidenav-container-background-color: var(--color-background);
+  --mat-sidenav-content-background-color: var(--color-background);
+  --mat-sidenav-container-divider-color: var(--color-divider, var(--color-border));
+  --mat-card-elevated-container-color: var(--color-surface);
+  --mat-card-outlined-container-color: var(--color-surface);
+  --mat-card-filled-container-color: var(--color-surface);
+  --mat-dialog-container-color: var(--color-surface);
+  --mat-table-background-color: var(--color-surface);
+  --mat-table-row-item-outline-color: var(--color-border);
+  --mat-paginator-container-background-color: var(--color-surface);
+  --app-inset-bg: var(--color-inset);
+  --app-card-border-color: var(--color-border);
+  --app-card-hover-border-color: var(--color-border-hover);
 }
 
-// Default dark
-.theme-default.dark-mode {
-  --mat-app-background-color: #110f1d;
-  --mat-sidenav-container-background-color: #110f1d;
-  --mat-sidenav-content-background-color: #110f1d;
-  --mat-sidenav-container-divider-color: #2d2a45;
-  --mat-card-elevated-container-color: #221e3d;
-  --mat-card-outlined-container-color: #221e3d;
-  --mat-card-filled-container-color: #221e3d;
-  --mat-dialog-container-color: #221e3d;
-  --mat-table-background-color: #221e3d;
-  --mat-table-row-item-outline-color: #352f58;
-  --mat-paginator-container-background-color: #221e3d;
-  --app-inset-bg: #1a1736;
-  --app-card-border-color: #352f58;
-  --app-card-hover-border-color: #4a4478;
-}
-
-// Teal light
-.theme-teal:not(.dark-mode) {
-  --mat-app-background-color: #f0fdfa;
-  --mat-sidenav-container-background-color: #f0fdfa;
-  --mat-sidenav-content-background-color: #f0fdfa;
-  --mat-sidenav-container-divider-color: #99f6e4;
-  --mat-card-elevated-container-color: #e6faf6;
-  --mat-card-outlined-container-color: #e6faf6;
-  --mat-card-filled-container-color: #e6faf6;
-  --mat-dialog-container-color: #e6faf6;
-  --mat-table-background-color: #e6faf6;
-  --mat-table-row-item-outline-color: #b2f5ea;
-  --mat-paginator-container-background-color: #e6faf6;
-  --app-inset-bg: #ccfbf1;
-  --app-card-border-color: #b2f5ea;
-  --app-card-hover-border-color: #5eead4;
-}
-
-// Teal dark
-.theme-teal.dark-mode {
-  --mat-app-background-color: #0e2a26;
-  --mat-sidenav-container-background-color: #0e2a26;
-  --mat-sidenav-content-background-color: #0e2a26;
-  --mat-sidenav-container-divider-color: #287068;
-  --mat-card-elevated-container-color: #1c4f48;
-  --mat-card-outlined-container-color: #1c4f48;
-  --mat-card-filled-container-color: #1c4f48;
-  --mat-dialog-container-color: #1c4f48;
-  --mat-table-background-color: #1c4f48;
-  --mat-table-row-item-outline-color: #2e8a80;
-  --mat-paginator-container-background-color: #1c4f48;
-  --app-inset-bg: #163d37;
-  --app-card-border-color: #2e8a80;
-  --app-card-hover-border-color: #3aa89c;
-}
-
-// Slate light
-.theme-slate:not(.dark-mode) {
-  --mat-app-background-color: #f8fafc;
-  --mat-sidenav-container-background-color: #f8fafc;
-  --mat-sidenav-content-background-color: #f8fafc;
-  --mat-sidenav-container-divider-color: #cbd5e1;
-  --mat-card-elevated-container-color: #edf2f8;
-  --mat-card-outlined-container-color: #edf2f8;
-  --mat-card-filled-container-color: #edf2f8;
-  --mat-dialog-container-color: #edf2f8;
-  --mat-table-background-color: #edf2f8;
-  --mat-table-row-item-outline-color: #d0d9e5;
-  --mat-paginator-container-background-color: #edf2f8;
-  --app-inset-bg: #dce4ef;
-  --app-card-border-color: #d0d9e5;
-  --app-card-hover-border-color: #94a3b8;
-}
-
-// Slate dark
-.theme-slate.dark-mode {
-  --mat-app-background-color: #0f172a;
-  --mat-sidenav-container-background-color: #0f172a;
-  --mat-sidenav-content-background-color: #0f172a;
-  --mat-sidenav-container-divider-color: #334155;
-  --mat-card-elevated-container-color: #1f3050;
-  --mat-card-outlined-container-color: #1f3050;
-  --mat-card-filled-container-color: #1f3050;
-  --mat-dialog-container-color: #1f3050;
-  --mat-table-background-color: #1f3050;
-  --mat-table-row-item-outline-color: #395270;
-  --mat-paginator-container-background-color: #1f3050;
-  --app-inset-bg: #1a2842;
-  --app-card-border-color: #395270;
-  --app-card-hover-border-color: #4e6a88;
+// Dark mode - uses theme-specific colors from design tokens
+.dark-mode {
+  --mat-app-background-color: var(--color-background);
+  --mat-sidenav-container-background-color: var(--color-background);
+  --mat-sidenav-content-background-color: var(--color-background);
+  --mat-sidenav-container-divider-color: var(--color-divider, var(--color-border));
+  --mat-card-elevated-container-color: var(--color-surface);
+  --mat-card-outlined-container-color: var(--color-surface);
+  --mat-card-filled-container-color: var(--color-surface);
+  --mat-dialog-container-color: var(--color-surface);
+  --mat-table-background-color: var(--color-surface);
+  --mat-table-row-item-outline-color: var(--color-border);
+  --mat-paginator-container-background-color: var(--color-surface);
+  --app-inset-bg: var(--color-inset);
+  --app-card-border-color: var(--color-border);
+  --app-card-hover-border-color: var(--color-border-hover);
 }
 
 // ============================================
@@ -200,11 +433,6 @@ a .mat-mdc-card {
   }
 }
 
-.dark-mode a mat-card:hover,
-.dark-mode a .mat-mdc-card:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-}
-
 // Page header utility (used by child components inside the shell)
 .page-header {
   display: flex;
@@ -224,12 +452,9 @@ html,
 body {
   height: 100%;
   margin: 0;
-  font-family:
-    Inter,
-    system-ui,
-    -apple-system,
-    sans-serif;
-  background-color: var(--mat-app-background-color);
+  font-family: var(--font-body);
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
 }
 
 // Smooth theme and dark-mode transitions
@@ -238,10 +463,13 @@ mat-toolbar,
 mat-sidenav,
 mat-sidenav-container,
 mat-card,
-.mat-mdc-card {
+.mat-mdc-card,
+.mat-mdc-form-field,
+button {
   transition:
     background-color 0.3s ease,
-    color 0.3s ease;
+    color 0.3s ease,
+    border-color 0.3s ease;
 }
 
 // Button press feedback
@@ -276,10 +504,6 @@ mat-card,
 *:focus-visible {
   outline: 2px solid var(--mat-sys-primary, #3b82f6);
   outline-offset: 2px;
-}
-
-.dark-mode *:focus-visible {
-  outline-color: var(--mat-sys-primary, #93c5fd);
 }
 
 // Remove default focus outline when using mouse (focus-visible handles keyboard)

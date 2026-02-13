@@ -1,0 +1,201 @@
+// ============================================
+// Material Component Overrides
+// ============================================
+//
+// PURPOSE:
+// Pre-configure Material CSS custom properties to use our design tokens.
+// This provides the INITIAL color values that Material components use.
+//
+// IMPORTANT NOTES:
+// 1. These are applied at :root level and provide defaults for all themes
+// 2. Material's SCSS theme mixins (in styles.scss) may override these
+// 3. Background-related properties need !important overrides in styles.scss
+//    because Material's compiled themes set hardcoded background colors
+// 4. Text colors generally work well from these CSS variables
+//
+// WHEN TO ADD HERE:
+// Add Material CSS custom properties here when you want them to automatically
+// pick up values from design tokens (like --color-primary, --color-text-primary)
+//
+// ============================================
+
+// ============================================
+// Global Material Tokens (applies to ALL components)
+// ============================================
+:root {
+  // Typography
+  --mat-sys-body-large-font: var(--font-body);
+  --mat-sys-body-medium-font: var(--font-body);
+  --mat-sys-label-large-font: var(--font-body);
+  --mat-sys-title-large-font: var(--font-body);
+
+  // Colors - These apply across ALL Material components
+  --mat-sys-primary: var(--color-primary);
+  --mat-sys-on-primary: white;
+  --mat-sys-secondary: var(--color-text-secondary);
+  --mat-sys-on-secondary: var(--color-text-primary);
+  --mat-sys-surface: var(--color-surface);
+  --mat-sys-on-surface: var(--color-text-primary);
+  --mat-sys-on-surface-variant: var(--color-text-secondary);
+  --mat-sys-outline: var(--color-border);
+  --mat-sys-outline-variant: var(--color-border);
+
+  // ============================================
+  // Buttons (all variants automatically themed)
+  // ============================================
+  --mdc-filled-button-container-color: var(--color-primary);
+  --mdc-filled-button-label-text-color: white;
+  --mdc-outlined-button-outline-color: var(--color-border);
+  --mdc-outlined-button-label-text-color: var(--color-text-primary);
+  --mdc-text-button-label-text-color: var(--color-primary);
+
+  // ============================================
+  // Tabs (automatically themed)
+  // ============================================
+  --mat-tab-header-label-text-color: var(--color-text-secondary);
+  --mat-tab-header-active-label-text-color: var(--color-text-primary);
+  --mat-tab-header-active-ripple-color: var(--color-primary);
+  --mat-tab-header-inactive-ripple-color: var(--color-border);
+  --mat-tab-header-active-focus-indicator-color: var(--color-primary);
+  --mat-tab-header-active-hover-indicator-color: var(--color-primary-light);
+
+  // ============================================
+  // Form Fields (automatically themed)
+  // ============================================
+  --mdc-outlined-text-field-label-text-color: var(--color-text-secondary);
+  --mdc-outlined-text-field-input-text-color: var(--color-text-primary);
+  --mdc-outlined-text-field-outline-color: var(--color-border);
+  --mdc-outlined-text-field-hover-outline-color: var(--color-primary-light);
+  --mdc-outlined-text-field-focus-outline-color: var(--color-primary);
+  --mdc-outlined-text-field-focus-label-text-color: var(--color-primary);
+
+  // ============================================
+  // Cards (automatically themed)
+  // ============================================
+  --mat-card-elevated-container-color: var(--color-surface);
+  --mat-card-outlined-container-color: var(--color-surface);
+  --mat-card-subtitle-text-color: var(--color-text-secondary);
+
+  // ============================================
+  // Dialogs (automatically themed)
+  // ============================================
+  --mdc-dialog-container-color: var(--color-surface);
+  --mdc-dialog-subhead-color: var(--color-text-secondary);
+  --mdc-dialog-supporting-text-color: var(--color-text-primary);
+
+  // ============================================
+  // Menus (automatically themed)
+  // ============================================
+  --mat-menu-container-color: var(--color-surface);
+  --mat-menu-item-label-text-color: var(--color-text-primary);
+
+  // ============================================
+  // Chips (automatically themed)
+  // ============================================
+  --mdc-chip-label-text-color: var(--color-text-primary);
+  --mdc-chip-elevated-container-color: var(--color-surface);
+  --mdc-chip-outline-color: var(--color-border);
+
+  // ============================================
+  // Sliders (automatically themed)
+  // ============================================
+  --mdc-slider-handle-color: var(--color-primary);
+  --mdc-slider-active-track-color: var(--color-primary);
+  --mdc-slider-inactive-track-color: var(--color-border);
+  --mdc-slider-with-tick-marks-active-container-color: var(--color-primary);
+  --mdc-slider-with-tick-marks-inactive-container-color: var(--color-border);
+
+  // ============================================
+  // Progress Bars & Spinners (automatically themed)
+  // ============================================
+  --mdc-circular-progress-active-indicator-color: var(--color-primary);
+  --mdc-linear-progress-active-indicator-color: var(--color-primary);
+  --mdc-linear-progress-track-color: var(--color-border);
+
+  // ============================================
+  // Checkboxes & Radio Buttons (automatically themed)
+  // ============================================
+  --mdc-checkbox-selected-icon-color: var(--color-primary);
+  --mdc-checkbox-unselected-icon-color: var(--color-border);
+  --mdc-radio-selected-icon-color: var(--color-primary);
+  --mdc-radio-unselected-icon-color: var(--color-border);
+
+  // ============================================
+  // Toolbars (automatically themed)
+  // ============================================
+  --mat-toolbar-container-background-color: var(--color-surface);
+  --mat-toolbar-container-text-color: var(--color-text-primary);
+
+  // ============================================
+  // Lists (automatically themed)
+  // ============================================
+  --mat-list-active-indicator-color: rgba(0, 0, 0, 0.08);
+  --mat-list-list-item-leading-icon-color: var(--color-text-secondary);
+
+  // ============================================
+  // Expansion Panels (automatically themed)
+  // ============================================
+  --mat-expansion-container-background-color: var(--color-surface);
+  --mat-expansion-container-text-color: var(--color-text-primary);
+  --mat-expansion-header-text-color: var(--color-text-primary);
+}
+
+// ============================================
+// Component-Specific Overrides (only when tokens aren't enough)
+// ============================================
+
+// Form Fields - Fine-tune borders and placeholder behavior
+.mat-mdc-form-field {
+  .mdc-notched-outline__leading,
+  .mdc-notched-outline__notch,
+  .mdc-notched-outline__trailing {
+    border-width: 1px !important;
+  }
+
+  &.mat-focused {
+    .mdc-notched-outline__leading,
+    .mdc-notched-outline__notch,
+    .mdc-notched-outline__trailing {
+      border-width: 2px !important;
+    }
+  }
+
+  // Placeholder behavior
+  input::placeholder {
+    opacity: 0 !important;
+    transition: opacity 0.2s ease;
+  }
+
+  &.mat-focused input::placeholder,
+  &.mat-form-field-should-float input::placeholder {
+    opacity: 0.6 !important;
+  }
+}
+
+// Buttons - Add hover states
+.mat-mdc-outlined-button,
+.mat-mdc-stroked-button {
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.04) !important;
+  }
+}
+
+.dark-mode .mat-mdc-outlined-button,
+.dark-mode .mat-mdc-stroked-button {
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+  }
+}
+
+// ============================================
+// Visual Polish (borders, shadows, etc.)
+// ============================================
+mat-card,
+.mat-mdc-card {
+  border: 1px solid var(--app-card-border-color);
+  border-radius: var(--radius-lg);
+}
+
+.mat-mdc-dialog-container {
+  border-radius: var(--radius-xl);
+}
