@@ -55,6 +55,7 @@ nul
 
 # Local environment override (contains real Supabase credentials)
 src/environments/environment.local.ts
+src/environments/environment.docker.local.ts
 
 # Docker secrets
 docker/.env

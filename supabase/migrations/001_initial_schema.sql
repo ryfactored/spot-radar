@@ -2,14 +2,22 @@
 -- 001_initial_schema.sql
 --
 -- Core schema required by the Angular Starter template.
--- Creates: profiles table, auto-create trigger, avatars storage bucket.
+-- Creates: angular_starter schema, profiles table, auto-create trigger,
+-- avatars storage bucket.
 -- =============================================================================
+
+-- ---------------------------------------------------------------------------
+-- Create angular_starter schema
+-- ---------------------------------------------------------------------------
+create schema if not exists angular_starter;
+grant usage on schema angular_starter to anon, authenticated, service_role;
+set search_path to angular_starter, public;
 
 -- ---------------------------------------------------------------------------
 -- Profiles table
 -- Every user gets a profile row. The trigger below auto-creates one on sign-up.
 -- ---------------------------------------------------------------------------
-create table public.profiles (
+create table profiles (
   id uuid references auth.users(id) on delete cascade primary key,
   email text,
   display_name text,
@@ -20,28 +28,28 @@ create table public.profiles (
   updated_at timestamptz default now() not null
 );
 
-alter table public.profiles enable row level security;
+alter table profiles enable row level security;
 
 create policy "Users can view own profile"
-  on public.profiles for select
+  on profiles for select
   using (auth.uid() = id);
 
 create policy "Users can update own profile"
-  on public.profiles for update
+  on profiles for update
   using (auth.uid() = id);
 
 create policy "Users can insert own profile"
-  on public.profiles for insert
+  on profiles for insert
   with check (auth.uid() = id);
 
 -- ---------------------------------------------------------------------------
 -- Auto-create profile on sign-up
 -- Pulls display_name from OAuth metadata (full_name) or falls back to email.
 -- ---------------------------------------------------------------------------
-create or replace function public.handle_new_user()
+create or replace function handle_new_user()
 returns trigger as $$
 begin
-  insert into public.profiles (id, email, display_name)
+  insert into angular_starter.profiles (id, email, display_name)
   values (
     new.id,
     new.email,
@@ -49,11 +57,18 @@ begin
   );
   return new;
 end;
-$$ language plpgsql security definer;
+$$ language plpgsql security definer set search_path = angular_starter;
 
 create trigger on_auth_user_created
   after insert on auth.users
-  for each row execute function public.handle_new_user();
+  for each row execute function handle_new_user();
+
+-- ---------------------------------------------------------------------------
+-- Grant permissions on angular_starter schema tables
+-- ---------------------------------------------------------------------------
+grant select on profiles to anon;
+grant select, insert, update on profiles to authenticated;
+grant all on profiles to service_role;
 
 -- ---------------------------------------------------------------------------
 -- Avatars storage bucket (public — profile pictures are publicly readable)

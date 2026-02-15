@@ -38,6 +38,10 @@ All features with shared or list data use the three-layer pattern:
 
 Stores: `NotesStore`, `ChatStore`, `FilesStore`, `ProfileStore`. See `notes-store.ts` for the reference implementation with computed derived state and 5-minute TTL cache invalidation.
 
+### Database Schema
+
+App tables (`profiles`, `notes`, `messages`, `files`) live in the `angular_starter` schema, not `public`. The schema name is configurable via `environment.supabaseDbSchema` (defaults to `'angular_starter'`). The Supabase client's `db.schema` option routes all `.from('table')` calls to the configured schema automatically — no per-query schema references needed in service code.
+
 ### Project Layout
 
 - **`core/`** — Singleton services, guards, error handling. Barrel-exported via `@core`.

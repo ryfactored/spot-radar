@@ -70,7 +70,7 @@ export class RealtimeService {
         'postgres_changes',
         {
           event: '*',
-          schema: 'public',
+          schema: this.supabase.dbSchema,
           table,
           filter,
         },

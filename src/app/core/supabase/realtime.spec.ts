@@ -12,6 +12,7 @@ describe('RealtimeService', () => {
   };
   let mockSupabase: {
     isBrowser: boolean;
+    dbSchema: string;
     client: { channel: ReturnType<typeof vi.fn> };
   };
   let subscribeCallback: ((status: string) => void) | null = null;
@@ -30,6 +31,7 @@ describe('RealtimeService', () => {
 
     mockSupabase = {
       isBrowser: true,
+      dbSchema: 'angular_starter',
       client: {
         channel: vi.fn().mockReturnValue(mockChannel),
       },
@@ -66,7 +68,7 @@ describe('RealtimeService', () => {
         'postgres_changes',
         {
           event: '*',
-          schema: 'public',
+          schema: 'angular_starter',
           table: 'notes',
           filter: 'user_id=eq.123',
         },

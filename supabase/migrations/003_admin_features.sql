@@ -4,6 +4,7 @@
 -- Admin-related schema: is_admin() helper function and RLS policy allowing
 -- admins to view all profiles.
 -- =============================================================================
+set search_path to angular_starter, public;
 
 -- ---------------------------------------------------------------------------
 -- is_admin() helper function
@@ -16,10 +17,10 @@ RETURNS boolean
 LANGUAGE sql
 SECURITY DEFINER
 STABLE
-SET search_path = ''
+SET search_path = angular_starter
 AS $$
   SELECT EXISTS (
-    SELECT 1 FROM public.profiles
+    SELECT 1 FROM profiles
     WHERE id = auth.uid() AND role = 'admin'
   );
 $$;
@@ -35,4 +36,4 @@ CREATE POLICY "Admins can view all profiles"
 ON profiles
 FOR SELECT
 TO authenticated
-USING (is_admin());
+USING (angular_starter.is_admin());

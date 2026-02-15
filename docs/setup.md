@@ -76,10 +76,11 @@ Run [`supabase/migrations/001_initial_schema.sql`](../supabase/migrations/001_in
 
 Run [`supabase/migrations/002_example_features.sql`](../supabase/migrations/002_example_features.sql) if you're keeping the example features (Notes, Chat, Files). Skip it entirely or comment out individual sections for features you don't need. See [feature-removal.md](./feature-removal.md) for details.
 
-After running 002, enable Realtime for the Chat feature:
+After running 002, enable Realtime for the Chat feature by running this in the SQL Editor:
 
-1. Go to **Database > Replication** in the Supabase dashboard.
-2. Toggle on Realtime for the `messages` table.
+```sql
+ALTER PUBLICATION supabase_realtime ADD TABLE angular_starter.messages;
+```
 
 ### Admin features (optional)
 
@@ -87,6 +88,13 @@ Run [`supabase/migrations/003_admin_features.sql`](../supabase/migrations/003_ad
 
 - `is_admin()` helper function (SECURITY DEFINER to avoid RLS recursion)
 - RLS policy allowing admins to view all profiles
+
+### Expose the schema
+
+After running the migrations, expose the `angular_starter` schema so Supabase's API layer (PostgREST) can route queries to it:
+
+1. Go to **Integrations > Data API > Settings** in the Supabase dashboard.
+2. Under **Exposed schemas**, add `angular_starter`.
 
 ---
 
@@ -296,5 +304,4 @@ Content-Security-Policy:
 - [Feature Removal Guide](./feature-removal.md) — how to strip example features you don't need
 - [Theming Guide](./theming.md) — how to customize colors and add new themes
 - [Accessibility Notes](./accessibility.md) — accessibility audit results and patterns used
-- [Self-Hosted Setup](./self-hosted-setup.md) — deploy on a Synology NAS or Docker-capable server
 - [Command Reference](./commands.md) — full list of npm scripts

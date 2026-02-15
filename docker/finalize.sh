@@ -57,29 +57,35 @@ AS $$
   );
 $$;
 
+SET search_path TO angular_starter, public;
+
 -- Create trigger on auth.users to auto-create profiles
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
-  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+  FOR EACH ROW EXECUTE FUNCTION handle_new_user();
 
 -- Add foreign key constraints now that auth.users exists
 DO $$
 BEGIN
   IF NOT EXISTS (
     SELECT 1 FROM information_schema.table_constraints
-    WHERE constraint_name = 'profiles_id_fkey' AND table_name = 'profiles'
+    WHERE constraint_name = 'profiles_id_fkey'
+      AND table_name = 'profiles'
+      AND table_schema = 'angular_starter'
   ) THEN
-    ALTER TABLE public.profiles
+    ALTER TABLE profiles
     ADD CONSTRAINT profiles_id_fkey
     FOREIGN KEY (id) REFERENCES auth.users(id) ON DELETE CASCADE;
   END IF;
 
   IF NOT EXISTS (
     SELECT 1 FROM information_schema.table_constraints
-    WHERE constraint_name = 'notes_user_id_fkey' AND table_name = 'notes'
+    WHERE constraint_name = 'notes_user_id_fkey'
+      AND table_name = 'notes'
+      AND table_schema = 'angular_starter'
   ) THEN
-    ALTER TABLE public.notes
+    ALTER TABLE notes
     ADD CONSTRAINT notes_user_id_fkey
     FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
   END IF;
