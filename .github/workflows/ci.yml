@@ -21,6 +21,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Create local environment stubs
+        run: |
+          cp src/environments/environment.local.example.ts src/environments/environment.local.ts
+          cp src/environments/environment.docker.local.example.ts src/environments/environment.docker.local.ts
+
       - name: Lint
         run: npm run lint
 
