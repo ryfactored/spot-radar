@@ -16,10 +16,15 @@ export class SupabaseService {
         persistSession: this.isBrowser,
         autoRefreshToken: this.isBrowser,
       },
+      db: { schema: (environment.supabaseDbSchema ?? 'public') as 'public' },
     });
   }
 
   get client(): SupabaseClient {
     return this.supabase;
+  }
+
+  get dbSchema(): string {
+    return environment.supabaseDbSchema ?? 'public';
   }
 }

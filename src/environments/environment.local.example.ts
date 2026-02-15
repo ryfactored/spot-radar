@@ -7,4 +7,5 @@ import { Environment } from './environment.interface';
 export const localOverrides: Partial<Environment> = {
   supabaseUrl: 'https://YOUR_PROJECT.supabase.co',
   supabaseAnonKey: 'YOUR_SUPABASE_ANON_KEY',
+  // supabaseDbSchema: 'angular_starter',
 };

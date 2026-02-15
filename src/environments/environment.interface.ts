@@ -24,5 +24,6 @@ export interface Environment {
   storageBuckets: { avatars: string; files: string };
   searchDebounceMs: number;
   loadingBarDelayMs: number;
+  supabaseDbSchema?: string;
   featureFlags: Record<string, boolean | string>;
 }

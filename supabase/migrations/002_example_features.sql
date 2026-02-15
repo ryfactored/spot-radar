@@ -6,11 +6,12 @@
 -- or comment out individual sections for features you don't need.
 -- See docs/feature-removal.md for details.
 -- =============================================================================
+set search_path to angular_starter, public;
 
 -- ---------------------------------------------------------------------------
 -- Notes
 -- ---------------------------------------------------------------------------
-create table public.notes (
+create table notes (
   id uuid default gen_random_uuid() primary key,
   user_id uuid references auth.users(id) on delete cascade not null,
   title text not null,
@@ -19,22 +20,22 @@ create table public.notes (
   updated_at timestamptz default now() not null
 );
 
-alter table public.notes enable row level security;
+alter table notes enable row level security;
 
 create policy "Users can view own notes"
-  on public.notes for select
+  on notes for select
   using (auth.uid() = user_id);
 
 create policy "Users can create own notes"
-  on public.notes for insert
+  on notes for insert
   with check (auth.uid() = user_id);
 
 create policy "Users can update own notes"
-  on public.notes for update
+  on notes for update
   using (auth.uid() = user_id);
 
 create policy "Users can delete own notes"
-  on public.notes for delete
+  on notes for delete
   using (auth.uid() = user_id);
 
 -- ---------------------------------------------------------------------------
@@ -43,7 +44,7 @@ create policy "Users can delete own notes"
 -- After running this migration, enable Realtime for the messages table:
 -- Supabase Dashboard > Database > Replication > toggle on "messages"
 -- ---------------------------------------------------------------------------
-create table public.messages (
+create table messages (
   id uuid default gen_random_uuid() primary key,
   user_id uuid references auth.users(id) on delete cascade not null,
   username text not null,
@@ -51,20 +52,20 @@ create table public.messages (
   created_at timestamptz default now() not null
 );
 
-alter table public.messages enable row level security;
+alter table messages enable row level security;
 
 create policy "Authenticated users can view messages"
-  on public.messages for select
+  on messages for select
   using (auth.role() = 'authenticated');
 
 create policy "Users can insert own messages"
-  on public.messages for insert
+  on messages for insert
   with check (auth.uid() = user_id);
 
 -- ---------------------------------------------------------------------------
 -- Files (metadata table + private storage bucket)
 -- ---------------------------------------------------------------------------
-create table public.files (
+create table files (
   id uuid default gen_random_uuid() primary key,
   user_id uuid references auth.users(id) on delete cascade not null,
   name text not null,
@@ -75,19 +76,29 @@ create table public.files (
   updated_at timestamptz default now() not null
 );
 
-alter table public.files enable row level security;
+alter table files enable row level security;
 
 create policy "Users can view own files"
-  on public.files for select
+  on files for select
   using (auth.uid() = user_id);
 
 create policy "Users can insert own files"
-  on public.files for insert
+  on files for insert
   with check (auth.uid() = user_id);
 
 create policy "Users can delete own files"
-  on public.files for delete
+  on files for delete
   using (auth.uid() = user_id);
+
+-- Grant permissions on angular_starter schema tables
+grant select, insert, update, delete on notes to authenticated;
+grant all on notes to service_role;
+
+grant select, insert on messages to authenticated;
+grant all on messages to service_role;
+
+grant select, insert, delete on files to authenticated;
+grant all on files to service_role;
 
 -- Private storage bucket for user file uploads
 insert into storage.buckets (id, name, public) values ('user-files', 'user-files', false);

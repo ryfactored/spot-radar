@@ -42,6 +42,7 @@ export const environmentBase: Environment = {
   storageBuckets: { avatars: 'avatars', files: 'user-files' },
   searchDebounceMs: 300,
   loadingBarDelayMs: 300,
+  supabaseDbSchema: 'angular_starter',
   featureFlags: {
     notes: true,
     chat: true,

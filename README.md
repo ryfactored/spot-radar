@@ -151,7 +151,6 @@ The app uses SSR with Express. See [docs/setup.md](docs/setup.md) for Vercel, Do
 - [Theming Guide](docs/theming.md) — Customize colors and add new themes
 - [Feature Removal](docs/feature-removal.md) — Strip example features you don't need
 - [Accessibility](docs/accessibility.md) — Audit results and patterns used
-- [Self-Hosted Setup](docs/self-hosted-setup.md) — Deploy on a Synology NAS or Docker server
 - [Command Reference](docs/commands.md) — Full list of npm scripts
 
 ## License
