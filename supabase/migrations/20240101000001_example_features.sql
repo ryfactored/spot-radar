@@ -22,6 +22,10 @@ create table notes (
 
 alter table notes enable row level security;
 
+create trigger notes_updated_at
+  before update on notes
+  for each row execute function update_updated_at();
+
 create policy "Users can view own notes"
   on notes for select
   using (auth.uid() = user_id);
@@ -101,7 +105,8 @@ grant select, insert, delete on files to authenticated;
 grant all on files to service_role;
 
 -- Private storage bucket for user file uploads
-insert into storage.buckets (id, name, public) values ('user-files', 'user-files', false);
+insert into storage.buckets (id, name, public) values ('user-files', 'user-files', false)
+on conflict (id) do nothing;
 
 create policy "Users can upload to user-files"
   on storage.objects for insert

@@ -16,6 +16,7 @@ describe('ProfileService', () => {
   let mockUpdate: ReturnType<typeof vi.fn>;
   let mockDelete: ReturnType<typeof vi.fn>;
   let mockFrom: ReturnType<typeof vi.fn>;
+  let mockRpc: ReturnType<typeof vi.fn>;
 
   const mockProfile = {
     id: 'user-123',
@@ -36,6 +37,7 @@ describe('ProfileService', () => {
     mockUpdate = vi.fn();
     mockDelete = vi.fn();
     mockFrom = vi.fn();
+    mockRpc = vi.fn();
 
     authMock = {
       currentUser: signal({
@@ -47,7 +49,7 @@ describe('ProfileService', () => {
 
     TestBed.configureTestingModule({
       providers: [
-        { provide: SupabaseService, useValue: { client: { from: mockFrom } } },
+        { provide: SupabaseService, useValue: { client: { from: mockFrom, rpc: mockRpc } } },
         { provide: AuthService, useValue: authMock },
       ],
     });
@@ -156,22 +158,18 @@ describe('ProfileService', () => {
     });
   });
 
-  describe('deleteProfile', () => {
-    it('should delete profile successfully', async () => {
-      mockEq.mockResolvedValue({ error: null });
-      mockDelete.mockReturnValue({ eq: mockEq });
-      mockFrom.mockReturnValue({ delete: mockDelete });
+  describe('deleteAccount', () => {
+    it('should call delete_my_account RPC successfully', async () => {
+      mockRpc.mockResolvedValue({ error: null });
 
-      await expect(service.deleteProfile('user-123')).resolves.not.toThrow();
-      expect(mockFrom).toHaveBeenCalledWith('profiles');
+      await expect(service.deleteAccount()).resolves.not.toThrow();
+      expect(mockRpc).toHaveBeenCalledWith('delete_my_account');
     });
 
     it('should throw mapped error on failure', async () => {
-      mockEq.mockResolvedValue({ error: { code: 'other_error', message: 'fail' } });
-      mockDelete.mockReturnValue({ eq: mockEq });
-      mockFrom.mockReturnValue({ delete: mockDelete });
+      mockRpc.mockResolvedValue({ error: { code: 'other_error', message: 'fail' } });
 
-      await expect(service.deleteProfile('user-123')).rejects.toThrow();
+      await expect(service.deleteAccount()).rejects.toThrow();
     });
   });
 });

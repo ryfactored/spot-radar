@@ -66,8 +66,8 @@ export class ProfileService {
     return result;
   }
 
-  async deleteProfile(userId: string): Promise<void> {
-    const { error } = await this.supabase.client.from('profiles').delete().eq('id', userId);
+  async deleteAccount(): Promise<void> {
+    const { error } = await this.supabase.client.rpc('delete_my_account');
     if (error) throw mapToError(error);
   }
 }

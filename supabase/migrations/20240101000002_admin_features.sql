@@ -32,6 +32,8 @@ $$;
 -- Non-admins still only see their own row via the existing "Users can view
 -- own profile" policy. Supabase ORs all SELECT policies together.
 -- ---------------------------------------------------------------------------
+GRANT EXECUTE ON FUNCTION is_admin() TO anon, authenticated, service_role;
+
 CREATE POLICY "Admins can view all profiles"
 ON profiles
 FOR SELECT

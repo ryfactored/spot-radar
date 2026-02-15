@@ -41,7 +41,7 @@ describe('Profile', () => {
     profileMock = {
       getProfile: vi.fn().mockResolvedValue(mockProfileData),
       updateProfile: vi.fn().mockResolvedValue(mockProfileData),
-      deleteProfile: vi.fn().mockResolvedValue(undefined),
+      deleteAccount: vi.fn().mockResolvedValue(undefined),
     };
 
     storageMock = {
@@ -322,7 +322,7 @@ describe('Profile', () => {
 
       await component.onDeleteAccount();
 
-      expect(profileMock.deleteProfile).not.toHaveBeenCalled();
+      expect(profileMock.deleteAccount).not.toHaveBeenCalled();
       expect(authMock.signOut).not.toHaveBeenCalled();
     });
 
@@ -331,14 +331,14 @@ describe('Profile', () => {
 
       await component.onDeleteAccount();
 
-      expect(profileMock.deleteProfile).toHaveBeenCalledWith('user-123');
+      expect(profileMock.deleteAccount).toHaveBeenCalled();
       expect(authMock.signOut).toHaveBeenCalled();
-      expect(toastMock.info).toHaveBeenCalledWith('Your account data has been deleted');
+      expect(toastMock.info).toHaveBeenCalledWith('Your account has been permanently deleted');
     });
 
     it('should show error toast on delete failure', async () => {
       confirmMock.confirm.mockResolvedValue(true);
-      profileMock.deleteProfile.mockRejectedValue(new Error('Delete failed'));
+      profileMock.deleteAccount.mockRejectedValue(new Error('Delete failed'));
 
       await component.onDeleteAccount();
 
