@@ -2,8 +2,27 @@ const fs = require('fs');
 const path = require('path');
 
 const localEnvPath = path.join(__dirname, '..', 'src', 'environments', 'environment.local.ts');
+const dockerLocalEnvPath = path.join(
+  __dirname,
+  '..',
+  'src',
+  'environments',
+  'environment.docker.local.ts',
+);
 
-// Skip if file already exists (local dev)
+// Generate docker local env stub if missing
+if (fs.existsSync(dockerLocalEnvPath)) {
+  console.log('environment.docker.local.ts exists, skipping generation.');
+} else {
+  const dockerStub = `import { Environment } from './environment.interface';
+
+export const dockerLocalOverrides: Partial<Environment> = {};
+`;
+  fs.writeFileSync(dockerLocalEnvPath, dockerStub);
+  console.log('Generated environment.docker.local.ts stub.');
+}
+
+// Skip main generation if file already exists (local dev)
 if (fs.existsSync(localEnvPath)) {
   console.log('environment.local.ts exists, skipping generation.');
   process.exit(0);
