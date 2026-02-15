@@ -30,10 +30,15 @@ Uses the `docker` config in `angular.json` which swaps in `environment.docker.ts
 
 ## 3. Apply app-specific SQL migrations
 
-Base infrastructure (roles, auth schema, extensions, GoTrue) is handled by the `supabase-shared` repo. This repo only ships app-specific tables and policies:
+Base infrastructure (roles, auth schema, extensions, GoTrue) is handled by the `supabase-shared` repo. This repo only ships app-specific tables and policies via `supabase/migrations/`.
 
-1. `docker/volumes/db/01-app.sql` — profiles/notes tables, RLS policies, grants
-2. `docker/finalize.sh` — auth trigger + FK constraints (run after GoTrue has created `auth.users`)
+After the Supabase containers are healthy, run `finalize.sh` to apply all migrations:
+
+```bash
+sudo ./docker/finalize.sh
+```
+
+This waits for GoTrue to be ready (migration files reference `auth.users`), creates auth helper functions, and applies all migration files in order. See the [Migrations Guide](./migrations.md) for details on adding new migrations.
 
 ## 4. Deploy the container
 

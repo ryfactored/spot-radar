@@ -62,39 +62,14 @@ siteUrl: 'https://your-domain.com',
 
 ## 4. Set up the database
 
-The SQL migrations live in `supabase/migrations/`. Run them in your Supabase **SQL Editor** (Dashboard > SQL Editor > New query).
+The SQL migrations live in `supabase/migrations/`. Run each file in your Supabase **SQL Editor** (Dashboard > SQL Editor > New query) in sorted order. Each file is commented with what it creates and whether it's optional.
 
-### Core schema (required)
+After running the migrations:
 
-Run [`supabase/migrations/001_initial_schema.sql`](../supabase/migrations/001_initial_schema.sql). This creates:
+1. **Expose the schema**: Go to **Integrations > Data API > Settings** and add `angular_starter` to **Exposed schemas** so PostgREST can route queries to it.
+2. **Enable Realtime** (if using Chat): Run `ALTER PUBLICATION supabase_realtime ADD TABLE angular_starter.messages;` in the SQL Editor.
 
-- `profiles` table with RLS policies
-- Auto-create trigger (new profile row on every sign-up)
-- `avatars` storage bucket for profile pictures
-
-### Example feature tables (optional)
-
-Run [`supabase/migrations/002_example_features.sql`](../supabase/migrations/002_example_features.sql) if you're keeping the example features (Notes, Chat, Files). Skip it entirely or comment out individual sections for features you don't need. See [feature-removal.md](./feature-removal.md) for details.
-
-After running 002, enable Realtime for the Chat feature by running this in the SQL Editor:
-
-```sql
-ALTER PUBLICATION supabase_realtime ADD TABLE angular_starter.messages;
-```
-
-### Admin features (optional)
-
-Run [`supabase/migrations/003_admin_features.sql`](../supabase/migrations/003_admin_features.sql) if you're using the admin feature. This creates:
-
-- `is_admin()` helper function (SECURITY DEFINER to avoid RLS recursion)
-- RLS policy allowing admins to view all profiles
-
-### Expose the schema
-
-After running the migrations, expose the `angular_starter` schema so Supabase's API layer (PostgREST) can route queries to it:
-
-1. Go to **Integrations > Data API > Settings** in the Supabase dashboard.
-2. Under **Exposed schemas**, add `angular_starter`.
+For self-hosted Docker or Supabase CLI setups, see the [Migrations Guide](./migrations.md).
 
 ---
 
@@ -301,6 +276,7 @@ Content-Security-Policy:
 
 ## Further reading
 
+- [Migrations Guide](./migrations.md) — how migrations work, adding new ones, Docker and CLI workflows
 - [Feature Removal Guide](./feature-removal.md) — how to strip example features you don't need
 - [Theming Guide](./theming.md) — how to customize colors and add new themes
 - [Accessibility Notes](./accessibility.md) — accessibility audit results and patterns used

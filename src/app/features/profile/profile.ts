@@ -414,15 +414,10 @@ export class Profile implements OnInit, HasUnsavedChanges {
 
     this.deleting.set(true);
     try {
-      const user = this.auth.currentUser();
-      if (user) {
-        await this.profileService.deleteProfile(user.id);
-        this.profileStore.clear();
-      }
-      // Sign out after deleting data. Full auth.users row deletion
-      // requires a Supabase Edge Function with service_role key.
+      await this.profileService.deleteAccount();
+      this.profileStore.clear();
       await this.auth.signOut();
-      this.toast.info('Your account data has been deleted');
+      this.toast.info('Your account has been permanently deleted');
     } catch (err) {
       this.toast.error(extractErrorMessage(err, 'Failed to delete account'));
       this.deleting.set(false);
