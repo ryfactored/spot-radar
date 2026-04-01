@@ -14,9 +14,8 @@ describe('ReleasesStore', () => {
     release_type: 'album',
     release_date: '2024-01-15',
     image_url: 'https://example.com/image.jpg',
-    spotify_url: 'https://open.spotify.com/album/1',
     track_count: 12,
-    fetched_at: '2024-01-20T00:00:00Z',
+    artist_source: 'followed',
   };
 
   const mockRelease2: Release = {
@@ -182,7 +181,7 @@ describe('ReleasesStore', () => {
 
   describe('setSyncProgress', () => {
     it('should update sync progress', () => {
-      const progress: SyncProgress = { total: 100, checked: 50, syncing: true };
+      const progress: SyncProgress = { total: 100, checked: 50, syncing: true, releasesFound: 0 };
       store.setSyncProgress(progress);
 
       expect(store.syncProgress()).toEqual(progress);
@@ -238,9 +237,14 @@ describe('ReleasesStore', () => {
     });
 
     it('should reset sync progress', () => {
-      store.setSyncProgress({ total: 100, checked: 50, syncing: true });
+      store.setSyncProgress({ total: 100, checked: 50, syncing: true, releasesFound: 0 });
       store.clear();
-      expect(store.syncProgress()).toEqual({ total: 0, checked: 0, syncing: false });
+      expect(store.syncProgress()).toEqual({
+        total: 0,
+        checked: 0,
+        syncing: false,
+        releasesFound: 0,
+      });
       expect(store.isSyncing()).toBe(false);
     });
 

@@ -1,5 +1,5 @@
 -- Spotify token storage for Edge Functions
-create table angular_starter.user_spotify_tokens (
+create table spot_radar.user_spotify_tokens (
   user_id uuid primary key references auth.users(id) on delete cascade,
   access_token text not null,
   refresh_token text not null,
@@ -8,47 +8,47 @@ create table angular_starter.user_spotify_tokens (
   updated_at timestamptz default now() not null
 );
 
-alter table angular_starter.user_spotify_tokens enable row level security;
+alter table spot_radar.user_spotify_tokens enable row level security;
 
 create policy "Users can view own tokens"
-  on angular_starter.user_spotify_tokens for select
+  on spot_radar.user_spotify_tokens for select
   using (auth.uid() = user_id);
 
 create policy "Users can insert own tokens"
-  on angular_starter.user_spotify_tokens for insert
+  on spot_radar.user_spotify_tokens for insert
   with check (auth.uid() = user_id);
 
 create policy "Users can update own tokens"
-  on angular_starter.user_spotify_tokens for update
+  on spot_radar.user_spotify_tokens for update
   using (auth.uid() = user_id);
 
 -- Shared artists table (not per-user)
-create table angular_starter.artists (
+create table spot_radar.artists (
   spotify_artist_id text primary key,
   artist_name text not null,
   artist_image_url text,
   last_release_check timestamptz
 );
 
-alter table angular_starter.artists enable row level security;
+alter table spot_radar.artists enable row level security;
 
 create policy "Authenticated users can read artists"
-  on angular_starter.artists for select
+  on spot_radar.artists for select
   using (auth.role() = 'authenticated');
 
 create policy "Authenticated users can insert artists"
-  on angular_starter.artists for insert
+  on spot_radar.artists for insert
   with check (auth.role() = 'authenticated');
 
 create policy "Authenticated users can update artists"
-  on angular_starter.artists for update
+  on spot_radar.artists for update
   using (auth.role() = 'authenticated');
 
 -- Per-user artist list
-create table angular_starter.user_artists (
+create table spot_radar.user_artists (
   id uuid default gen_random_uuid() primary key,
   user_id uuid references auth.users(id) on delete cascade not null,
-  spotify_artist_id text not null references angular_starter.artists(spotify_artist_id),
+  spotify_artist_id text not null references spot_radar.artists(spotify_artist_id),
   artist_name text not null,
   artist_image_url text,
   source text not null default 'followed',
@@ -56,26 +56,26 @@ create table angular_starter.user_artists (
   unique(user_id, spotify_artist_id)
 );
 
-alter table angular_starter.user_artists enable row level security;
+alter table spot_radar.user_artists enable row level security;
 
 create policy "Users can view own artists"
-  on angular_starter.user_artists for select
+  on spot_radar.user_artists for select
   using (auth.uid() = user_id);
 
 create policy "Users can insert own artists"
-  on angular_starter.user_artists for insert
+  on spot_radar.user_artists for insert
   with check (auth.uid() = user_id);
 
 create policy "Users can update own artists"
-  on angular_starter.user_artists for update
+  on spot_radar.user_artists for update
   using (auth.uid() = user_id);
 
 create policy "Users can delete own artists"
-  on angular_starter.user_artists for delete
+  on spot_radar.user_artists for delete
   using (auth.uid() = user_id);
 
 -- Shared releases table
-create table angular_starter.releases (
+create table spot_radar.releases (
   spotify_album_id text primary key,
   spotify_artist_id text not null,
   artist_name text not null,
@@ -88,38 +88,38 @@ create table angular_starter.releases (
   fetched_at timestamptz default now() not null
 );
 
-alter table angular_starter.releases enable row level security;
+alter table spot_radar.releases enable row level security;
 
 create policy "Authenticated users can read releases"
-  on angular_starter.releases for select
+  on spot_radar.releases for select
   using (auth.role() = 'authenticated');
 
 -- Per-user release state (dismissed)
-create table angular_starter.user_release_state (
+create table spot_radar.user_release_state (
   id uuid default gen_random_uuid() primary key,
   user_id uuid references auth.users(id) on delete cascade not null,
-  spotify_album_id text not null references angular_starter.releases(spotify_album_id),
+  spotify_album_id text not null references spot_radar.releases(spotify_album_id),
   dismissed boolean not null default false,
   dismissed_at timestamptz,
   unique(user_id, spotify_album_id)
 );
 
-alter table angular_starter.user_release_state enable row level security;
+alter table spot_radar.user_release_state enable row level security;
 
 create policy "Users can view own release state"
-  on angular_starter.user_release_state for select
+  on spot_radar.user_release_state for select
   using (auth.uid() = user_id);
 
 create policy "Users can insert own release state"
-  on angular_starter.user_release_state for insert
+  on spot_radar.user_release_state for insert
   with check (auth.uid() = user_id);
 
 create policy "Users can update own release state"
-  on angular_starter.user_release_state for update
+  on spot_radar.user_release_state for update
   using (auth.uid() = user_id);
 
 -- Per-user feed preferences
-create table angular_starter.user_feed_preferences (
+create table spot_radar.user_feed_preferences (
   user_id uuid primary key references auth.users(id) on delete cascade,
   release_type_filter text not null default 'everything',
   min_track_count integer not null default 0,
@@ -127,19 +127,38 @@ create table angular_starter.user_feed_preferences (
   last_checked_at timestamptz
 );
 
-alter table angular_starter.user_feed_preferences enable row level security;
+alter table spot_radar.user_feed_preferences enable row level security;
 
 create policy "Users can view own preferences"
-  on angular_starter.user_feed_preferences for select
+  on spot_radar.user_feed_preferences for select
   using (auth.uid() = user_id);
 
 create policy "Users can insert own preferences"
-  on angular_starter.user_feed_preferences for insert
+  on spot_radar.user_feed_preferences for insert
   with check (auth.uid() = user_id);
 
 create policy "Users can update own preferences"
-  on angular_starter.user_feed_preferences for update
+  on spot_radar.user_feed_preferences for update
   using (auth.uid() = user_id);
 
+-- Grant table-level permissions
+grant select, insert, update on spot_radar.user_spotify_tokens to authenticated;
+grant all on spot_radar.user_spotify_tokens to service_role;
+
+grant select, insert, update on spot_radar.artists to authenticated;
+grant all on spot_radar.artists to service_role;
+
+grant select, insert, update, delete on spot_radar.user_artists to authenticated;
+grant all on spot_radar.user_artists to service_role;
+
+grant select on spot_radar.releases to authenticated;
+grant all on spot_radar.releases to service_role;
+
+grant select, insert, update on spot_radar.user_release_state to authenticated;
+grant all on spot_radar.user_release_state to service_role;
+
+grant select, insert, update on spot_radar.user_feed_preferences to authenticated;
+grant all on spot_radar.user_feed_preferences to service_role;
+
 -- Enable Realtime on releases table for live feed updates during sync
-alter publication supabase_realtime add table angular_starter.releases;
+alter publication supabase_realtime add table spot_radar.releases;

@@ -48,7 +48,7 @@ export class AuthService {
       this.loading.set(false);
 
       if (event === 'SIGNED_IN' && session?.user) {
-        this.spotifyAuth.captureTokensFromSession(session.user.id).catch(() => {
+        this.spotifyAuth.captureTokensFromSession(session.user.id, session).catch(() => {
           // Token capture is best-effort — may not have Spotify tokens if user signed in via email
         });
       }
@@ -85,7 +85,10 @@ export class AuthService {
   async signInWithProvider(provider: SocialProvider) {
     const { error } = await this.supabase.client.auth.signInWithOAuth({
       provider: provider as Provider,
-      options: { redirectTo: `${this.getRedirectOrigin()}/dashboard` },
+      options: {
+        redirectTo: `${this.getRedirectOrigin()}/dashboard`,
+        scopes: provider === 'spotify' ? 'user-follow-read user-library-read' : undefined,
+      },
     });
     if (error) throw mapToError(error);
   }

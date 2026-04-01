@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { SupabaseService } from '../supabase/supabase';
 import { unwrap } from '../errors/error-mapper';
+import type { Session } from '@supabase/supabase-js';
 
 export interface SpotifyTokenRow {
   user_id: string;
@@ -70,17 +71,13 @@ export class SpotifyAuthService {
    * Extracts `provider_token` and `provider_refresh_token` from the current
    * Supabase auth session (populated after OAuth sign-in) and stores them.
    */
-  async captureTokensFromSession(userId: string): Promise<void> {
-    const {
-      data: { session },
-    } = await this.supabase.client.auth.getSession();
-
-    if (!session?.provider_token) {
+  async captureTokensFromSession(userId: string, session: Session): Promise<void> {
+    if (!session.provider_token) {
       throw new Error('No Spotify provider token found in current session');
     }
 
-    // Spotify tokens expire in 3600 s by default; use expires_at from session
-    // when available, otherwise fall back to 1 hour.
+    // Spotify tokens expire in 3600s — use the session expiry as a close
+    // approximation; fall back to 1 hour if unavailable.
     const expiresInSeconds = session.expires_at
       ? Math.max(0, session.expires_at - Math.floor(Date.now() / 1000))
       : 3600;

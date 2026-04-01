@@ -130,12 +130,17 @@ describe('SpotifyAuthService', () => {
   // ---------------------------------------------------------------------------
 
   describe('captureTokensFromSession', () => {
-    it('should store tokens extracted from the current session', async () => {
+    const mockSession = {
+      provider_token: 'access-tok',
+      provider_refresh_token: 'refresh-tok',
+      expires_at: Math.floor(Date.now() / 1000) + 3600,
+    } as any;
+
+    it('should store tokens extracted from the provided session', async () => {
       const { upsert } = makeUpsertChain({ data: null, error: null });
 
-      await service.captureTokensFromSession('user-1');
+      await service.captureTokensFromSession('user-1', mockSession);
 
-      expect(mockSupabase.client.auth.getSession).toHaveBeenCalled();
       expect(upsert).toHaveBeenCalledWith(
         expect.objectContaining({
           user_id: 'user-1',
@@ -147,21 +152,9 @@ describe('SpotifyAuthService', () => {
     });
 
     it('should throw when no provider_token is present in session', async () => {
-      mockSupabase.client.auth.getSession.mockResolvedValueOnce({
-        data: { session: { provider_token: null } },
-      });
-
-      await expect(service.captureTokensFromSession('user-1')).rejects.toThrow(
-        'No Spotify provider token found in current session',
-      );
-    });
-
-    it('should throw when session is null', async () => {
-      mockSupabase.client.auth.getSession.mockResolvedValueOnce({ data: { session: null } });
-
-      await expect(service.captureTokensFromSession('user-1')).rejects.toThrow(
-        'No Spotify provider token found in current session',
-      );
+      await expect(
+        service.captureTokensFromSession('user-1', { ...mockSession, provider_token: null }),
+      ).rejects.toThrow('No Spotify provider token found in current session');
     });
   });
 });

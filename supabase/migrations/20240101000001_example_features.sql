@@ -6,7 +6,7 @@
 -- or comment out individual sections for features you don't need.
 -- See docs/feature-removal.md for details.
 -- =============================================================================
-set search_path to angular_starter, public;
+set search_path to spot_radar, public;
 
 -- ---------------------------------------------------------------------------
 -- Notes
@@ -94,7 +94,7 @@ create policy "Users can delete own files"
   on files for delete
   using (auth.uid() = user_id);
 
--- Grant permissions on angular_starter schema tables
+-- Grant permissions on spot_radar schema tables
 grant select, insert, update, delete on notes to authenticated;
 grant all on notes to service_role;
 

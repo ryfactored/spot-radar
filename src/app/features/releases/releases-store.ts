@@ -5,16 +5,18 @@ export interface SyncProgress {
   total: number;
   checked: number;
   syncing: boolean;
+  releasesFound: number;
 }
 
 const DEFAULT_PREFERENCES: FeedPreferences = {
   release_type_filter: 'everything',
   min_track_count: 0,
   recency_days: 90,
+  hide_live: false,
   last_checked_at: null,
 };
 
-const DEFAULT_SYNC: SyncProgress = { total: 0, checked: 0, syncing: false };
+const DEFAULT_SYNC: SyncProgress = { total: 0, checked: 0, syncing: false, releasesFound: 0 };
 
 @Injectable({
   providedIn: 'root',
@@ -67,6 +69,9 @@ export class ReleasesStore {
         (a, b) => new Date(b.release_date).getTime() - new Date(a.release_date).getTime(),
       );
     });
+    if (this.sync().syncing) {
+      this.sync.update((s) => ({ ...s, releasesFound: s.releasesFound + 1 }));
+    }
   }
 
   setLoading(loading: boolean): void {

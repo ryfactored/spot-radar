@@ -5,15 +5,15 @@ import { Environment } from './environment.interface';
  * and overrides only the properties that differ.
  */
 export const environmentBase: Environment = {
-  appName: 'angular-starter',
+  appName: 'spot-radar',
   production: false,
   supabaseUrl: 'https://YOUR_PROJECT.supabase.co',
   supabaseAnonKey: 'YOUR_SUPABASE_ANON_KEY',
-  socialProviders: ['google', 'github', 'spotify', 'apple'], // 'google' | 'github' | 'spotify' | 'discord' | 'apple'
+  socialProviders: ['spotify'], // 'google' | 'github' | 'spotify' | 'discord' | 'apple'
   siteUrl: 'http://localhost:4200',
-  siteTitle: 'Angular Starter Template',
+  siteTitle: 'Spot Radar',
   siteDescription:
-    'A production-ready Angular starter with authentication, theming, and reusable components.',
+    'Your personal new releases feed — see what your favorite Spotify artists just dropped.',
   toastDuration: { success: 2000, info: 3000, error: 4000 },
   upload: {
     avatarMaxSizeMB: 5,
@@ -42,11 +42,11 @@ export const environmentBase: Environment = {
   storageBuckets: { avatars: 'avatars', files: 'user-files' },
   searchDebounceMs: 300,
   loadingBarDelayMs: 300,
-  supabaseDbSchema: 'angular_starter',
+  supabaseDbSchema: 'spot_radar',
   featureFlags: {
-    notes: true,
-    chat: true,
-    files: true,
+    notes: false,
+    chat: false,
+    files: false,
     admin: true,
     breadcrumb: true,
     components: true,

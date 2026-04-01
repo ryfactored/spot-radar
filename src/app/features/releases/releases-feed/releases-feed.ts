@@ -43,10 +43,14 @@ const PAGE_SIZE = 20;
       [releaseTypeFilter]="store.feedPreferences().release_type_filter"
       [minTrackCount]="store.feedPreferences().min_track_count"
       [recencyDays]="store.feedPreferences().recency_days"
+      [hideLive]="store.feedPreferences().hide_live"
+      [syncing]="store.isSyncing()"
       (releaseTypeChange)="onReleaseTypeChange($event)"
       (minTrackChange)="onMinTrackChange($event)"
       (recencyChange)="onRecencyChange($event)"
+      (hideLiveChange)="onHideLiveChange($event)"
       (markAllSeen)="onMarkAllSeen()"
+      (syncNow)="onSyncNow($event)"
     />
 
     <app-sync-indicator [progress]="store.syncProgress()" />
@@ -231,43 +235,72 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
 
       if (artistIds.length === 0) {
         // First visit — sync artist list from Spotify
-        this.store.setSyncProgress({ total: 0, checked: 0, syncing: true });
+        this.store.setSyncProgress({ total: 0, checked: 0, syncing: true, releasesFound: 0 });
         try {
+          let followedIds = new Set<string>();
+          let savedIds = new Set<string>();
+
+          const updateTotal = () => {
+            const uniqueCount = new Set([...followedIds, ...savedIds]).size;
+            if (uniqueCount > 0) {
+              this.store.setSyncProgress({
+                total: uniqueCount,
+                checked: 0,
+                syncing: true,
+                releasesFound: 0,
+              });
+            }
+          };
+
           const [followedArtists, savedArtists] = await Promise.all([
-            this.spotifyApi.getFollowedArtists(),
-            this.spotifyApi.getSavedAlbumArtists(),
+            this.spotifyApi.getFollowedArtists().then((artists) => {
+              followedIds = new Set(artists.map((a) => a.id));
+              updateTotal();
+              return artists;
+            }),
+            this.spotifyApi.getSavedAlbumArtists().then((artists) => {
+              savedIds = new Set(artists.map((a) => a.id));
+              updateTotal();
+              return artists;
+            }),
           ]);
 
           const followedRows = followedArtists.map((a) => ({
             spotify_artist_id: a.id,
             artist_name: a.name,
-            artist_image_url: a.images[0]?.url ?? null,
           }));
           const savedRows = savedArtists.map((a) => ({
             spotify_artist_id: a.id,
             artist_name: a.name,
-            artist_image_url: a.images[0]?.url ?? null,
           }));
 
-          await this.service.syncArtists(this.userId, followedRows, 'followed');
           await this.service.syncArtists(this.userId, savedRows, 'saved');
+          await this.service.syncArtists(this.userId, followedRows, 'followed');
+
+          const allActiveIds = [
+            ...new Set([...followedRows, ...savedRows].map((r) => r.spotify_artist_id)),
+          ];
+          await this.service.removeStaleArtists(this.userId, allActiveIds);
 
           const newArtistIds = await this.service.getUserArtistIds(this.userId);
           this.store.setArtistIds(newArtistIds);
-          this.store.setSyncProgress({ total: newArtistIds.length, checked: 0, syncing: true });
 
           // Subscribe to Realtime before triggering sync
           this.unsubscribeRealtime = this.service.subscribeToNewReleases(newArtistIds, (release) =>
             this.store.addRelease(release),
           );
 
-          // Trigger the onboarding Edge Function
+          // Trigger the onboarding Edge Function and wait for it to finish
           await this.service.triggerOnboardingSync(this.userId);
+          this.store.setSyncProgress({ total: 0, checked: 0, syncing: false, releasesFound: 0 });
+          // Load the full feed now — Realtime may have missed some during sync
+          await this.loadFeed(1);
         } catch (err) {
           this.toast.error(extractErrorMessage(err, 'Failed to sync your Spotify library'));
-          this.store.setSyncProgress({ total: 0, checked: 0, syncing: false });
+          this.store.setSyncProgress({ total: 0, checked: 0, syncing: false, releasesFound: 0 });
+          await this.loadFeed(1);
         }
-        return; // Don't load feed yet — releases will trickle in via Realtime
+        return;
       }
 
       if (artistIds.length > 0) {
@@ -352,6 +385,12 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
     await this.saveAndReload(updated);
   }
 
+  protected async onHideLiveChange(value: boolean): Promise<void> {
+    const updated: FeedPreferences = { ...this.store.feedPreferences(), hide_live: value };
+    this.store.setPreferences(updated);
+    await this.saveAndReload(updated);
+  }
+
   private async saveAndReload(prefs: FeedPreferences): Promise<void> {
     try {
       await this.service.savePreferences(this.userId, prefs);
@@ -372,6 +411,59 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
       this.toast.success('All releases marked as seen.');
     } catch (err) {
       this.toast.error(extractErrorMessage(err, 'Failed to mark releases as seen.'));
+    }
+  }
+
+  protected async onSyncNow(mode: 'quick' | 'full'): Promise<void> {
+    if (this.store.isSyncing()) return;
+    this.store.setSyncProgress({ total: 0, checked: 0, syncing: true, releasesFound: 0 });
+    try {
+      let artistIds = this.store.followedArtistIds();
+
+      if (mode === 'full') {
+        // Re-fetch artist lists from Spotify to pick up new follows/saves and fix sources
+        const [followedArtists, savedArtists] = await Promise.all([
+          this.spotifyApi.getFollowedArtists(),
+          this.spotifyApi.getSavedAlbumArtists(),
+        ]);
+        const followedRows = followedArtists.map((a) => ({
+          spotify_artist_id: a.id,
+          artist_name: a.name,
+        }));
+        const savedRows = savedArtists.map((a) => ({
+          spotify_artist_id: a.id,
+          artist_name: a.name,
+        }));
+        await this.service.syncArtists(this.userId, savedRows, 'saved');
+        await this.service.syncArtists(this.userId, followedRows, 'followed');
+
+        // Remove artists no longer in followed or saved lists
+        const allActiveIds = [
+          ...new Set([...followedRows, ...savedRows].map((r) => r.spotify_artist_id)),
+        ];
+        await this.service.removeStaleArtists(this.userId, allActiveIds);
+
+        artistIds = await this.service.getUserArtistIds(this.userId);
+        this.store.setArtistIds(artistIds);
+      }
+
+      this.store.setSyncProgress({
+        total: artistIds.length,
+        checked: 0,
+        syncing: true,
+        releasesFound: 0,
+      });
+      this.unsubscribeRealtime?.();
+      this.unsubscribeRealtime = this.service.subscribeToNewReleases(artistIds, (release) =>
+        this.store.addRelease(release),
+      );
+      await this.service.triggerOnboardingSync(this.userId);
+      this.store.setSyncProgress({ total: 0, checked: 0, syncing: false, releasesFound: 0 });
+      await this.loadFeed(1);
+      this.toast.success(mode === 'full' ? 'Full sync complete.' : 'Sync complete.');
+    } catch (err) {
+      this.store.setSyncProgress({ total: 0, checked: 0, syncing: false, releasesFound: 0 });
+      this.toast.error(extractErrorMessage(err, 'Sync failed.'));
     }
   }
 

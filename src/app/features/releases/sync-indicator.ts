@@ -11,13 +11,17 @@ import { SyncProgress } from './releases-store';
     @if (progress().syncing) {
       <div class="sync-indicator">
         <p class="sync-text">
-          Syncing your library...
-          {{ progress().checked | number }} of {{ progress().total | number }} artists checked
+          @if (progress().total === 0) {
+            Fetching your artists from Spotify...
+          } @else if (progress().releasesFound === 0) {
+            Scanning {{ progress().total | number }} artists for new releases...
+          } @else {
+            Found {{ progress().releasesFound | number }}
+            {{ progress().releasesFound === 1 ? 'release' : 'releases' }} so far across
+            {{ progress().total | number }} artists...
+          }
         </p>
-        <mat-progress-bar
-          mode="determinate"
-          [value]="progress().total > 0 ? (progress().checked / progress().total) * 100 : 0"
-        />
+        <mat-progress-bar mode="indeterminate" />
       </div>
     }
   `,
