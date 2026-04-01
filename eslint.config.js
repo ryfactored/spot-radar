@@ -6,6 +6,9 @@ const angular = require('angular-eslint');
 
 module.exports = defineConfig([
   {
+    ignores: ['.superpowers/**'],
+  },
+  {
     files: ['**/*.ts'],
     extends: [
       eslint.configs.recommended,
