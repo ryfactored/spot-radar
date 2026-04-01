@@ -3,6 +3,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { SupabaseService } from '../supabase/supabase';
 import { RealtimeService } from '../supabase/realtime';
+import { SpotifyAuthService } from '../spotify/spotify-auth';
 import { User, Provider } from '@supabase/supabase-js';
 import { mapToError } from '../errors/error-mapper';
 import { environment } from '@env';
@@ -29,6 +30,7 @@ export class AuthService {
   private realtime = inject(RealtimeService);
   private router = inject(Router);
   private toast = inject(ToastService);
+  private spotifyAuth = inject(SpotifyAuthService);
   private isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   currentUser = signal<User | null>(null);
@@ -44,6 +46,12 @@ export class AuthService {
       const hadUser = this.currentUser() !== null;
       this.currentUser.set(session?.user ?? null);
       this.loading.set(false);
+
+      if (event === 'SIGNED_IN' && session?.user) {
+        this.spotifyAuth.captureTokensFromSession(session.user.id).catch(() => {
+          // Token capture is best-effort — may not have Spotify tokens if user signed in via email
+        });
+      }
 
       // Handle sign out (user-initiated or session expired)
       if (event === 'SIGNED_OUT') {
