@@ -1,0 +1,149 @@
+import { Injectable, inject } from '@angular/core';
+import { AuthService } from '../auth/auth';
+import { SpotifyAuthService } from './spotify-auth';
+
+export interface SpotifyImage {
+  url: string;
+  height: number;
+  width: number;
+}
+
+export interface SpotifyArtist {
+  id: string;
+  name: string;
+  images: SpotifyImage[];
+}
+
+export interface SpotifyAlbum {
+  id: string;
+  name: string;
+  album_type: 'album' | 'single' | 'compilation';
+  release_date: string;
+  total_tracks: number;
+  images: SpotifyImage[];
+  external_urls: { spotify: string };
+  artists: { id: string; name: string }[];
+}
+
+const SPOTIFY_API_BASE = 'https://api.spotify.com/v1';
+
+/**
+ * Wraps Spotify Web API calls.
+ *
+ * All requests are authenticated via SpotifyAuthService tokens.
+ * 429 rate-limit responses are retried once after the Retry-After delay.
+ */
+@Injectable({
+  providedIn: 'root',
+})
+export class SpotifyApiService {
+  private auth = inject(AuthService);
+  private spotifyAuth = inject(SpotifyAuthService);
+
+  // ---------------------------------------------------------------------------
+  // Private helpers
+  // ---------------------------------------------------------------------------
+
+  private getUserId(): string {
+    const id = this.auth.currentUser()?.id;
+    if (!id) throw new Error('No authenticated user');
+    return id;
+  }
+
+  /**
+   * Fetches a Spotify API URL with Bearer auth.
+   * Retries once on 429 (Too Many Requests) using the Retry-After header.
+   */
+  private async fetchWithAuth(url: string): Promise<unknown> {
+    const userId = this.getUserId();
+    const accessToken = await this.spotifyAuth.getAccessToken(userId);
+
+    const response = await fetch(url, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+
+    if (response.status === 429) {
+      const retryAfter = Number(response.headers.get('Retry-After') ?? '1');
+      await new Promise((resolve) => setTimeout(resolve, retryAfter * 1000));
+
+      const retryResponse = await fetch(url, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+
+      if (!retryResponse.ok) {
+        throw new Error(`Spotify API error: ${retryResponse.status} ${retryResponse.statusText}`);
+      }
+      return retryResponse.json();
+    }
+
+    if (!response.ok) {
+      throw new Error(`Spotify API error: ${response.status} ${response.statusText}`);
+    }
+
+    return response.json();
+  }
+
+  // ---------------------------------------------------------------------------
+  // Public methods
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Returns all artists the current user follows via cursor-based pagination.
+   */
+  async getFollowedArtists(): Promise<SpotifyArtist[]> {
+    const artists: SpotifyArtist[] = [];
+    let url: string | null = `${SPOTIFY_API_BASE}/me/following?type=artist&limit=50`;
+
+    while (url) {
+      const data = (await this.fetchWithAuth(url)) as {
+        artists: { items: SpotifyArtist[]; next: string | null };
+      };
+      artists.push(...data.artists.items);
+      url = data.artists.next;
+    }
+
+    return artists;
+  }
+
+  /**
+   * Returns unique artists from the current user's saved albums.
+   */
+  async getSavedAlbumArtists(): Promise<SpotifyArtist[]> {
+    const artistMap = new Map<string, SpotifyArtist>();
+    let url: string | null = `${SPOTIFY_API_BASE}/me/albums?limit=50`;
+
+    while (url) {
+      const data = (await this.fetchWithAuth(url)) as {
+        items: { album: SpotifyAlbum }[];
+        next: string | null;
+      };
+
+      for (const { album } of data.items) {
+        for (const artist of album.artists) {
+          if (!artistMap.has(artist.id)) {
+            // Saved album artist stubs lack images; store with empty images array.
+            artistMap.set(artist.id, { id: artist.id, name: artist.name, images: [] });
+          }
+        }
+      }
+
+      url = data.next;
+    }
+
+    return Array.from(artistMap.values());
+  }
+
+  /**
+   * Returns recent albums/singles for the given artist.
+   * @param artistId Spotify artist ID
+   * @param limit    Maximum number of releases to return (default 5)
+   */
+  async getArtistAlbums(artistId: string, limit = 5): Promise<SpotifyAlbum[]> {
+    const url =
+      `${SPOTIFY_API_BASE}/artists/${artistId}/albums` +
+      `?include_groups=album,single&limit=${limit}`;
+
+    const data = (await this.fetchWithAuth(url)) as { items: SpotifyAlbum[] };
+    return data.items;
+  }
+}
