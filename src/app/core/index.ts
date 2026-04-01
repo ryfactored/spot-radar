@@ -18,6 +18,11 @@ export { httpErrorInterceptor } from './errors/http-error-interceptor';
 export { mapError, mapToError, unwrap, unwrapWithCount } from './errors/error-mapper';
 export { extractErrorMessage } from './errors/extract-error-message';
 
+// spotify
+export { SpotifyAuthService } from './spotify/spotify-auth';
+export { SpotifyApiService } from './spotify/spotify-api';
+export type { SpotifyImage, SpotifyArtist, SpotifyAlbum } from './spotify/spotify-api';
+
 // root
 export { PreferencesService, COLOR_THEMES } from './preferences';
 export type { ColorTheme } from './preferences';
