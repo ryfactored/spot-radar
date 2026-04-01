@@ -11,9 +11,8 @@ const mockRelease: Release = {
   release_type: 'ep',
   release_date: '2026-03-15',
   image_url: 'https://example.com/art.jpg',
-  spotify_url: 'https://open.spotify.com/album/album-789',
   track_count: 5,
-  fetched_at: '2026-03-31T00:00:00Z',
+  artist_source: 'followed',
 };
 
 describe('ReleaseCardCollapsed', () => {

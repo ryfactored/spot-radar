@@ -17,15 +17,15 @@ describe('ReleasesService', () => {
     release_type: 'album',
     release_date: '2024-01-15',
     image_url: 'https://example.com/image.jpg',
-    spotify_url: 'https://open.spotify.com/album/1',
     track_count: 12,
-    fetched_at: '2024-01-20T00:00:00Z',
+    artist_source: 'followed',
   };
 
   const mockPreferences: FeedPreferences = {
     release_type_filter: 'everything',
     min_track_count: 0,
     recency_days: 90,
+    hide_live: false,
     last_checked_at: null,
   };
 
@@ -261,9 +261,7 @@ describe('ReleasesService', () => {
       const upsertMock = vi.fn().mockResolvedValue({ data: null, error: null });
       mockSupabaseClient.from.mockReturnValue({ upsert: upsertMock });
 
-      const artists = [
-        { spotify_artist_id: 'artist-1', artist_name: 'Artist 1', artist_image_url: null },
-      ];
+      const artists = [{ spotify_artist_id: 'artist-1', artist_name: 'Artist 1' }];
 
       await service.syncArtists(userId, artists, 'spotify');
 

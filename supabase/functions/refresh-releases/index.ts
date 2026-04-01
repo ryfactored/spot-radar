@@ -13,7 +13,7 @@ Deno.serve(async () => {
 
     // Get stale artists (oldest last_release_check)
     const { data: staleArtists } = await supabase
-      .schema('angular_starter')
+      .schema('spot_radar')
       .from('artists')
       .select('spotify_artist_id')
       .order('last_release_check', { ascending: true, nullsFirst: true })
@@ -25,7 +25,7 @@ Deno.serve(async () => {
 
     // Get a valid token — pick the user with the freshest token
     const { data: tokenRow } = await supabase
-      .schema('angular_starter')
+      .schema('spot_radar')
       .from('user_spotify_tokens')
       .select('user_id, access_token, refresh_token, expires_at')
       .order('expires_at', { ascending: false })
@@ -59,7 +59,7 @@ Deno.serve(async () => {
       accessToken = refreshData.access_token;
 
       await supabase
-        .schema('angular_starter')
+        .schema('spot_radar')
         .from('user_spotify_tokens')
         .update({
           access_token: accessToken,
@@ -113,17 +113,15 @@ Deno.serve(async () => {
           spotify_artist_id: album.artists[0]?.id ?? '',
           artist_name: album.artists[0]?.name ?? 'Unknown',
           title: album.name,
-          release_type: album.album_type === 'album' ? 'album' : 'single',
+          release_type: album.album_type ?? 'album',
           release_date: album.release_date,
           image_url: album.images?.[0]?.url ?? null,
-          spotify_url: album.external_urls?.spotify ?? '',
           track_count: album.total_tracks ?? 0,
-          fetched_at: new Date().toISOString(),
         }));
 
       if (releases.length > 0) {
         await supabase
-          .schema('angular_starter')
+          .schema('spot_radar')
           .from('releases')
           .upsert(releases, { onConflict: 'spotify_album_id' });
       }
@@ -132,7 +130,7 @@ Deno.serve(async () => {
       // deno-lint-ignore no-explicit-any
       const batchIds = batch.map((a: any) => a.spotify_artist_id);
       await supabase
-        .schema('angular_starter')
+        .schema('spot_radar')
         .from('artists')
         .update({ last_release_check: new Date().toISOString() })
         .in('spotify_artist_id', batchIds);

@@ -2,16 +2,16 @@
 -- 001_initial_schema.sql
 --
 -- Core schema required by the Angular Starter template.
--- Creates: angular_starter schema, profiles table, auto-create trigger,
+-- Creates: spot_radar schema, profiles table, auto-create trigger,
 -- avatars storage bucket.
 -- =============================================================================
 
 -- ---------------------------------------------------------------------------
--- Create angular_starter schema
+-- Create spot_radar schema
 -- ---------------------------------------------------------------------------
-create schema if not exists angular_starter;
-grant usage on schema angular_starter to anon, authenticated, service_role;
-set search_path to angular_starter, public;
+create schema if not exists spot_radar;
+grant usage on schema spot_radar to anon, authenticated, service_role;
+set search_path to spot_radar, public;
 
 -- ---------------------------------------------------------------------------
 -- Profiles table
@@ -47,7 +47,7 @@ returns text
 language sql
 security definer
 stable
-set search_path = angular_starter
+set search_path = spot_radar
 as $$
   select role from profiles where id = auth.uid();
 $$;
@@ -61,7 +61,7 @@ $$;
 create or replace function handle_new_user()
 returns trigger as $$
 begin
-  insert into angular_starter.profiles (id, email, display_name, role)
+  insert into spot_radar.profiles (id, email, display_name, role)
   values (
     new.id,
     new.email,
@@ -70,7 +70,7 @@ begin
   );
   return new;
 end;
-$$ language plpgsql security definer set search_path = angular_starter;
+$$ language plpgsql security definer set search_path = spot_radar;
 
 -- ---------------------------------------------------------------------------
 -- Triggers
@@ -93,7 +93,7 @@ create policy "Users can view own profile"
 create policy "Users can update own profile"
   on profiles for update
   using (auth.uid() = id)
-  with check (auth.uid() = id and role = angular_starter.get_my_role());
+  with check (auth.uid() = id and role = spot_radar.get_my_role());
 
 create policy "Users can insert own profile"
   on profiles for insert

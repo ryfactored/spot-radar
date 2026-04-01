@@ -1,4 +1,4 @@
-set search_path to angular_starter, public;
+set search_path to spot_radar, public;
 
 -- Delete the caller's own auth.users row.
 -- All app tables (profiles, notes, messages, files) cascade automatically
@@ -7,7 +7,7 @@ CREATE OR REPLACE FUNCTION delete_my_account()
 RETURNS void
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = auth, angular_starter, public
+SET search_path = auth, spot_radar, public
 AS $$
 DECLARE
   uid uuid;

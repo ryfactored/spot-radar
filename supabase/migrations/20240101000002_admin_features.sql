@@ -4,7 +4,7 @@
 -- Admin-related schema: is_admin() helper function and RLS policy allowing
 -- admins to view all profiles.
 -- =============================================================================
-set search_path to angular_starter, public;
+set search_path to spot_radar, public;
 
 -- ---------------------------------------------------------------------------
 -- is_admin() helper function
@@ -17,7 +17,7 @@ RETURNS boolean
 LANGUAGE sql
 SECURITY DEFINER
 STABLE
-SET search_path = angular_starter
+SET search_path = spot_radar
 AS $$
   SELECT EXISTS (
     SELECT 1 FROM profiles
@@ -38,4 +38,4 @@ CREATE POLICY "Admins can view all profiles"
 ON profiles
 FOR SELECT
 TO authenticated
-USING (angular_starter.is_admin());
+USING (spot_radar.is_admin());

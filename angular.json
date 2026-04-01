@@ -7,7 +7,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "angular-starter": {
+    "spot-radar": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -99,10 +99,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "angular-starter:build:production"
+              "buildTarget": "spot-radar:build:production"
             },
             "development": {
-              "buildTarget": "angular-starter:build:development"
+              "buildTarget": "spot-radar:build:development"
             }
           },
           "defaultConfiguration": "development"

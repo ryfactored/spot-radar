@@ -6,6 +6,7 @@ export const environment: Environment = {
   ...environmentBase,
   ...localOverrides,
   production: true,
-  socialProviders: ['google'],
+  siteUrl: 'https://radar.ryfactored.com',
+  socialProviders: ['spotify'],
   toastDuration: { success: 3000, info: 4000, error: 5000 },
 };

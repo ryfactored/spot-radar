@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { SupabaseService, RealtimeService } from '@core';
-import { unwrap, unwrapWithCount } from '@core';
+import { unwrap } from '@core';
 import { SUPABASE_ERRORS } from '@core';
 import type { RealtimePayload } from '@core';
 
@@ -12,28 +12,28 @@ export interface Release {
   release_type: string;
   release_date: string;
   image_url: string | null;
-  spotify_url: string;
   track_count: number;
-  fetched_at: string;
+  artist_source: 'followed' | 'saved';
 }
 
 export interface FeedPreferences {
   release_type_filter: string;
   min_track_count: number;
   recency_days: number;
+  hide_live: boolean;
   last_checked_at: string | null;
 }
 
 export interface ArtistRow {
   spotify_artist_id: string;
   artist_name: string;
-  artist_image_url: string | null;
 }
 
 const DEFAULT_PREFERENCES: FeedPreferences = {
   release_type_filter: 'everything',
   min_track_count: 0,
   recency_days: 90,
+  hide_live: false,
   last_checked_at: null,
 };
 
@@ -51,32 +51,29 @@ export class ReleasesService {
    */
   async getFeed(
     userId: string,
-    artistIds: string[],
+    _artistIds: string[],
     filters: FeedPreferences,
     page: number,
     pageSize: number,
   ): Promise<{ data: Release[]; count: number }> {
-    const from = (page - 1) * pageSize;
-    const to = from + pageSize - 1;
+    const offset = (page - 1) * pageSize;
 
-    const cutoff = new Date();
-    cutoff.setDate(cutoff.getDate() - filters.recency_days);
-    const cutoffIso = cutoff.toISOString().split('T')[0];
+    const result = unwrap(
+      await this.supabase.client.rpc('get_user_feed', {
+        p_user_id: userId,
+        p_release_type: filters.release_type_filter,
+        p_min_track_count: filters.min_track_count,
+        p_recency_days: filters.recency_days,
+        p_hide_live: filters.hide_live,
+        p_offset: offset,
+        p_limit: pageSize,
+      }),
+    ) as (Release & { total_count: number })[];
 
-    let query = this.supabase.client
-      .from('releases')
-      .select('*', { count: 'exact' })
-      .in('spotify_artist_id', artistIds)
-      .gte('release_date', cutoffIso)
-      .gte('track_count', filters.min_track_count)
-      .order('release_date', { ascending: false })
-      .range(from, to);
-
-    if (filters.release_type_filter !== 'everything') {
-      query = query.eq('release_type', filters.release_type_filter);
-    }
-
-    return unwrapWithCount(await query);
+    const count = result[0]?.total_count ?? 0;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const data = result.map(({ total_count, ...release }) => release as Release);
+    return { data, count };
   }
 
   /**
@@ -127,12 +124,15 @@ export class ReleasesService {
    */
   async dismissRelease(userId: string, albumId: string): Promise<void> {
     unwrap(
-      await this.supabase.client.from('user_release_state').upsert({
-        user_id: userId,
-        spotify_album_id: albumId,
-        dismissed: true,
-        dismissed_at: new Date().toISOString(),
-      }),
+      await this.supabase.client.from('user_release_state').upsert(
+        {
+          user_id: userId,
+          spotify_album_id: albumId,
+          dismissed: true,
+          dismissed_at: new Date().toISOString(),
+        },
+        { onConflict: 'user_id,spotify_album_id' },
+      ),
     );
   }
 
@@ -141,12 +141,15 @@ export class ReleasesService {
    */
   async undismissRelease(userId: string, albumId: string): Promise<void> {
     unwrap(
-      await this.supabase.client.from('user_release_state').upsert({
-        user_id: userId,
-        spotify_album_id: albumId,
-        dismissed: false,
-        dismissed_at: null,
-      }),
+      await this.supabase.client.from('user_release_state').upsert(
+        {
+          user_id: userId,
+          spotify_album_id: albumId,
+          dismissed: false,
+          dismissed_at: null,
+        },
+        { onConflict: 'user_id,spotify_album_id' },
+      ),
     );
   }
 
@@ -193,12 +196,11 @@ export class ReleasesService {
           chunk.map((a) => ({
             spotify_artist_id: a.spotify_artist_id,
             artist_name: a.artist_name,
-            artist_image_url: a.artist_image_url,
           })),
         ),
       );
 
-      // Then upsert user-artist associations
+      // Then upsert user-artist associations (no artist metadata — join artists table for that)
       unwrap(
         await this.supabase.client.from('user_artists').upsert(
           chunk.map((a) => ({
@@ -206,7 +208,35 @@ export class ReleasesService {
             spotify_artist_id: a.spotify_artist_id,
             source,
           })),
+          { onConflict: 'user_id,spotify_artist_id' },
         ),
+      );
+    }
+  }
+
+  /**
+   * Remove user_artists rows no longer present in the given active artist ID set.
+   * Called after a full sync to clean up artists the user has unfollowed/removed.
+   */
+  async removeStaleArtists(userId: string, activeArtistIds: string[]): Promise<void> {
+    const current = unwrap(
+      await this.supabase.client
+        .from('user_artists')
+        .select('spotify_artist_id')
+        .eq('user_id', userId),
+    ) as { spotify_artist_id: string }[];
+
+    const activeSet = new Set(activeArtistIds);
+    const staleIds = current.map((r) => r.spotify_artist_id).filter((id) => !activeSet.has(id));
+
+    for (let i = 0; i < staleIds.length; i += CHUNK_SIZE) {
+      const chunk = staleIds.slice(i, i + CHUNK_SIZE);
+      unwrap(
+        await this.supabase.client
+          .from('user_artists')
+          .delete()
+          .eq('user_id', userId)
+          .in('spotify_artist_id', chunk),
       );
     }
   }
