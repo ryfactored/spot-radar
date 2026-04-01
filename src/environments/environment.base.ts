@@ -52,6 +52,7 @@ export const environmentBase: Environment = {
     components: true,
     themePicker: true,
     centerContent: true,
+    releases: true,
     defaultChildNavMode: 'none', // 'none' | 'tabs' | 'sidenav'
   },
 };
