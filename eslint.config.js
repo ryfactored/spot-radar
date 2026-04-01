@@ -6,7 +6,7 @@ const angular = require('angular-eslint');
 
 module.exports = defineConfig([
   {
-    ignores: ['.superpowers/**'],
+    ignores: ['.superpowers/**', 'supabase/functions/**'],
   },
   {
     files: ['**/*.ts'],
