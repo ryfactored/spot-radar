@@ -1,0 +1,147 @@
+<h2>Design Section 2: Feed UI</h2>
+<p class="subtitle">The New Releases feed with filter bar, expanded cards, and collapsed items</p>
+
+<div class="section">
+  <div class="mockup">
+    <div class="mockup-header">New Releases Feed</div>
+    <div class="mockup-body" style="padding: 0; background: #0e0e0e; color: #ccc; font-family: 'Manrope', sans-serif; overflow: hidden;">
+
+      <!-- Filter bar -->
+      <div style="background: #1a1a1a; padding: 16px 24px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+        <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px; font-weight: 700; color: #fff; letter-spacing: -0.5px; margin-right: auto;">New Releases</div>
+
+        <!-- Release type filter -->
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 10px; color: #666; text-transform: uppercase; letter-spacing: 1px;">Type</span>
+          <div style="display: flex; border-radius: 20px; overflow: hidden; background: #20201f;">
+            <div style="padding: 6px 14px; font-size: 11px; color: #000; background: linear-gradient(135deg, #8455ef, #ba9eff); font-weight: 600;">Albums + EPs</div>
+            <div style="padding: 6px 14px; font-size: 11px; color: #adaaaa;">Albums</div>
+            <div style="padding: 6px 14px; font-size: 11px; color: #adaaaa;">Everything</div>
+          </div>
+        </div>
+
+        <!-- Recency filter -->
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 10px; color: #666; text-transform: uppercase; letter-spacing: 1px;">Since</span>
+          <div style="padding: 6px 14px; font-size: 11px; color: #fff; background: #20201f; border-radius: 20px;">
+            Last 90 days &#9662;
+          </div>
+        </div>
+
+        <!-- Mark all seen -->
+        <div style="padding: 6px 14px; font-size: 11px; color: #adaaaa; background: #20201f; border-radius: 20px; cursor: pointer;">
+          &#10003; Mark all seen
+        </div>
+      </div>
+
+      <!-- "New since last check" divider -->
+      <div style="padding: 8px 24px; display: flex; align-items: center; gap: 12px;">
+        <div style="font-size: 10px; color: #6df5e1; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; white-space: nowrap;">3 new since Mar 28</div>
+        <div style="flex: 1; height: 1px; background: #6df5e1; opacity: 0.2;"></div>
+      </div>
+
+      <!-- Feed items -->
+      <div style="padding: 0 24px 24px; display: flex; flex-direction: column; gap: 12px;">
+
+        <!-- Expanded card 1 -->
+        <div style="display: flex; gap: 16px; background: #20201f; border-radius: 12px; padding: 16px; transition: all 0.2s;">
+          <div style="width: 88px; height: 88px; border-radius: 8px; background: linear-gradient(135deg, #e84545, #903749); flex-shrink: 0; position: relative;">
+            <div style="position: absolute; bottom: 4px; right: 4px; font-size: 8px; background: rgba(0,0,0,0.6); padding: 2px 5px; border-radius: 4px; color: #fff;">12 tracks</div>
+          </div>
+          <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; min-width: 0;">
+            <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; font-weight: 700; color: #fff; letter-spacing: -0.3px;">Midnight Voyage</div>
+            <div style="font-size: 12px; color: #adaaaa; margin-top: 2px;">Aurora Wave</div>
+            <div style="font-size: 10px; color: #666; margin-top: 4px;">Album &middot; Mar 30, 2026</div>
+            <div style="display: flex; gap: 8px; margin-top: 10px;">
+              <div style="padding: 5px 16px; border-radius: 20px; background: linear-gradient(135deg, #8455ef, #ba9eff); color: #000; font-size: 11px; font-weight: 600; cursor: pointer;">Open in Spotify</div>
+              <div style="padding: 5px 12px; border-radius: 20px; background: #1a1a1a; color: #adaaaa; font-size: 11px; cursor: pointer;">Dismiss</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Expanded card 2 -->
+        <div style="display: flex; gap: 16px; background: #20201f; border-radius: 12px; padding: 16px;">
+          <div style="width: 88px; height: 88px; border-radius: 8px; background: linear-gradient(135deg, #2b5876, #4e4376); flex-shrink: 0; position: relative;">
+            <div style="position: absolute; bottom: 4px; right: 4px; font-size: 8px; background: rgba(0,0,0,0.6); padding: 2px 5px; border-radius: 4px; color: #fff;">6 tracks</div>
+          </div>
+          <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; min-width: 0;">
+            <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; font-weight: 700; color: #fff; letter-spacing: -0.3px;">Electric Dreams</div>
+            <div style="font-size: 12px; color: #adaaaa; margin-top: 2px;">Neon Circuit</div>
+            <div style="font-size: 10px; color: #666; margin-top: 4px;">EP &middot; Mar 29, 2026</div>
+            <div style="display: flex; gap: 8px; margin-top: 10px;">
+              <div style="padding: 5px 16px; border-radius: 20px; background: linear-gradient(135deg, #8455ef, #ba9eff); color: #000; font-size: 11px; font-weight: 600; cursor: pointer;">Open in Spotify</div>
+              <div style="padding: 5px 12px; border-radius: 20px; background: #1a1a1a; color: #adaaaa; font-size: 11px; cursor: pointer;">Dismiss</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Expanded card 3 (new) -->
+        <div style="display: flex; gap: 16px; background: #20201f; border-radius: 12px; padding: 16px;">
+          <div style="width: 88px; height: 88px; border-radius: 8px; background: linear-gradient(135deg, #f5af19, #f12711); flex-shrink: 0; position: relative;">
+            <div style="position: absolute; bottom: 4px; right: 4px; font-size: 8px; background: rgba(0,0,0,0.6); padding: 2px 5px; border-radius: 4px; color: #fff;">9 tracks</div>
+          </div>
+          <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; min-width: 0;">
+            <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; font-weight: 700; color: #fff; letter-spacing: -0.3px;">Sunlit Hours</div>
+            <div style="font-size: 12px; color: #adaaaa; margin-top: 2px;">The Wavelength</div>
+            <div style="font-size: 10px; color: #666; margin-top: 4px;">Album &middot; Mar 28, 2026</div>
+            <div style="display: flex; gap: 8px; margin-top: 10px;">
+              <div style="padding: 5px 16px; border-radius: 20px; background: linear-gradient(135deg, #8455ef, #ba9eff); color: #000; font-size: 11px; font-weight: 600; cursor: pointer;">Open in Spotify</div>
+              <div style="padding: 5px 12px; border-radius: 20px; background: #1a1a1a; color: #adaaaa; font-size: 11px; cursor: pointer;">Dismiss</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- "Previously seen" divider -->
+        <div style="padding: 8px 0; display: flex; align-items: center; gap: 12px;">
+          <div style="font-size: 10px; color: #666; text-transform: uppercase; letter-spacing: 1.5px; white-space: nowrap;">Previously seen</div>
+          <div style="flex: 1; height: 1px; background: #484847; opacity: 0.15;"></div>
+        </div>
+
+        <!-- Expanded older card -->
+        <div style="display: flex; gap: 16px; background: #20201f; border-radius: 12px; padding: 16px;">
+          <div style="width: 88px; height: 88px; border-radius: 8px; background: linear-gradient(135deg, #11998e, #38ef7d); flex-shrink: 0; position: relative;">
+            <div style="position: absolute; bottom: 4px; right: 4px; font-size: 8px; background: rgba(0,0,0,0.6); padding: 2px 5px; border-radius: 4px; color: #fff;">14 tracks</div>
+          </div>
+          <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; min-width: 0;">
+            <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; font-weight: 700; color: #fff; letter-spacing: -0.3px;">Deep Current</div>
+            <div style="font-size: 12px; color: #adaaaa; margin-top: 2px;">Tide Pool</div>
+            <div style="font-size: 10px; color: #666; margin-top: 4px;">Album &middot; Mar 20, 2026</div>
+            <div style="display: flex; gap: 8px; margin-top: 10px;">
+              <div style="padding: 5px 16px; border-radius: 20px; background: linear-gradient(135deg, #8455ef, #ba9eff); color: #000; font-size: 11px; font-weight: 600; cursor: pointer;">Open in Spotify</div>
+              <div style="padding: 5px 12px; border-radius: 20px; background: #1a1a1a; color: #adaaaa; font-size: 11px; cursor: pointer;">Dismiss</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Collapsed/dismissed card -->
+        <div style="display: flex; align-items: center; gap: 10px; background: #1a1a1a; border-radius: 10px; padding: 10px 14px; opacity: 0.6; cursor: pointer;">
+          <div style="width: 36px; height: 36px; border-radius: 6px; background: linear-gradient(135deg, #c471ed, #f64f59); flex-shrink: 0;"></div>
+          <div style="font-size: 12px; color: #adaaaa; flex: 1; min-width: 0;">Phantom Echoes</div>
+          <div style="font-size: 11px; color: #666;">Glass Hammer</div>
+          <div style="font-size: 10px; color: #484847;">EP &middot; Mar 15</div>
+        </div>
+
+        <!-- Another collapsed -->
+        <div style="display: flex; align-items: center; gap: 10px; background: #1a1a1a; border-radius: 10px; padding: 10px 14px; opacity: 0.6; cursor: pointer;">
+          <div style="width: 36px; height: 36px; border-radius: 6px; background: linear-gradient(135deg, #667eea, #764ba2); flex-shrink: 0;"></div>
+          <div style="font-size: 12px; color: #adaaaa; flex: 1; min-width: 0;">Violet Frequency</div>
+          <div style="font-size: 11px; color: #666;">Static Bloom</div>
+          <div style="font-size: 10px; color: #484847;">Album &middot; Mar 12</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top: 24px;">
+  <h3>UI Breakdown</h3>
+  <ul style="color: #adaaaa; font-size: 13px; line-height: 2;">
+    <li><strong>Filter bar</strong> — pinned above feed. Segmented toggle for release type, dropdown for recency, "Mark all seen" button.</li>
+    <li><strong>"New since" divider</strong> — teal accent, shows count + date of last check. Separates unseen from previously seen.</li>
+    <li><strong>Expanded cards</strong> — album art (88px, rounded), title (Plus Jakarta Sans, bold), artist, type + date, track count badge on art. "Open in Spotify" gradient CTA + "Dismiss" ghost button.</li>
+    <li><strong>Collapsed cards</strong> — slim row, 36px art, title + artist + type/date in one line, reduced opacity. Click anywhere to re-expand.</li>
+    <li><strong>No borders</strong> — separation via surface color shifts per design system. Cards use <code>surface-container-high</code>, collapsed use <code>surface-container</code>.</li>
+    <li><strong>First-time sync</strong> — feed populates progressively with a subtle "Syncing your library... 847 of 2,031 artists checked" indicator in the filter bar area.</li>
+  </ul>
+</div>

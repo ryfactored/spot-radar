@@ -1,0 +1,133 @@
+<h2>Design Section 1: Revised Architecture</h2>
+<p class="subtitle">Server-side sync with progressive feed population</p>
+
+<div class="section">
+  <div class="mockup">
+    <div class="mockup-header">Data Flow</div>
+    <div class="mockup-body" style="padding: 24px; background: #0e0e0e; color: #ccc; font-family: 'Manrope', sans-serif;">
+
+      <!-- Flow diagram - vertical -->
+      <div style="display: flex; flex-direction: column; gap: 16px; max-width: 600px; margin: 0 auto;">
+
+        <!-- Step 1: Login -->
+        <div style="display: flex; align-items: center; gap: 16px;">
+          <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #8455ef, #ba9eff); display: flex; align-items: center; justify-content: center; font-weight: 700; color: #000; font-size: 14px; flex-shrink: 0;">1</div>
+          <div style="flex: 1; background: #1a1a1a; border-radius: 10px; padding: 14px;">
+            <div style="font-size: 13px; font-weight: 600; color: #fff;">User signs in with Spotify OAuth</div>
+            <div style="font-size: 11px; color: #666; margin-top: 4px;">Scopes: user-follow-read, user-library-read</div>
+          </div>
+        </div>
+
+        <!-- Step 2: Sync artists -->
+        <div style="display: flex; align-items: center; gap: 16px;">
+          <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #8455ef, #ba9eff); display: flex; align-items: center; justify-content: center; font-weight: 700; color: #000; font-size: 14px; flex-shrink: 0;">2</div>
+          <div style="flex: 1; background: #1a1a1a; border-radius: 10px; padding: 14px;">
+            <div style="font-size: 13px; font-weight: 600; color: #fff;">Client syncs artist list → Supabase</div>
+            <div style="font-size: 11px; color: #666; margin-top: 4px;">Followed artists + saved album artists. ~40 paginated calls. Stored as artist IDs in <code style="color: #ba9eff;">user_artists</code> table.</div>
+          </div>
+        </div>
+
+        <!-- Step 3: Background sync -->
+        <div style="display: flex; align-items: center; gap: 16px;">
+          <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #1db954, #6df5e1); display: flex; align-items: center; justify-content: center; font-weight: 700; color: #000; font-size: 14px; flex-shrink: 0;">3</div>
+          <div style="flex: 1; background: #1a1a1a; border-radius: 10px; padding: 14px;">
+            <div style="font-size: 13px; font-weight: 600; color: #fff;">Edge Function: Background release sync</div>
+            <div style="font-size: 11px; color: #666; margin-top: 4px;">Runs every 15 min. Picks ~50 artists not checked recently. Calls <code style="color: #6df5e1;">GET /artists/{id}/albums?limit=1</code>. Stores new releases in <code style="color: #6df5e1;">releases</code> table. Full cycle in ~10 hours.</div>
+          </div>
+        </div>
+
+        <!-- Step 4: Feed -->
+        <div style="display: flex; align-items: center; gap: 16px;">
+          <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #ff97b5, #e84545); display: flex; align-items: center; justify-content: center; font-weight: 700; color: #000; font-size: 14px; flex-shrink: 0;">4</div>
+          <div style="flex: 1; background: #1a1a1a; border-radius: 10px; padding: 14px;">
+            <div style="font-size: 13px; font-weight: 600; color: #fff;">Client reads feed from Supabase</div>
+            <div style="font-size: 11px; color: #666; margin-top: 4px;">Joins <code style="color: #ff97b5;">releases</code> with <code style="color: #ff97b5;">user_release_state</code> (dismissed). Filters by release type + recency. Sorted newest first. Fast — no Spotify API calls.</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Supabase tables -->
+      <div style="margin-top: 28px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px;">
+        <div style="background: #20201f; border-radius: 10px; padding: 14px;">
+          <div style="font-size: 11px; color: #ba9eff; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">user_artists</div>
+          <div style="font-size: 11px; color: #adaaaa; line-height: 1.6;">
+            user_id (FK)<br>
+            spotify_artist_id<br>
+            artist_name<br>
+            artist_image_url<br>
+            source (followed | saved)<br>
+            last_release_check<br>
+            synced_at
+          </div>
+        </div>
+        <div style="background: #20201f; border-radius: 10px; padding: 14px;">
+          <div style="font-size: 11px; color: #6df5e1; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">releases</div>
+          <div style="font-size: 11px; color: #adaaaa; line-height: 1.6;">
+            spotify_album_id (PK)<br>
+            spotify_artist_id (FK)<br>
+            title<br>
+            release_type (album | single | ep)<br>
+            release_date<br>
+            image_url<br>
+            spotify_url<br>
+            track_count<br>
+            fetched_at
+          </div>
+        </div>
+        <div style="background: #20201f; border-radius: 10px; padding: 14px;">
+          <div style="font-size: 11px; color: #ff97b5; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">user_release_state</div>
+          <div style="font-size: 11px; color: #adaaaa; line-height: 1.6;">
+            user_id (FK)<br>
+            spotify_album_id (FK)<br>
+            dismissed (boolean)<br>
+            dismissed_at<br>
+          </div>
+        </div>
+      </div>
+
+      <!-- Token storage note -->
+      <div style="margin-top: 16px; background: #20201f; border-radius: 10px; padding: 14px;">
+        <div style="font-size: 11px; color: #ba9eff; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">user_spotify_tokens</div>
+        <div style="font-size: 11px; color: #adaaaa; line-height: 1.6;">
+          user_id (FK) &middot; access_token (encrypted) &middot; refresh_token (encrypted) &middot; expires_at &middot; scopes
+        </div>
+        <div style="font-size: 10px; color: #666; margin-top: 6px;">Edge Function uses stored tokens to call Spotify API on behalf of each user. Refreshes automatically when expired.</div>
+      </div>
+
+      <!-- Feed preferences -->
+      <div style="margin-top: 10px; background: #20201f; border-radius: 10px; padding: 14px;">
+        <div style="font-size: 11px; color: #ba9eff; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">user_feed_preferences</div>
+        <div style="font-size: 11px; color: #adaaaa; line-height: 1.6;">
+          user_id (FK) &middot; release_type_filter &middot; recency_days &middot; last_checked_at
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top: 24px;">
+  <h3>Key Points</h3>
+  <div class="pros-cons">
+    <div class="pros">
+      <h4>Strengths</h4>
+      <ul>
+        <li>Feed reads are instant — just a Supabase query</li>
+        <li>Spotify rate limits handled server-side, spread over time</li>
+        <li>Releases table is shared — if two users follow the same artist, we store the release once</li>
+        <li>Token stored server-side — Edge Function can refresh and call Spotify without user being online</li>
+        <li>Artist list sync is fast (~40 client-side calls on login)</li>
+      </ul>
+    </div>
+    <div class="cons">
+      <h4>Trade-offs</h4>
+      <ul>
+        <li>First-time users wait ~10 hours for a complete feed</li>
+        <li>Spotify tokens must be stored securely in Supabase</li>
+        <li>Edge Function needs scheduling (pg_cron or external trigger)</li>
+        <li>More Supabase infrastructure than a pure client-side approach</li>
+      </ul>
+    </div>
+  </div>
+</div>

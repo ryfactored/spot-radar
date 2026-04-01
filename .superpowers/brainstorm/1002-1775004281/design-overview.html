@@ -1,0 +1,110 @@
+<h2>Design Section 1: Architecture & Data Flow</h2>
+<p class="subtitle">How the pieces fit together</p>
+
+<div class="section">
+  <div class="mockup">
+    <div class="mockup-header">System Architecture</div>
+    <div class="mockup-body" style="padding: 24px; background: #0e0e0e; color: #ccc; font-family: 'Manrope', sans-serif;">
+
+      <!-- Three columns -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; text-align: center;">
+
+        <!-- Column 1: Client -->
+        <div>
+          <div style="background: linear-gradient(135deg, #8455ef, #ba9eff); color: #000; padding: 12px; border-radius: 12px; font-weight: 700; font-size: 14px; margin-bottom: 16px;">Angular Client</div>
+
+          <div style="background: #1a1a1a; border-radius: 10px; padding: 14px; margin-bottom: 10px;">
+            <div style="font-size: 11px; color: #ba9eff; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;">Service Layer</div>
+            <div style="font-size: 12px; color: #adaaaa;">SpotifyService</div>
+            <div style="font-size: 10px; color: #666; margin-top: 2px;">Fetches artists, albums, new releases</div>
+          </div>
+
+          <div style="background: #1a1a1a; border-radius: 10px; padding: 14px; margin-bottom: 10px;">
+            <div style="font-size: 11px; color: #ba9eff; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;">Store Layer</div>
+            <div style="font-size: 12px; color: #adaaaa;">ReleasesStore</div>
+            <div style="font-size: 10px; color: #666; margin-top: 2px;">Signals: releases, filters, dismissed IDs</div>
+          </div>
+
+          <div style="background: #1a1a1a; border-radius: 10px; padding: 14px;">
+            <div style="font-size: 11px; color: #ba9eff; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;">Components</div>
+            <div style="font-size: 12px; color: #adaaaa;">ReleasesFeed</div>
+            <div style="font-size: 10px; color: #666; margin-top: 2px;">Feed + filter bar + cards</div>
+          </div>
+        </div>
+
+        <!-- Column 2: Arrows -->
+        <div style="display: flex; flex-direction: column; justify-content: center; gap: 20px;">
+          <div>
+            <div style="font-size: 24px; color: #6df5e1;">&#8596;</div>
+            <div style="font-size: 10px; color: #adaaaa; margin-top: 4px;">OAuth Token</div>
+            <div style="font-size: 10px; color: #666;">Client-side API calls</div>
+            <div style="font-size: 10px; color: #666;">user-follow-read</div>
+            <div style="font-size: 10px; color: #666;">user-library-read</div>
+          </div>
+          <div style="margin-top: 20px;">
+            <div style="font-size: 24px; color: #ff97b5;">&#8596;</div>
+            <div style="font-size: 10px; color: #adaaaa; margin-top: 4px;">User State</div>
+            <div style="font-size: 10px; color: #666;">Dismissed, preferences</div>
+            <div style="font-size: 10px; color: #666;">last-checked timestamp</div>
+          </div>
+        </div>
+
+        <!-- Column 3: External -->
+        <div>
+          <div style="background: #1db954; color: #000; padding: 12px; border-radius: 12px; font-weight: 700; font-size: 14px; margin-bottom: 16px;">Spotify Web API</div>
+
+          <div style="background: #1a1a1a; border-radius: 10px; padding: 14px; margin-bottom: 10px;">
+            <div style="font-size: 12px; color: #adaaaa;">GET /me/following</div>
+            <div style="font-size: 10px; color: #666;">Followed artists</div>
+          </div>
+          <div style="background: #1a1a1a; border-radius: 10px; padding: 14px; margin-bottom: 10px;">
+            <div style="font-size: 12px; color: #adaaaa;">GET /me/albums</div>
+            <div style="font-size: 10px; color: #666;">Saved albums → artists</div>
+          </div>
+          <div style="background: #1a1a1a; border-radius: 10px; padding: 14px; margin-bottom: 10px;">
+            <div style="font-size: 12px; color: #adaaaa;">GET /artists/{id}/albums</div>
+            <div style="font-size: 10px; color: #666;">New releases per artist</div>
+          </div>
+
+          <div style="height: 16px;"></div>
+
+          <div style="background: #20201f; color: #fff; padding: 12px; border-radius: 12px; font-weight: 700; font-size: 14px; margin-bottom: 16px;">Supabase</div>
+
+          <div style="background: #1a1a1a; border-radius: 10px; padding: 14px; margin-bottom: 10px;">
+            <div style="font-size: 12px; color: #adaaaa;">user_release_state</div>
+            <div style="font-size: 10px; color: #666;">dismissed, last_checked</div>
+          </div>
+          <div style="background: #1a1a1a; border-radius: 10px; padding: 14px;">
+            <div style="font-size: 12px; color: #adaaaa;">user_feed_preferences</div>
+            <div style="font-size: 10px; color: #666;">release_type, recency_window</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top: 24px;">
+  <h3>Key Architecture Decisions</h3>
+  <div class="pros-cons">
+    <div class="pros">
+      <h4>This Design</h4>
+      <ul>
+        <li>Follows starter's 3-layer pattern: SpotifyService → ReleasesStore → ReleasesFeed</li>
+        <li>Client-side Spotify calls — no backend proxy needed</li>
+        <li>Supabase stores only user state (dismissed IDs, preferences, last-checked)</li>
+        <li>Spotify catalog data always fresh — no staleness problem</li>
+        <li>OAuth scopes: user-follow-read + user-library-read</li>
+      </ul>
+    </div>
+    <div class="cons">
+      <h4>Trade-offs</h4>
+      <ul>
+        <li>Many API calls needed for large libraries (paginated, rate-limited)</li>
+        <li>Token refresh must be handled client-side</li>
+        <li>No offline/cached fallback for Spotify data</li>
+      </ul>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git clone:*)",
+      "Bash(mv .claude /tmp/.claude-backup)",
+      "Bash(mv /tmp/.claude-backup .claude)"
+    ]
+  }
+}

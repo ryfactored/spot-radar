@@ -33,7 +33,7 @@ export class SpotifyAuthService {
     const expiresAt = new Date(Date.now() + expiresInSeconds * 1000).toISOString();
 
     unwrap(
-      await this.supabase.client.schema('public').from('user_spotify_tokens').upsert(
+      await this.supabase.client.from('user_spotify_tokens').upsert(
         {
           user_id: userId,
           access_token: accessToken,
@@ -53,7 +53,6 @@ export class SpotifyAuthService {
   async getAccessToken(userId: string): Promise<string> {
     const row = unwrap(
       await this.supabase.client
-        .schema('public')
         .from('user_spotify_tokens')
         .select('access_token, expires_at')
         .eq('user_id', userId)

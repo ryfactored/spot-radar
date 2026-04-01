@@ -1,0 +1,140 @@
+<h2>Feed Item Layout</h2>
+<p class="subtitle">How should each release appear in the feed? Click to select.</p>
+
+<div class="cards">
+  <!-- Option A: Card Grid -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="padding: 20px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <!-- Card 1 -->
+          <div style="background: #1a1a2e; border-radius: 8px; overflow: hidden;">
+            <div style="width: 100%; aspect-ratio: 1; background: linear-gradient(135deg, #e84545, #903749); display: flex; align-items: center; justify-content: center;">
+              <span style="font-size: 28px; opacity: 0.5;">&#9835;</span>
+            </div>
+            <div style="padding: 10px;">
+              <div style="font-size: 12px; font-weight: 600; color: #fff;">Midnight Voyage</div>
+              <div style="font-size: 10px; color: #999; margin-top: 2px;">Aurora Wave</div>
+              <div style="font-size: 9px; color: #666; margin-top: 4px;">Album &middot; Mar 28</div>
+            </div>
+          </div>
+          <!-- Card 2 -->
+          <div style="background: #1a1a2e; border-radius: 8px; overflow: hidden;">
+            <div style="width: 100%; aspect-ratio: 1; background: linear-gradient(135deg, #2b5876, #4e4376); display: flex; align-items: center; justify-content: center;">
+              <span style="font-size: 28px; opacity: 0.5;">&#9835;</span>
+            </div>
+            <div style="padding: 10px;">
+              <div style="font-size: 12px; font-weight: 600; color: #fff;">Electric Dreams</div>
+              <div style="font-size: 10px; color: #999; margin-top: 2px;">Neon Circuit</div>
+              <div style="font-size: 9px; color: #666; margin-top: 4px;">EP &middot; Mar 25</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A: Card Grid</h3>
+      <p>Album art prominent, Spotify-like browsing feel. 2-4 columns depending on screen. Good for visual scanning. Collapsed state becomes a slim row.</p>
+    </div>
+  </div>
+
+  <!-- Option B: List Rows -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="padding: 20px;">
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <!-- Row 1 -->
+          <div style="display: flex; align-items: center; gap: 12px; background: #1a1a2e; border-radius: 8px; padding: 10px;">
+            <div style="width: 52px; height: 52px; border-radius: 4px; background: linear-gradient(135deg, #e84545, #903749); flex-shrink: 0;"></div>
+            <div style="flex: 1; min-width: 0;">
+              <div style="font-size: 13px; font-weight: 600; color: #fff;">Midnight Voyage</div>
+              <div style="font-size: 11px; color: #999;">Aurora Wave</div>
+            </div>
+            <div style="text-align: right; flex-shrink: 0;">
+              <div style="font-size: 10px; color: #666;">Album</div>
+              <div style="font-size: 10px; color: #666;">Mar 28</div>
+            </div>
+            <div style="width: 28px; height: 28px; border-radius: 50%; background: #1db954; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <span style="color: #fff; font-size: 12px;">&#9654;</span>
+            </div>
+          </div>
+          <!-- Row 2 -->
+          <div style="display: flex; align-items: center; gap: 12px; background: #1a1a2e; border-radius: 8px; padding: 10px;">
+            <div style="width: 52px; height: 52px; border-radius: 4px; background: linear-gradient(135deg, #2b5876, #4e4376); flex-shrink: 0;"></div>
+            <div style="flex: 1; min-width: 0;">
+              <div style="font-size: 13px; font-weight: 600; color: #fff;">Electric Dreams</div>
+              <div style="font-size: 11px; color: #999;">Neon Circuit</div>
+            </div>
+            <div style="text-align: right; flex-shrink: 0;">
+              <div style="font-size: 10px; color: #666;">EP</div>
+              <div style="font-size: 10px; color: #666;">Mar 25</div>
+            </div>
+            <div style="width: 28px; height: 28px; border-radius: 50%; background: #1db954; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <span style="color: #fff; font-size: 12px;">&#9654;</span>
+            </div>
+          </div>
+          <!-- Row 3 -->
+          <div style="display: flex; align-items: center; gap: 12px; background: #1a1a2e; border-radius: 8px; padding: 10px;">
+            <div style="width: 52px; height: 52px; border-radius: 4px; background: linear-gradient(135deg, #f5af19, #f12711); flex-shrink: 0;"></div>
+            <div style="flex: 1; min-width: 0;">
+              <div style="font-size: 13px; font-weight: 600; color: #fff;">Sunlit Hours</div>
+              <div style="font-size: 11px; color: #999;">The Wavelength</div>
+            </div>
+            <div style="text-align: right; flex-shrink: 0;">
+              <div style="font-size: 10px; color: #666;">Single</div>
+              <div style="font-size: 10px; color: #666;">Mar 22</div>
+            </div>
+            <div style="width: 28px; height: 28px; border-radius: 50%; background: #1db954; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <span style="color: #fff; font-size: 12px;">&#9654;</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B: List Rows</h3>
+      <p>Compact, scannable, information-dense. Each row shows art, title, artist, type, date, and a play button. Great for long feeds. Collapsed = same row without play button, slightly dimmed.</p>
+    </div>
+  </div>
+
+  <!-- Option C: Hybrid -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="padding: 20px;">
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <!-- Expanded card -->
+          <div style="display: flex; gap: 14px; background: #1a1a2e; border-radius: 8px; padding: 12px;">
+            <div style="width: 80px; height: 80px; border-radius: 6px; background: linear-gradient(135deg, #e84545, #903749); flex-shrink: 0;"></div>
+            <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+              <div style="font-size: 14px; font-weight: 600; color: #fff;">Midnight Voyage</div>
+              <div style="font-size: 12px; color: #999; margin-top: 2px;">Aurora Wave</div>
+              <div style="font-size: 10px; color: #666; margin-top: 4px;">Album &middot; 12 tracks &middot; Mar 28</div>
+              <div style="display: flex; gap: 8px; margin-top: 8px;">
+                <div style="padding: 4px 12px; border-radius: 20px; background: #1db954; color: #fff; font-size: 11px; font-weight: 500; cursor: pointer;">Open in Spotify</div>
+                <div style="padding: 4px 12px; border-radius: 20px; background: #333; color: #999; font-size: 11px; cursor: pointer;">Collapse</div>
+              </div>
+            </div>
+          </div>
+          <!-- Collapsed row -->
+          <div style="display: flex; align-items: center; gap: 10px; background: #1a1a2e; border-radius: 8px; padding: 8px 12px; opacity: 0.7;">
+            <div style="width: 36px; height: 36px; border-radius: 4px; background: linear-gradient(135deg, #2b5876, #4e4376); flex-shrink: 0;"></div>
+            <div style="font-size: 12px; color: #ccc; flex: 1;">Electric Dreams</div>
+            <div style="font-size: 11px; color: #888;">Neon Circuit</div>
+            <div style="font-size: 10px; color: #666;">EP &middot; Mar 25</div>
+          </div>
+          <!-- Another collapsed -->
+          <div style="display: flex; align-items: center; gap: 10px; background: #1a1a2e; border-radius: 8px; padding: 8px 12px; opacity: 0.7;">
+            <div style="width: 36px; height: 36px; border-radius: 4px; background: linear-gradient(135deg, #f5af19, #f12711); flex-shrink: 0;"></div>
+            <div style="font-size: 12px; color: #ccc; flex: 1;">Sunlit Hours</div>
+            <div style="font-size: 11px; color: #888;">The Wavelength</div>
+            <div style="font-size: 10px; color: #666;">Single &middot; Mar 22</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C: Hybrid (Recommended)</h3>
+      <p>Expanded cards show album art, details, and actions. Dismissed items collapse to a slim row — still visible but out of the way. Click to re-expand. Best of both: visual richness for new items, density for dismissed ones.</p>
+    </div>
+  </div>
+</div>

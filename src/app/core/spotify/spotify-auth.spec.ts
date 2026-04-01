@@ -4,32 +4,27 @@ import { SupabaseService } from '../supabase/supabase';
 
 describe('SpotifyAuthService', () => {
   let service: SpotifyAuthService;
-  let mockSchema: ReturnType<typeof vi.fn>;
   let mockSupabase: any;
 
   // Helpers to build a fresh Supabase query-chain mock
   function makeUpsertChain(resolvedValue: { data: unknown; error: unknown }) {
     const upsert = vi.fn().mockResolvedValue(resolvedValue);
-    const from = vi.fn().mockReturnValue({ upsert });
-    mockSchema.mockReturnValueOnce({ from });
-    return { from, upsert };
+    mockSupabase.client.from.mockReturnValueOnce({ upsert });
+    return { upsert };
   }
 
   function makeSelectChain(resolvedValue: { data: unknown; error: unknown }) {
     const single = vi.fn().mockResolvedValue(resolvedValue);
     const eq = vi.fn().mockReturnValue({ single });
     const select = vi.fn().mockReturnValue({ eq });
-    const from = vi.fn().mockReturnValue({ select });
-    mockSchema.mockReturnValueOnce({ from });
-    return { from, select, eq, single };
+    mockSupabase.client.from.mockReturnValueOnce({ select });
+    return { select, eq, single };
   }
 
   beforeEach(() => {
-    mockSchema = vi.fn();
-
     mockSupabase = {
       client: {
-        schema: mockSchema,
+        from: vi.fn(),
         auth: {
           getSession: vi.fn().mockResolvedValue({
             data: {
@@ -65,7 +60,7 @@ describe('SpotifyAuthService', () => {
 
       await service.storeTokens('user-1', 'tok-abc', 'ref-xyz', 3600);
 
-      expect(mockSchema).toHaveBeenCalledWith('public');
+      expect(mockSupabase.client.from).toHaveBeenCalledWith('user_spotify_tokens');
       expect(upsert).toHaveBeenCalledWith(
         expect.objectContaining({
           user_id: 'user-1',
