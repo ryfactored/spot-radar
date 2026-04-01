@@ -90,7 +90,7 @@ Populated as a side effect of the `user_artists` sync. When a user syncs their a
 | spotify_artist_id | TEXT | |
 | artist_name | TEXT | Denormalized for query simplicity |
 | title | TEXT | |
-| release_type | TEXT | 'album', 'single', or 'ep'. Classification: Spotify's `album_type` of `album` → 'album'. Spotify's `album_type` of `single` with `total_tracks` > 3 → 'ep'; otherwise → 'single'. |
+| release_type | TEXT | 'album' or 'single'. Stored directly from Spotify's `album_type` field — no EP classification needed. |
 | release_date | DATE | |
 | image_url | TEXT | |
 | spotify_url | TEXT | Direct link to open in Spotify |
@@ -114,7 +114,8 @@ Unique constraint on (user_id, spotify_album_id).
 | Column | Type | Notes |
 |--------|------|-------|
 | user_id | UUID PK, FK → profiles | |
-| release_type_filter | TEXT | 'albums_eps', 'albums', 'everything'. Default 'albums_eps' |
+| release_type_filter | TEXT | 'albums', 'everything'. Default 'everything' |
+| min_track_count | INTEGER | Minimum tracks to show. 0 = no minimum (default), 3, 5, 8 |
 | recency_days | INTEGER | 30, 90, 180, etc. Default 90 |
 | last_checked_at | TIMESTAMPTZ | Timestamp of last "mark all seen" action |
 
@@ -143,7 +144,8 @@ Follows the Neon Nocturne design system defined in `docs/design.md`:
 
 Persistent toolbar pinned above the feed:
 
-- **Release type**: Segmented toggle — Albums + EPs (default), Albums, Everything
+- **Release type**: Segmented toggle — Everything (default), Albums only
+- **Min tracks**: Dropdown — No minimum (default), 3+, 5+, 8+
 - **Recency window**: Dropdown — Last 30 days, Last 90 days (default), Last 6 months, Last year
 - **Mark all seen**: Button that sets `last_checked_at` to now. Creates a "new since" divider in the feed.
 
@@ -206,7 +208,7 @@ Follows the starter's three-layer pattern (Service → Store → Component).
 
 - **ReleasesStore** (`providedIn: 'root'`) — signal-based state management:
   - `releases` signal — the raw releases list from Supabase
-  - `filters` signal — active release type + recency window
+  - `filters` signal — active release type, min track count, and recency window
   - `dismissedIds` signal — set of dismissed release IDs
   - `syncProgress` signal — `{ total: number, checked: number, syncing: boolean }`
   - `lastCheckedAt` signal — timestamp from user_feed_preferences
@@ -217,7 +219,7 @@ Follows the starter's three-layer pattern (Service → Store → Component).
 - **ReleasesFeed** — page component at `/releases`. Orchestrates service calls, pushes results to store, binds to store signals.
 - **ReleaseCard** — expanded card with album art, metadata, and action buttons.
 - **ReleaseCardCollapsed** — slim dismissed row. Click to re-expand.
-- **FeedFilterBar** — persistent filter toolbar with release type toggle, recency dropdown, mark all seen.
+- **FeedFilterBar** — persistent filter toolbar with release type toggle, min tracks dropdown, recency dropdown, mark all seen.
 - **SyncIndicator** — progress display during onboarding sync.
 - **ReleaseCardSkeleton** — skeleton loading card for initial feed load.
 
