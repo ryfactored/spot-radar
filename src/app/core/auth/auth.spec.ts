@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 
 import { AuthService } from './auth';
 import { SupabaseService } from '../supabase/supabase';
+import { SpotifyAuthService } from '../spotify/spotify-auth';
 import { ToastService } from '@shared';
 
 describe('AuthService', () => {
@@ -55,6 +56,10 @@ describe('AuthService', () => {
         { provide: SupabaseService, useValue: supabaseMock },
         { provide: Router, useValue: routerMock },
         { provide: ToastService, useValue: toastMock },
+        {
+          provide: SpotifyAuthService,
+          useValue: { captureTokensFromSession: vi.fn().mockResolvedValue(undefined) },
+        },
       ],
     });
     service = TestBed.inject(AuthService);

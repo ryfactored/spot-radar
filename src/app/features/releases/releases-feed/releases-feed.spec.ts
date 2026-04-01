@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReleasesFeed } from './releases-feed';
 import { ReleasesService } from '../releases-service';
 import { ReleasesStore } from '../releases-store';
-import { AuthService } from '@core';
+import { AuthService, SpotifyApiService } from '@core';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('ReleasesFeed', () => {
@@ -29,11 +29,20 @@ describe('ReleasesFeed', () => {
             markAllSeen: vi.fn().mockResolvedValue(undefined),
             dismissRelease: vi.fn().mockResolvedValue(undefined),
             undismissRelease: vi.fn().mockResolvedValue(undefined),
+            syncArtists: vi.fn().mockResolvedValue(undefined),
+            triggerOnboardingSync: vi.fn().mockResolvedValue(undefined),
           },
         },
         {
           provide: AuthService,
           useValue: { currentUser: vi.fn(() => ({ id: 'user-1' })) },
+        },
+        {
+          provide: SpotifyApiService,
+          useValue: {
+            getFollowedArtists: vi.fn().mockResolvedValue([]),
+            getSavedAlbumArtists: vi.fn().mockResolvedValue([]),
+          },
         },
       ],
     }).compileComponents();

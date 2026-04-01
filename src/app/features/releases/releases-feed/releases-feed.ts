@@ -13,7 +13,7 @@ import {
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
 
-import { AuthService, extractErrorMessage } from '@core';
+import { AuthService, SpotifyApiService, extractErrorMessage } from '@core';
 import { ToastService, EmptyState } from '@shared';
 
 import { ReleasesService, Release, FeedPreferences } from '../releases-service';
@@ -163,6 +163,7 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
   private service = inject(ReleasesService);
   private auth = inject(AuthService);
   private toast = inject(ToastService);
+  private spotifyApi = inject(SpotifyApiService);
 
   private scrollSentinel = viewChild<ElementRef<HTMLDivElement>>('scrollSentinel');
 
@@ -227,6 +228,47 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
       this.store.setPreferences(prefs);
       this.store.setDismissedIds(dismissedIds);
       this.store.setArtistIds(artistIds);
+
+      if (artistIds.length === 0) {
+        // First visit — sync artist list from Spotify
+        this.store.setSyncProgress({ total: 0, checked: 0, syncing: true });
+        try {
+          const [followedArtists, savedArtists] = await Promise.all([
+            this.spotifyApi.getFollowedArtists(),
+            this.spotifyApi.getSavedAlbumArtists(),
+          ]);
+
+          const followedRows = followedArtists.map((a) => ({
+            spotify_artist_id: a.id,
+            artist_name: a.name,
+            artist_image_url: a.images[0]?.url ?? null,
+          }));
+          const savedRows = savedArtists.map((a) => ({
+            spotify_artist_id: a.id,
+            artist_name: a.name,
+            artist_image_url: a.images[0]?.url ?? null,
+          }));
+
+          await this.service.syncArtists(this.userId, followedRows, 'followed');
+          await this.service.syncArtists(this.userId, savedRows, 'saved');
+
+          const newArtistIds = await this.service.getUserArtistIds(this.userId);
+          this.store.setArtistIds(newArtistIds);
+          this.store.setSyncProgress({ total: newArtistIds.length, checked: 0, syncing: true });
+
+          // Subscribe to Realtime before triggering sync
+          this.unsubscribeRealtime = this.service.subscribeToNewReleases(newArtistIds, (release) =>
+            this.store.addRelease(release),
+          );
+
+          // Trigger the onboarding Edge Function
+          await this.service.triggerOnboardingSync(this.userId);
+        } catch (err) {
+          this.toast.error(extractErrorMessage(err, 'Failed to sync your Spotify library'));
+          this.store.setSyncProgress({ total: 0, checked: 0, syncing: false });
+        }
+        return; // Don't load feed yet — releases will trickle in via Realtime
+      }
 
       if (artistIds.length > 0) {
         await this.loadFeed(1);
