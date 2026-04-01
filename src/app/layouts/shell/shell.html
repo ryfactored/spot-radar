@@ -20,6 +20,18 @@
         <mat-icon matListItemIcon>dashboard</mat-icon>
         <span matListItemTitle>Dashboard</span>
       </a>
+      @if (featureFlags.isEnabled('releases')) {
+        <a
+          mat-list-item
+          routerLink="/releases"
+          routerLinkActive="active-link"
+          #rlaReleases="routerLinkActive"
+          [attr.aria-current]="rlaReleases.isActive ? 'page' : null"
+        >
+          <mat-icon matListItemIcon>album</mat-icon>
+          <span matListItemTitle>New Releases</span>
+        </a>
+      }
       @if (featureFlags.isEnabled('notes')) {
         <a
           mat-list-item

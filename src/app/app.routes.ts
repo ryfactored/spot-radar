@@ -27,6 +27,13 @@ export const routes: Routes = [
         loadComponent: () => import('./features/dashboard/dashboard').then((m) => m.Dashboard),
       },
       {
+        path: 'releases',
+        data: { title: 'New Releases' },
+        loadComponent: () =>
+          import('./features/releases/releases-feed/releases-feed').then((m) => m.ReleasesFeed),
+        canActivate: [featureFlagGuard('releases')],
+      },
+      {
         path: 'profile',
         data: { title: 'Profile' },
         loadComponent: () => import('./features/profile/profile').then((m) => m.Profile),
