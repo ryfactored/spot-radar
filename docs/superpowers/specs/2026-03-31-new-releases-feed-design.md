@@ -32,7 +32,7 @@ The solution is a **server-side background sync**: store the artist list in Supa
 
 2. **Client syncs artist list → Supabase** — On first login, the client fetches followed artists + saved album artists (~40 paginated API calls for 2,000 artists, ~10-15 seconds). Stored in `user_artists` table.
 
-3. **Edge Function: First-time onboarding sync** — Triggered after artist list sync. Fires concurrent batches (~10 parallel requests) of `GET /artists/{id}/albums?include_groups=album,single&limit=5`. For 2,000 artists, completes in ~2-3 minutes. Stores releases in `releases` table. Results appear in the feed progressively via Supabase Realtime.
+3. **Edge Function: First-time onboarding sync** — Triggered after artist list sync. Fires concurrent batches (~10 parallel requests) of `GET /artists/{id}/albums?include_groups=album,single&limit=5`. For 2,000 artists, completes in ~2-3 minutes. Stores releases in `releases` table. Results appear in the feed progressively via Supabase Realtime (Postgres Changes subscription on `releases` table, listening for `INSERT` events filtered to `spotify_artist_id` values in the user's artist list).
 
 4. **Client reads feed from Supabase** — Joins `releases` with `user_release_state` (dismissed). Filters by release type + recency window. Sorted by release date, newest first. No Spotify API calls needed.
 
@@ -66,11 +66,21 @@ All tables in the `angular_starter` schema.
 | spotify_artist_id | TEXT | |
 | artist_name | TEXT | |
 | artist_image_url | TEXT | |
-| source | TEXT | 'followed' or 'saved' |
-| last_release_check | TIMESTAMPTZ | When this artist was last checked for releases |
+| source | TEXT | 'followed', 'saved', or 'both'. On upsert, if the artist already exists with a different source, update to 'both'. Source is informational only. |
 | synced_at | TIMESTAMPTZ | |
 
 Unique constraint on (user_id, spotify_artist_id).
+
+### artists (shared)
+
+| Column | Type | Notes |
+|--------|------|-------|
+| spotify_artist_id | TEXT PK | |
+| artist_name | TEXT | |
+| artist_image_url | TEXT | |
+| last_release_check | TIMESTAMPTZ | When this artist was last checked for new releases. Shared across all users — since releases are shared, we only need to check each artist once. |
+
+Populated as a side effect of the `user_artists` sync. When a user syncs their artist list, any artist not already in this table is inserted.
 
 ### releases
 
@@ -80,7 +90,7 @@ Unique constraint on (user_id, spotify_artist_id).
 | spotify_artist_id | TEXT | |
 | artist_name | TEXT | Denormalized for query simplicity |
 | title | TEXT | |
-| release_type | TEXT | 'album', 'single', or 'ep' |
+| release_type | TEXT | 'album', 'single', or 'ep'. Classification: Spotify's `album_type` of `album` → 'album'. Spotify's `album_type` of `single` with `total_tracks` > 3 → 'ep'; otherwise → 'single'. |
 | release_date | DATE | |
 | image_url | TEXT | |
 | spotify_url | TEXT | Direct link to open in Spotify |
@@ -104,7 +114,7 @@ Unique constraint on (user_id, spotify_album_id).
 | Column | Type | Notes |
 |--------|------|-------|
 | user_id | UUID PK, FK → profiles | |
-| release_type_filter | TEXT | 'albums', 'eps', 'albums_eps', 'everything'. Default 'albums_eps' |
+| release_type_filter | TEXT | 'albums_eps', 'albums', 'everything'. Default 'albums_eps' |
 | recency_days | INTEGER | 30, 90, 180, etc. Default 90 |
 | last_checked_at | TIMESTAMPTZ | Timestamp of last "mark all seen" action |
 
@@ -163,6 +173,10 @@ Persistent toolbar pinned above the feed:
 
 Release date, newest first. No sort options for v1.
 
+### Pagination
+
+The feed uses **infinite scroll** with a page size of 20 releases. The Supabase query uses `range()` pagination. As the user scrolls near the bottom, the next page is fetched and appended. This avoids loading thousands of releases at once.
+
 ### First-Time Sync UI
 
 During onboarding sync, the feed shows:
@@ -170,6 +184,13 @@ During onboarding sync, the feed shows:
 - Releases appear in the feed progressively as they're found via Supabase Realtime
 - The feed is usable immediately — it gets more complete over the next 2-3 minutes
 - Sync indicator disappears once complete
+
+### Error & Loading States
+
+- **Initial feed load**: `ReleaseCardSkeleton` component displays 6 skeleton cards (consistent with the starter's pattern for list views)
+- **Supabase query failure**: Error message with a retry button, using the existing toast error pattern
+- **Edge Function failure during onboarding**: Partial results are shown (whatever was fetched before failure). A "Sync incomplete — retry" banner appears in the filter bar area. User can click to re-trigger the onboarding function for unchecked artists.
+- **Spotify token expired during sync**: Edge Function refreshes the token automatically via the refresh token. If the refresh token is also invalid, the sync stops and the user is prompted to re-authenticate with Spotify.
 
 ## Angular Architecture
 
@@ -179,11 +200,11 @@ Follows the starter's three-layer pattern (Service → Store → Component).
 
 - **SpotifyAuthService** — manages Spotify-specific tokens (store in Supabase, refresh, retrieve). Separate from Supabase Auth's session management.
 - **SpotifyApiService** — wraps Spotify Web API calls using the user's access token. Methods: `getFollowedArtists()`, `getSavedAlbums()`, `getArtistAlbums()`.
-- **ReleasesService** — Supabase CRUD for releases, user_release_state, user_feed_preferences. Triggers the onboarding Edge Function. Subscribes to Realtime for live feed updates during sync.
+- **ReleasesService** — Supabase CRUD for releases, user_release_state, user_feed_preferences. Triggers the onboarding Edge Function. Provides a Realtime subscription method for live feed updates during sync (the component subscribes and pushes incoming data to the store, consistent with the three-layer pattern where stores never make network requests).
 
 ### Store
 
-- **ReleasesStore** — signal-based state management:
+- **ReleasesStore** (`providedIn: 'root'`) — signal-based state management:
   - `releases` signal — the raw releases list from Supabase
   - `filters` signal — active release type + recency window
   - `dismissedIds` signal — set of dismissed release IDs
@@ -198,14 +219,16 @@ Follows the starter's three-layer pattern (Service → Store → Component).
 - **ReleaseCardCollapsed** — slim dismissed row. Click to re-expand.
 - **FeedFilterBar** — persistent filter toolbar with release type toggle, recency dropdown, mark all seen.
 - **SyncIndicator** — progress display during onboarding sync.
+- **ReleaseCardSkeleton** — skeleton loading card for initial feed load.
 
 ### Route
 
 - Path: `/releases`
 - Lazy-loaded via `loadComponent()`
-- Protected by `authGuard`
+- Protected by `authGuard` and `featureFlagGuard('releases')`
 - Added to shell sidenav navigation
 - Route data: `{ childNavMode: 'none' }`
+- Feature flag `releases: true` added to environment config
 
 ## Edge Functions
 
@@ -213,7 +236,7 @@ Follows the starter's three-layer pattern (Service → Store → Component).
 
 - **Trigger**: Called by client after initial artist list sync
 - **Input**: User ID
-- **Behavior**: Retrieves user's artist list from `user_artists`. Fetches `GET /artists/{id}/albums?include_groups=album,single&limit=5` for each artist in concurrent batches (~10 parallel). Stores results in `releases` table (upsert by `spotify_album_id`). Updates `last_release_check` on each `user_artists` row.
+- **Behavior**: Retrieves user's artist list from `user_artists`. Skips artists in the shared `artists` table that were already checked recently (within 24 hours) — their releases are already available. For unchecked artists, fetches `GET /artists/{id}/albums?include_groups=album,single&limit=5` in concurrent batches (~10 parallel). Stores results in `releases` table (upsert by `spotify_album_id`). Updates `last_release_check` on the shared `artists` row.
 - **Rate limiting**: Respects Spotify's `Retry-After` header. Backs off and retries on 429 responses.
 - **Duration**: ~2-3 minutes for 2,000 artists.
 
@@ -222,11 +245,13 @@ Follows the starter's three-layer pattern (Service → Store → Component).
 - **Trigger**: pg_cron, every 6 hours
 - **Behavior**: Queries `user_artists` across all users for rows with the oldest `last_release_check`. Picks a batch (e.g., 200 artists). For each, calls `GET /artists/{id}/albums?include_groups=album,single&limit=1` to check for new releases. Upserts any new releases into `releases`. Updates `last_release_check`.
 - **Token management**: Reads Spotify tokens from `user_spotify_tokens`. Refreshes expired tokens automatically.
-- **Deduplication**: If multiple users follow the same artist, only checks once per cycle (uses the shared `releases` table).
+- **Deduplication**: Uses the shared `artists` table's `last_release_check` timestamp. The query selects `SELECT spotify_artist_id FROM artists WHERE last_release_check IS NULL OR last_release_check < NOW() - INTERVAL '2 days' ORDER BY last_release_check ASC NULLS FIRST LIMIT 200`. After checking, updates `last_release_check` on the `artists` row. Since this is a shared table, all users benefit from a single check.
+- **Token selection**: When checking a shared artist, uses the token of any user who follows that artist, preferring tokens that are not expired. Query joins `user_artists` with `user_spotify_tokens` and picks the token with the latest `expires_at`.
 
 ## RLS Policies
 
 - `user_artists`: Users can read/write only their own rows
+- `artists`: All authenticated users can read (shared table). Only Edge Functions write (via service role key).
 - `releases`: All authenticated users can read (shared table). Only Edge Functions write (via service role key).
 - `user_release_state`: Users can read/write only their own rows
 - `user_feed_preferences`: Users can read/write only their own rows
