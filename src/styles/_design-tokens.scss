@@ -46,7 +46,7 @@
   // ============================================
   // Typography (Global)
   // ============================================
-  --font-body: 'Manrope', system-ui, sans-serif;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
   --font-headline: 'Plus Jakarta Sans', sans-serif;
 
   // ============================================
@@ -125,26 +125,25 @@
   // ============================================
   // Dark Mode Brand Colors
   // ============================================
-  --color-blue-400: #60a5fa;
-  --color-dark-bg: #110f1d;
-  --color-dark-surface: #221e3d;
-  --color-dark-border: #352f58;
-  --color-dark-border-hover: #4a4478;
-  --color-dark-inset: #1a1736;
-  --color-dark-divider: #2d2a45;
+  --color-dark-bg: #0e0e11;
+  --color-dark-surface: #19191d;
+  --color-dark-border: #48474b;
+  --color-dark-border-hover: #767579;
+  --color-dark-inset: #1f1f23;
+  --color-dark-divider: #25252a;
 
   // ============================================
   // Dark Mode Semantic Tokens
   // ============================================
-  --color-primary: var(--color-blue-400);
+  --color-primary: #ba9eff;
   --color-background: var(--color-dark-bg);
   --color-surface: var(--color-dark-surface);
   --color-border: var(--color-dark-border);
   --color-border-hover: var(--color-dark-border-hover);
   --color-inset: var(--color-dark-inset);
   --color-divider: var(--color-dark-divider);
-  --color-text-primary: rgba(255, 255, 255, 0.95);
-  --color-text-secondary: rgba(255, 255, 255, 0.7);
+  --color-text-primary: #f0edf1;
+  --color-text-secondary: #acaaae;
 
   // ============================================
   // Dark Mode Toast Colors

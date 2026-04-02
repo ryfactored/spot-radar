@@ -556,12 +556,24 @@ textarea:focus:not(:focus-visible) {
   min-width: 220px;
   max-width: 300px;
   padding: 12px;
-  background: rgba(38, 38, 38, 0.8);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: rgba(25, 25, 29, 0.85);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   border: 1px solid rgba(72, 72, 71, 0.15);
-  border-radius: 16px;
-  box-shadow: 0 48px 48px rgba(186, 158, 255, 0.05);
+  border-radius: 1rem;
+  box-shadow: 0 40px 40px rgba(186, 158, 255, 0.06);
+}
+
+// Filter Panel Overlay (CDK overlay for compact filter pills)
+.filter-panel-overlay {
+  padding: 20px;
+  background: rgba(25, 25, 29, 0.85);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(72, 72, 71, 0.15);
+  border-radius: 1rem;
+  box-shadow: 0 40px 40px rgba(186, 158, 255, 0.06);
+  max-width: 480px;
 }
 
 // Skeleton Overlay
