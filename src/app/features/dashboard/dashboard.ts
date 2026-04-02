@@ -33,9 +33,18 @@ import { ProfileStore } from '@features/profile/profile-store';
     </div>
   `,
   styles: `
+    :host {
+      display: block;
+    }
+    h1 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #f0edf1;
+    }
     .welcome {
       margin-bottom: 32px;
-      color: var(--mat-card-subtitle-text-color, #666);
+      color: #acaaae;
     }
     .quick-links {
       display: grid;
@@ -48,6 +57,13 @@ import { ProfileStore } from '@features/profile/profile-store';
     }
     .link-card mat-card {
       height: 100%;
+      --mdc-elevated-card-container-color: transparent;
+      border: none;
+      box-shadow: none;
+      transition: background-color 0.2s ease;
+    }
+    .link-card mat-card:hover {
+      --mdc-elevated-card-container-color: #25252a;
     }
     .card-body {
       display: flex;
@@ -55,18 +71,24 @@ import { ProfileStore } from '@features/profile/profile-store';
       gap: 16px;
     }
     .card-icon {
-      color: var(--mat-sys-primary, #3b82f6);
-      font-size: 32px;
+      background: linear-gradient(135deg, #ba9eff, #8553f3);
+      color: white;
+      font-size: 18px;
       width: 32px;
       height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       flex-shrink: 0;
     }
     .card-body h3 {
       margin: 0 0 4px;
+      color: #f0edf1;
     }
     .card-body p {
       margin: 0;
-      color: var(--mat-card-subtitle-text-color, #666);
+      color: #acaaae;
       font-size: 14px;
     }
   `,
