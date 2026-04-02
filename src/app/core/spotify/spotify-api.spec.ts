@@ -238,6 +238,69 @@ describe('SpotifyApiService', () => {
   });
 
   // ---------------------------------------------------------------------------
+  // getSavedAlbumsByArtist
+  // ---------------------------------------------------------------------------
+
+  describe('getSavedAlbumsByArtist', () => {
+    it('should return only albums the user has saved', async () => {
+      // First call: get artist albums
+      fetchMock.mockResolvedValueOnce(
+        makeOkResponse({
+          items: [mockAlbum('alb1'), mockAlbum('alb2'), mockAlbum('alb3')],
+        }),
+      );
+      // Second call: check library membership
+      fetchMock.mockResolvedValueOnce(makeOkResponse([true, false, true]));
+
+      const result = await service.getSavedAlbumsByArtist('artist-1');
+
+      expect(result).toHaveLength(2);
+      expect(result[0].id).toBe('alb1');
+      expect(result[1].id).toBe('alb3');
+    });
+
+    it('should use cache on subsequent calls for the same artist', async () => {
+      fetchMock.mockResolvedValueOnce(makeOkResponse({ items: [mockAlbum('alb1')] }));
+      fetchMock.mockResolvedValueOnce(makeOkResponse([true]));
+
+      await service.getSavedAlbumsByArtist('artist-1');
+      const result = await service.getSavedAlbumsByArtist('artist-1');
+
+      expect(result).toHaveLength(1);
+      expect(fetchMock).toHaveBeenCalledTimes(2); // Only the first pair of calls
+    });
+
+    it('should return empty array when no albums are saved', async () => {
+      fetchMock.mockResolvedValueOnce(
+        makeOkResponse({ items: [mockAlbum('alb1'), mockAlbum('alb2')] }),
+      );
+      fetchMock.mockResolvedValueOnce(makeOkResponse([false, false]));
+
+      const result = await service.getSavedAlbumsByArtist('artist-1');
+
+      expect(result).toHaveLength(0);
+    });
+
+    it('should batch contains checks in groups of 20', async () => {
+      const albums = Array.from({ length: 25 }, (_, i) => mockAlbum(`alb${i}`));
+      fetchMock.mockResolvedValueOnce(makeOkResponse({ items: albums }));
+      // First batch of 20
+      fetchMock.mockResolvedValueOnce(makeOkResponse(Array(20).fill(false)));
+      // Second batch of 5
+      fetchMock.mockResolvedValueOnce(makeOkResponse(Array(5).fill(false)));
+
+      await service.getSavedAlbumsByArtist('artist-1');
+
+      // 1 artist albums call + 2 contains calls
+      expect(fetchMock).toHaveBeenCalledTimes(3);
+      expect(fetchMock).toHaveBeenCalledWith(
+        expect.stringContaining('/me/albums/contains'),
+        expect.any(Object),
+      );
+    });
+  });
+
+  // ---------------------------------------------------------------------------
   // Rate limiting (429 retry)
   // ---------------------------------------------------------------------------
 
