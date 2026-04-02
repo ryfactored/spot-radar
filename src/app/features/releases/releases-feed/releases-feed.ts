@@ -44,11 +44,13 @@ const PAGE_SIZE = 20;
       [minTrackCount]="store.feedPreferences().min_track_count"
       [recencyDays]="store.feedPreferences().recency_days"
       [hideLive]="store.feedPreferences().hide_live"
+      [sourceFilter]="store.feedPreferences().source_filter"
       [syncing]="store.isSyncing()"
       (releaseTypeChange)="onReleaseTypeChange($event)"
       (minTrackChange)="onMinTrackChange($event)"
       (recencyChange)="onRecencyChange($event)"
       (hideLiveChange)="onHideLiveChange($event)"
+      (sourceFilterChange)="onSourceFilterChange($event)"
       (markAllSeen)="onMarkAllSeen()"
       (syncNow)="onSyncNow($event)"
     />
@@ -345,6 +347,10 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
 
   protected onHideLiveChange(value: boolean): Promise<void> {
     return this.updatePref('hide_live', value);
+  }
+
+  protected onSourceFilterChange(value: string): Promise<void> {
+    return this.updatePref('source_filter', value);
   }
 
   private async updatePref<K extends keyof FeedPreferences>(
