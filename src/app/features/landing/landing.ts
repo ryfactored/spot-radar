@@ -115,14 +115,13 @@ import { environment } from '@env';
   `,
   styles: `
     :host {
-      --landing-bg: #121215;
-      --landing-surface: #1e1e22;
-      --landing-gradient-mid: #262336;
-      --landing-border: #2a2a2e;
-      --landing-border-hover: #3f3f44;
-      --landing-text: #fafafa;
-      --landing-text-muted: #a1a1aa;
-      --landing-text-dim: #52525b;
+      --landing-bg: #0e0e11;
+      --landing-surface: #19191d;
+      --landing-gradient-mid: #1f1f23;
+      --landing-border: #48474b;
+      --landing-text: #f0edf1;
+      --landing-text-muted: #acaaae;
+      --landing-text-dim: #767579;
       display: block;
     }
 
@@ -148,10 +147,10 @@ import { environment } from '@env';
       padding: 100px 24px 64px;
       background: linear-gradient(
         135deg,
-        var(--landing-bg) 0%,
-        var(--landing-surface) 40%,
-        var(--landing-gradient-mid) 70%,
-        var(--landing-bg) 100%
+        #0e0e11 0%,
+        #19191d 40%,
+        rgba(186, 158, 255, 0.08) 70%,
+        #0e0e11 100%
       );
       background-size: 300% 300%;
       animation: heroGradient 8s ease infinite;
@@ -166,7 +165,7 @@ import { environment } from '@env';
       width: 700px;
       height: 700px;
       border-radius: 50%;
-      background: radial-gradient(circle, var(--mat-sys-primary, #3b82f6) 0%, transparent 70%);
+      background: radial-gradient(circle, #ba9eff 0%, transparent 70%);
       opacity: 0.1;
       top: -200px;
       right: -200px;
@@ -179,7 +178,7 @@ import { environment } from '@env';
       width: 500px;
       height: 500px;
       border-radius: 50%;
-      background: radial-gradient(circle, var(--mat-sys-primary, #3b82f6) 0%, transparent 70%);
+      background: radial-gradient(circle, #ba9eff 0%, transparent 70%);
       opacity: 0.06;
       bottom: -150px;
       left: -150px;
@@ -193,6 +192,7 @@ import { environment } from '@env';
 
     .hero h1 {
       font-size: 3rem;
+      font-family: 'Plus Jakarta Sans', sans-serif;
       font-weight: 800;
       letter-spacing: -0.02em;
       margin: 0 0 24px;
@@ -224,24 +224,28 @@ import { environment } from '@env';
     }
 
     .hero-cta-btn {
-      --mdc-filled-button-container-color: white;
-      --mdc-filled-button-label-text-color: var(--landing-bg);
-      font-weight: 600;
+      --mdc-filled-button-container-color: transparent;
+      --mdc-filled-button-label-text-color: #000;
+      background: linear-gradient(135deg, #ba9eff, #8553f3) !important;
+      color: #000 !important;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 700;
     }
 
     .hero-cta-btn:hover {
-      --mdc-filled-button-container-color: #e4e4e7;
+      opacity: 0.9;
     }
 
     .hero-signin-btn {
-      --mdc-filled-button-container-color: rgba(255, 255, 255, 0.1);
-      --mdc-filled-button-label-text-color: rgba(255, 255, 255, 0.8);
+      --mdc-filled-button-container-color: rgba(255, 255, 255, 0.06);
+      --mdc-filled-button-label-text-color: rgba(240, 237, 241, 0.8);
       backdrop-filter: blur(4px);
+      border: 1px solid rgba(72, 72, 71, 0.15);
     }
 
     .hero-signin-btn:hover {
-      --mdc-filled-button-container-color: rgba(255, 255, 255, 0.18);
-      --mdc-filled-button-label-text-color: white;
+      --mdc-filled-button-container-color: rgba(255, 255, 255, 0.12);
+      --mdc-filled-button-label-text-color: #f0edf1;
     }
 
     /* ── Features ──────────────────────────────────── */
@@ -262,7 +266,7 @@ import { environment } from '@env';
       display: block;
       width: 40px;
       height: 3px;
-      background: var(--mat-sys-primary, #3b82f6);
+      background: linear-gradient(135deg, #ba9eff, #8553f3);
       margin: 16px auto 0;
       border-radius: 2px;
     }
@@ -276,15 +280,14 @@ import { environment } from '@env';
     }
 
     .feature-card {
-      --mdc-elevated-card-container-color: var(--landing-surface);
+      --mdc-elevated-card-container-color: #19191d;
       text-align: center;
       transition: transform 0.2s ease;
-      border: 1px solid var(--landing-border);
+      border: none;
     }
 
     .feature-card:hover {
       transform: scale(1.02);
-      border-color: var(--landing-border-hover);
     }
 
     .feature-icon-wrap {
@@ -294,7 +297,7 @@ import { environment } from '@env';
     }
 
     .feature-icon {
-      background: var(--mat-sys-primary, #3b82f6);
+      background: linear-gradient(135deg, #ba9eff, #8553f3);
       color: white;
       width: 56px;
       height: 56px;
@@ -321,8 +324,7 @@ import { environment } from '@env';
     .footer {
       padding: 32px 24px;
       text-align: center;
-      border-top: 1px solid var(--landing-border);
-      background: var(--landing-bg);
+      background: #19191d;
       color: var(--landing-text-dim);
     }
 
