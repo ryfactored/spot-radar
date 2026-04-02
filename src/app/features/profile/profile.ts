@@ -192,6 +192,12 @@ import { environment } from '@env';
     }
     mat-card {
       max-width: 500px;
+      --mdc-elevated-card-container-color: rgba(25, 25, 29, 0.6);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 0.75rem;
+      border: 1px solid rgba(72, 72, 71, 0.15);
+      box-shadow: none;
     }
     .avatar-section {
       display: flex;
@@ -201,24 +207,32 @@ import { environment } from '@env';
     }
     .avatar-wrapper {
       position: relative;
-      width: 100px;
-      height: 100px;
+      width: 106px;
+      height: 106px;
       border-radius: 50%;
       cursor: pointer;
-      overflow: hidden;
+      background: linear-gradient(135deg, #ba9eff, #8553f3);
+      padding: 3px;
+      box-sizing: border-box;
+    }
+    .avatar-wrapper app-avatar,
+    .avatar-wrapper ::ng-deep img,
+    .avatar-wrapper ::ng-deep .avatar-fallback {
+      border-radius: 50%;
     }
     .avatar-overlay {
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      top: 3px;
+      left: 3px;
+      width: calc(100% - 6px);
+      height: calc(100% - 6px);
       background: rgba(0, 0, 0, 0.5);
       display: flex;
       align-items: center;
       justify-content: center;
       opacity: 0;
       transition: opacity 0.2s;
+      border-radius: 50%;
     }
     .avatar-overlay mat-icon {
       color: white;
@@ -229,22 +243,30 @@ import { environment } from '@env';
     .avatar-hint {
       margin-top: 8px;
       font-size: 12px;
-      color: var(--mat-card-subtitle-text-color, #666);
+      color: #acaaae;
     }
     .password-card {
       margin-top: 24px;
     }
     .danger-card {
       margin-top: 24px;
-      border: 1px solid var(--mat-sys-error, #f44336);
+      --mdc-elevated-card-container-color: rgba(255, 110, 132, 0.06);
+      border: 1px solid rgba(72, 72, 71, 0.15);
+    }
+    .danger-card mat-card-title {
+      color: #ff6e84;
     }
     .danger-description {
       margin-bottom: 16px;
-      color: var(--mat-card-subtitle-text-color, #666);
+      color: #acaaae;
     }
     .delete-button {
-      background-color: var(--mat-sys-error, #f44336);
-      color: var(--mat-sys-on-error, white);
+      background-color: rgba(255, 110, 132, 0.1) !important;
+      color: #ff6e84 !important;
+    }
+    button[mat-raised-button][color='primary'] {
+      background: linear-gradient(135deg, #ba9eff, #8553f3) !important;
+      color: #000 !important;
     }
   `,
 })
