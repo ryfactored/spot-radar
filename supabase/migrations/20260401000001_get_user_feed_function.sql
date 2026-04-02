@@ -1,6 +1,7 @@
 -- RPC function to fetch paginated releases for a user, avoiding large .in() URL params
 drop function if exists spot_radar.get_user_feed(uuid, text, integer, integer, integer, integer);
 drop function if exists spot_radar.get_user_feed(uuid, text, integer, integer, boolean, integer, integer);
+drop function if exists spot_radar.get_user_feed(uuid, text, integer, integer, boolean, text, integer, integer);
 
 create function spot_radar.get_user_feed(
   p_user_id uuid,
@@ -8,6 +9,7 @@ create function spot_radar.get_user_feed(
   p_min_track_count integer,
   p_recency_days integer,
   p_hide_live boolean,
+  p_source_filter text,
   p_offset integer,
   p_limit integer
 )
@@ -47,10 +49,11 @@ as $$
     and r.track_count >= p_min_track_count
     and r.release_date >= (current_date - (p_recency_days || ' days')::interval)::date
     and (not p_hide_live or r.title !~* '\mLive\M')
+    and (p_source_filter = 'all' or ua.source = p_source_filter)
   order by r.release_date desc, r.spotify_album_id
   limit p_limit
   offset p_offset
 $$;
 
 -- Grant execute permission to authenticated users
-grant execute on function spot_radar.get_user_feed(uuid, text, integer, integer, boolean, integer, integer) to authenticated;
+grant execute on function spot_radar.get_user_feed(uuid, text, integer, integer, boolean, text, integer, integer) to authenticated;
