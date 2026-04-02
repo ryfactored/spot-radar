@@ -29,7 +29,13 @@ import { Release } from './releases-service';
         <div class="artist-row">
           <span class="artist">{{ release().artist_name }}</span>
           @if (release().artist_source === 'saved') {
-            <span class="source-chip saved" title="In your library">In library</span>
+            <button
+              class="source-chip saved clickable"
+              title="See saved albums by this artist"
+              (click)="onShowSavedAlbums($event)"
+            >
+              In library
+            </button>
           } @else {
             <span class="source-chip followed" title="Artist you follow">Following</span>
           }
@@ -152,6 +158,15 @@ import { Release } from './releases-service';
       border: none;
     }
 
+    .source-chip.clickable {
+      cursor: pointer;
+      transition: opacity 0.2s;
+
+      &:hover {
+        opacity: 0.8;
+      }
+    }
+
     .meta {
       font-size: 0.7rem;
       color: var(--mat-sys-outline);
@@ -246,6 +261,7 @@ import { Release } from './releases-service';
 export class ReleaseCard {
   release = input.required<Release>();
   dismiss = output<string>();
+  showSavedAlbums = output<{ artistId: string; triggerElement: HTMLElement }>();
 
   readonly spotifyUrl = computed(
     () => `https://open.spotify.com/album/${this.release().spotify_album_id}`,
@@ -253,5 +269,12 @@ export class ReleaseCard {
 
   onDismiss(): void {
     this.dismiss.emit(this.release().spotify_album_id);
+  }
+
+  onShowSavedAlbums(event: MouseEvent): void {
+    this.showSavedAlbums.emit({
+      artistId: this.release().spotify_artist_id,
+      triggerElement: event.target as HTMLElement,
+    });
   }
 }
