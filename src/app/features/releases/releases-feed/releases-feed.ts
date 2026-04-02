@@ -461,6 +461,7 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
       positionStrategy,
       hasBackdrop: true,
       backdropClass: 'cdk-overlay-transparent-backdrop',
+      panelClass: 'saved-albums-popover-panel',
     });
 
     this.popoverRef.backdropClick().subscribe(() => this.popoverRef?.dispose());

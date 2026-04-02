@@ -8,51 +8,39 @@ import { LoadingSpinner } from '@shared';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DatePipe, LoadingSpinner],
   template: `
-    <div class="popover-content">
-      @if (loading()) {
-        <app-loading-spinner [diameter]="24" />
-      } @else if (albums().length === 0) {
-        <p class="empty">No saved albums found — run a full sync to update</p>
-      } @else {
-        <div class="header">Saved albums by this artist</div>
-        @for (album of albums(); track album.id) {
-          <div class="album-row">
-            <img
-              class="album-art"
-              [src]="album.images[album.images.length - 1]?.url || 'assets/placeholder-album.png'"
-              [alt]="album.name"
-              width="32"
-              height="32"
-            />
-            <div class="album-info">
-              <span class="album-name">{{ album.name }}</span>
-              <span class="album-year">{{ album.release_date | date: 'y' }}</span>
-            </div>
-            <a
-              class="spotify-link"
-              [href]="'https://open.spotify.com/album/' + album.id"
-              target="_blank"
-              rel="noopener"
-              title="Open in Spotify"
-            >
-              ↗
-            </a>
+    @if (loading()) {
+      <app-loading-spinner [diameter]="24" />
+    } @else if (albums().length === 0) {
+      <p class="empty">No saved albums found — run a full sync to update</p>
+    } @else {
+      <div class="header">Saved albums by this artist</div>
+      @for (album of albums(); track album.id) {
+        <div class="album-row">
+          <img
+            class="album-art"
+            [src]="album.images[album.images.length - 1]?.url || 'assets/placeholder-album.png'"
+            [alt]="album.name"
+            width="32"
+            height="32"
+          />
+          <div class="album-info">
+            <span class="album-name">{{ album.name }}</span>
+            <span class="album-year">{{ album.release_date | date: 'y' }}</span>
           </div>
-        }
+          <a
+            class="spotify-link"
+            [href]="'https://open.spotify.com/album/' + album.id"
+            target="_blank"
+            rel="noopener"
+            title="Open in Spotify"
+          >
+            ↗
+          </a>
+        </div>
       }
-    </div>
+    }
   `,
   styles: `
-    .popover-content {
-      min-width: 220px;
-      max-width: 300px;
-      padding: 12px;
-      background: var(--mat-sys-surface-container-high);
-      border: 1px solid var(--mat-sys-outline-variant);
-      border-radius: 8px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-    }
-
     .header {
       font-size: 0.65rem;
       font-weight: 700;
