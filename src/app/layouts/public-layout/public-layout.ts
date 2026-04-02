@@ -35,10 +35,12 @@ import { environment } from '@env';
     }
 
     .logo {
-      color: inherit;
+      color: #ba9eff;
       text-decoration: none;
-      font-weight: 500;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 800;
       font-size: 20px;
+      letter-spacing: -0.02em;
     }
 
     .spacer {
@@ -47,18 +49,17 @@ import { environment } from '@env';
 
     a[mat-button] {
       margin-right: 8px;
-      color: rgba(255, 255, 255, 0.9);
+      color: rgba(240, 237, 241, 0.9);
     }
 
     .toolbar-cta {
-      background: rgba(255, 255, 255, 0.15) !important;
-      color: white !important;
-      backdrop-filter: blur(4px);
-      border-radius: 24px;
+      background: linear-gradient(135deg, #ba9eff, #8553f3) !important;
+      color: #000 !important;
+      border-radius: 0.5rem;
     }
 
     .toolbar-cta:hover {
-      background: rgba(255, 255, 255, 0.25) !important;
+      opacity: 0.9;
     }
   `,
 })
