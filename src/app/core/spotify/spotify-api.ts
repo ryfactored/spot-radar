@@ -52,7 +52,9 @@ export class SpotifyApiService {
 
   /**
    * Fetches a Spotify API URL with Bearer auth.
-   * Retries once on 429 (Too Many Requests) using the Retry-After header.
+   * - Retries once on 429 (Too Many Requests) using the Retry-After header.
+   * - Retries once on 401 (Unauthorized) after refreshing the access token,
+   *   covering the race where the token expires between DB read and API call.
    */
   private async fetchWithAuth(url: string): Promise<unknown> {
     const userId = this.getUserId();
@@ -70,6 +72,18 @@ export class SpotifyApiService {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
 
+      if (!retryResponse.ok) {
+        throw new Error(`Spotify API error: ${retryResponse.status} ${retryResponse.statusText}`);
+      }
+      return retryResponse.json();
+    }
+
+    if (response.status === 401) {
+      // Token expired between our DB read and Spotify receiving the request — refresh and retry once
+      const freshToken = await this.spotifyAuth.refreshToken(userId);
+      const retryResponse = await fetch(url, {
+        headers: { Authorization: `Bearer ${freshToken}` },
+      });
       if (!retryResponse.ok) {
         throw new Error(`Spotify API error: ${retryResponse.status} ${retryResponse.statusText}`);
       }

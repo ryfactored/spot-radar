@@ -16,6 +16,7 @@ describe('FeedFilterBar', () => {
     fixture.componentRef.setInput('releaseTypeFilter', 'everything');
     fixture.componentRef.setInput('minTrackCount', 0);
     fixture.componentRef.setInput('recencyDays', 90);
+    fixture.componentRef.setInput('hideLive', false);
     fixture.detectChanges();
   });
 

@@ -13,14 +13,18 @@ export interface SpotifyTokenRow {
 /**
  * Manages Spotify OAuth tokens stored in Supabase.
  *
- * Token refresh is handled server-side by Edge Functions.
- * This service only reads/writes tokens and validates expiry client-side.
+ * getAccessToken() transparently refreshes expired tokens via the
+ * refresh-spotify-token Edge Function. Concurrent refresh calls for the
+ * same user are coalesced into one in-flight request.
  */
 @Injectable({
   providedIn: 'root',
 })
 export class SpotifyAuthService {
   private supabase = inject(SupabaseService);
+
+  // Deduplicates concurrent refresh calls for the same user
+  private readonly refreshInFlight = new Map<string, Promise<string>>();
 
   /**
    * Upserts Spotify tokens for the given user into `user_spotify_tokens`.
@@ -47,9 +51,8 @@ export class SpotifyAuthService {
   }
 
   /**
-   * Reads the stored access token for the given user.
-   * Throws if no token exists or if the token has expired.
-   * Token refresh must be handled by an Edge Function.
+   * Returns the stored access token for the given user, refreshing it
+   * automatically if it has expired.
    */
   async getAccessToken(userId: string): Promise<string> {
     const row = unwrap(
@@ -61,10 +64,31 @@ export class SpotifyAuthService {
     ) as Pick<SpotifyTokenRow, 'access_token' | 'expires_at'>;
 
     if (new Date(row.expires_at) <= new Date()) {
-      throw new Error('Spotify access token has expired');
+      return this.refreshToken(userId);
     }
 
     return row.access_token;
+  }
+
+  /**
+   * Calls the refresh-spotify-token Edge Function to obtain a fresh access
+   * token. Concurrent calls for the same user are coalesced.
+   */
+  async refreshToken(userId: string): Promise<string> {
+    const inflight = this.refreshInFlight.get(userId);
+    if (inflight) return inflight;
+
+    const promise = this.supabase.client.functions
+      .invoke('refresh-spotify-token', { body: { userId } })
+      .then(({ data, error }) => {
+        if (error) throw error;
+        if (!data?.access_token) throw new Error('Token refresh failed');
+        return data.access_token as string;
+      })
+      .finally(() => this.refreshInFlight.delete(userId));
+
+    this.refreshInFlight.set(userId, promise);
+    return promise;
   }
 
   /**

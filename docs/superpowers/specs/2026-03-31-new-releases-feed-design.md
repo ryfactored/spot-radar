@@ -48,76 +48,76 @@ All tables in the `angular_starter` schema.
 
 ### user_spotify_tokens
 
-| Column | Type | Notes |
-|--------|------|-------|
-| user_id | UUID PK, FK → profiles | |
-| access_token | TEXT | Encrypted |
-| refresh_token | TEXT | Encrypted |
-| expires_at | TIMESTAMPTZ | |
-| scopes | TEXT | |
-| updated_at | TIMESTAMPTZ | |
+| Column        | Type                   | Notes     |
+| ------------- | ---------------------- | --------- |
+| user_id       | UUID PK, FK → profiles |           |
+| access_token  | TEXT                   | Encrypted |
+| refresh_token | TEXT                   | Encrypted |
+| expires_at    | TIMESTAMPTZ            |           |
+| scopes        | TEXT                   |           |
+| updated_at    | TIMESTAMPTZ            |           |
 
 ### user_artists
 
-| Column | Type | Notes |
-|--------|------|-------|
-| id | UUID PK | |
-| user_id | UUID FK → profiles | |
-| spotify_artist_id | TEXT | |
-| artist_name | TEXT | |
-| artist_image_url | TEXT | |
-| source | TEXT | 'followed', 'saved', or 'both'. On upsert, if the artist already exists with a different source, update to 'both'. Source is informational only. |
-| synced_at | TIMESTAMPTZ | |
+| Column            | Type               | Notes                                                                                                                                            |
+| ----------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| id                | UUID PK            |                                                                                                                                                  |
+| user_id           | UUID FK → profiles |                                                                                                                                                  |
+| spotify_artist_id | TEXT               |                                                                                                                                                  |
+| artist_name       | TEXT               |                                                                                                                                                  |
+| artist_image_url  | TEXT               |                                                                                                                                                  |
+| source            | TEXT               | 'followed', 'saved', or 'both'. On upsert, if the artist already exists with a different source, update to 'both'. Source is informational only. |
+| synced_at         | TIMESTAMPTZ        |                                                                                                                                                  |
 
 Unique constraint on (user_id, spotify_artist_id).
 
 ### artists (shared)
 
-| Column | Type | Notes |
-|--------|------|-------|
-| spotify_artist_id | TEXT PK | |
-| artist_name | TEXT | |
-| artist_image_url | TEXT | |
+| Column             | Type        | Notes                                                                                                                                            |
+| ------------------ | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| spotify_artist_id  | TEXT PK     |                                                                                                                                                  |
+| artist_name        | TEXT        |                                                                                                                                                  |
+| artist_image_url   | TEXT        |                                                                                                                                                  |
 | last_release_check | TIMESTAMPTZ | When this artist was last checked for new releases. Shared across all users — since releases are shared, we only need to check each artist once. |
 
 Populated as a side effect of the `user_artists` sync. When a user syncs their artist list, any artist not already in this table is inserted.
 
 ### releases
 
-| Column | Type | Notes |
-|--------|------|-------|
-| spotify_album_id | TEXT PK | |
-| spotify_artist_id | TEXT | |
-| artist_name | TEXT | Denormalized for query simplicity |
-| title | TEXT | |
-| release_type | TEXT | 'album' or 'single'. Stored directly from Spotify's `album_type` field — no EP classification needed. |
-| release_date | DATE | |
-| image_url | TEXT | |
-| spotify_url | TEXT | Direct link to open in Spotify |
-| track_count | INTEGER | |
-| fetched_at | TIMESTAMPTZ | |
+| Column            | Type        | Notes                                                                                                 |
+| ----------------- | ----------- | ----------------------------------------------------------------------------------------------------- |
+| spotify_album_id  | TEXT PK     |                                                                                                       |
+| spotify_artist_id | TEXT        |                                                                                                       |
+| artist_name       | TEXT        | Denormalized for query simplicity                                                                     |
+| title             | TEXT        |                                                                                                       |
+| release_type      | TEXT        | 'album' or 'single'. Stored directly from Spotify's `album_type` field — no EP classification needed. |
+| release_date      | DATE        |                                                                                                       |
+| image_url         | TEXT        |                                                                                                       |
+| spotify_url       | TEXT        | Direct link to open in Spotify                                                                        |
+| track_count       | INTEGER     |                                                                                                       |
+| fetched_at        | TIMESTAMPTZ |                                                                                                       |
 
 ### user_release_state
 
-| Column | Type | Notes |
-|--------|------|-------|
-| id | UUID PK | |
-| user_id | UUID FK → profiles | |
-| spotify_album_id | TEXT FK → releases | |
-| dismissed | BOOLEAN | Default false |
-| dismissed_at | TIMESTAMPTZ | |
+| Column           | Type               | Notes         |
+| ---------------- | ------------------ | ------------- |
+| id               | UUID PK            |               |
+| user_id          | UUID FK → profiles |               |
+| spotify_album_id | TEXT FK → releases |               |
+| dismissed        | BOOLEAN            | Default false |
+| dismissed_at     | TIMESTAMPTZ        |               |
 
 Unique constraint on (user_id, spotify_album_id).
 
 ### user_feed_preferences
 
-| Column | Type | Notes |
-|--------|------|-------|
-| user_id | UUID PK, FK → profiles | |
-| release_type_filter | TEXT | 'albums', 'everything'. Default 'everything' |
-| min_track_count | INTEGER | Minimum tracks to show. 0 = no minimum (default), 3, 5, 8 |
-| recency_days | INTEGER | 30, 90, 180, etc. Default 90 |
-| last_checked_at | TIMESTAMPTZ | Timestamp of last "mark all seen" action |
+| Column              | Type                   | Notes                                                     |
+| ------------------- | ---------------------- | --------------------------------------------------------- |
+| user_id             | UUID PK, FK → profiles |                                                           |
+| release_type_filter | TEXT                   | 'albums', 'everything'. Default 'everything'              |
+| min_track_count     | INTEGER                | Minimum tracks to show. 0 = no minimum (default), 3, 5, 8 |
+| recency_days        | INTEGER                | 30, 90, 180, etc. Default 90                              |
+| last_checked_at     | TIMESTAMPTZ            | Timestamp of last "mark all seen" action                  |
 
 ## Spotify OAuth
 
@@ -152,6 +152,7 @@ Persistent toolbar pinned above the feed:
 ### Feed Items
 
 **Expanded card** (default state):
+
 - Album art (88px, `lg` corner radius) with track count badge
 - Title (Plus Jakarta Sans, 15px, bold, white)
 - Artist name (Manrope, 12px, `on_surface_variant`)
@@ -160,6 +161,7 @@ Persistent toolbar pinned above the feed:
 - "Dismiss" button (ghost, `surface-container` background)
 
 **Collapsed card** (dismissed state):
+
 - Slim row, 36px album art
 - Title, artist, type + date in a single line
 - Reduced opacity (0.6)
@@ -182,6 +184,7 @@ The feed uses **infinite scroll** with a page size of 20 releases. The Supabase 
 ### First-Time Sync UI
 
 During onboarding sync, the feed shows:
+
 - A sync indicator in the filter bar area: "Syncing your library... 847 of 2,031 artists checked"
 - Releases appear in the feed progressively as they're found via Supabase Realtime
 - The feed is usable immediately — it gets more complete over the next 2-3 minutes

@@ -237,53 +237,7 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
         // First visit — sync artist list from Spotify
         this.store.setSyncProgress({ total: 0, checked: 0, syncing: true, releasesFound: 0 });
         try {
-          let followedIds = new Set<string>();
-          let savedIds = new Set<string>();
-
-          const updateTotal = () => {
-            const uniqueCount = new Set([...followedIds, ...savedIds]).size;
-            if (uniqueCount > 0) {
-              this.store.setSyncProgress({
-                total: uniqueCount,
-                checked: 0,
-                syncing: true,
-                releasesFound: 0,
-              });
-            }
-          };
-
-          const [followedArtists, savedArtists] = await Promise.all([
-            this.spotifyApi.getFollowedArtists().then((artists) => {
-              followedIds = new Set(artists.map((a) => a.id));
-              updateTotal();
-              return artists;
-            }),
-            this.spotifyApi.getSavedAlbumArtists().then((artists) => {
-              savedIds = new Set(artists.map((a) => a.id));
-              updateTotal();
-              return artists;
-            }),
-          ]);
-
-          const followedRows = followedArtists.map((a) => ({
-            spotify_artist_id: a.id,
-            artist_name: a.name,
-          }));
-          const savedRows = savedArtists.map((a) => ({
-            spotify_artist_id: a.id,
-            artist_name: a.name,
-          }));
-
-          await this.service.syncArtists(this.userId, savedRows, 'saved');
-          await this.service.syncArtists(this.userId, followedRows, 'followed');
-
-          const allActiveIds = [
-            ...new Set([...followedRows, ...savedRows].map((r) => r.spotify_artist_id)),
-          ];
-          await this.service.removeStaleArtists(this.userId, allActiveIds);
-
-          const newArtistIds = await this.service.getUserArtistIds(this.userId);
-          this.store.setArtistIds(newArtistIds);
+          const newArtistIds = await this.doFullArtistSync();
 
           // Subscribe to Realtime before triggering sync
           this.unsubscribeRealtime = this.service.subscribeToNewReleases(newArtistIds, (release) =>
@@ -316,14 +270,7 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
     this.store.setLoading(true);
     try {
       const prefs = this.store.feedPreferences();
-      const artistIds = this.store.followedArtistIds();
-      const { data, count } = await this.service.getFeed(
-        this.userId,
-        artistIds,
-        prefs,
-        page,
-        PAGE_SIZE,
-      );
+      const { data, count } = await this.service.getFeed(this.userId, prefs, page, PAGE_SIZE);
 
       if (page === 1) {
         this.store.setReleases(data, count);
@@ -347,6 +294,26 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
     );
   }
 
+  private async doFullArtistSync(): Promise<string[]> {
+    const [followedArtists, savedArtists] = await Promise.all([
+      this.spotifyApi.getFollowedArtists(),
+      this.spotifyApi.getSavedAlbumArtists(),
+    ]);
+    const followedRows = followedArtists.map((a) => ({
+      spotify_artist_id: a.id,
+      artist_name: a.name,
+    }));
+    const savedRows = savedArtists.map((a) => ({ spotify_artist_id: a.id, artist_name: a.name }));
+    await this.service.syncArtists(this.userId, savedRows, 'saved');
+    await this.service.syncArtists(this.userId, followedRows, 'followed');
+    const allActiveIds = [
+      ...new Set([...followedRows, ...savedRows].map((r) => r.spotify_artist_id)),
+    ];
+    await this.service.removeStaleArtists(this.userId, allActiveIds);
+    this.store.setArtistIds(allActiveIds);
+    return allActiveIds;
+  }
+
   private setupIntersectionObserver(sentinel: Element): void {
     this.intersectionObserver = new IntersectionObserver(
       (entries) => {
@@ -364,36 +331,30 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
     await this.loadFeed(this.currentPage() + 1);
   }
 
-  protected async onReleaseTypeChange(value: string): Promise<void> {
-    const updated: FeedPreferences = {
-      ...this.store.feedPreferences(),
-      release_type_filter: value,
-    };
-    this.store.setPreferences(updated);
-    await this.saveAndReload(updated);
+  protected onReleaseTypeChange(value: string): Promise<void> {
+    return this.updatePref('release_type_filter', value);
   }
 
-  protected async onMinTrackChange(value: number): Promise<void> {
-    const updated: FeedPreferences = { ...this.store.feedPreferences(), min_track_count: value };
-    this.store.setPreferences(updated);
-    await this.saveAndReload(updated);
+  protected onMinTrackChange(value: number): Promise<void> {
+    return this.updatePref('min_track_count', value);
   }
 
-  protected async onRecencyChange(value: number): Promise<void> {
-    const updated: FeedPreferences = { ...this.store.feedPreferences(), recency_days: value };
-    this.store.setPreferences(updated);
-    await this.saveAndReload(updated);
+  protected onRecencyChange(value: number): Promise<void> {
+    return this.updatePref('recency_days', value);
   }
 
-  protected async onHideLiveChange(value: boolean): Promise<void> {
-    const updated: FeedPreferences = { ...this.store.feedPreferences(), hide_live: value };
-    this.store.setPreferences(updated);
-    await this.saveAndReload(updated);
+  protected onHideLiveChange(value: boolean): Promise<void> {
+    return this.updatePref('hide_live', value);
   }
 
-  private async saveAndReload(prefs: FeedPreferences): Promise<void> {
+  private async updatePref<K extends keyof FeedPreferences>(
+    key: K,
+    value: FeedPreferences[K],
+  ): Promise<void> {
+    const updated: FeedPreferences = { ...this.store.feedPreferences(), [key]: value };
+    this.store.setPreferences(updated);
     try {
-      await this.service.savePreferences(this.userId, prefs);
+      await this.service.savePreferences(this.userId, updated);
       await this.loadFeed(1);
     } catch (err) {
       this.toast.error(extractErrorMessage(err, 'Failed to save preferences.'));
@@ -422,29 +383,11 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
 
       if (mode === 'full') {
         // Re-fetch artist lists from Spotify to pick up new follows/saves and fix sources
-        const [followedArtists, savedArtists] = await Promise.all([
-          this.spotifyApi.getFollowedArtists(),
-          this.spotifyApi.getSavedAlbumArtists(),
-        ]);
-        const followedRows = followedArtists.map((a) => ({
-          spotify_artist_id: a.id,
-          artist_name: a.name,
-        }));
-        const savedRows = savedArtists.map((a) => ({
-          spotify_artist_id: a.id,
-          artist_name: a.name,
-        }));
-        await this.service.syncArtists(this.userId, savedRows, 'saved');
-        await this.service.syncArtists(this.userId, followedRows, 'followed');
-
-        // Remove artists no longer in followed or saved lists
-        const allActiveIds = [
-          ...new Set([...followedRows, ...savedRows].map((r) => r.spotify_artist_id)),
-        ];
-        await this.service.removeStaleArtists(this.userId, allActiveIds);
-
-        artistIds = await this.service.getUserArtistIds(this.userId);
-        this.store.setArtistIds(artistIds);
+        artistIds = await this.doFullArtistSync();
+        this.unsubscribeRealtime?.();
+        this.unsubscribeRealtime = this.service.subscribeToNewReleases(artistIds, (release) =>
+          this.store.addRelease(release),
+        );
       }
 
       this.store.setSyncProgress({
@@ -453,10 +396,6 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
         syncing: true,
         releasesFound: 0,
       });
-      this.unsubscribeRealtime?.();
-      this.unsubscribeRealtime = this.service.subscribeToNewReleases(artistIds, (release) =>
-        this.store.addRelease(release),
-      );
       await this.service.triggerOnboardingSync(this.userId);
       this.store.setSyncProgress({ total: 0, checked: 0, syncing: false, releasesFound: 0 });
       await this.loadFeed(1);

@@ -59,6 +59,7 @@ describe('ReleasesService', () => {
   beforeEach(() => {
     mockSupabaseClient = {
       from: vi.fn(),
+      rpc: vi.fn(),
       functions: {
         invoke: vi.fn().mockResolvedValue({ data: null, error: null }),
       },
@@ -84,41 +85,40 @@ describe('ReleasesService', () => {
   });
 
   describe('getFeed', () => {
-    it('should query the releases table with artist IDs', async () => {
-      const chainable = buildChainableMock({ data: [mockRelease], error: null, count: 1 });
-      mockSupabaseClient.from.mockReturnValue(chainable);
+    it('should call get_user_feed RPC with correct params', async () => {
+      const row = { ...mockRelease, total_count: 1 };
+      mockSupabaseClient.rpc.mockResolvedValue({ data: [row], error: null });
 
-      const result = await service.getFeed(userId, ['artist-1'], mockPreferences, 1, 10);
+      const result = await service.getFeed(userId, mockPreferences, 1, 10);
 
-      expect(mockSupabaseClient.from).toHaveBeenCalledWith('releases');
+      expect(mockSupabaseClient.rpc).toHaveBeenCalledWith(
+        'get_user_feed',
+        expect.objectContaining({ p_user_id: userId, p_offset: 0, p_limit: 10 }),
+      );
       expect(result.data).toEqual([mockRelease]);
       expect(result.count).toBe(1);
     });
 
-    it('should apply type filter when not "everything"', async () => {
-      const chainable = buildChainableMock({ data: [], error: null, count: 0 });
-      mockSupabaseClient.from.mockReturnValue(chainable);
+    it('should pass release type filter to RPC', async () => {
+      mockSupabaseClient.rpc.mockResolvedValue({ data: [], error: null });
 
-      await service.getFeed(
-        userId,
-        ['artist-1'],
-        { ...mockPreferences, release_type_filter: 'album' },
-        1,
-        10,
+      await service.getFeed(userId, { ...mockPreferences, release_type_filter: 'album' }, 1, 10);
+
+      expect(mockSupabaseClient.rpc).toHaveBeenCalledWith(
+        'get_user_feed',
+        expect.objectContaining({ p_release_type: 'album' }),
       );
-
-      expect(chainable.eq).toHaveBeenCalledWith('release_type', 'album');
     });
 
-    it('should not apply type filter for "everything"', async () => {
-      const chainable = buildChainableMock({ data: [], error: null, count: 0 });
-      mockSupabaseClient.from.mockReturnValue(chainable);
+    it('should pass "everything" filter to RPC unchanged', async () => {
+      mockSupabaseClient.rpc.mockResolvedValue({ data: [], error: null });
 
-      await service.getFeed(userId, ['artist-1'], mockPreferences, 1, 10);
+      await service.getFeed(userId, mockPreferences, 1, 10);
 
-      const eqCalls = chainable.eq.mock.calls;
-      const typeFilterCall = eqCalls.find((c: any[]) => c[0] === 'release_type');
-      expect(typeFilterCall).toBeUndefined();
+      expect(mockSupabaseClient.rpc).toHaveBeenCalledWith(
+        'get_user_feed',
+        expect.objectContaining({ p_release_type: 'everything' }),
+      );
     });
   });
 
@@ -151,6 +151,7 @@ describe('ReleasesService', () => {
         release_type_filter: 'everything',
         min_track_count: 0,
         recency_days: 90,
+        hide_live: false,
         last_checked_at: null,
       });
     });
@@ -221,6 +222,7 @@ describe('ReleasesService', () => {
 
       expect(upsertMock).toHaveBeenCalledWith(
         expect.objectContaining({ dismissed: true, spotify_album_id: 'album-1' }),
+        expect.objectContaining({ onConflict: 'user_id,spotify_album_id' }),
       );
     });
   });
@@ -234,6 +236,7 @@ describe('ReleasesService', () => {
 
       expect(upsertMock).toHaveBeenCalledWith(
         expect.objectContaining({ dismissed: false, dismissed_at: null }),
+        expect.objectContaining({ onConflict: 'user_id,spotify_album_id' }),
       );
     });
   });

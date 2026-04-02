@@ -67,7 +67,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
           Mark all seen
         </button>
 
-        <!-- Split sync button -->
         <div class="split-btn" [class.disabled]="syncing()">
           <button
             mat-stroked-button
@@ -129,7 +128,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
       min-width: 140px;
     }
 
-    /* Split button */
     .split-btn {
       display: flex;
       align-items: stretch;

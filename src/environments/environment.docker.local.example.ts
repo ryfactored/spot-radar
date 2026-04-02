@@ -8,5 +8,5 @@ export const dockerLocalOverrides: Partial<Environment> = {
   supabaseUrl: 'http://YOUR_NAS_IP:8001',
   supabaseAnonKey: 'YOUR_ANON_KEY',
   siteUrl: 'http://YOUR_NAS_IP:4200',
-  // supabaseDbSchema: 'angular_starter',
+  // supabaseDbSchema: 'spot_radar',
 };

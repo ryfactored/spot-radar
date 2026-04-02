@@ -25,6 +25,9 @@ describe('SpotifyAuthService', () => {
     mockSupabase = {
       client: {
         from: vi.fn(),
+        functions: {
+          invoke: vi.fn(),
+        },
         auth: {
           getSession: vi.fn().mockResolvedValue({
             data: {
@@ -109,12 +112,20 @@ describe('SpotifyAuthService', () => {
       expect(token).toBe('valid-token');
     });
 
-    it('should throw when token is expired', async () => {
+    it('should call refreshToken when token is expired', async () => {
       const pastExpiry = new Date(Date.now() - 1000).toISOString();
       makeSelectChain({ data: { access_token: 'old-token', expires_at: pastExpiry }, error: null });
+      mockSupabase.client.functions.invoke.mockResolvedValue({
+        data: { access_token: 'fresh-token' },
+        error: null,
+      });
 
-      await expect(service.getAccessToken('user-1')).rejects.toThrow(
-        'Spotify access token has expired',
+      const token = await service.getAccessToken('user-1');
+
+      expect(token).toBe('fresh-token');
+      expect(mockSupabase.client.functions.invoke).toHaveBeenCalledWith(
+        'refresh-spotify-token',
+        expect.objectContaining({ body: { userId: 'user-1' } }),
       );
     });
 
@@ -122,6 +133,54 @@ describe('SpotifyAuthService', () => {
       makeSelectChain({ data: null, error: { message: 'not found' } });
 
       await expect(service.getAccessToken('user-1')).rejects.toThrow();
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // refreshToken
+  // ---------------------------------------------------------------------------
+
+  describe('refreshToken', () => {
+    it('should invoke the refresh-spotify-token function and return the token', async () => {
+      mockSupabase.client.functions.invoke.mockResolvedValue({
+        data: { access_token: 'fresh-tok' },
+        error: null,
+      });
+
+      const token = await service.refreshToken('user-1');
+
+      expect(token).toBe('fresh-tok');
+      expect(mockSupabase.client.functions.invoke).toHaveBeenCalledWith(
+        'refresh-spotify-token',
+        expect.objectContaining({ body: { userId: 'user-1' } }),
+      );
+    });
+
+    it('should coalesce concurrent calls into one request', async () => {
+      mockSupabase.client.functions.invoke.mockResolvedValue({
+        data: { access_token: 'fresh-tok' },
+        error: null,
+      });
+
+      const [t1, t2, t3] = await Promise.all([
+        service.refreshToken('user-1'),
+        service.refreshToken('user-1'),
+        service.refreshToken('user-1'),
+      ]);
+
+      expect(t1).toBe('fresh-tok');
+      expect(t2).toBe('fresh-tok');
+      expect(t3).toBe('fresh-tok');
+      expect(mockSupabase.client.functions.invoke).toHaveBeenCalledTimes(1);
+    });
+
+    it('should throw when the edge function returns an error', async () => {
+      mockSupabase.client.functions.invoke.mockResolvedValue({
+        data: null,
+        error: new Error('Function error'),
+      });
+
+      await expect(service.refreshToken('user-1')).rejects.toThrow('Function error');
     });
   });
 

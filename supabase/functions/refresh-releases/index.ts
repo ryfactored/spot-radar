@@ -40,9 +40,16 @@ Deno.serve(async () => {
 
     // Refresh if expired
     if (new Date(tokenRow.expires_at) < new Date()) {
+      const clientId = Deno.env.get('SPOTIFY_CLIENT_ID')!;
+      const clientSecret = Deno.env.get('SPOTIFY_CLIENT_SECRET')!;
+      const credentials = btoa(`${clientId}:${clientSecret}`);
+
       const refreshResp = await fetch('https://accounts.spotify.com/api/token', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          Authorization: `Basic ${credentials}`,
+        },
         body: new URLSearchParams({
           grant_type: 'refresh_token',
           refresh_token: tokenRow.refresh_token,

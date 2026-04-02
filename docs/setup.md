@@ -66,8 +66,8 @@ The SQL migrations live in `supabase/migrations/`. Run each file in your Supabas
 
 After running the migrations:
 
-1. **Expose the schema**: Go to **Integrations > Data API > Settings** and add `angular_starter` to **Exposed schemas** so PostgREST can route queries to it.
-2. **Enable Realtime** (if using Chat): Run `ALTER PUBLICATION supabase_realtime ADD TABLE angular_starter.messages;` in the SQL Editor.
+1. **Expose the schema**: Go to **Integrations > Data API > Settings** and add `spot_radar` to **Exposed schemas** so PostgREST can route queries to it.
+2. **Enable Realtime** (if using Chat): Run `ALTER PUBLICATION supabase_realtime ADD TABLE spot_radar.messages;` in the SQL Editor.
 
 For self-hosted Docker or Supabase CLI setups, see the [Migrations Guide](./migrations.md).
 
@@ -132,26 +132,26 @@ When cloning this template for a new project, update these values:
 
 All shared values live in `environment.base.ts`. Override per-environment values in `environment.prod.ts`. Supabase credentials live in `environment.local.ts` (gitignored).
 
-| Field                     | What it does                                                                 |
-| ------------------------- | ---------------------------------------------------------------------------- |
-| `appName`                 | Namespace for localStorage keys (e.g. `angular-starter:preferences:userId`). |
-| `supabaseUrl`             | Your Supabase project URL.                                                   |
-| `supabaseAnonKey`         | Your Supabase anon/public key.                                               |
-| `socialProviders`         | Which OAuth buttons appear on the login/register pages.                      |
-| `siteUrl`                 | Base URL for email redirect links (password reset, email verification).      |
-| `siteTitle`               | Shown in the toolbar and browser tab.                                        |
-| `siteDescription`         | Used for SEO meta tags.                                                      |
-| `toastDuration`           | How long toast notifications stay visible (ms).                              |
-| `upload`                  | Max file sizes for avatar and attachment uploads (MB).                       |
-| `passwordMinLength`       | Must match your Supabase auth settings.                                      |
-| `defaults`                | Default theme, dark mode, and sidenav state for new users.                   |
-| `cacheTtlMinutes`         | How long signal stores cache data before refetching.                         |
-| `pagination`              | Default page size and page size options for lists.                           |
-| `signedUrlExpirationSecs` | How long signed storage URLs are valid.                                      |
-| `storageBuckets`          | Bucket names (must match what you created in Supabase).                      |
-| `searchDebounceMs`        | Delay before search input triggers a query.                                  |
-| `loadingBarDelayMs`       | Minimum visible duration for the route loading bar.                          |
-| `featureFlags`            | Enable/disable features (notes, chat, files, admin). Hides routes and nav.   |
+| Field                     | What it does                                                               |
+| ------------------------- | -------------------------------------------------------------------------- |
+| `appName`                 | Namespace for localStorage keys (e.g. `spot-radar:preferences:userId`).    |
+| `supabaseUrl`             | Your Supabase project URL.                                                 |
+| `supabaseAnonKey`         | Your Supabase anon/public key.                                             |
+| `socialProviders`         | Which OAuth buttons appear on the login/register pages.                    |
+| `siteUrl`                 | Base URL for email redirect links (password reset, email verification).    |
+| `siteTitle`               | Shown in the toolbar and browser tab.                                      |
+| `siteDescription`         | Used for SEO meta tags.                                                    |
+| `toastDuration`           | How long toast notifications stay visible (ms).                            |
+| `upload`                  | Max file sizes for avatar and attachment uploads (MB).                     |
+| `passwordMinLength`       | Must match your Supabase auth settings.                                    |
+| `defaults`                | Default theme, dark mode, and sidenav state for new users.                 |
+| `cacheTtlMinutes`         | How long signal stores cache data before refetching.                       |
+| `pagination`              | Default page size and page size options for lists.                         |
+| `signedUrlExpirationSecs` | How long signed storage URLs are valid.                                    |
+| `storageBuckets`          | Bucket names (must match what you created in Supabase).                    |
+| `searchDebounceMs`        | Delay before search input triggers a query.                                |
+| `loadingBarDelayMs`       | Minimum visible duration for the route loading bar.                        |
+| `featureFlags`            | Enable/disable features (notes, chat, files, admin). Hides routes and nav. |
 
 ### Branding
 
@@ -162,7 +162,7 @@ All shared values live in `environment.base.ts`. Override per-environment values
 
 ### localStorage key
 
-The `appName` field (default: `angular-starter`) is used as a prefix for user preference keys:
+The `appName` field (default: `spot-radar`) is used as a prefix for user preference keys:
 
 - `{appName}:preferences:{userId}` — user preferences (theme, sidenav)
 
@@ -182,7 +182,7 @@ This app uses SSR with Express. Vercel auto-detects Angular SSR projects.
 2. Import the repository in [Vercel](https://vercel.com).
 3. Vercel should auto-detect the framework. If not, set:
    - **Build Command**: `npm run build`
-   - **Output Directory**: `dist/angular-starter`
+   - **Output Directory**: `dist/spot-radar`
 4. Add environment variables in Vercel's dashboard (**Settings > Environment Variables**):
    - `SUPABASE_URL` — your Supabase project URL (auto-set by the Supabase Vercel integration)
    - `SUPABASE_ANON_KEY` — your Supabase anon/public key (auto-set by the integration)
@@ -201,14 +201,14 @@ To run the SSR server yourself (e.g. on a VPS, Docker, or cloud VM):
 
 ```bash
 npm run build
-node dist/angular-starter/server/server.mjs
+node dist/spot-radar/server/server.mjs
 ```
 
 The server listens on the `PORT` environment variable (default: `4200`).
 
 ### Static hosting (no SSR)
 
-If you don't need SSR, change `outputMode` in `angular.json` from `"server"` to `"static"`, remove the `ssr` config, and deploy `dist/angular-starter/browser` to any static host (Netlify, Firebase Hosting, S3, etc.). You'll need to configure a fallback to `index.html` for client-side routing.
+If you don't need SSR, change `outputMode` in `angular.json` from `"server"` to `"static"`, remove the `ssr` config, and deploy `dist/spot-radar/browser` to any static host (Netlify, Firebase Hosting, S3, etc.). You'll need to configure a fallback to `index.html` for client-side routing.
 
 ---
 
