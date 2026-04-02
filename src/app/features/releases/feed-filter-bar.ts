@@ -35,6 +35,16 @@ import { MatTooltipModule } from '@angular/material/tooltip';
           <mat-button-toggle value="single">Singles</mat-button-toggle>
         </mat-button-toggle-group>
 
+        <mat-button-toggle-group
+          [value]="sourceFilter()"
+          (change)="sourceFilterChange.emit($event.value)"
+          aria-label="Artist source"
+        >
+          <mat-button-toggle value="all">All</mat-button-toggle>
+          <mat-button-toggle value="followed">Following</mat-button-toggle>
+          <mat-button-toggle value="saved">In Library</mat-button-toggle>
+        </mat-button-toggle-group>
+
         <mat-form-field appearance="outline" subscriptSizing="dynamic">
           <mat-label>Min tracks</mat-label>
           <mat-select
@@ -157,12 +167,14 @@ export class FeedFilterBar {
   minTrackCount = input.required<number>();
   recencyDays = input.required<number>();
   hideLive = input.required<boolean>();
+  sourceFilter = input.required<string>();
   syncing = input<boolean>(false);
 
   releaseTypeChange = output<string>();
   minTrackChange = output<number>();
   recencyChange = output<number>();
   hideLiveChange = output<boolean>();
+  sourceFilterChange = output<string>();
   markAllSeen = output<void>();
   syncNow = output<'quick' | 'full'>();
 }
