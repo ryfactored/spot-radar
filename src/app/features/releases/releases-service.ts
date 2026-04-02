@@ -51,7 +51,6 @@ export class ReleasesService {
    */
   async getFeed(
     userId: string,
-    _artistIds: string[],
     filters: FeedPreferences,
     page: number,
     pageSize: number,
@@ -190,7 +189,6 @@ export class ReleasesService {
     for (let i = 0; i < artists.length; i += CHUNK_SIZE) {
       const chunk = artists.slice(i, i + CHUNK_SIZE);
 
-      // Upsert into the shared artists table first
       unwrap(
         await this.supabase.client.from('artists').upsert(
           chunk.map((a) => ({

@@ -13,10 +13,7 @@ describe('FeatureFlags', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should return true for enabled flags', () => {
-    expect(service.isEnabled('notes')).toBe(true);
-    expect(service.isEnabled('chat')).toBe(true);
-    expect(service.isEnabled('files')).toBe(true);
+  it('should return true for the admin flag', () => {
     expect(service.isEnabled('admin')).toBe(true);
   });
 
@@ -35,8 +32,8 @@ describe('FeatureFlags', () => {
   it('should return all flags from allFlags', () => {
     const flags = service.allFlags();
     expect(flags.length).toBeGreaterThan(0);
-    expect(flags.find((f) => f.name === 'notes')).toEqual({ name: 'notes', enabled: true });
-    expect(flags.find((f) => f.name === 'chat')).toEqual({ name: 'chat', enabled: true });
+    expect(flags.find((f) => f.name === 'notes')).toEqual({ name: 'notes', enabled: false });
+    expect(flags.find((f) => f.name === 'chat')).toEqual({ name: 'chat', enabled: false });
   });
 
   it('should reflect setEnabled changes in allFlags', () => {

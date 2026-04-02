@@ -40,7 +40,7 @@ Stores: `NotesStore`, `ChatStore`, `FilesStore`, `ProfileStore`. See `notes-stor
 
 ### Database Schema
 
-App tables (`profiles`, `notes`, `messages`, `files`) live in the `angular_starter` schema, not `public`. The schema name is configurable via `environment.supabaseDbSchema` (defaults to `'angular_starter'`). The Supabase client's `db.schema` option routes all `.from('table')` calls to the configured schema automatically — no per-query schema references needed in service code.
+App tables (`profiles`, `notes`, `messages`, `files`) live in the `spot_radar` schema, not `public`. The schema name is configurable via `environment.supabaseDbSchema` (defaults to `'spot_radar'`). The Supabase client's `db.schema` option routes all `.from('table')` calls to the configured schema automatically — no per-query schema references needed in service code.
 
 ### Project Layout
 

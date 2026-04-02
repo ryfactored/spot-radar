@@ -17,6 +17,7 @@
 ### Task 1: Supabase Migration — Tables and RLS
 
 **Files:**
+
 - Create: `supabase/migrations/20260331000001_releases_feature.sql`
 
 - [ ] **Step 1: Write the migration SQL**
@@ -185,6 +186,7 @@ git commit -m "feat: add releases feature database tables and RLS policies"
 ### Task 2: Add Feature Flag and Environment Config
 
 **Files:**
+
 - Modify: `src/environments/environment.base.ts`
 - Modify: `src/environments/environment.interface.ts`
 
@@ -225,6 +227,7 @@ git commit -m "feat: add releases feature flag to environment config"
 ### Task 3: SpotifyAuthService — Token Management
 
 **Files:**
+
 - Create: `src/app/core/spotify/spotify-auth.ts`
 - Create: `src/app/core/spotify/spotify-auth.spec.ts`
 
@@ -258,7 +261,12 @@ describe('SpotifyAuthService', () => {
         upsert: vi.fn().mockResolvedValue({ data: null, error: null }),
         auth: {
           getSession: vi.fn().mockResolvedValue({
-            data: { session: { provider_token: 'spotify-token', provider_refresh_token: 'spotify-refresh' } },
+            data: {
+              session: {
+                provider_token: 'spotify-token',
+                provider_refresh_token: 'spotify-refresh',
+              },
+            },
             error: null,
           }),
         },
@@ -337,11 +345,7 @@ export class SpotifyAuthService {
 
   async getAccessToken(userId: string): Promise<string> {
     const row = await unwrap<SpotifyTokenRow>(
-      this.supabase.client
-        .from('user_spotify_tokens')
-        .select('*')
-        .eq('user_id', userId)
-        .single(),
+      this.supabase.client.from('user_spotify_tokens').select('*').eq('user_id', userId).single(),
     );
 
     if (new Date(row.expires_at) < new Date()) {
@@ -387,6 +391,7 @@ git commit -m "feat: add SpotifyAuthService for token management"
 ### Task 4: SpotifyApiService — Spotify Web API Wrapper
 
 **Files:**
+
 - Create: `src/app/core/spotify/spotify-api.ts`
 - Create: `src/app/core/spotify/spotify-api.spec.ts`
 
@@ -572,10 +577,7 @@ export class SpotifyApiService {
     return Array.from(artistMap.values());
   }
 
-  async getArtistAlbums(
-    artistId: string,
-    limit = 5,
-  ): Promise<SpotifyAlbum[]> {
+  async getArtistAlbums(artistId: string, limit = 5): Promise<SpotifyAlbum[]> {
     const url = `${SPOTIFY_API}/artists/${artistId}/albums?include_groups=album,single&limit=${limit}`;
     const response = await this.fetchWithAuth(url);
     const data = await response.json();
@@ -612,6 +614,7 @@ git commit -m "feat: add SpotifyApiService for Spotify Web API calls"
 ### Task 5: ReleasesService — Supabase CRUD
 
 **Files:**
+
 - Create: `src/app/features/releases/releases-service.ts`
 - Create: `src/app/features/releases/releases-service.spec.ts`
 
@@ -768,10 +771,9 @@ export class ReleasesService {
 
   async savePreferences(userId: string, prefs: Partial<FeedPreferences>): Promise<void> {
     await unwrap(
-      this.supabase.client.from('user_feed_preferences').upsert(
-        { user_id: userId, ...prefs },
-        { onConflict: 'user_id' },
-      ),
+      this.supabase.client
+        .from('user_feed_preferences')
+        .upsert({ user_id: userId, ...prefs }, { onConflict: 'user_id' }),
     );
   }
 
@@ -822,10 +824,7 @@ export class ReleasesService {
 
   async getUserArtistIds(userId: string): Promise<string[]> {
     const { data } = await unwrap(
-      this.supabase.client
-        .from('user_artists')
-        .select('spotify_artist_id')
-        .eq('user_id', userId),
+      this.supabase.client.from('user_artists').select('spotify_artist_id').eq('user_id', userId),
     );
     return (data as { spotify_artist_id: string }[]).map((r) => r.spotify_artist_id);
   }
@@ -844,9 +843,10 @@ export class ReleasesService {
 
     // Batch upsert in chunks of 500
     for (let i = 0; i < sharedRows.length; i += 500) {
-      await this.supabase.client
-        .from('artists')
-        .upsert(sharedRows.slice(i, i + 500), { onConflict: 'spotify_artist_id', ignoreDuplicates: true });
+      await this.supabase.client.from('artists').upsert(sharedRows.slice(i, i + 500), {
+        onConflict: 'spotify_artist_id',
+        ignoreDuplicates: true,
+      });
     }
 
     // Upsert into user_artists
@@ -866,18 +866,12 @@ export class ReleasesService {
     }
   }
 
-  subscribeToNewReleases(
-    artistIds: string[],
-    callback: (release: Release) => void,
-  ): () => void {
-    return this.realtime.subscribeToTable<Release>(
-      'releases',
-      (payload) => {
-        if (payload.eventType === 'INSERT' && artistIds.includes(payload.new.spotify_artist_id)) {
-          callback(payload.new);
-        }
-      },
-    );
+  subscribeToNewReleases(artistIds: string[], callback: (release: Release) => void): () => void {
+    return this.realtime.subscribeToTable<Release>('releases', (payload) => {
+      if (payload.eventType === 'INSERT' && artistIds.includes(payload.new.spotify_artist_id)) {
+        callback(payload.new);
+      }
+    });
   }
 
   async triggerOnboardingSync(userId: string): Promise<void> {
@@ -906,6 +900,7 @@ git commit -m "feat: add ReleasesService for Supabase CRUD operations"
 ### Task 6: ReleasesStore — Signal-Based State
 
 **Files:**
+
 - Create: `src/app/features/releases/releases-store.ts`
 - Create: `src/app/features/releases/releases-store.spec.ts`
 
@@ -1106,6 +1101,7 @@ git commit -m "feat: add ReleasesStore for signal-based feed state"
 ### Task 7: ReleaseCardSkeleton
 
 **Files:**
+
 - Create: `src/app/features/releases/release-card-skeleton.ts`
 
 - [ ] **Step 1: Create the skeleton component**
@@ -1170,6 +1166,7 @@ git commit -m "feat: add ReleaseCardSkeleton component"
 ### Task 8: ReleaseCard — Expanded Card
 
 **Files:**
+
 - Create: `src/app/features/releases/release-card.ts`
 - Create: `src/app/features/releases/release-card.spec.ts`
 
@@ -1250,7 +1247,8 @@ import { Release } from './releases-service';
         <h3 class="title">{{ release().title }}</h3>
         <p class="artist">{{ release().artist_name }}</p>
         <p class="meta">
-          {{ release().release_type === 'album' ? 'Album' : 'Single' }} · {{ release().release_date | date: 'MMM d, y' }}
+          {{ release().release_type === 'album' ? 'Album' : 'Single' }} ·
+          {{ release().release_date | date: 'MMM d, y' }}
         </p>
         <div class="actions">
           <a class="btn-spotify" [href]="release().spotify_url" target="_blank" rel="noopener">
@@ -1326,7 +1324,11 @@ import { Release } from './releases-service';
     .btn-spotify {
       padding: 5px 16px;
       border-radius: 20px;
-      background: linear-gradient(135deg, var(--mat-sys-primary-dim, #8455ef), var(--mat-sys-primary));
+      background: linear-gradient(
+        135deg,
+        var(--mat-sys-primary-dim, #8455ef),
+        var(--mat-sys-primary)
+      );
       color: var(--mat-sys-on-primary);
       font-size: 0.6875rem;
       font-weight: 600;
@@ -1371,6 +1373,7 @@ git commit -m "feat: add ReleaseCard expanded card component"
 ### Task 9: ReleaseCardCollapsed — Dismissed Slim Row
 
 **Files:**
+
 - Create: `src/app/features/releases/release-card-collapsed.ts`
 - Create: `src/app/features/releases/release-card-collapsed.spec.ts`
 
@@ -1446,7 +1449,8 @@ import { Release } from './releases-service';
       <span class="collapsed-title">{{ release().title }}</span>
       <span class="collapsed-artist">{{ release().artist_name }}</span>
       <span class="collapsed-meta">
-        {{ release().release_type === 'album' ? 'Album' : 'Single' }} · {{ release().release_date | date: 'MMM d' }}
+        {{ release().release_type === 'album' ? 'Album' : 'Single' }} ·
+        {{ release().release_date | date: 'MMM d' }}
       </span>
     </button>
   `,
@@ -1529,6 +1533,7 @@ git commit -m "feat: add ReleaseCardCollapsed slim row component"
 ### Task 10: FeedFilterBar
 
 **Files:**
+
 - Create: `src/app/features/releases/feed-filter-bar.ts`
 - Create: `src/app/features/releases/feed-filter-bar.spec.ts`
 
@@ -1725,6 +1730,7 @@ git commit -m "feat: add FeedFilterBar component with type, track count, and rec
 ### Task 11: SyncIndicator
 
 **Files:**
+
 - Create: `src/app/features/releases/sync-indicator.ts`
 
 - [ ] **Step 1: Create the component**
@@ -1744,7 +1750,8 @@ import { SyncProgress } from './releases-store';
     @if (progress().syncing) {
       <div class="sync-bar">
         <span class="sync-text">
-          Syncing your library... {{ progress().checked | number }} of {{ progress().total | number }} artists checked
+          Syncing your library... {{ progress().checked | number }} of
+          {{ progress().total | number }} artists checked
         </span>
         <mat-progress-bar
           mode="determinate"
@@ -1783,6 +1790,7 @@ git commit -m "feat: add SyncIndicator component for onboarding progress"
 ### Task 12: ReleasesFeed — Page Component
 
 **Files:**
+
 - Create: `src/app/features/releases/releases-feed/releases-feed.ts`
 - Create: `src/app/features/releases/releases-feed/releases-feed.spec.ts`
 
@@ -1857,7 +1865,19 @@ Expected: FAIL — module not found
 
 ```typescript
 // src/app/features/releases/releases-feed/releases-feed.ts
-import { AfterViewInit, ChangeDetectionStrategy, Component, computed, effect, ElementRef, inject, OnDestroy, OnInit, signal, viewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  ElementRef,
+  inject,
+  OnDestroy,
+  OnInit,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { ReleasesService, Release } from '../releases-service';
 import { ReleasesStore } from '../releases-store';
@@ -1912,22 +1932,19 @@ const PAGE_SIZE = 20;
       } @else {
         @if (newReleases().length > 0) {
           <div class="feed-divider new">
-            <span class="divider-text">{{ newReleases().length }} new since {{ store.lastCheckedAt() | date: 'MMM d' }}</span>
+            <span class="divider-text"
+              >{{ newReleases().length }} new since
+              {{ store.lastCheckedAt() | date: 'MMM d' }}</span
+            >
             <div class="divider-line"></div>
           </div>
         }
 
         @for (release of newReleases(); track release.spotify_album_id) {
           @if (store.dismissedIds().has(release.spotify_album_id)) {
-            <app-release-card-collapsed
-              [release]="release"
-              (expand)="onUndismiss($event)"
-            />
+            <app-release-card-collapsed [release]="release" (expand)="onUndismiss($event)" />
           } @else {
-            <app-release-card
-              [release]="release"
-              (dismiss)="onDismiss($event)"
-            />
+            <app-release-card [release]="release" (dismiss)="onDismiss($event)" />
           }
         }
 
@@ -1940,15 +1957,9 @@ const PAGE_SIZE = 20;
 
         @for (release of seenReleases(); track release.spotify_album_id) {
           @if (store.dismissedIds().has(release.spotify_album_id)) {
-            <app-release-card-collapsed
-              [release]="release"
-              (expand)="onUndismiss($event)"
-            />
+            <app-release-card-collapsed [release]="release" (expand)="onUndismiss($event)" />
           } @else {
-            <app-release-card
-              [release]="release"
-              (dismiss)="onDismiss($event)"
-            />
+            <app-release-card [release]="release" (dismiss)="onDismiss($event)" />
           }
         }
 
@@ -2018,17 +2029,15 @@ export class ReleasesFeed implements OnInit, OnDestroy, AfterViewInit {
   protected newReleases = computed(() => {
     const lastChecked = this.store.lastCheckedAt();
     if (!lastChecked) return this.store.allReleases();
-    return this.store.allReleases().filter(
-      (r) => new Date(r.release_date) > new Date(lastChecked),
-    );
+    return this.store.allReleases().filter((r) => new Date(r.release_date) > new Date(lastChecked));
   });
 
   protected seenReleases = computed(() => {
     const lastChecked = this.store.lastCheckedAt();
     if (!lastChecked) return [];
-    return this.store.allReleases().filter(
-      (r) => new Date(r.release_date) <= new Date(lastChecked),
-    );
+    return this.store
+      .allReleases()
+      .filter((r) => new Date(r.release_date) <= new Date(lastChecked));
   });
 
   protected hasMore = computed(() => {
@@ -2194,6 +2203,7 @@ git commit -m "feat: add ReleasesFeed page component with filtering and infinite
 ### Task 13: Add Route and Sidenav Entry
 
 **Files:**
+
 - Modify: `src/app/app.routes.ts`
 - Modify: `src/app/layouts/shell/shell.html`
 
@@ -2217,16 +2227,16 @@ Add after the dashboard nav item and before the notes nav item:
 
 ```html
 @if (featureFlags.isEnabled('releases')) {
-  <a
-    mat-list-item
-    routerLink="/releases"
-    routerLinkActive="active-link"
-    #rlaReleases="routerLinkActive"
-    [attr.aria-current]="rlaReleases.isActive ? 'page' : null"
-  >
-    <mat-icon matListItemIcon>album</mat-icon>
-    <span matListItemTitle>New Releases</span>
-  </a>
+<a
+  mat-list-item
+  routerLink="/releases"
+  routerLinkActive="active-link"
+  #rlaReleases="routerLinkActive"
+  [attr.aria-current]="rlaReleases.isActive ? 'page' : null"
+>
+  <mat-icon matListItemIcon>album</mat-icon>
+  <span matListItemTitle>New Releases</span>
+</a>
 }
 ```
 
@@ -2248,6 +2258,7 @@ git commit -m "feat: add releases route and sidenav navigation entry"
 ### Task 14: sync-releases Edge Function (Onboarding)
 
 **Files:**
+
 - Create: `supabase/functions/sync-releases/index.ts`
 
 - [ ] **Step 1: Create the Edge Function**
@@ -2307,11 +2318,15 @@ Deno.serve(async (req) => {
       const refreshData = await refreshResp.json();
       accessToken = refreshData.access_token;
 
-      await supabase.schema('angular_starter').from('user_spotify_tokens').update({
-        access_token: accessToken,
-        expires_at: new Date(Date.now() + refreshData.expires_in * 1000).toISOString(),
-        updated_at: new Date().toISOString(),
-      }).eq('user_id', userId);
+      await supabase
+        .schema('angular_starter')
+        .from('user_spotify_tokens')
+        .update({
+          access_token: accessToken,
+          expires_at: new Date(Date.now() + refreshData.expires_in * 1000).toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+        .eq('user_id', userId);
     }
 
     // Get user's artist IDs
@@ -2421,6 +2436,7 @@ git commit -m "feat: add sync-releases Edge Function for onboarding sync"
 ### Task 15: refresh-releases Edge Function (Scheduled)
 
 **Files:**
+
 - Create: `supabase/functions/refresh-releases/index.ts`
 
 - [ ] **Step 1: Create the Edge Function**
@@ -2485,11 +2501,15 @@ Deno.serve(async () => {
       const refreshData = await refreshResp.json();
       accessToken = refreshData.access_token;
 
-      await supabase.schema('angular_starter').from('user_spotify_tokens').update({
-        access_token: accessToken,
-        expires_at: new Date(Date.now() + refreshData.expires_in * 1000).toISOString(),
-        updated_at: new Date().toISOString(),
-      }).eq('user_id', tokenRow.user_id);
+      await supabase
+        .schema('angular_starter')
+        .from('user_spotify_tokens')
+        .update({
+          access_token: accessToken,
+          expires_at: new Date(Date.now() + refreshData.expires_in * 1000).toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+        .eq('user_id', tokenRow.user_id);
     }
 
     // Process in concurrent batches of 10
@@ -2519,7 +2539,9 @@ Deno.serve(async () => {
       );
 
       const releases = results
-        .filter((r): r is PromiseFulfilledResult<any> => r.status === 'fulfilled' && r.value !== null)
+        .filter(
+          (r): r is PromiseFulfilledResult<any> => r.status === 'fulfilled' && r.value !== null,
+        )
         .flatMap((r) => r.value.items)
         .filter(Boolean)
         .map((album: any) => ({
@@ -2536,13 +2558,17 @@ Deno.serve(async () => {
         }));
 
       if (releases.length > 0) {
-        await supabase.schema('angular_starter').from('releases')
+        await supabase
+          .schema('angular_starter')
+          .from('releases')
           .upsert(releases, { onConflict: 'spotify_album_id' });
       }
 
       // Update last_release_check for all artists in this batch
       const batchIds = batch.map((a: any) => a.spotify_artist_id);
-      await supabase.schema('angular_starter').from('artists')
+      await supabase
+        .schema('angular_starter')
+        .from('artists')
         .update({ last_release_check: new Date().toISOString() })
         .in('spotify_artist_id', batchIds);
 
@@ -2570,6 +2596,7 @@ git commit -m "feat: add refresh-releases Edge Function for scheduled sync"
 ### Task 16: Capture Spotify Tokens After OAuth Login
 
 **Files:**
+
 - Modify: `src/app/core/auth/auth.ts`
 
 - [ ] **Step 1: Add token capture to auth state change handler**
@@ -2587,11 +2614,13 @@ if (event === 'SIGNED_IN' && session?.user) {
 Note: Since `inject()` can't be called inside a callback, instead inject `SpotifyAuthService` at the class level and call it in the handler:
 
 Add to class fields:
+
 ```typescript
 private spotifyAuth = inject(SpotifyAuthService);
 ```
 
 Add inside the `onAuthStateChange` callback, after setting `currentUser`:
+
 ```typescript
 if (event === 'SIGNED_IN' && session?.user) {
   this.spotifyAuth.captureTokensFromSession(session.user.id);
@@ -2614,6 +2643,7 @@ git commit -m "feat: capture Spotify OAuth tokens on sign-in for Edge Function u
 ### Task 17: First-Visit Onboarding Flow
 
 **Files:**
+
 - Modify: `src/app/features/releases/releases-feed/releases-feed.ts`
 
 - [ ] **Step 1: Add onboarding detection and sync to ReleasesFeed.ngOnInit**
@@ -2656,9 +2686,8 @@ if (artistIds.length === 0) {
     this.store.setSyncProgress({ total: artistIds.length, checked: 0, syncing: true });
 
     // Subscribe to Realtime before triggering sync so we see results live
-    this.unsubscribeRealtime = this.releasesService.subscribeToNewReleases(
-      artistIds,
-      (release) => this.store.addRelease(release),
+    this.unsubscribeRealtime = this.releasesService.subscribeToNewReleases(artistIds, (release) =>
+      this.store.addRelease(release),
     );
 
     // Trigger the onboarding Edge Function
@@ -2726,12 +2755,14 @@ These steps cannot be automated and must be done by the developer:
 1. **Supabase Auth Config**: Add `user-follow-read` and `user-library-read` scopes to the Spotify OAuth provider in Supabase Dashboard → Authentication → Providers → Spotify.
 
 2. **Deploy Edge Functions**: Deploy `sync-releases` and `refresh-releases` via the Supabase CLI:
+
    ```bash
    supabase functions deploy sync-releases
    supabase functions deploy refresh-releases
    ```
 
 3. **Schedule refresh-releases**: Set up a pg_cron job to invoke the refresh function every 6 hours:
+
    ```sql
    select cron.schedule(
      'refresh-releases',

@@ -26,7 +26,10 @@ describe('SpotifyApiService', () => {
   let service: SpotifyApiService;
   let fetchMock: ReturnType<typeof vi.fn>;
   let mockAuth: { currentUser: ReturnType<typeof vi.fn> };
-  let mockSpotifyAuth: { getAccessToken: ReturnType<typeof vi.fn> };
+  let mockSpotifyAuth: {
+    getAccessToken: ReturnType<typeof vi.fn>;
+    refreshToken: ReturnType<typeof vi.fn>;
+  };
 
   beforeEach(() => {
     fetchMock = vi.fn();
@@ -38,6 +41,7 @@ describe('SpotifyApiService', () => {
 
     mockSpotifyAuth = {
       getAccessToken: vi.fn().mockResolvedValue('mock-access-token'),
+      refreshToken: vi.fn().mockResolvedValue('fresh-access-token'),
     };
 
     TestBed.configureTestingModule({
@@ -126,15 +130,15 @@ describe('SpotifyApiService', () => {
       await expect(service.getFollowedArtists()).rejects.toThrow('No authenticated user');
     });
 
-    it('should throw on non-200 response', async () => {
+    it('should throw on non-200, non-401, non-429 response', async () => {
       fetchMock.mockResolvedValueOnce({
         ok: false,
-        status: 401,
-        statusText: 'Unauthorized',
+        status: 403,
+        statusText: 'Forbidden',
         headers: { get: () => null },
       });
 
-      await expect(service.getFollowedArtists()).rejects.toThrow('Spotify API error: 401');
+      await expect(service.getFollowedArtists()).rejects.toThrow('Spotify API error: 403');
     });
   });
 
@@ -236,6 +240,49 @@ describe('SpotifyApiService', () => {
   // ---------------------------------------------------------------------------
   // Rate limiting (429 retry)
   // ---------------------------------------------------------------------------
+
+  describe('401 token expiry', () => {
+    it('should refresh token and retry once on 401', async () => {
+      fetchMock
+        .mockResolvedValueOnce({
+          ok: false,
+          status: 401,
+          statusText: 'Unauthorized',
+          headers: { get: () => null },
+        })
+        .mockResolvedValueOnce(
+          makeOkResponse({ artists: { items: [mockArtist('a1')], next: null } }),
+        );
+
+      const result = await service.getFollowedArtists();
+
+      expect(result).toHaveLength(1);
+      expect(mockSpotifyAuth.refreshToken).toHaveBeenCalledWith(MOCK_USER_ID);
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+      // Second call should use the fresh token
+      expect(fetchMock).toHaveBeenLastCalledWith(expect.any(String), {
+        headers: { Authorization: 'Bearer fresh-access-token' },
+      });
+    });
+
+    it('should throw if retry after 401 also fails', async () => {
+      fetchMock
+        .mockResolvedValueOnce({
+          ok: false,
+          status: 401,
+          statusText: 'Unauthorized',
+          headers: { get: () => null },
+        })
+        .mockResolvedValueOnce({
+          ok: false,
+          status: 403,
+          statusText: 'Forbidden',
+          headers: { get: () => null },
+        });
+
+      await expect(service.getFollowedArtists()).rejects.toThrow('Spotify API error: 403');
+    });
+  });
 
   describe('429 rate limiting', () => {
     it('should retry once after Retry-After delay on 429 and return result', async () => {

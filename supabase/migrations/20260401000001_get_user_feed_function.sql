@@ -42,9 +42,6 @@ as $$
   inner join spot_radar.user_artists ua
     on ua.spotify_artist_id = r.spotify_artist_id
     and ua.user_id = p_user_id
-  left join spot_radar.user_release_state urs
-    on urs.spotify_album_id = r.spotify_album_id
-    and urs.user_id = p_user_id
   where
     (p_release_type = 'everything' or r.release_type = p_release_type)
     and r.track_count >= p_min_track_count

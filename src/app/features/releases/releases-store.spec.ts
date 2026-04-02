@@ -195,6 +195,7 @@ describe('ReleasesStore', () => {
         release_type_filter: 'album',
         min_track_count: 5,
         recency_days: 30,
+        hide_live: false,
         last_checked_at: '2024-01-01T00:00:00Z',
       };
       store.setPreferences(prefs);
@@ -253,6 +254,7 @@ describe('ReleasesStore', () => {
         release_type_filter: 'album',
         min_track_count: 5,
         recency_days: 30,
+        hide_live: false,
         last_checked_at: '2024-01-01T00:00:00Z',
       });
       store.clear();
