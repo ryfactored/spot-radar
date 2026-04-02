@@ -42,7 +42,7 @@ import { LoadingSpinner } from '@shared';
   `,
   styles: `
     .header {
-      font-family: 'Manrope', sans-serif;
+      font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: 0.65rem;
       font-weight: 700;
       text-transform: uppercase;
@@ -61,7 +61,7 @@ import { LoadingSpinner } from '@shared';
     .album-art {
       width: 32px;
       height: 32px;
-      border-radius: 8px;
+      border-radius: 0.5rem;
       object-fit: cover;
       flex-shrink: 0;
     }
@@ -75,18 +75,18 @@ import { LoadingSpinner } from '@shared';
     }
 
     .album-name {
-      font-family: 'Manrope', sans-serif;
+      font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: 0.8125rem;
-      color: #ffffff;
+      color: #f0edf1;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
     .album-year {
-      font-family: 'Manrope', sans-serif;
+      font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: 0.7rem;
-      color: #adaaaa;
+      color: #767579;
     }
 
     .spotify-link {
@@ -98,9 +98,9 @@ import { LoadingSpinner } from '@shared';
     }
 
     .empty {
-      font-family: 'Manrope', sans-serif;
+      font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: 0.8125rem;
-      color: #767575;
+      color: #767579;
       margin: 0;
     }
 

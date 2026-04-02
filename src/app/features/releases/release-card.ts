@@ -11,66 +11,97 @@ import { Release } from './releases-service';
     '[class.is-featured]': 'featured()',
   },
   template: `
-    <div class="release-card">
-      <div class="art-wrapper">
-        <img
-          class="album-art"
-          [src]="release().image_url || 'assets/placeholder-album.png'"
-          [alt]="release().title"
-        />
-        <span class="track-badge">{{ release().track_count }}</span>
-      </div>
-      <div class="content">
-        <div class="title-row">
-          <span class="title">{{ release().title }}</span>
-          @if (release().release_type !== 'album') {
-            <span class="type-chip">{{ release().release_type | titlecase }}</span>
-          }
+    @if (featured()) {
+      <div class="featured-card">
+        <div class="featured-art-wrapper">
+          <img
+            class="featured-art"
+            [src]="release().image_url || 'assets/placeholder-album.png'"
+            [alt]="release().title"
+          />
+          <div class="featured-gradient"></div>
+          <div class="featured-overlay">
+            <span class="featured-chip">Featured Release</span>
+            <h3 class="featured-title">{{ release().title }}</h3>
+            <div class="featured-artist">{{ release().artist_name }}</div>
+            <div class="featured-actions">
+              <a class="featured-cta" [href]="spotifyUrl()" target="_blank" rel="noopener">
+                Open in Spotify
+              </a>
+              <button class="glass-btn" (click)="onDismiss()" aria-label="Dismiss">
+                <span class="glass-icon">&#x2715;</span>
+              </button>
+            </div>
+          </div>
         </div>
-        <div class="artist-row">
-          <span class="artist">{{ release().artist_name }}</span>
-          @if (release().artist_source === 'saved') {
-            <button
-              class="source-chip saved clickable"
-              title="See saved albums by this artist"
-              (click)="onShowSavedAlbums($event)"
+      </div>
+    } @else {
+      <div class="card">
+        <div class="art-wrapper">
+          <img
+            class="album-art"
+            [src]="release().image_url || 'assets/placeholder-album.png'"
+            [alt]="release().title"
+          />
+          <div class="art-hover-overlay">
+            <a class="play-btn" [href]="spotifyUrl()" target="_blank" rel="noopener">
+              <span class="play-icon">&#9654;</span>
+            </a>
+          </div>
+          <button class="dismiss-btn btn-dismiss" (click)="onDismiss()" aria-label="Dismiss">
+            <span>&#x2715;</span>
+          </button>
+        </div>
+        <div class="content">
+          <div class="title-row">
+            <span class="title">{{ release().title }}</span>
+            @if (release().release_type !== 'album') {
+              <span class="type-chip">{{ release().release_type | titlecase }}</span>
+            }
+          </div>
+          <div class="artist-row">
+            <span class="artist">{{ release().artist_name }}</span>
+            @if (release().artist_source === 'saved') {
+              <button
+                class="source-chip saved"
+                title="See saved albums by this artist"
+                (click)="onShowSavedAlbums($event)"
+              >
+                In library
+              </button>
+            } @else {
+              <span class="source-chip followed">Following</span>
+            }
+          </div>
+          <div class="bottom-row">
+            <span class="date">{{ release().release_date | date: 'MMM d, y' }}</span>
+            <a
+              class="spotify-link btn-spotify"
+              [href]="spotifyUrl()"
+              target="_blank"
+              rel="noopener"
             >
-              In library
-            </button>
-          } @else {
-            <span class="source-chip followed" title="Artist you follow">Following</span>
-          }
-        </div>
-        <div class="meta">{{ release().release_date | date: 'MMM d, y' }}</div>
-        <div class="actions">
-          <a class="btn-spotify" [href]="spotifyUrl()" target="_blank" rel="noopener">
-            Open in Spotify
-          </a>
-          <button class="btn-dismiss" (click)="onDismiss()">Dismiss</button>
+              Spotify
+            </a>
+          </div>
         </div>
       </div>
-    </div>
+    }
   `,
   styles: `
-    .release-card {
+    /* ── Standard card ── */
+    .card {
       display: flex;
       flex-direction: column;
       gap: 12px;
-      padding: 12px;
-      border-radius: 16px;
-      background: rgba(26, 26, 26, 0.6);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid transparent;
-      transition:
-        border-color 0.25s ease,
-        transform 0.25s ease,
-        box-shadow 0.25s ease;
+      padding: 8px;
+      border-radius: 12px;
+      background: transparent;
+      transition: background 0.3s ease;
     }
 
-    .release-card:hover {
-      border-color: rgba(72, 72, 71, 0.1);
-      box-shadow: 0 48px 48px rgba(186, 158, 255, 0.05);
+    .card:hover {
+      background: #25252a;
     }
 
     .art-wrapper {
@@ -78,7 +109,7 @@ import { Release } from './releases-service';
       width: 100%;
       aspect-ratio: 1;
       overflow: hidden;
-      border-radius: 1rem;
+      border-radius: 0.5rem;
     }
 
     .album-art {
@@ -86,35 +117,83 @@ import { Release } from './releases-service';
       height: 100%;
       object-fit: cover;
       display: block;
-      transition: transform 0.3s ease;
+      transition: transform 700ms ease;
     }
 
-    .release-card:hover .album-art {
+    .card:hover .album-art {
       transform: scale(1.05);
     }
 
-    .track-badge {
+    .art-hover-overlay {
       position: absolute;
-      bottom: 8px;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .card:hover .art-hover-overlay {
+      opacity: 1;
+    }
+
+    .play-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #8455ef, #ba9eff);
+      color: #000;
+      text-decoration: none;
+      font-size: 18px;
+      transition: transform 0.2s;
+
+      &:hover {
+        transform: scale(1.1);
+      }
+    }
+
+    .play-icon {
+      margin-left: 2px;
+    }
+
+    .dismiss-btn {
+      position: absolute;
+      top: 8px;
       right: 8px;
-      background: rgba(0, 0, 0, 0.55);
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(0, 0, 0, 0.5);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
-      color: #fff;
-      font-family: 'Manrope', sans-serif;
-      font-size: 0.65rem;
-      font-weight: 700;
-      padding: 2px 7px;
-      border-radius: 8px;
-      line-height: 1.4;
+      color: #f0edf1;
+      font-size: 12px;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &:hover {
+        background: rgba(0, 0, 0, 0.7);
+      }
+    }
+
+    .card:hover .dismiss-btn {
+      opacity: 1;
     }
 
     .content {
       display: flex;
       flex-direction: column;
       gap: 4px;
-      flex: 1;
-      min-width: 0;
       padding: 0 4px 4px;
     }
 
@@ -127,10 +206,10 @@ import { Release } from './releases-service';
 
     .title {
       font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 0.9375rem;
+      font-size: 17px;
       font-weight: 700;
       letter-spacing: -0.02em;
-      color: #ffffff;
+      color: #f0edf1;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -138,14 +217,14 @@ import { Release } from './releases-service';
 
     .type-chip {
       flex-shrink: 0;
-      font-family: 'Manrope', sans-serif;
+      font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: 0.6rem;
       font-weight: 700;
       letter-spacing: 0.04em;
       text-transform: uppercase;
       padding: 2px 8px;
       border-radius: 20px;
-      background: rgba(186, 158, 255, 0.12);
+      background: rgba(186, 158, 255, 0.1);
       color: #ba9eff;
     }
 
@@ -156,35 +235,33 @@ import { Release } from './releases-service';
     }
 
     .artist {
-      font-family: 'Manrope', sans-serif;
+      font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: 0.8125rem;
-      color: #adaaaa;
+      color: #acaaae;
     }
 
     .source-chip {
       flex-shrink: 0;
-      font-family: 'Manrope', sans-serif;
+      font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: 0.6rem;
       font-weight: 700;
       letter-spacing: 0.05em;
       text-transform: uppercase;
       padding: 2px 7px;
       border-radius: 20px;
+      border: none;
+      background: transparent;
     }
 
     .source-chip.followed {
-      background: transparent;
-      border: 1px solid rgba(72, 72, 71, 0.15);
-      color: #767575;
+      color: #767579;
     }
 
     .source-chip.saved {
-      background: rgba(255, 151, 181, 0.12);
       color: #ff97b5;
-      border: none;
-    }
-
-    .source-chip.clickable {
+      text-decoration: underline;
+      text-decoration-style: dotted;
+      text-underline-offset: 2px;
       cursor: pointer;
       transition: opacity 0.2s;
 
@@ -193,35 +270,124 @@ import { Release } from './releases-service';
       }
     }
 
-    .meta {
-      font-family: 'Manrope', sans-serif;
-      font-size: 0.65rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      color: #767575;
-      margin-top: 2px;
-    }
-
-    .actions {
+    .bottom-row {
       display: flex;
-      gap: 8px;
-      margin-top: 8px;
-      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 4px;
     }
 
-    .btn-spotify {
+    .date {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: #767579;
+    }
+
+    .spotify-link {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.6rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #ba9eff;
+      text-decoration: none;
+      transition: opacity 0.2s;
+
+      &:hover {
+        opacity: 0.8;
+      }
+    }
+
+    /* ── Featured card ── */
+    .featured-card {
+      width: 100%;
+    }
+
+    .featured-art-wrapper {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      overflow: hidden;
+      border-radius: 0.75rem;
+    }
+
+    .featured-art {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .featured-gradient {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to top,
+        rgba(14, 14, 17, 0.95) 0%,
+        rgba(14, 14, 17, 0.6) 40%,
+        transparent 70%
+      );
+    }
+
+    .featured-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .featured-chip {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 4px 12px;
+      border-radius: 1rem;
+      background: rgba(186, 158, 255, 0.15);
+      color: #ba9eff;
+      width: fit-content;
+    }
+
+    .featured-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 40px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #f0edf1;
+      margin: 0;
+      line-height: 1.1;
+    }
+
+    .featured-artist {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 1rem;
+      color: #acaaae;
+    }
+
+    .featured-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .featured-cta {
       display: inline-flex;
       align-items: center;
-      padding: 8px 18px;
+      padding: 10px 24px;
       border-radius: 12px;
-      font-family: 'Manrope', sans-serif;
-      font-size: 0.8125rem;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.875rem;
       font-weight: 700;
       text-decoration: none;
       background: linear-gradient(135deg, #8455ef, #ba9eff);
-      color: #000000;
-      cursor: pointer;
+      color: #000;
       transition: opacity 0.2s;
 
       &:hover {
@@ -229,41 +395,41 @@ import { Release } from './releases-service';
       }
     }
 
-    .btn-dismiss {
-      display: inline-flex;
+    .glass-btn {
+      display: flex;
       align-items: center;
-      padding: 8px 18px;
-      border-radius: 12px;
-      font-family: 'Manrope', sans-serif;
-      font-size: 0.8125rem;
-      font-weight: 600;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
       border: none;
-      background: transparent;
-      color: #adaaaa;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      color: #f0edf1;
       cursor: pointer;
-      transition: background 0.2s;
+      transition:
+        background 0.2s,
+        transform 0.2s;
 
       &:hover {
-        background: rgba(38, 38, 38, 0.6);
+        background: rgba(255, 255, 255, 0.2);
+        transform: scale(1.05);
       }
     }
 
-    /* ── Featured variant ── */
-    :host.is-featured .release-card {
-      padding: 16px;
+    .glass-icon {
+      font-size: 14px;
     }
 
-    :host.is-featured .title {
-      font-size: 1.25rem;
-      font-weight: 800;
-    }
+    @media (max-width: 600px) {
+      .featured-title {
+        font-size: 24px;
+      }
 
-    :host.is-featured .artist {
-      font-size: 0.9375rem;
-    }
-
-    :host.is-featured .meta {
-      font-size: 0.7rem;
+      .featured-overlay {
+        padding: 16px;
+      }
     }
   `,
 })

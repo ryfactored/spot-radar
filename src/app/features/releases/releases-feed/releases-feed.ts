@@ -60,23 +60,23 @@ const PAGE_SIZE = 20;
 
     <app-sync-indicator [progress]="store.syncProgress()" />
 
-    <div class="feed-container">
-      @if (store.isLoading() && store.allReleases().length === 0) {
-        <div class="releases-grid">
-          <app-release-card-skeleton />
-          <app-release-card-skeleton />
-          <app-release-card-skeleton />
-          <app-release-card-skeleton />
-          <app-release-card-skeleton />
-          <app-release-card-skeleton />
-        </div>
-      } @else if (store.isEmpty() && !store.isSyncing()) {
-        <app-empty-state icon="album" title="No releases found" />
-      } @else {
+    @if (store.isLoading() && store.allReleases().length === 0) {
+      <div class="feed-container">
+        <app-release-card-skeleton />
+        <app-release-card-skeleton />
+        <app-release-card-skeleton />
+        <app-release-card-skeleton />
+        <app-release-card-skeleton />
+        <app-release-card-skeleton />
+      </div>
+    } @else if (store.isEmpty() && !store.isSyncing()) {
+      <app-empty-state icon="album" title="No releases found" />
+    } @else {
+      <div class="feed-container">
         @if (store.lastCheckedAt() && newReleases().length > 0) {
           <div class="section-label new">
-            <span class="teal-dot"></span>
-            <span class="label-text">
+            <span class="dot"></span>
+            <span>
               {{ newReleases().length }} new since
               {{ store.lastCheckedAt() | date: 'MMM d' }}
             </span>
@@ -92,10 +92,20 @@ const PAGE_SIZE = 20;
               (showSavedAlbums)="onShowSavedAlbums($event)"
             />
           </div>
+
+          @if (gridReleases().length > 0) {
+            <div class="secondary-section">
+              <app-release-card
+                [release]="gridReleases()[0]"
+                (dismiss)="onDismiss($event)"
+                (showSavedAlbums)="onShowSavedAlbums($event)"
+              />
+            </div>
+          }
         }
 
-        <div class="releases-grid">
-          @for (release of gridReleases(); track release.spotify_album_id) {
+        @for (release of remainingReleases(); track release.spotify_album_id; let i = $index) {
+          <div class="grid-card">
             @if (store.dismissedIds().has(release.spotify_album_id)) {
               <app-release-card-collapsed [release]="release" (expand)="onUndismiss($event)" />
             } @else {
@@ -105,33 +115,39 @@ const PAGE_SIZE = 20;
                 (showSavedAlbums)="onShowSavedAlbums($event)"
               />
             }
-          }
-        </div>
-
-        @if (seenReleases().length > 0) {
-          <div class="section-label seen">
-            <span class="teal-dot dim"></span>
-            <span class="label-text">Previously seen</span>
           </div>
         }
 
-        <div class="releases-grid">
+        @if (seenReleases().length > 0) {
+          <div class="section-label seen">
+            <span class="dot"></span>
+            <span>Previously seen</span>
+          </div>
+
           @for (release of seenReleases(); track release.spotify_album_id) {
-            @if (store.dismissedIds().has(release.spotify_album_id)) {
-              <app-release-card-collapsed [release]="release" (expand)="onUndismiss($event)" />
-            } @else {
-              <app-release-card
-                [release]="release"
-                (dismiss)="onDismiss($event)"
-                (showSavedAlbums)="onShowSavedAlbums($event)"
-              />
-            }
+            <div class="grid-card">
+              @if (store.dismissedIds().has(release.spotify_album_id)) {
+                <app-release-card-collapsed [release]="release" (expand)="onUndismiss($event)" />
+              } @else {
+                <app-release-card
+                  [release]="release"
+                  (dismiss)="onDismiss($event)"
+                  (showSavedAlbums)="onShowSavedAlbums($event)"
+                />
+              }
+            </div>
           }
-        </div>
+        }
 
         <div class="scroll-sentinel" #scrollSentinel></div>
-      }
-    </div>
+
+        @if (!hasMore() && store.allReleases().length > 0) {
+          <div class="footer-section">
+            <span class="footer-text">Explore Archives</span>
+          </div>
+        }
+      </div>
+    }
   `,
   styles: `
     :host {
@@ -142,61 +158,112 @@ const PAGE_SIZE = 20;
     }
 
     .feed-container {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      padding: 0 28px 32px;
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 40px;
+      padding: 0 0 48px;
     }
 
     .featured-section {
-      max-width: 420px;
+      grid-column: span 8;
     }
 
-    .releases-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-      gap: 16px;
+    .secondary-section {
+      grid-column: span 4;
+    }
+
+    .grid-card {
+      grid-column: span 4;
     }
 
     .section-label {
+      grid-column: span 12;
       display: flex;
       align-items: center;
       gap: 8px;
-      margin: 8px 0 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
     }
 
-    .teal-dot {
-      display: inline-block;
+    .section-label.new {
+      color: #ba9eff;
+    }
+
+    .section-label.seen {
+      color: #767579;
+    }
+
+    .section-label .dot {
       width: 6px;
       height: 6px;
       border-radius: 50%;
       background: #6df5e1;
-      flex-shrink: 0;
     }
 
-    .teal-dot.dim {
-      background: #767575;
+    .section-label.seen .dot {
+      background: #767579;
     }
 
-    .label-text {
-      font-family: 'Manrope', sans-serif;
-      font-size: 0.7rem;
+    .footer-section {
+      grid-column: span 12;
+      display: flex;
+      justify-content: center;
+      padding: 24px 0;
+    }
+
+    .footer-text {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 11px;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
-      white-space: nowrap;
-    }
-
-    .section-label.new .label-text {
-      color: #ba9eff;
-    }
-
-    .section-label.seen .label-text {
-      color: #767575;
+      letter-spacing: 0.15em;
+      color: #767579;
     }
 
     .scroll-sentinel {
+      grid-column: span 12;
       height: 1px;
+    }
+
+    @media (max-width: 900px) {
+      .feed-container {
+        grid-template-columns: repeat(6, 1fr);
+        gap: 20px;
+      }
+
+      .featured-section,
+      .section-label,
+      .footer-section,
+      .scroll-sentinel {
+        grid-column: span 6;
+      }
+
+      .secondary-section {
+        grid-column: span 6;
+      }
+
+      .grid-card {
+        grid-column: span 3;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .feed-container {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      .featured-section,
+      .secondary-section,
+      .grid-card,
+      .section-label,
+      .footer-section,
+      .scroll-sentinel {
+        grid-column: span 1;
+      }
     }
   `,
 })
@@ -231,14 +298,22 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
   });
 
   protected featuredRelease = computed(() => {
-    const newOnes = this.newReleases();
-    return newOnes.find((r) => !this.store.dismissedIds().has(r.spotify_album_id)) ?? null;
+    const releases = this.newReleases();
+    return releases.find((r) => !this.store.dismissedIds().has(r.spotify_album_id)) ?? null;
   });
 
   protected gridReleases = computed(() => {
+    const releases = this.newReleases();
     const featured = this.featuredRelease();
-    if (!featured) return this.newReleases();
-    return this.newReleases().filter((r) => r.spotify_album_id !== featured.spotify_album_id);
+    if (!featured) return releases;
+    return releases.filter((r) => r.spotify_album_id !== featured.spotify_album_id);
+  });
+
+  protected remainingReleases = computed(() => {
+    const grid = this.gridReleases();
+    const featured = this.featuredRelease();
+    if (!featured || grid.length === 0) return grid;
+    return grid.slice(1);
   });
 
   protected hasMore = computed(() => this.store.allReleases().length < this.store.totalCount());
