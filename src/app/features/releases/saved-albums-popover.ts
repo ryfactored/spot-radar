@@ -42,11 +42,12 @@ import { LoadingSpinner } from '@shared';
   `,
   styles: `
     .header {
+      font-family: 'Manrope', sans-serif;
       font-size: 0.65rem;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--mat-sys-outline);
+      letter-spacing: 0.06em;
+      color: #ba9eff;
       margin-bottom: 8px;
     }
 
@@ -60,7 +61,7 @@ import { LoadingSpinner } from '@shared';
     .album-art {
       width: 32px;
       height: 32px;
-      border-radius: 4px;
+      border-radius: 8px;
       object-fit: cover;
       flex-shrink: 0;
     }
@@ -74,29 +75,32 @@ import { LoadingSpinner } from '@shared';
     }
 
     .album-name {
+      font-family: 'Manrope', sans-serif;
       font-size: 0.8125rem;
-      color: var(--mat-sys-on-surface);
+      color: #ffffff;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
     .album-year {
+      font-family: 'Manrope', sans-serif;
       font-size: 0.7rem;
-      color: var(--mat-sys-outline);
+      color: #adaaaa;
     }
 
     .spotify-link {
       flex-shrink: 0;
-      color: var(--mat-sys-primary);
+      color: #ba9eff;
       text-decoration: none;
       font-size: 0.875rem;
       padding: 4px;
     }
 
     .empty {
+      font-family: 'Manrope', sans-serif;
       font-size: 0.8125rem;
-      color: var(--mat-sys-outline);
+      color: #767575;
       margin: 0;
     }
 

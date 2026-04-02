@@ -23,7 +23,10 @@ import { MatTooltipModule } from '@angular/material/tooltip';
   ],
   template: `
     <div class="filter-bar">
-      <h2 class="feed-title">New Releases</h2>
+      <div class="header-block">
+        <span class="subtitle-label"><span class="teal-dot"></span>Latest Arrivals</span>
+        <h2 class="feed-title">New Releases</h2>
+      </div>
       <div class="filters">
         <mat-button-toggle-group
           [value]="releaseTypeFilter()"
@@ -79,8 +82,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
         <div class="split-btn" [class.disabled]="syncing()">
           <button
-            mat-stroked-button
-            class="split-main"
+            mat-flat-button
+            class="split-main gradient-btn"
             [disabled]="syncing()"
             matTooltip="Check for new releases from your current artists"
             (click)="syncNow.emit('quick')"
@@ -89,8 +92,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
             {{ syncing() ? 'Syncing…' : 'Sync' }}
           </button>
           <button
-            mat-stroked-button
-            class="split-arrow"
+            mat-flat-button
+            class="split-arrow gradient-btn"
             [disabled]="syncing()"
             [matMenuTriggerFor]="syncMenu"
             aria-label="More sync options"
@@ -113,17 +116,53 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     .filter-bar {
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      padding: 16px;
-      border-radius: 12px;
-      background: var(--mat-sys-surface-container);
+      gap: 20px;
+      padding: 24px;
+      border-radius: 16px;
+      background: rgba(38, 38, 38, 0.4);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+
+      --mat-standard-button-toggle-selected-state-background-color: rgba(186, 158, 255, 0.15);
+      --mat-standard-button-toggle-selected-state-text-color: #ba9eff;
+      --mat-standard-button-toggle-text-color: #adaaaa;
+      --mat-standard-button-toggle-background-color: transparent;
+      --mat-standard-button-toggle-shape: 12px;
+      --mat-standard-button-toggle-divider-color: rgba(72, 72, 71, 0.15);
+    }
+
+    .header-block {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .subtitle-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Manrope', sans-serif;
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #ba9eff;
+    }
+
+    .teal-dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #6df5e1;
     }
 
     .feed-title {
       font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: var(--mat-sys-on-surface);
+      font-size: 1.75rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #ffffff;
       margin: 0;
     }
 
@@ -131,7 +170,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
       display: flex;
       flex-wrap: wrap;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
     }
 
     mat-form-field {
@@ -143,21 +182,27 @@ import { MatTooltipModule } from '@angular/material/tooltip';
       align-items: stretch;
 
       .split-main {
-        border-radius: 4px 0 0 4px;
+        border-radius: 12px 0 0 12px;
         border-right: none;
       }
 
       .split-arrow {
-        border-radius: 0 4px 4px 0;
+        border-radius: 0 12px 12px 0;
         padding: 0 4px;
         min-width: unset;
       }
     }
 
+    .gradient-btn {
+      background: linear-gradient(135deg, #8455ef, #ba9eff) !important;
+      color: #000000 !important;
+      font-weight: 700;
+    }
+
     .menu-hint {
       display: block;
       font-size: 0.7rem;
-      color: var(--mat-sys-outline);
+      color: #767575;
       margin-top: 1px;
     }
   `,

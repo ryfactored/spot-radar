@@ -6,7 +6,10 @@ import { Release } from './releases-service';
   selector: 'app-release-card',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DatePipe, TitleCasePipe],
-  host: { '[class.is-album]': 'release().release_type === "album"' },
+  host: {
+    '[class.is-album]': 'release().release_type === "album"',
+    '[class.is-featured]': 'featured()',
+  },
   template: `
     <div class="release-card">
       <div class="art-wrapper">
@@ -14,8 +17,6 @@ import { Release } from './releases-service';
           class="album-art"
           [src]="release().image_url || 'assets/placeholder-album.png'"
           [alt]="release().title"
-          width="88"
-          height="88"
         />
         <span class="track-badge">{{ release().track_count }}</span>
       </div>
@@ -51,50 +52,70 @@ import { Release } from './releases-service';
     </div>
   `,
   styles: `
-    /* ── Non-album (default) ── */
     .release-card {
       display: flex;
-      flex-direction: row;
+      flex-direction: column;
       gap: 12px;
-      padding: 12px 14px;
-      border-radius: 10px;
-      background: var(--mat-sys-surface-container);
+      padding: 12px;
+      border-radius: 16px;
+      background: rgba(26, 26, 26, 0.6);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid transparent;
+      transition:
+        border-color 0.25s ease,
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+    }
+
+    .release-card:hover {
+      border-color: rgba(72, 72, 71, 0.1);
+      box-shadow: 0 48px 48px rgba(186, 158, 255, 0.05);
     }
 
     .art-wrapper {
       position: relative;
-      flex-shrink: 0;
-      width: 56px;
-      height: 56px;
+      width: 100%;
+      aspect-ratio: 1;
+      overflow: hidden;
+      border-radius: 1rem;
     }
 
     .album-art {
-      width: 56px;
-      height: 56px;
-      border-radius: 6px;
+      width: 100%;
+      height: 100%;
       object-fit: cover;
       display: block;
+      transition: transform 0.3s ease;
+    }
+
+    .release-card:hover .album-art {
+      transform: scale(1.05);
     }
 
     .track-badge {
       position: absolute;
-      bottom: 3px;
-      right: 3px;
-      background: rgba(0, 0, 0, 0.7);
+      bottom: 8px;
+      right: 8px;
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
       color: #fff;
-      font-size: 0.6rem;
-      font-weight: 600;
-      padding: 1px 4px;
-      border-radius: 6px;
+      font-family: 'Manrope', sans-serif;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 8px;
       line-height: 1.4;
     }
 
     .content {
       display: flex;
       flex-direction: column;
-      gap: 3px;
+      gap: 4px;
       flex: 1;
       min-width: 0;
+      padding: 0 4px 4px;
     }
 
     .title-row {
@@ -105,9 +126,11 @@ import { Release } from './releases-service';
     }
 
     .title {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--mat-sys-on-surface);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.9375rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #ffffff;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -115,14 +138,15 @@ import { Release } from './releases-service';
 
     .type-chip {
       flex-shrink: 0;
-      font-size: 0.65rem;
+      font-family: 'Manrope', sans-serif;
+      font-size: 0.6rem;
       font-weight: 700;
       letter-spacing: 0.04em;
       text-transform: uppercase;
-      padding: 2px 7px;
+      padding: 2px 8px;
       border-radius: 20px;
-      background: var(--mat-sys-secondary-container);
-      color: var(--mat-sys-on-secondary-container);
+      background: rgba(186, 158, 255, 0.12);
+      color: #ba9eff;
     }
 
     .artist-row {
@@ -132,29 +156,31 @@ import { Release } from './releases-service';
     }
 
     .artist {
+      font-family: 'Manrope', sans-serif;
       font-size: 0.8125rem;
-      color: var(--mat-sys-on-surface-variant);
+      color: #adaaaa;
     }
 
     .source-chip {
       flex-shrink: 0;
+      font-family: 'Manrope', sans-serif;
       font-size: 0.6rem;
       font-weight: 700;
       letter-spacing: 0.05em;
       text-transform: uppercase;
-      padding: 1px 6px;
+      padding: 2px 7px;
       border-radius: 20px;
     }
 
     .source-chip.followed {
       background: transparent;
-      border: 1px solid var(--mat-sys-outline-variant);
-      color: var(--mat-sys-outline);
+      border: 1px solid rgba(72, 72, 71, 0.15);
+      color: #767575;
     }
 
     .source-chip.saved {
-      background: var(--mat-sys-tertiary-container);
-      color: var(--mat-sys-on-tertiary-container);
+      background: rgba(255, 151, 181, 0.12);
+      color: #ff97b5;
       border: none;
     }
 
@@ -168,69 +194,33 @@ import { Release } from './releases-service';
     }
 
     .meta {
-      font-size: 0.7rem;
-      color: var(--mat-sys-outline);
+      font-family: 'Manrope', sans-serif;
+      font-size: 0.65rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #767575;
+      margin-top: 2px;
     }
 
     .actions {
       display: flex;
       gap: 8px;
-      margin-top: 6px;
+      margin-top: 8px;
       flex-wrap: wrap;
     }
 
-    /* ── Album overrides ── */
-    :host.is-album .release-card {
-      gap: 16px;
-      padding: 16px;
-      border-radius: 12px;
-      background: var(--mat-sys-surface-container-high);
-      border-left: 3px solid var(--mat-sys-primary);
-    }
-
-    :host.is-album .art-wrapper {
-      width: 88px;
-      height: 88px;
-    }
-
-    :host.is-album .album-art {
-      width: 88px;
-      height: 88px;
-      border-radius: 8px;
-    }
-
-    :host.is-album .track-badge {
-      bottom: 4px;
-      right: 4px;
-      font-size: 0.65rem;
-      padding: 1px 5px;
-      border-radius: 8px;
-    }
-
-    :host.is-album .title {
-      font-size: 15px;
-      font-weight: 700;
-    }
-
-    :host.is-album .meta {
-      font-size: 0.75rem;
-    }
-
-    /* ── Buttons (shared) ── */
     .btn-spotify {
       display: inline-flex;
       align-items: center;
-      padding: 6px 16px;
-      border-radius: 20px;
+      padding: 8px 18px;
+      border-radius: 12px;
+      font-family: 'Manrope', sans-serif;
       font-size: 0.8125rem;
-      font-weight: 600;
+      font-weight: 700;
       text-decoration: none;
-      background: linear-gradient(
-        135deg,
-        var(--mat-sys-primary),
-        var(--mat-sys-tertiary, var(--mat-sys-primary))
-      );
-      color: var(--mat-sys-on-primary);
+      background: linear-gradient(135deg, #8455ef, #ba9eff);
+      color: #000000;
       cursor: pointer;
       transition: opacity 0.2s;
 
@@ -242,24 +232,44 @@ import { Release } from './releases-service';
     .btn-dismiss {
       display: inline-flex;
       align-items: center;
-      padding: 6px 16px;
-      border-radius: 20px;
+      padding: 8px 18px;
+      border-radius: 12px;
+      font-family: 'Manrope', sans-serif;
       font-size: 0.8125rem;
       font-weight: 600;
       border: none;
-      background: var(--mat-sys-surface-container-highest);
-      color: var(--mat-sys-on-surface-variant);
+      background: transparent;
+      color: #adaaaa;
       cursor: pointer;
       transition: background 0.2s;
 
       &:hover {
-        background: var(--mat-sys-surface-variant);
+        background: rgba(38, 38, 38, 0.6);
       }
+    }
+
+    /* ── Featured variant ── */
+    :host.is-featured .release-card {
+      padding: 16px;
+    }
+
+    :host.is-featured .title {
+      font-size: 1.25rem;
+      font-weight: 800;
+    }
+
+    :host.is-featured .artist {
+      font-size: 0.9375rem;
+    }
+
+    :host.is-featured .meta {
+      font-size: 0.7rem;
     }
   `,
 })
 export class ReleaseCard {
   release = input.required<Release>();
+  featured = input(false);
   dismiss = output<string>();
   showSavedAlbums = output<{ artistId: string; triggerElement: HTMLElement }>();
 

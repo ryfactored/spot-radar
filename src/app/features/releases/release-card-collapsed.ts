@@ -31,25 +31,30 @@ import { Release } from './releases-service';
       flex-direction: row;
       align-items: center;
       gap: 12px;
-      padding: 8px 12px;
-      border-radius: 8px;
+      padding: 10px 14px;
+      border-radius: 16px;
       width: 100%;
       text-align: left;
       border: none;
-      background: var(--mat-sys-surface-container);
+      background: rgba(26, 26, 26, 0.3);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
       cursor: pointer;
-      opacity: 0.6;
-      transition: opacity 0.2s;
+      opacity: 0.55;
+      transition:
+        opacity 0.25s ease,
+        transform 0.25s ease;
 
       &:hover {
-        opacity: 0.8;
+        opacity: 0.85;
+        transform: translateY(-1px);
       }
     }
 
     .thumb {
       width: 36px;
       height: 36px;
-      border-radius: 4px;
+      border-radius: 8px;
       object-fit: cover;
       flex-shrink: 0;
     }
@@ -62,22 +67,26 @@ import { Release } from './releases-service';
     }
 
     .title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: 0.875rem;
       font-weight: 600;
-      color: var(--mat-sys-on-surface);
+      letter-spacing: -0.01em;
+      color: #ffffff;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
     .sub {
+      font-family: 'Manrope', sans-serif;
       font-size: 0.75rem;
-      color: var(--mat-sys-on-surface-variant);
+      color: #adaaaa;
     }
 
     .meta {
+      font-family: 'Manrope', sans-serif;
       font-size: 0.7rem;
-      color: var(--mat-sys-outline);
+      color: #767575;
     }
   `,
 })

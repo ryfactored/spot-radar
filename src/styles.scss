@@ -556,10 +556,12 @@ textarea:focus:not(:focus-visible) {
   min-width: 220px;
   max-width: 300px;
   padding: 12px;
-  background: var(--mat-sys-surface-container-high, var(--color-surface));
-  border: 1px solid var(--mat-sys-outline-variant, var(--color-border));
-  border-radius: 8px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  background: rgba(38, 38, 38, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(72, 72, 71, 0.15);
+  border-radius: 16px;
+  box-shadow: 0 48px 48px rgba(186, 158, 255, 0.05);
 }
 
 // Skeleton Overlay
