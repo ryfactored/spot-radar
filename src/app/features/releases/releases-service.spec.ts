@@ -26,6 +26,7 @@ describe('ReleasesService', () => {
     min_track_count: 0,
     recency_days: 90,
     hide_live: false,
+    source_filter: 'all',
     last_checked_at: null,
   };
 
@@ -152,6 +153,7 @@ describe('ReleasesService', () => {
         min_track_count: 0,
         recency_days: 90,
         hide_live: false,
+        source_filter: 'all',
         last_checked_at: null,
       });
     });

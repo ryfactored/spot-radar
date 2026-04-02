@@ -196,6 +196,7 @@ describe('ReleasesStore', () => {
         min_track_count: 5,
         recency_days: 30,
         hide_live: false,
+        source_filter: 'all',
         last_checked_at: '2024-01-01T00:00:00Z',
       };
       store.setPreferences(prefs);
@@ -255,6 +256,7 @@ describe('ReleasesStore', () => {
         min_track_count: 5,
         recency_days: 30,
         hide_live: false,
+        source_filter: 'all',
         last_checked_at: '2024-01-01T00:00:00Z',
       });
       store.clear();
