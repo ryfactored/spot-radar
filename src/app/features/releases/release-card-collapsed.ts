@@ -32,21 +32,19 @@ import { Release } from './releases-service';
       align-items: center;
       gap: 12px;
       padding: 10px 14px;
-      border-radius: 16px;
+      border-radius: 12px;
       width: 100%;
       text-align: left;
       border: none;
-      background: rgba(26, 26, 26, 0.3);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
+      background: transparent;
       cursor: pointer;
-      opacity: 0.55;
+      opacity: 0.4;
       transition:
         opacity 0.25s ease,
         transform 0.25s ease;
 
       &:hover {
-        opacity: 0.85;
+        opacity: 0.7;
         transform: translateY(-1px);
       }
     }
@@ -54,7 +52,7 @@ import { Release } from './releases-service';
     .thumb {
       width: 36px;
       height: 36px;
-      border-radius: 8px;
+      border-radius: 4px;
       object-fit: cover;
       flex-shrink: 0;
     }
@@ -71,22 +69,22 @@ import { Release } from './releases-service';
       font-size: 0.875rem;
       font-weight: 600;
       letter-spacing: -0.01em;
-      color: #ffffff;
+      color: #f0edf1;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
     .sub {
-      font-family: 'Manrope', sans-serif;
+      font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: 0.75rem;
-      color: #adaaaa;
+      color: #acaaae;
     }
 
     .meta {
-      font-family: 'Manrope', sans-serif;
+      font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: 0.7rem;
-      color: #767575;
+      color: #767579;
     }
   `,
 })

@@ -32,20 +32,20 @@ import { SyncProgress } from './releases-store';
       gap: 10px;
       padding: 16px 20px;
       border-radius: 16px;
-      background: rgba(38, 38, 38, 0.4);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      box-shadow: 0 0 24px rgba(109, 245, 225, 0.1);
+      background: rgba(25, 25, 29, 0.6);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 0 24px rgba(186, 158, 255, 0.08);
 
-      --mdc-linear-progress-active-indicator-color: #6df5e1;
-      --mdc-linear-progress-track-color: rgba(109, 245, 225, 0.1);
+      --mdc-linear-progress-active-indicator-color: #ba9eff;
+      --mdc-linear-progress-track-color: rgba(186, 158, 255, 0.1);
     }
 
     .sync-text {
       margin: 0;
-      font-family: 'Manrope', sans-serif;
+      font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: 0.875rem;
-      color: #adaaaa;
+      color: #acaaae;
     }
   `,
 })
