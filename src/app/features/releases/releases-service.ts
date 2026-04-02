@@ -21,6 +21,7 @@ export interface FeedPreferences {
   min_track_count: number;
   recency_days: number;
   hide_live: boolean;
+  source_filter: string;
   last_checked_at: string | null;
 }
 
@@ -34,6 +35,7 @@ const DEFAULT_PREFERENCES: FeedPreferences = {
   min_track_count: 0,
   recency_days: 90,
   hide_live: false,
+  source_filter: 'all',
   last_checked_at: null,
 };
 
@@ -64,6 +66,7 @@ export class ReleasesService {
         p_min_track_count: filters.min_track_count,
         p_recency_days: filters.recency_days,
         p_hide_live: filters.hide_live,
+        p_source_filter: filters.source_filter,
         p_offset: offset,
         p_limit: pageSize,
       }),
