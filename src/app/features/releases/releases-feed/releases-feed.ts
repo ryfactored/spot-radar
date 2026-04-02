@@ -62,57 +62,72 @@ const PAGE_SIZE = 20;
 
     <div class="feed-container">
       @if (store.isLoading() && store.allReleases().length === 0) {
-        <app-release-card-skeleton />
-        <app-release-card-skeleton />
-        <app-release-card-skeleton />
-        <app-release-card-skeleton />
-        <app-release-card-skeleton />
-        <app-release-card-skeleton />
+        <div class="releases-grid">
+          <app-release-card-skeleton />
+          <app-release-card-skeleton />
+          <app-release-card-skeleton />
+          <app-release-card-skeleton />
+          <app-release-card-skeleton />
+          <app-release-card-skeleton />
+        </div>
       } @else if (store.isEmpty() && !store.isSyncing()) {
         <app-empty-state icon="album" title="No releases found" />
       } @else {
         @if (store.lastCheckedAt() && newReleases().length > 0) {
-          <div class="feed-divider new">
-            <div class="divider-line"></div>
-            <span class="divider-text">
+          <div class="section-label new">
+            <span class="teal-dot"></span>
+            <span class="label-text">
               {{ newReleases().length }} new since
               {{ store.lastCheckedAt() | date: 'MMM d' }}
             </span>
-            <div class="divider-line"></div>
           </div>
         }
 
-        @for (release of newReleases(); track release.spotify_album_id) {
-          @if (store.dismissedIds().has(release.spotify_album_id)) {
-            <app-release-card-collapsed [release]="release" (expand)="onUndismiss($event)" />
-          } @else {
+        @if (featuredRelease(); as featured) {
+          <div class="featured-section">
             <app-release-card
-              [release]="release"
+              [release]="featured"
+              [featured]="true"
               (dismiss)="onDismiss($event)"
               (showSavedAlbums)="onShowSavedAlbums($event)"
             />
-          }
+          </div>
         }
+
+        <div class="releases-grid">
+          @for (release of gridReleases(); track release.spotify_album_id) {
+            @if (store.dismissedIds().has(release.spotify_album_id)) {
+              <app-release-card-collapsed [release]="release" (expand)="onUndismiss($event)" />
+            } @else {
+              <app-release-card
+                [release]="release"
+                (dismiss)="onDismiss($event)"
+                (showSavedAlbums)="onShowSavedAlbums($event)"
+              />
+            }
+          }
+        </div>
 
         @if (seenReleases().length > 0) {
-          <div class="feed-divider seen">
-            <div class="divider-line"></div>
-            <span class="divider-text">Previously seen</span>
-            <div class="divider-line"></div>
+          <div class="section-label seen">
+            <span class="teal-dot dim"></span>
+            <span class="label-text">Previously seen</span>
           </div>
         }
 
-        @for (release of seenReleases(); track release.spotify_album_id) {
-          @if (store.dismissedIds().has(release.spotify_album_id)) {
-            <app-release-card-collapsed [release]="release" (expand)="onUndismiss($event)" />
-          } @else {
-            <app-release-card
-              [release]="release"
-              (dismiss)="onDismiss($event)"
-              (showSavedAlbums)="onShowSavedAlbums($event)"
-            />
+        <div class="releases-grid">
+          @for (release of seenReleases(); track release.spotify_album_id) {
+            @if (store.dismissedIds().has(release.spotify_album_id)) {
+              <app-release-card-collapsed [release]="release" (expand)="onUndismiss($event)" />
+            } @else {
+              <app-release-card
+                [release]="release"
+                (dismiss)="onDismiss($event)"
+                (showSavedAlbums)="onShowSavedAlbums($event)"
+              />
+            }
           }
-        }
+        </div>
 
         <div class="scroll-sentinel" #scrollSentinel></div>
       }
@@ -122,52 +137,62 @@ const PAGE_SIZE = 20;
     :host {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 16px;
+      background: radial-gradient(circle at 50% 0%, rgba(186, 158, 255, 0.06) 0%, transparent 60%);
     }
 
     .feed-container {
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      padding: 0 24px 24px;
+      gap: 20px;
+      padding: 0 28px 32px;
     }
 
-    .feed-divider {
+    .featured-section {
+      max-width: 420px;
+    }
+
+    .releases-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 16px;
+    }
+
+    .section-label {
       display: flex;
       align-items: center;
-      gap: 12px;
-      margin: 4px 0;
+      gap: 8px;
+      margin: 8px 0 0;
     }
 
-    .divider-line {
-      flex: 1;
-      height: 1px;
+    .teal-dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #6df5e1;
+      flex-shrink: 0;
     }
 
-    .feed-divider.new .divider-line {
-      background: color-mix(in srgb, var(--mat-sys-secondary) 30%, transparent);
+    .teal-dot.dim {
+      background: #767575;
     }
 
-    .feed-divider.new .divider-text {
-      color: var(--mat-sys-secondary);
+    .label-text {
+      font-family: 'Manrope', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      font-size: 0.75rem;
-      font-weight: 600;
       white-space: nowrap;
     }
 
-    .feed-divider.seen .divider-line {
-      background: color-mix(in srgb, var(--mat-sys-outline) 30%, transparent);
+    .section-label.new .label-text {
+      color: #ba9eff;
     }
 
-    .feed-divider.seen .divider-text {
-      color: var(--mat-sys-outline);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      font-size: 0.75rem;
-      font-weight: 600;
-      white-space: nowrap;
+    .section-label.seen .label-text {
+      color: #767575;
     }
 
     .scroll-sentinel {
@@ -203,6 +228,17 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
     if (!lastChecked) return [];
     const cutoff = new Date(lastChecked);
     return this.store.allReleases().filter((r) => new Date(r.release_date) <= cutoff);
+  });
+
+  protected featuredRelease = computed(() => {
+    const newOnes = this.newReleases();
+    return newOnes.find((r) => !this.store.dismissedIds().has(r.spotify_album_id)) ?? null;
+  });
+
+  protected gridReleases = computed(() => {
+    const featured = this.featuredRelease();
+    if (!featured) return this.newReleases();
+    return this.newReleases().filter((r) => r.spotify_album_id !== featured.spotify_album_id);
   });
 
   protected hasMore = computed(() => this.store.allReleases().length < this.store.totalCount());

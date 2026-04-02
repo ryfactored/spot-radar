@@ -29,16 +29,23 @@ import { SyncProgress } from './releases-store';
     .sync-indicator {
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      padding: 12px 16px;
-      border-radius: 8px;
-      background: var(--mat-sys-surface-container);
+      gap: 10px;
+      padding: 16px 20px;
+      border-radius: 16px;
+      background: rgba(38, 38, 38, 0.4);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 0 24px rgba(109, 245, 225, 0.1);
+
+      --mdc-linear-progress-active-indicator-color: #6df5e1;
+      --mdc-linear-progress-track-color: rgba(109, 245, 225, 0.1);
     }
 
     .sync-text {
       margin: 0;
+      font-family: 'Manrope', sans-serif;
       font-size: 0.875rem;
-      color: var(--mat-sys-on-surface-variant);
+      color: #adaaaa;
     }
   `,
 })
