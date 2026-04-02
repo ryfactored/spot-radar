@@ -39,6 +39,7 @@ const SPOTIFY_API_BASE = 'https://api.spotify.com/v1';
 export class SpotifyApiService {
   private auth = inject(AuthService);
   private spotifyAuth = inject(SpotifyAuthService);
+  private savedAlbumCache = new Map<string, SpotifyAlbum[]>();
 
   // ---------------------------------------------------------------------------
   // Private helpers
@@ -159,5 +160,30 @@ export class SpotifyApiService {
 
     const data = (await this.fetchWithAuth(url)) as { items: SpotifyAlbum[] };
     return data.items;
+  }
+
+  /**
+   * Returns the user's saved albums by a specific artist.
+   * Fetches the artist's catalog, then checks which are in the user's library.
+   * Results are cached per artist for the session.
+   */
+  async getSavedAlbumsByArtist(artistId: string): Promise<SpotifyAlbum[]> {
+    const cached = this.savedAlbumCache.get(artistId);
+    if (cached) return cached;
+
+    const allAlbums = await this.getArtistAlbums(artistId, 50);
+
+    const saved: boolean[] = [];
+    for (let i = 0; i < allAlbums.length; i += 20) {
+      const batch = allAlbums.slice(i, i + 20);
+      const ids = batch.map((a) => a.id).join(',');
+      const url = `${SPOTIFY_API_BASE}/me/albums/contains?ids=${ids}`;
+      const result = (await this.fetchWithAuth(url)) as boolean[];
+      saved.push(...result);
+    }
+
+    const result = allAlbums.filter((_, i) => saved[i]);
+    this.savedAlbumCache.set(artistId, result);
+    return result;
   }
 }
