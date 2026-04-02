@@ -9,188 +9,206 @@
     role="navigation"
     aria-label="Main navigation"
   >
-    <mat-nav-list>
+    <!-- Sidebar Logo -->
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon"></div>
+      <div>
+        <div class="sidebar-logo-text">Spot Radar</div>
+        <div class="sidebar-logo-subtitle">New Releases</div>
+      </div>
+    </div>
+
+    <!-- Nav Links -->
+    <nav class="sidebar-nav">
       <a
-        mat-list-item
+        class="nav-link"
         routerLink="/dashboard"
-        routerLinkActive="active-link"
+        routerLinkActive="active"
         #rlaDashboard="routerLinkActive"
         [attr.aria-current]="rlaDashboard.isActive ? 'page' : null"
       >
-        <mat-icon matListItemIcon>dashboard</mat-icon>
-        <span matListItemTitle>Dashboard</span>
+        <mat-icon>dashboard</mat-icon>
+        <span>Dashboard</span>
       </a>
       @if (featureFlags.isEnabled('releases')) {
         <a
-          mat-list-item
+          class="nav-link"
           routerLink="/releases"
-          routerLinkActive="active-link"
+          routerLinkActive="active"
           #rlaReleases="routerLinkActive"
           [attr.aria-current]="rlaReleases.isActive ? 'page' : null"
         >
-          <mat-icon matListItemIcon>album</mat-icon>
-          <span matListItemTitle>New Releases</span>
+          <mat-icon>album</mat-icon>
+          <span>New Releases</span>
         </a>
       }
       @if (featureFlags.isEnabled('notes')) {
         <a
-          mat-list-item
+          class="nav-link"
           routerLink="/notes"
-          routerLinkActive="active-link"
+          routerLinkActive="active"
           #rlaNotes="routerLinkActive"
           [attr.aria-current]="rlaNotes.isActive ? 'page' : null"
         >
-          <mat-icon matListItemIcon>note</mat-icon>
-          <span matListItemTitle>Notes</span>
+          <mat-icon>note</mat-icon>
+          <span>Notes</span>
         </a>
       }
       @if (featureFlags.isEnabled('chat')) {
         <a
-          mat-list-item
+          class="nav-link"
           routerLink="/chat"
-          routerLinkActive="active-link"
+          routerLinkActive="active"
           #rlaChat="routerLinkActive"
           [attr.aria-current]="rlaChat.isActive ? 'page' : null"
         >
-          <mat-icon matListItemIcon>chat</mat-icon>
-          <span matListItemTitle>Chat</span>
+          <mat-icon>chat</mat-icon>
+          <span>Chat</span>
         </a>
       }
       @if (featureFlags.isEnabled('files')) {
         <a
-          mat-list-item
+          class="nav-link"
           routerLink="/files"
-          routerLinkActive="active-link"
+          routerLinkActive="active"
           #rlaFiles="routerLinkActive"
           [attr.aria-current]="rlaFiles.isActive ? 'page' : null"
         >
-          <mat-icon matListItemIcon>folder</mat-icon>
-          <span matListItemTitle>Files</span>
+          <mat-icon>folder</mat-icon>
+          <span>Files</span>
         </a>
       }
       <a
-        mat-list-item
+        class="nav-link"
         routerLink="/profile"
-        routerLinkActive="active-link"
+        routerLinkActive="active"
         #rlaProfile="routerLinkActive"
         [attr.aria-current]="rlaProfile.isActive ? 'page' : null"
       >
-        <mat-icon matListItemIcon>person</mat-icon>
-        <span matListItemTitle>Profile</span>
+        <mat-icon>person</mat-icon>
+        <span>Profile</span>
       </a>
       @if (featureFlags.isEnabled('components')) {
         <a
-          mat-list-item
+          class="nav-link"
           routerLink="/components"
-          routerLinkActive="active-link"
+          routerLinkActive="active"
           #rlaComponents="routerLinkActive"
           [attr.aria-current]="rlaComponents.isActive ? 'page' : null"
         >
-          <mat-icon matListItemIcon>widgets</mat-icon>
-          <span matListItemTitle>Components</span>
+          <mat-icon>widgets</mat-icon>
+          <span>Components</span>
         </a>
       }
       @if (isAdmin() && featureFlags.isEnabled('admin')) {
         @if (hasExpandableGroups()) {
           <button
-            mat-list-item
-            class="admin-toggle"
+            class="nav-link admin-toggle"
             (click)="toggleGroup('admin', '/admin')"
             [attr.aria-expanded]="expandedGroups().has('admin')"
             aria-controls="admin-submenu"
           >
-            <mat-icon matListItemIcon>admin_panel_settings</mat-icon>
-            <span matListItemTitle>Admin</span>
-            <span matListItemMeta>
-              <mat-icon class="admin-chevron" [class.expanded]="expandedGroups().has('admin')">
-                expand_more
-              </mat-icon>
-            </span>
+            <mat-icon>admin_panel_settings</mat-icon>
+            <span>Admin</span>
+            <mat-icon class="admin-chevron" [class.expanded]="expandedGroups().has('admin')">
+              expand_more
+            </mat-icon>
           </button>
           @if (expandedGroups().has('admin')) {
             <div id="admin-submenu" role="group" aria-label="Admin submenu">
               <a
-                mat-list-item
-                class="submenu-item"
+                class="nav-link submenu-item"
                 routerLink="/admin"
-                routerLinkActive="active-link"
+                routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: true }"
                 #rlaAdminOverview="routerLinkActive"
                 [attr.aria-current]="rlaAdminOverview.isActive ? 'page' : null"
               >
-                <mat-icon matListItemIcon>dashboard</mat-icon>
-                <span matListItemTitle>Overview</span>
+                <mat-icon>dashboard</mat-icon>
+                <span>Overview</span>
               </a>
               <a
-                mat-list-item
-                class="submenu-item"
+                class="nav-link submenu-item"
                 routerLink="/admin/users"
-                routerLinkActive="active-link"
+                routerLinkActive="active"
                 #rlaAdminUsers="routerLinkActive"
                 [attr.aria-current]="rlaAdminUsers.isActive ? 'page' : null"
               >
-                <mat-icon matListItemIcon>group</mat-icon>
-                <span matListItemTitle>Users</span>
+                <mat-icon>group</mat-icon>
+                <span>Users</span>
               </a>
               <a
-                mat-list-item
-                class="submenu-item"
+                class="nav-link submenu-item"
                 routerLink="/admin/feature-flags"
-                routerLinkActive="active-link"
+                routerLinkActive="active"
                 #rlaAdminFlags="routerLinkActive"
                 [attr.aria-current]="rlaAdminFlags.isActive ? 'page' : null"
               >
-                <mat-icon matListItemIcon>toggle_on</mat-icon>
-                <span matListItemTitle>Feature Flags</span>
+                <mat-icon>toggle_on</mat-icon>
+                <span>Feature Flags</span>
               </a>
             </div>
           }
         } @else {
           <a
-            mat-list-item
+            class="nav-link"
             routerLink="/admin"
-            routerLinkActive="active-link"
+            routerLinkActive="active"
             #rlaAdmin="routerLinkActive"
             [attr.aria-current]="rlaAdmin.isActive ? 'page' : null"
           >
-            <mat-icon matListItemIcon>admin_panel_settings</mat-icon>
-            <span matListItemTitle>Admin</span>
+            <mat-icon>admin_panel_settings</mat-icon>
+            <span>Admin</span>
           </a>
         }
       }
-    </mat-nav-list>
+    </nav>
+
+    <!-- User Card (bottom) -->
+    <div class="sidebar-spacer"></div>
+    <div class="sidebar-user-card">
+      <a routerLink="/profile" class="sidebar-user-link" aria-label="Go to profile">
+        <div class="sidebar-avatar">
+          <app-avatar [src]="avatarUrl()" [name]="displayName()" [size]="32" />
+        </div>
+        <span class="sidebar-user-name">{{ displayName() }}</span>
+      </a>
+      <button class="sidebar-logout" (click)="logout()" matTooltip="Logout" aria-label="Logout">
+        <mat-icon>logout</mat-icon>
+      </button>
+    </div>
   </mat-sidenav>
 
   <mat-sidenav-content>
-    <mat-toolbar class="toolbar" color="primary">
-      <button mat-icon-button (click)="toggleSidenav()" aria-label="Toggle navigation menu">
+    <!-- Top Bar -->
+    <header class="top-bar">
+      <button class="top-bar-menu" (click)="toggleSidenav()" aria-label="Toggle navigation menu">
         <mat-icon>menu</mat-icon>
       </button>
-      <span class="toolbar-title">{{ siteTitle }}</span>
+      <div class="glass-search">
+        <mat-icon>search</mat-icon>
+        <span>Search...</span>
+      </div>
       <span class="spacer"></span>
-      @if (featureFlags.isEnabled('themePicker')) {
-        <app-theme-picker />
-      }
-      <a
-        routerLink="/profile"
-        class="toolbar-avatar"
-        matTooltip="Profile"
-        aria-label="Go to profile"
-      >
-        <app-avatar [src]="avatarUrl()" [name]="displayName()" [size]="32" />
-      </a>
-      <button mat-icon-button (click)="logout()" matTooltip="Logout" aria-label="Logout">
-        <mat-icon>logout</mat-icon>
-      </button>
-    </mat-toolbar>
+      <div class="top-bar-icons">
+        @if (featureFlags.isEnabled('themePicker')) {
+          <app-theme-picker />
+        }
+        <button class="top-bar-icon" aria-label="Notifications">
+          <mat-icon>notifications_none</mat-icon>
+        </button>
+        <a
+          routerLink="/profile"
+          class="top-bar-icon"
+          matTooltip="Profile"
+          aria-label="Go to profile"
+        >
+          <mat-icon>account_circle</mat-icon>
+        </a>
+      </div>
+    </header>
 
-    <main
-      id="main-content"
-      class="content"
-      [class.content-left]="!contentCentered()"
-      role="main"
-      [@routeAnimation]="routeKey()"
-    >
+    <main id="main-content" class="content" role="main" [@routeAnimation]="routeKey()">
       @if (showBreadcrumb()) {
         <app-breadcrumb />
       }
