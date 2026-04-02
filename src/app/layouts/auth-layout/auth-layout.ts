@@ -28,27 +28,18 @@ import { routeAnimation } from '@shared';
       padding: 16px;
       box-sizing: border-box;
       background:
-        radial-gradient(
-          ellipse at top left,
-          color-mix(in srgb, var(--mat-sys-primary, #3b82f6) 12%, transparent) 0%,
-          transparent 50%
-        ),
-        radial-gradient(
-          ellipse at bottom right,
-          color-mix(in srgb, var(--mat-sys-primary, #3b82f6) 8%, transparent) 0%,
-          transparent 50%
-        ),
-        #121215;
+        radial-gradient(ellipse at 20% 20%, rgba(186, 158, 255, 0.12) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(186, 158, 255, 0.08) 0%, transparent 50%), #0e0e11;
     }
     .auth-card {
-      background: rgba(30, 30, 34, 0.85);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      color: #fafafa;
+      background: rgba(25, 25, 29, 0.8);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      color: #f0edf1;
       padding: 40px;
-      border-radius: 12px;
-      border: 1px solid #2a2a2e;
-      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+      border-radius: 0.75rem;
+      border: 1px solid rgba(72, 72, 71, 0.15);
+      box-shadow: 0 40px 40px rgba(186, 158, 255, 0.06);
       width: 100%;
       max-width: 400px;
       box-sizing: border-box;
@@ -56,7 +47,10 @@ import { routeAnimation } from '@shared';
     .app-title {
       text-align: center;
       margin-bottom: 24px;
-      color: var(--mat-sys-primary, #3b82f6);
+      color: #ba9eff;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 700;
+      letter-spacing: -0.02em;
     }
     @media (max-width: 480px) {
       .auth-card {
