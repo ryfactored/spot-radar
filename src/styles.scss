@@ -551,6 +551,17 @@ textarea:focus:not(:focus-visible) {
   }
 }
 
+// Saved Albums Popover (rendered in CDK overlay container, outside component tree)
+.saved-albums-popover-panel {
+  min-width: 220px;
+  max-width: 300px;
+  padding: 12px;
+  background: var(--mat-sys-surface-container-high, var(--color-surface));
+  border: 1px solid var(--mat-sys-outline-variant, var(--color-border));
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
 // Skeleton Overlay
 .skeleton-overlay {
   position: relative;
