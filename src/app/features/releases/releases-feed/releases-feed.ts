@@ -12,6 +12,8 @@ import {
   viewChild,
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { Overlay, OverlayRef } from '@angular/cdk/overlay';
+import { ComponentPortal } from '@angular/cdk/portal';
 
 import { AuthService, SpotifyApiService, extractErrorMessage } from '@core';
 import { ToastService, EmptyState } from '@shared';
@@ -23,6 +25,7 @@ import { ReleaseCardCollapsed } from '../release-card-collapsed';
 import { ReleaseCardSkeleton } from '../release-card-skeleton';
 import { FeedFilterBar } from '../feed-filter-bar';
 import { SyncIndicator } from '../sync-indicator';
+import { SavedAlbumsPopover } from '../saved-albums-popover';
 
 const PAGE_SIZE = 20;
 
@@ -83,7 +86,11 @@ const PAGE_SIZE = 20;
           @if (store.dismissedIds().has(release.spotify_album_id)) {
             <app-release-card-collapsed [release]="release" (expand)="onUndismiss($event)" />
           } @else {
-            <app-release-card [release]="release" (dismiss)="onDismiss($event)" />
+            <app-release-card
+              [release]="release"
+              (dismiss)="onDismiss($event)"
+              (showSavedAlbums)="onShowSavedAlbums($event)"
+            />
           }
         }
 
@@ -99,7 +106,11 @@ const PAGE_SIZE = 20;
           @if (store.dismissedIds().has(release.spotify_album_id)) {
             <app-release-card-collapsed [release]="release" (expand)="onUndismiss($event)" />
           } @else {
-            <app-release-card [release]="release" (dismiss)="onDismiss($event)" />
+            <app-release-card
+              [release]="release"
+              (dismiss)="onDismiss($event)"
+              (showSavedAlbums)="onShowSavedAlbums($event)"
+            />
           }
         }
 
@@ -170,6 +181,7 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
   private auth = inject(AuthService);
   private toast = inject(ToastService);
   private spotifyApi = inject(SpotifyApiService);
+  private overlay = inject(Overlay);
 
   private scrollSentinel = viewChild<ElementRef<HTMLDivElement>>('scrollSentinel');
 
@@ -177,6 +189,7 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
   private currentPage = signal(1);
   private unsubscribeRealtime: (() => void) | null = null;
   private intersectionObserver: IntersectionObserver | null = null;
+  private popoverRef: OverlayRef | null = null;
 
   protected newReleases = computed(() => {
     const lastChecked = this.store.lastCheckedAt();
@@ -221,6 +234,7 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     this.unsubscribeRealtime?.();
     this.intersectionObserver?.disconnect();
+    this.popoverRef?.dispose();
   }
 
   private async loadInitialData(): Promise<void> {
@@ -430,5 +444,32 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
       this.store.addDismissedId(albumId);
       this.toast.error(extractErrorMessage(err, 'Failed to restore release.'));
     }
+  }
+
+  protected onShowSavedAlbums(event: { artistId: string; triggerElement: HTMLElement }): void {
+    this.popoverRef?.dispose();
+
+    const positionStrategy = this.overlay
+      .position()
+      .flexibleConnectedTo(event.triggerElement)
+      .withPositions([
+        { originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top', offsetY: 4 },
+        { originX: 'start', originY: 'top', overlayX: 'start', overlayY: 'bottom', offsetY: -4 },
+      ]);
+
+    this.popoverRef = this.overlay.create({
+      positionStrategy,
+      hasBackdrop: true,
+      backdropClass: 'cdk-overlay-transparent-backdrop',
+    });
+
+    this.popoverRef.backdropClick().subscribe(() => this.popoverRef?.dispose());
+    this.popoverRef.keydownEvents().subscribe((e) => {
+      if (e.key === 'Escape') this.popoverRef?.dispose();
+    });
+
+    const portal = new ComponentPortal(SavedAlbumsPopover);
+    const ref = this.popoverRef.attach(portal);
+    ref.setInput('artistId', event.artistId);
   }
 }

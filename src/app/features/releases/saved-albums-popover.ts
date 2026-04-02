@@ -10,7 +10,7 @@ import { LoadingSpinner } from '@shared';
   template: `
     <div class="popover-content">
       @if (loading()) {
-        <app-loading-spinner diameter="24" />
+        <app-loading-spinner [diameter]="24" />
       } @else if (albums().length === 0) {
         <p class="empty">No saved albums found — run a full sync to update</p>
       } @else {
