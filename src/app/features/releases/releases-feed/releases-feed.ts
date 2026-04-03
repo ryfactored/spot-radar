@@ -49,14 +49,9 @@ const PAGE_SIZE = 20;
       (sourceFilterChange)="onSourceFilterChange($event)"
       (markAllSeen)="onMarkAllSeen()"
       (syncNow)="onSyncNow($event)"
+      [dismissedCount]="dismissedReleases().length"
+      (showDismissed)="dismissedPanelOpen.set(true)"
     />
-
-    @if (dismissedReleases().length > 0) {
-      <button class="dismissed-panel-btn" (click)="dismissedPanelOpen.set(true)">
-        <span class="material-icons">visibility_off</span>
-        {{ dismissedReleases().length }} dismissed
-      </button>
-    }
 
     @if (dismissedPanelOpen()) {
       <div
@@ -291,33 +286,6 @@ const PAGE_SIZE = 20;
       text-transform: uppercase;
       letter-spacing: 0.15em;
       color: #767579;
-    }
-
-    /* ── Dismissed panel button ── */
-    .dismissed-panel-btn {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 16px;
-      border: 1px solid rgba(186, 158, 255, 0.2);
-      border-radius: 1rem;
-      background: rgba(186, 158, 255, 0.06);
-      color: #ba9eff;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-      align-self: flex-start;
-
-      .material-icons {
-        font-size: 16px;
-      }
-
-      &:hover {
-        background: rgba(186, 158, 255, 0.12);
-        border-color: rgba(186, 158, 255, 0.4);
-      }
     }
 
     /* ── Dismissed side panel ── */
