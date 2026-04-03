@@ -110,7 +110,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
           <div class="panel-section">
             <span class="panel-label">Minimum Tracks</span>
-            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" floatLabel="always">
+              <mat-label></mat-label>
               <mat-select
                 [value]="minTrackCount()"
                 (selectionChange)="minTrackChange.emit($event.value)"
@@ -125,7 +126,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
           <div class="panel-section">
             <span class="panel-label">Recency</span>
-            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" floatLabel="always">
+              <mat-label></mat-label>
               <mat-select
                 [value]="recencyDays()"
                 (selectionChange)="recencyChange.emit($event.value)"
@@ -344,6 +346,12 @@ import { MatTooltipModule } from '@angular/material/tooltip';
       flex-direction: column;
       gap: 32px;
       overflow-y: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
     }
 
     .panel-section {
@@ -392,19 +400,38 @@ import { MatTooltipModule } from '@angular/material/tooltip';
       }
     }
 
-    /* Form field overrides */
+    /* Form field overrides — filled dark style matching Stitch */
     .panel-section mat-form-field {
       width: 100%;
+
+      /* Remove outline, use filled dark background */
       --mdc-outlined-text-field-container-shape: 0.75rem;
       --mdc-outlined-text-field-outline-color: rgba(72, 72, 71, 0.3);
       --mdc-outlined-text-field-hover-outline-color: rgba(186, 158, 255, 0.3);
-      --mdc-outlined-text-field-focus-outline-color: #ba9eff;
-      --mdc-outlined-text-field-label-text-color: #767579;
+      --mdc-outlined-text-field-focus-outline-color: rgba(186, 158, 255, 0.5);
+      --mdc-outlined-text-field-label-text-color: transparent;
       --mdc-outlined-text-field-input-text-color: #f0edf1;
+      --mat-form-field-container-height: 48px;
       --mat-select-trigger-text-color: #f0edf1;
+      --mat-select-trigger-text-size: 14px;
+      --mat-select-trigger-text-font: 'Plus Jakarta Sans', sans-serif;
+      --mat-select-trigger-text-weight: 500;
       --mat-select-panel-background-color: #19191d;
       --mat-option-label-text-color: #f0edf1;
       --mat-option-selected-state-label-text-color: #ba9eff;
+      --mat-option-label-text-font: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    /* Hide the floating label on form fields */
+    .panel-section mat-form-field .mdc-floating-label,
+    .panel-section mat-form-field .mat-mdc-floating-label {
+      display: none !important;
+    }
+
+    /* Fill the form field background */
+    .panel-section mat-form-field .mdc-text-field--outlined {
+      background: rgba(37, 37, 42, 0.6) !important;
+      border-radius: 0.75rem !important;
     }
 
     /* Toggle section */
@@ -434,12 +461,26 @@ import { MatTooltipModule } from '@angular/material/tooltip';
       color: #acaaae;
     }
 
-    /* Slide toggle overrides */
+    /* Slide toggle overrides — rounded pill style */
     .toggle-section {
       --mdc-switch-selected-track-color: #ba9eff;
       --mdc-switch-selected-handle-color: #f0edf1;
+      --mdc-switch-selected-hover-track-color: #ba9eff;
+      --mdc-switch-selected-focus-track-color: #ba9eff;
+      --mdc-switch-selected-pressed-track-color: #ba9eff;
       --mdc-switch-unselected-track-color: #25252a;
       --mdc-switch-unselected-handle-color: #f0edf1;
+      --mdc-switch-unselected-hover-track-color: #2a2a30;
+      --mdc-switch-unselected-focus-track-color: #25252a;
+      --mdc-switch-unselected-pressed-track-color: #25252a;
+      --mdc-switch-track-shape: 999px;
+      --mdc-switch-handle-shape: 999px;
+      --mdc-switch-track-height: 20px;
+      --mdc-switch-track-width: 40px;
+      --mdc-switch-handle-height: 14px;
+      --mdc-switch-handle-width: 14px;
+      --mdc-switch-selected-icon-size: 0px;
+      --mdc-switch-unselected-icon-size: 0px;
     }
 
     /* Panel footer */
