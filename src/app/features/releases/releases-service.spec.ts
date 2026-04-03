@@ -300,7 +300,7 @@ describe('ReleasesService', () => {
       await service.triggerSync(userId);
 
       expect(mockSupabaseClient.functions.invoke).toHaveBeenCalledWith('sync-releases', {
-        body: { userId, skipRecent: true },
+        body: { userId },
       });
     });
 

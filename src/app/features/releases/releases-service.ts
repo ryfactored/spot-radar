@@ -276,7 +276,6 @@ export class ReleasesService {
    */
   async triggerSync(
     userId: string,
-    skipRecent = true,
     onProgress?: (checked: number, total: number) => void,
   ): Promise<void> {
     let done = false;
@@ -284,7 +283,7 @@ export class ReleasesService {
 
     while (!done) {
       const { data, error } = await this.supabase.client.functions.invoke('sync-releases', {
-        body: { userId, skipRecent },
+        body: { userId },
       });
       if (error) throw new Error('Something went wrong. Please try again.');
 
@@ -295,10 +294,6 @@ export class ReleasesService {
       if (onProgress) {
         onProgress(totalChecked, totalChecked + result.remaining);
       }
-
-      // After the first call, always use skipRecent=true so we don't re-check
-      // artists that were just checked in this sync session
-      skipRecent = true;
     }
   }
 }
