@@ -5,6 +5,8 @@ import { signal } from '@angular/core';
 import { Dashboard } from './dashboard';
 import { AuthService, FeatureFlags } from '@core';
 import { ProfileStore } from '@features/profile/profile-store';
+import { ReleasesStore } from '@features/releases/releases-store';
+import { ReleasesService } from '@features/releases/releases-service';
 
 describe('Dashboard', () => {
   let component: Dashboard;
@@ -15,15 +17,33 @@ describe('Dashboard', () => {
       id: '123',
       email: 'test@example.com',
     },
-    featureOverrides: Record<string, boolean> = {},
     displayName: string | null = null,
   ) {
     const authMock = { currentUser: signal(user) };
     const featureFlagsMock = {
-      isEnabled: (feature: string) => featureOverrides[feature] ?? true,
+      isEnabled: () => true,
     };
     const profileStoreMock = {
       displayName: signal(displayName),
+    };
+    const releasesStoreMock = {
+      allReleases: signal([]),
+      followedArtistIds: signal([]),
+      totalCount: signal(0),
+      setArtistIds: vi.fn(),
+      setReleases: vi.fn(),
+    };
+    const releasesServiceMock = {
+      getUserArtistIds: vi.fn().mockResolvedValue([]),
+      getPreferences: vi.fn().mockResolvedValue({
+        release_type_filter: 'everything',
+        min_track_count: 0,
+        recency_days: 90,
+        hide_live: false,
+        source_filter: 'all',
+        last_checked_at: null,
+      }),
+      getFeed: vi.fn().mockResolvedValue({ data: [], count: 0 }),
     };
 
     await TestBed.configureTestingModule({
@@ -33,6 +53,8 @@ describe('Dashboard', () => {
         { provide: AuthService, useValue: authMock },
         { provide: FeatureFlags, useValue: featureFlagsMock },
         { provide: ProfileStore, useValue: profileStoreMock },
+        { provide: ReleasesStore, useValue: releasesStoreMock },
+        { provide: ReleasesService, useValue: releasesServiceMock },
       ],
     }).compileComponents();
 
@@ -51,44 +73,23 @@ describe('Dashboard', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should display welcome message with display name', async () => {
-    await setupTest({ id: '1', email: 'jane@example.com' }, {}, 'Jane');
-    expect(fixture.nativeElement.textContent).toContain('Welcome back, Jane');
+  it('should show welcome with display name when no releases', async () => {
+    await setupTest({ id: '1', email: 'jane@example.com' }, 'Jane');
+    expect(fixture.nativeElement.textContent).toContain('Welcome, Jane');
   });
 
-  it('should fall back to email when no display name', async () => {
-    await setupTest({ id: '1', email: 'jane@example.com' }, {}, null);
-    expect(fixture.nativeElement.textContent).toContain('Welcome back, jane@example.com');
+  it('should show welcome with email when no display name', async () => {
+    await setupTest({ id: '1', email: 'jane@example.com' }, null);
+    expect(fixture.nativeElement.textContent).toContain('Welcome, jane@example.com');
   });
 
-  it('should display dashboard heading', async () => {
+  it('should display Followed Artists section', async () => {
     await setupTest();
-    const heading = fixture.nativeElement.querySelector('h1');
-    expect(heading.textContent).toContain('Dashboard');
+    expect(fixture.nativeElement.textContent).toContain('Followed Artists');
   });
 
-  it('should render all quick link cards', async () => {
+  it('should display Library Sync section', async () => {
     await setupTest();
-    const cards = fixture.nativeElement.querySelectorAll('.link-card');
-    expect(cards.length).toBe(4);
-  });
-
-  it('should have links to all feature pages', async () => {
-    await setupTest();
-    const links = fixture.nativeElement.querySelectorAll('.link-card');
-    const hrefs = Array.from(links).map((el: any) => el.getAttribute('href'));
-    expect(hrefs).toContain('/notes');
-    expect(hrefs).toContain('/chat');
-    expect(hrefs).toContain('/files');
-    expect(hrefs).toContain('/profile');
-  });
-
-  it('should display card titles', async () => {
-    await setupTest();
-    const text = fixture.nativeElement.textContent;
-    expect(text).toContain('Notes');
-    expect(text).toContain('Chat');
-    expect(text).toContain('Files');
-    expect(text).toContain('Profile');
+    expect(fixture.nativeElement.textContent).toContain('Library Sync');
   });
 });
