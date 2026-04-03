@@ -614,6 +614,9 @@ import { TitleCasePipe } from '@angular/common';
       display: flex;
       flex-direction: column;
       gap: 8px;
+      flex-shrink: 0;
+      border-top: 1px solid rgba(72, 72, 71, 0.1);
+      margin-top: auto;
     }
 
     .btn-apply {
