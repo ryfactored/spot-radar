@@ -277,11 +277,16 @@ export class ReleasesService {
     callback: (progress: { checked: number; total: number; releasesFound: number }) => void,
   ): () => void {
     const channel = this.supabase.client.channel(`sync-progress:${userId}`);
-    channel.on('broadcast', { event: 'progress' }, (msg) => {
-      const payload = msg['payload'] as { checked: number; total: number; releasesFound: number };
-      callback(payload);
-    });
-    channel.subscribe();
+    channel
+      .on('broadcast', { event: 'progress' }, (msg) => {
+        const payload = msg['payload'] as {
+          checked: number;
+          total: number;
+          releasesFound: number;
+        };
+        callback(payload);
+      })
+      .subscribe();
     return () => {
       this.supabase.client.removeChannel(channel);
     };
