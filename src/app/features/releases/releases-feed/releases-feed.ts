@@ -882,23 +882,20 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
   protected onDismiss(albumId: string): void {
     this.store.addDismissedId(albumId);
 
+    // Persist immediately
+    this.service.dismissRelease(this.userId, albumId).catch((err) => {
+      this.store.removeDismissedId(albumId);
+      this.toast.error(extractErrorMessage(err, 'Failed to dismiss release.'));
+    });
+
+    // Toast with undo — undo calls undismiss which also persists
     this.toast.showWithAction(
       'Release Dismissed',
       'Undo',
-      () => this.store.removeDismissedId(albumId),
+      () => this.onUndismiss(albumId),
       5000,
       'success',
     );
-
-    // Persist after a delay to allow undo
-    setTimeout(() => {
-      if (this.store.dismissedIds().has(albumId)) {
-        this.service.dismissRelease(this.userId, albumId).catch((err) => {
-          this.store.removeDismissedId(albumId);
-          this.toast.error(extractErrorMessage(err, 'Failed to dismiss release.'));
-        });
-      }
-    }, 5500);
   }
 
   protected async onUndismiss(albumId: string): Promise<void> {
