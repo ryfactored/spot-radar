@@ -19,8 +19,7 @@ import { SyncProgress } from './releases-store';
             } @else {
               Checked {{ progress().checked | number }} of {{ progress().total | number }} artists
               @if (progress().releasesFound > 0) {
-                — {{ progress().releasesFound }}
-                {{ progress().releasesFound === 1 ? 'release' : 'releases' }} found
+                — <span class="new-count">{{ progress().releasesFound }} new!</span>
               }
             }
           </p>
@@ -64,6 +63,11 @@ import { SyncProgress } from './releases-store';
       font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: 0.875rem;
       color: #acaaae;
+    }
+
+    .new-count {
+      color: #6df5e1;
+      font-weight: 700;
     }
 
     .sync-pct {
