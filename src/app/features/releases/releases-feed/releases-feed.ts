@@ -297,26 +297,26 @@ const PAGE_SIZE = 20;
     .dismissed-panel-btn {
       display: flex;
       align-items: center;
-      gap: 6px;
-      padding: 6px 14px;
-      border: 1px solid rgba(72, 72, 71, 0.2);
+      gap: 8px;
+      padding: 8px 16px;
+      border: 1px solid rgba(186, 158, 255, 0.2);
       border-radius: 1rem;
-      background: transparent;
-      color: #767579;
+      background: rgba(186, 158, 255, 0.06);
+      color: #ba9eff;
       font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s;
       align-self: flex-start;
 
       .material-icons {
-        font-size: 14px;
+        font-size: 16px;
       }
 
       &:hover {
-        border-color: rgba(186, 158, 255, 0.3);
-        color: #ba9eff;
+        background: rgba(186, 158, 255, 0.12);
+        border-color: rgba(186, 158, 255, 0.4);
       }
     }
 
