@@ -29,10 +29,11 @@ describe('FeedFilterBar', () => {
     const emitted: string[] = [];
     component.releaseTypeChange.subscribe((v: string) => emitted.push(v));
 
-    // Simulate the toggle group change event
-    const toggles = fixture.nativeElement.querySelectorAll('mat-button-toggle button');
+    // The second toggle group is release type; get its toggle buttons
+    const toggleGroups = fixture.nativeElement.querySelectorAll('mat-button-toggle-group');
+    const releaseTypeToggles = toggleGroups[1].querySelectorAll('mat-button-toggle button');
     // Click the "Albums" toggle (second one)
-    (toggles[1] as HTMLButtonElement).click();
+    (releaseTypeToggles[1] as HTMLButtonElement).click();
     fixture.detectChanges();
 
     expect(emitted).toEqual(['album']);
@@ -42,9 +43,7 @@ describe('FeedFilterBar', () => {
     let emitted = false;
     component.markAllSeen.subscribe(() => (emitted = true));
 
-    const btn = fixture.nativeElement.querySelector(
-      'button[mat-stroked-button]',
-    ) as HTMLButtonElement;
+    const btn = fixture.nativeElement.querySelector('button.btn-actions') as HTMLButtonElement;
     btn.click();
 
     expect(emitted).toBe(true);

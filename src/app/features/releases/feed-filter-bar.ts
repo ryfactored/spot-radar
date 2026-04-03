@@ -53,118 +53,129 @@ import { MatTooltipModule } from '@angular/material/tooltip';
         @if (hideLive()) {
           <span class="filter-pill">No live</span>
         }
-        <button
-          class="tune-btn"
-          #tuneBtnRef
-          (click)="toggleFilterPanel()"
-          aria-label="Open filters"
-        >
+        <button class="tune-btn" (click)="openFilterPanel()" aria-label="Open filters">
           <mat-icon>tune</mat-icon>
         </button>
       </div>
     </div>
 
-    <div
-      class="panel-backdrop"
-      [class.visible]="panelOpen()"
-      role="button"
-      tabindex="-1"
-      (click)="panelOpen.set(false)"
-      (keydown.escape)="panelOpen.set(false)"
-    ></div>
-    <div class="filter-panel" [class.open]="panelOpen()">
-      <div class="panel-section">
-        <span class="panel-label">Release Type</span>
-        <mat-button-toggle-group
-          [value]="releaseTypeFilter()"
-          (change)="releaseTypeChange.emit($event.value)"
-          aria-label="Release type"
-        >
-          <mat-button-toggle value="everything">Everything</mat-button-toggle>
-          <mat-button-toggle value="album">Albums</mat-button-toggle>
-          <mat-button-toggle value="single">Singles</mat-button-toggle>
-        </mat-button-toggle-group>
-      </div>
-
-      <div class="panel-section">
-        <span class="panel-label">Source</span>
-        <mat-button-toggle-group
-          [value]="sourceFilter()"
-          (change)="sourceFilterChange.emit($event.value)"
-          aria-label="Artist source"
-        >
-          <mat-button-toggle value="all">All</mat-button-toggle>
-          <mat-button-toggle value="followed">Following</mat-button-toggle>
-          <mat-button-toggle value="saved">In Library</mat-button-toggle>
-        </mat-button-toggle-group>
-      </div>
-
-      <div class="panel-section">
-        <mat-form-field appearance="outline" subscriptSizing="dynamic">
-          <mat-label>Min tracks</mat-label>
-          <mat-select
-            [value]="minTrackCount()"
-            (selectionChange)="minTrackChange.emit($event.value)"
-          >
-            <mat-option [value]="0">No minimum</mat-option>
-            <mat-option [value]="3">3+</mat-option>
-            <mat-option [value]="5">5+</mat-option>
-            <mat-option [value]="8">8+</mat-option>
-          </mat-select>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" subscriptSizing="dynamic">
-          <mat-label>Recency</mat-label>
-          <mat-select [value]="recencyDays()" (selectionChange)="recencyChange.emit($event.value)">
-            <mat-option [value]="30">Last 30 days</mat-option>
-            <mat-option [value]="90">Last 90 days</mat-option>
-            <mat-option [value]="180">Last 6 months</mat-option>
-            <mat-option [value]="365">Last year</mat-option>
-          </mat-select>
-        </mat-form-field>
-      </div>
-
-      <div class="panel-section">
-        <mat-slide-toggle [checked]="hideLive()" (change)="hideLiveChange.emit($event.checked)">
-          Hide live albums
-        </mat-slide-toggle>
-      </div>
-
-      <div class="panel-section panel-actions">
-        <button mat-stroked-button (click)="markAllSeen.emit()">
-          <mat-icon>check</mat-icon>
-          Mark all seen
-        </button>
-
-        <div class="split-btn" [class.disabled]="syncing()">
-          <button
-            mat-flat-button
-            class="split-main gradient-btn"
-            [disabled]="syncing()"
-            matTooltip="Check for new releases from your current artists"
-            (click)="syncNow.emit('quick')"
-          >
-            <mat-icon>sync</mat-icon>
-            {{ syncing() ? 'Syncing…' : 'Sync' }}
-          </button>
-          <button
-            mat-flat-button
-            class="split-arrow gradient-btn"
-            [disabled]="syncing()"
-            [matMenuTriggerFor]="syncMenu"
-            aria-label="More sync options"
-          >
-            <mat-icon>arrow_drop_down</mat-icon>
+    @if (panelOpen()) {
+      <div
+        class="panel-backdrop"
+        role="button"
+        tabindex="-1"
+        (click)="closeFilterPanel()"
+        (keydown.escape)="closeFilterPanel()"
+      ></div>
+    }
+    <div class="filter-side-panel" [class.open]="panelOpen()">
+      <div class="panel-inner">
+        <div class="panel-header">
+          <h4 class="panel-title">Filters</h4>
+          <button class="panel-close" (click)="closeFilterPanel()">
+            <mat-icon>close</mat-icon>
           </button>
         </div>
 
-        <mat-menu #syncMenu="matMenu">
-          <button mat-menu-item (click)="syncNow.emit('full')">
-            <mat-icon>manage_search</mat-icon>
-            <span>Full sync</span>
-            <span class="menu-hint">Re-fetch your Spotify library</span>
+        <div class="panel-body">
+          <div class="panel-section">
+            <span class="panel-label">Display Collection</span>
+            <div class="segmented-control">
+              <mat-button-toggle-group
+                [value]="sourceFilter()"
+                (change)="sourceFilterChange.emit($event.value)"
+                aria-label="Artist source"
+              >
+                <mat-button-toggle value="all">All</mat-button-toggle>
+                <mat-button-toggle value="followed">Following</mat-button-toggle>
+                <mat-button-toggle value="saved">In Library</mat-button-toggle>
+              </mat-button-toggle-group>
+            </div>
+          </div>
+
+          <div class="panel-section">
+            <span class="panel-label">Release Type</span>
+            <div class="segmented-control">
+              <mat-button-toggle-group
+                [value]="releaseTypeFilter()"
+                (change)="releaseTypeChange.emit($event.value)"
+                aria-label="Release type"
+              >
+                <mat-button-toggle value="everything">All</mat-button-toggle>
+                <mat-button-toggle value="album">Albums</mat-button-toggle>
+                <mat-button-toggle value="single">Singles</mat-button-toggle>
+              </mat-button-toggle-group>
+            </div>
+          </div>
+
+          <div class="panel-section">
+            <span class="panel-label">Minimum Tracks</span>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-select
+                [value]="minTrackCount()"
+                (selectionChange)="minTrackChange.emit($event.value)"
+              >
+                <mat-option [value]="0">Any Number</mat-option>
+                <mat-option [value]="3">3+ Tracks</mat-option>
+                <mat-option [value]="5">5+ Tracks</mat-option>
+                <mat-option [value]="8">8+ Tracks</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div class="panel-section">
+            <span class="panel-label">Recency</span>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-select
+                [value]="recencyDays()"
+                (selectionChange)="recencyChange.emit($event.value)"
+              >
+                <mat-option [value]="30">Last 30 days</mat-option>
+                <mat-option [value]="90">Last 90 days</mat-option>
+                <mat-option [value]="180">Last 6 months</mat-option>
+                <mat-option [value]="365">Last year</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div class="panel-section toggle-section">
+            <div class="toggle-info">
+              <span class="toggle-title">Hide Live Albums</span>
+              <span class="toggle-subtitle">Show only studio recordings</span>
+            </div>
+            <mat-slide-toggle
+              [checked]="hideLive()"
+              (change)="hideLiveChange.emit($event.checked)"
+            />
+          </div>
+        </div>
+
+        <div class="panel-footer">
+          <button class="btn-apply" (click)="closeFilterPanel()">
+            <mat-icon>check</mat-icon>
+            Apply Filters
           </button>
-        </mat-menu>
+          <button class="btn-actions" (click)="markAllSeen.emit(); closeFilterPanel()">
+            Mark all seen
+          </button>
+          <div class="sync-row">
+            <button
+              class="btn-sync"
+              [disabled]="syncing()"
+              (click)="syncNow.emit('quick'); closeFilterPanel()"
+            >
+              <mat-icon>sync</mat-icon>
+              {{ syncing() ? 'Syncing…' : 'Quick Sync' }}
+            </button>
+            <button
+              class="btn-sync-full"
+              [disabled]="syncing()"
+              (click)="syncNow.emit('full'); closeFilterPanel()"
+            >
+              Full Sync
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   `,
@@ -261,56 +272,131 @@ import { MatTooltipModule } from '@angular/material/tooltip';
       }
     }
 
+    /* Side panel */
+    .filter-side-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      height: 100%;
+      width: 320px;
+      background: #1f1f23;
+      z-index: 60;
+      transform: translateX(100%);
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: -20px 0 60px rgba(0, 0, 0, 0.5);
+      border-left: 1px solid rgba(72, 72, 71, 0.2);
+    }
+
+    .filter-side-panel.open {
+      transform: translateX(0);
+    }
+
     .panel-backdrop {
       position: fixed;
       inset: 0;
-      z-index: 999;
-      display: none;
+      background: rgba(0, 0, 0, 0.3);
+      z-index: 59;
+    }
 
-      &.visible {
-        display: block;
+    .panel-inner {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding: 32px;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 40px;
+    }
+
+    .panel-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #f0edf1;
+      margin: 0;
+    }
+
+    .panel-close {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      color: #acaaae;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .panel-close:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .panel-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+      overflow-y: auto;
+    }
+
+    .panel-section {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .panel-label {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: #acaaae;
+    }
+
+    /* Segmented control — override mat-button-toggle-group */
+    .segmented-control {
+      mat-button-toggle-group {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 0.75rem;
+        padding: 4px;
+        border: none !important;
+        gap: 4px;
+
+        --mat-standard-button-toggle-selected-state-background-color: #ba9eff;
+        --mat-standard-button-toggle-selected-state-text-color: #000;
+        --mat-standard-button-toggle-text-color: #acaaae;
+        --mat-standard-button-toggle-background-color: transparent;
+        --mat-standard-button-toggle-shape: 0.5rem;
+        --mat-standard-button-toggle-divider-color: transparent;
+        --mat-standard-button-toggle-height: 36px;
+      }
+
+      mat-button-toggle {
+        flex: 1;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 12px;
+        font-weight: 500;
+
+        &.mat-button-toggle-checked {
+          font-weight: 700;
+        }
       }
     }
 
-    .filter-panel {
-      position: absolute;
-      top: 100%;
-      right: 0;
-      z-index: 1000;
-      margin-top: 8px;
-      opacity: 0;
-      pointer-events: none;
-      transform: translateY(-8px);
-      transition:
-        opacity 0.2s ease,
-        transform 0.2s ease;
-
-      &.open {
-        opacity: 1;
-        pointer-events: auto;
-        transform: translateY(0);
-      }
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      padding: 20px;
-      background: rgba(25, 25, 29, 0.85);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      border: 1px solid rgba(72, 72, 71, 0.15);
-      border-radius: 1rem;
-      box-shadow: 0 40px 40px rgba(186, 158, 255, 0.06);
-      min-width: 340px;
-
-      --mat-standard-button-toggle-selected-state-background-color: rgba(186, 158, 255, 0.15);
-      --mat-standard-button-toggle-selected-state-text-color: #ba9eff;
-      --mat-standard-button-toggle-text-color: #acaaae;
-      --mat-standard-button-toggle-background-color: transparent;
-      --mat-standard-button-toggle-shape: 12px;
-      --mat-standard-button-toggle-divider-color: rgba(72, 72, 71, 0.15);
-
-      /* Material form field overrides */
-      --mdc-outlined-text-field-outline-color: rgba(72, 72, 71, 0.2);
+    /* Form field overrides */
+    .panel-section mat-form-field {
+      width: 100%;
+      --mdc-outlined-text-field-container-shape: 0.75rem;
+      --mdc-outlined-text-field-outline-color: rgba(72, 72, 71, 0.3);
       --mdc-outlined-text-field-hover-outline-color: rgba(186, 158, 255, 0.3);
       --mdc-outlined-text-field-focus-outline-color: #ba9eff;
       --mdc-outlined-text-field-label-text-color: #767579;
@@ -319,67 +405,130 @@ import { MatTooltipModule } from '@angular/material/tooltip';
       --mat-select-panel-background-color: #19191d;
       --mat-option-label-text-color: #f0edf1;
       --mat-option-selected-state-label-text-color: #ba9eff;
+    }
 
-      /* Slide toggle override */
+    /* Toggle section */
+    .toggle-section {
+      flex-direction: row !important;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 8px;
+    }
+
+    .toggle-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .toggle-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      color: #f0edf1;
+    }
+
+    .toggle-subtitle {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 10px;
+      color: #acaaae;
+    }
+
+    /* Slide toggle overrides */
+    .toggle-section {
       --mdc-switch-selected-track-color: #ba9eff;
       --mdc-switch-selected-handle-color: #f0edf1;
-      --mdc-switch-unselected-track-color: #48474b;
-      --mat-slide-toggle-label-text-color: #acaaae;
+      --mdc-switch-unselected-track-color: #25252a;
+      --mdc-switch-unselected-handle-color: #f0edf1;
     }
 
-    .panel-section {
+    /* Panel footer */
+    .panel-footer {
+      padding-top: 24px;
       display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 12px;
+      flex-direction: column;
+      gap: 8px;
     }
 
-    .panel-label {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 9px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: #ba9eff;
+    .btn-apply {
       width: 100%;
-      margin-bottom: -4px;
+      padding: 14px;
+      background: linear-gradient(135deg, #ba9eff, #8553f3);
+      color: #000;
+      border: none;
+      border-radius: 0.75rem;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 10px 20px rgba(186, 158, 255, 0.2);
+      transition: transform 0.15s;
     }
 
-    .panel-actions {
+    .btn-apply:hover {
+      transform: scale(1.02);
+    }
+
+    .btn-apply:active {
+      transform: scale(0.98);
+    }
+
+    .btn-actions {
+      width: 100%;
+      padding: 12px;
+      background: transparent;
+      border: none;
+      color: #acaaae;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .btn-actions:hover {
+      color: #f0edf1;
+    }
+
+    .sync-row {
+      display: flex;
+      gap: 8px;
       margin-top: 4px;
     }
 
-    mat-form-field {
-      min-width: 140px;
-    }
-
-    .split-btn {
+    .btn-sync,
+    .btn-sync-full {
+      flex: 1;
+      padding: 10px;
+      border-radius: 0.5rem;
+      border: 1px solid rgba(72, 72, 71, 0.3);
+      background: transparent;
+      color: #acaaae;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
       display: flex;
-      align-items: stretch;
-
-      .split-main {
-        border-radius: 12px 0 0 12px;
-        border-right: none;
-      }
-
-      .split-arrow {
-        border-radius: 0 12px 12px 0;
-        padding: 0 4px;
-        min-width: unset;
-      }
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      transition: all 0.2s;
     }
 
-    .gradient-btn {
-      background: linear-gradient(135deg, #8455ef, #ba9eff) !important;
-      color: #000000 !important;
-      font-weight: 700;
+    .btn-sync:hover,
+    .btn-sync-full:hover {
+      border-color: rgba(186, 158, 255, 0.3);
+      color: #f0edf1;
     }
 
-    .menu-hint {
-      display: block;
-      font-size: 0.7rem;
-      color: #767579;
-      margin-top: 1px;
+    .btn-sync:disabled,
+    .btn-sync-full:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
     }
 
     @media (max-width: 600px) {
@@ -421,7 +570,11 @@ export class FeedFilterBar {
     this.panelOpen.set(false);
   }
 
-  toggleFilterPanel(): void {
-    this.panelOpen.update((v) => !v);
+  openFilterPanel(): void {
+    this.panelOpen.set(true);
+  }
+
+  closeFilterPanel(): void {
+    this.panelOpen.set(false);
   }
 }
