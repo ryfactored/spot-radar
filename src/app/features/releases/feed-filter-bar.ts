@@ -37,6 +37,12 @@ import { TitleCasePipe } from '@angular/common';
         @if (hideLive()) {
           <span class="filter-pill">No live</span>
         }
+        @if (dismissedCount() > 0) {
+          <button class="dismissed-pill" (click)="showDismissed.emit()">
+            <span class="material-icons">visibility_off</span>
+            {{ dismissedCount() }}
+          </button>
+        }
         <button class="tune-btn" (click)="openFilterPanel()" aria-label="Open filters">
           <span class="material-icons">tune</span>
         </button>
@@ -269,6 +275,31 @@ import { TitleCasePipe } from '@angular/common';
       padding: 5px 12px;
       border-radius: 1rem;
       font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .dismissed-pill {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 12px;
+      border-radius: 1rem;
+      border: 1px solid rgba(186, 158, 255, 0.2);
+      background: rgba(186, 158, 255, 0.06);
+      color: #ba9eff;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+
+      .material-icons {
+        font-size: 14px;
+      }
+
+      &:hover {
+        background: rgba(186, 158, 255, 0.12);
+        border-color: rgba(186, 158, 255, 0.4);
+      }
     }
 
     .tune-btn {
@@ -636,6 +667,7 @@ export class FeedFilterBar {
   hideLive = input.required<boolean>();
   sourceFilter = input.required<string>();
   syncing = input<boolean>(false);
+  dismissedCount = input<number>(0);
 
   releaseTypeChange = output<string>();
   minTrackChange = output<number>();
@@ -644,6 +676,7 @@ export class FeedFilterBar {
   sourceFilterChange = output<string>();
   markAllSeen = output<void>();
   syncNow = output<'quick' | 'full'>();
+  showDismissed = output<void>();
 
   protected panelOpen = signal(false);
 
