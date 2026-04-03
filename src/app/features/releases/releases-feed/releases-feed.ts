@@ -688,13 +688,9 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
           );
 
           // Trigger the onboarding Edge Function and wait for it to finish
-          const unsubOnboarding = this.service.subscribeSyncProgress(this.userId, (progress) => {
-            this.store.setSyncProgress({ ...progress, syncing: true });
-          });
           await this.service.triggerSync(this.userId, true, (checked, total) => {
             this.store.setSyncProgress({ total, checked, syncing: true, releasesFound: 0 });
           });
-          unsubOnboarding();
           this.store.setSyncProgress({ total: 0, checked: 0, syncing: false, releasesFound: 0 });
           // Load the full feed now — Realtime may have missed some during sync
           await this.loadFeed(1);
@@ -871,17 +867,9 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
         releasesFound: 0,
       });
 
-      // Subscribe to real-time progress broadcasts from the edge function
-      const unsubProgress = this.service.subscribeSyncProgress(this.userId, (progress) => {
-        this.store.setSyncProgress({ ...progress, syncing: true });
-      });
-
       await this.service.triggerSync(this.userId, false, (checked, total) => {
-        // Fallback progress from chunked loop (between edge function calls)
         this.store.setSyncProgress({ total, checked, syncing: true, releasesFound: 0 });
       });
-
-      unsubProgress();
       this.store.setSyncProgress({ total: 0, checked: 0, syncing: false, releasesFound: 0 });
       await this.loadFeed(1);
       this.toast.success(mode === 'full' ? 'Full sync complete.' : 'Sync complete.');
