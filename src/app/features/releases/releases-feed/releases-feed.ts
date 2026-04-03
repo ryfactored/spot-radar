@@ -91,6 +91,7 @@ const PAGE_SIZE = 20;
               <app-release-card
                 [release]="secondary"
                 (dismiss)="onDismiss($event)"
+                (playRelease)="onPlay($event)"
                 (showSavedAlbums)="onShowSavedAlbums($event)"
               />
             </div>
@@ -127,6 +128,7 @@ const PAGE_SIZE = 20;
               <app-release-card
                 [release]="chunk.release"
                 (dismiss)="onDismiss($event)"
+                (playRelease)="onPlay($event)"
                 (showSavedAlbums)="onShowSavedAlbums($event)"
               />
             </div>
