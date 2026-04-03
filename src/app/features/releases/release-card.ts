@@ -37,8 +37,18 @@ import { Release } from './releases-service';
               <span class="featured-meta">&middot; {{ release().track_count }} tracks</span>
             </div>
             <div class="featured-actions">
-              <a class="featured-cta" [href]="spotifyUrl()" target="_blank" rel="noopener">
-                Open in Spotify
+              <button class="featured-cta" (click)="showPlayer.set(!showPlayer())">
+                <span class="play-icon">&#9654;</span>
+                {{ showPlayer() ? 'Hide Player' : 'Play' }}
+              </button>
+              <a
+                class="glass-btn"
+                [href]="spotifyUrl()"
+                target="_blank"
+                rel="noopener"
+                aria-label="Open in Spotify"
+              >
+                <span class="material-icons glass-icon">open_in_new</span>
               </a>
               <button class="glass-btn" (click)="onDismiss()" aria-label="Dismiss">
                 <span class="glass-icon">&#x2715;</span>
@@ -46,6 +56,18 @@ import { Release } from './releases-service';
             </div>
           </div>
         </div>
+        @if (showPlayer()) {
+          <div class="player-embed featured-player">
+            <iframe
+              [src]="embedUrl()"
+              width="100%"
+              height="152"
+              frameBorder="0"
+              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+              loading="lazy"
+            ></iframe>
+          </div>
+        }
       </div>
     } @else {
       <div class="card">
@@ -337,6 +359,16 @@ import { Release } from './releases-service';
       margin-top: 8px;
       border-radius: 12px;
       overflow: hidden;
+
+      iframe {
+        border-radius: 12px;
+        display: block;
+      }
+    }
+
+    .featured-player {
+      margin-top: 0;
+      border-radius: 0 0 12px 12px;
     }
 
     /* ── Featured card ── */
@@ -425,15 +457,21 @@ import { Release } from './releases-service';
     .featured-cta {
       display: inline-flex;
       align-items: center;
+      gap: 8px;
       padding: 10px 24px;
+      border: none;
       border-radius: 12px;
       font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: 0.875rem;
       font-weight: 700;
-      text-decoration: none;
       background: linear-gradient(135deg, #8455ef, #ba9eff);
       color: #000;
+      cursor: pointer;
       transition: opacity 0.2s;
+
+      .play-icon {
+        font-size: 12px;
+      }
 
       &:hover {
         opacity: 0.88;
