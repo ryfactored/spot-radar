@@ -269,13 +269,36 @@ export class ReleasesService {
   }
 
   /**
-   * Invoke the sync-releases Edge Function.
-   * @param skipRecent If false, re-checks all artists regardless of last check time.
+   * Invoke the sync-releases Edge Function, looping until all artists are checked.
+   * The function stops before its timeout and returns progress; we call it again
+   * to continue where it left off (using last_release_check to skip already-checked artists).
+   * @param onProgress Optional callback for progress updates between rounds.
    */
-  async triggerSync(userId: string, skipRecent = true): Promise<void> {
-    const { error } = await this.supabase.client.functions.invoke('sync-releases', {
-      body: { userId, skipRecent },
-    });
-    if (error) throw new Error('Something went wrong. Please try again.');
+  async triggerSync(
+    userId: string,
+    skipRecent = true,
+    onProgress?: (checked: number, total: number) => void,
+  ): Promise<void> {
+    let done = false;
+    let totalChecked = 0;
+
+    while (!done) {
+      const { data, error } = await this.supabase.client.functions.invoke('sync-releases', {
+        body: { userId, skipRecent },
+      });
+      if (error) throw new Error('Something went wrong. Please try again.');
+
+      const result = data as { total: number; checked: number; remaining: number; done: boolean };
+      totalChecked += result.checked;
+      done = result.done;
+
+      if (onProgress) {
+        onProgress(totalChecked, totalChecked + result.remaining);
+      }
+
+      // After the first call, always use skipRecent=true so we don't re-check
+      // artists that were just checked in this sync session
+      skipRecent = true;
+    }
   }
 }
