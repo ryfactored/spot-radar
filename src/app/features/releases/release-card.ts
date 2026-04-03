@@ -1,14 +1,5 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  input,
-  output,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { DatePipe, TitleCasePipe } from '@angular/common';
-import { DomSanitizer } from '@angular/platform-browser';
 import { Release } from './releases-service';
 
 @Component({
@@ -37,9 +28,9 @@ import { Release } from './releases-service';
               <span class="featured-meta">&middot; {{ release().track_count }} tracks</span>
             </div>
             <div class="featured-actions">
-              <button class="featured-cta" (click)="showPlayer.set(!showPlayer())">
+              <button class="featured-cta" (click)="onPlay()">
                 <span class="play-icon">&#9654;</span>
-                {{ showPlayer() ? 'Hide Player' : 'Play' }}
+                Play
               </button>
               <a
                 class="glass-btn"
@@ -56,18 +47,6 @@ import { Release } from './releases-service';
             </div>
           </div>
         </div>
-        @if (showPlayer()) {
-          <div class="player-embed featured-player">
-            <iframe
-              [src]="embedUrl()"
-              width="100%"
-              height="152"
-              frameBorder="0"
-              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-              loading="lazy"
-            ></iframe>
-          </div>
-        }
       </div>
     } @else {
       <div class="card">
@@ -78,8 +57,8 @@ import { Release } from './releases-service';
             [alt]="release().title"
           />
           <div class="art-hover-overlay">
-            <button class="play-btn" (click)="showPlayer.set(!showPlayer())">
-              <span class="play-icon">{{ showPlayer() ? '&#x25A0;' : '&#9654;' }}</span>
+            <button class="play-btn" (click)="onPlay()">
+              <span class="play-icon">&#9654;</span>
             </button>
           </div>
           <button class="dismiss-btn btn-dismiss" (click)="onDismiss()" aria-label="Dismiss">
@@ -120,19 +99,6 @@ import { Release } from './releases-service';
             </a>
           </div>
         </div>
-        @if (showPlayer()) {
-          <div class="player-embed">
-            <iframe
-              [src]="embedUrl()"
-              width="100%"
-              height="152"
-              frameBorder="0"
-              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-              loading="lazy"
-              style="border-radius: 12px"
-            ></iframe>
-          </div>
-        }
       </div>
     }
   `,
@@ -355,22 +321,6 @@ import { Release } from './releases-service';
       color: #767579;
     }
 
-    .player-embed {
-      margin-top: 8px;
-      border-radius: 12px;
-      overflow: hidden;
-
-      iframe {
-        border-radius: 12px;
-        display: block;
-      }
-    }
-
-    .featured-player {
-      margin-top: 0;
-      border-radius: 0 0 12px 12px;
-    }
-
     /* ── Featured card ── */
     .featured-card {
       width: 100%;
@@ -517,19 +467,11 @@ import { Release } from './releases-service';
   `,
 })
 export class ReleaseCard {
-  private sanitizer = inject(DomSanitizer);
-
   release = input.required<Release>();
   featured = input(false);
   dismiss = output<string>();
+  playRelease = output<Release>();
   showSavedAlbums = output<{ artistId: string; triggerElement: HTMLElement }>();
-
-  protected showPlayer = signal(false);
-
-  readonly embedUrl = computed(() => {
-    const url = `https://open.spotify.com/embed/album/${this.release().spotify_album_id}?utm_source=generator&theme=0`;
-    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
-  });
 
   readonly spotifyUrl = computed(
     () => `https://open.spotify.com/album/${this.release().spotify_album_id}`,
@@ -537,6 +479,10 @@ export class ReleaseCard {
 
   onDismiss(): void {
     this.dismiss.emit(this.release().spotify_album_id);
+  }
+
+  onPlay(): void {
+    this.playRelease.emit(this.release());
   }
 
   onShowSavedAlbums(event: MouseEvent): void {
