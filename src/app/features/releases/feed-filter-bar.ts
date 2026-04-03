@@ -16,7 +16,17 @@ import { TitleCasePipe } from '@angular/common';
     <div class="header-bar">
       <div class="header-left">
         <span class="curated-label">Curated Discovery</span>
-        <h2 class="feed-title">New Releases</h2>
+        <h2 class="feed-title">
+          New Releases
+          <button
+            class="sync-btn"
+            [disabled]="syncing()"
+            [title]="syncing() ? 'Syncing…' : 'Sync new releases'"
+            (click)="syncNow.emit('quick')"
+          >
+            <span class="material-icons" [class.spinning]="syncing()">sync</span>
+          </button>
+        </h2>
         <p class="feed-subtitle">Fresh releases from artists you follow and save</p>
       </div>
       <div class="pills-area">
@@ -247,6 +257,46 @@ import { TitleCasePipe } from '@angular/common';
       color: #f0edf1;
       margin: 0;
       line-height: 1.1;
+    }
+
+    .sync-btn {
+      background: none;
+      border: none;
+      color: #767579;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      vertical-align: middle;
+      margin-left: 8px;
+      transition: color 0.2s;
+
+      .material-icons {
+        font-size: 20px;
+      }
+
+      &:hover:not(:disabled) {
+        color: #ba9eff;
+      }
+
+      &:disabled {
+        cursor: not-allowed;
+        opacity: 0.5;
+      }
+
+      .spinning {
+        animation: spin 1s linear infinite;
+      }
+    }
+
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
     }
 
     .feed-subtitle {
