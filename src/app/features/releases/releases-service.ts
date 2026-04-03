@@ -261,11 +261,12 @@ export class ReleasesService {
   }
 
   /**
-   * Invoke the sync-releases Edge Function to trigger an onboarding sync.
+   * Invoke the sync-releases Edge Function.
+   * @param skipRecent If false, re-checks all artists regardless of last check time.
    */
-  async triggerOnboardingSync(userId: string): Promise<void> {
+  async triggerSync(userId: string, skipRecent = true): Promise<void> {
     const { error } = await this.supabase.client.functions.invoke('sync-releases', {
-      body: { userId },
+      body: { userId, skipRecent },
     });
     if (error) throw new Error('Something went wrong. Please try again.');
   }

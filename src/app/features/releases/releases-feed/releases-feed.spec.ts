@@ -30,7 +30,7 @@ describe('ReleasesFeed', () => {
             dismissRelease: vi.fn().mockResolvedValue(undefined),
             undismissRelease: vi.fn().mockResolvedValue(undefined),
             syncArtists: vi.fn().mockResolvedValue(undefined),
-            triggerOnboardingSync: vi.fn().mockResolvedValue(undefined),
+            triggerSync: vi.fn().mockResolvedValue(undefined),
           },
         },
         {
