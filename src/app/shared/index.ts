@@ -1,4 +1,6 @@
 export { ToastService } from './toast';
+export type { ToastMessage } from './toast';
+export { ToastContainer } from './toast-container';
 export { ConfirmDialog } from './confirm-dialog/confirm-dialog';
 export { ConfirmDialogService } from './confirm-dialog/confirm-dialog-service';
 export type { ConfirmDialogData } from './confirm-dialog/confirm-dialog-service';

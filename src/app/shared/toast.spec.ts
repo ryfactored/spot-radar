@@ -1,18 +1,12 @@
 import { TestBed } from '@angular/core/testing';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { vi } from 'vitest';
 import { ToastService } from './toast';
-import { environment } from '@env';
 
 describe('ToastService', () => {
   let service: ToastService;
-  let snackBarMock: { open: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
-    snackBarMock = { open: vi.fn() };
-
     TestBed.configureTestingModule({
-      providers: [ToastService, { provide: MatSnackBar, useValue: snackBarMock }],
+      providers: [ToastService],
     });
     service = TestBed.inject(ToastService);
   });
@@ -22,44 +16,67 @@ describe('ToastService', () => {
   });
 
   describe('success', () => {
-    it('should open snackbar with success config', () => {
+    it('should set toast with success type', () => {
       service.success('Success message');
 
-      expect(snackBarMock.open).toHaveBeenCalledWith('Success message', 'Close', {
-        duration: environment.toastDuration.success,
-        panelClass: ['toast-success'],
-        horizontalPosition: 'end',
-        verticalPosition: 'top',
-        politeness: 'polite',
+      expect(service.toast()).toEqual({
+        type: 'success',
+        title: 'Success message',
+        subtitle: undefined,
       });
+      expect(service.visible()).toBe(true);
     });
   });
 
   describe('error', () => {
-    it('should open snackbar with error config', () => {
+    it('should set toast with error type', () => {
       service.error('Error message');
 
-      expect(snackBarMock.open).toHaveBeenCalledWith('Error message', 'Close', {
-        duration: environment.toastDuration.error,
-        panelClass: ['toast-error'],
-        horizontalPosition: 'end',
-        verticalPosition: 'top',
-        politeness: 'assertive',
+      expect(service.toast()).toEqual({
+        type: 'error',
+        title: 'Error message',
+        subtitle: undefined,
       });
     });
   });
 
   describe('info', () => {
-    it('should open snackbar with info config', () => {
+    it('should set toast with info type', () => {
       service.info('Info message');
 
-      expect(snackBarMock.open).toHaveBeenCalledWith('Info message', 'Close', {
-        duration: environment.toastDuration.info,
-        panelClass: ['toast-info'],
-        horizontalPosition: 'end',
-        verticalPosition: 'top',
-        politeness: 'polite',
+      expect(service.toast()).toEqual({
+        type: 'info',
+        title: 'Info message',
+        subtitle: undefined,
       });
+    });
+  });
+
+  describe('dismiss', () => {
+    it('should clear the toast', () => {
+      service.success('Test');
+      service.dismiss();
+
+      expect(service.toast()).toBeNull();
+      expect(service.visible()).toBe(false);
+    });
+
+    it('should run action when dismissed with runAction=true', () => {
+      const action = vi.fn();
+      service.showWithAction('Test', 'Undo', action);
+      service.dismiss(true);
+
+      expect(action).toHaveBeenCalled();
+    });
+  });
+
+  describe('showWithAction', () => {
+    it('should set toast with action', () => {
+      const action = vi.fn();
+      service.showWithAction('Dismissed', 'Undo', action);
+
+      expect(service.toast()?.title).toBe('Dismissed');
+      expect(service.toast()?.action).toBe('Undo');
     });
   });
 });

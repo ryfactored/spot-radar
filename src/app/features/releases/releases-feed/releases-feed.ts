@@ -211,22 +211,6 @@ const PAGE_SIZE = 20;
         </div>
       </div>
     }
-
-    @if (undoToast()) {
-      <div class="undo-toast">
-        <div class="undo-toast-icon">
-          <span class="material-icons">check_circle</span>
-        </div>
-        <div class="undo-toast-content">
-          <span class="undo-toast-title">Release Dismissed</span>
-          <span class="undo-toast-subtitle">This release has been hidden from your feed.</span>
-        </div>
-        <button class="undo-toast-action" (click)="undoDismiss()">Undo</button>
-        <button class="undo-toast-close" (click)="clearUndoToast()">
-          <span class="material-icons">close</span>
-        </button>
-      </div>
-    }
   `,
   styles: `
     :host {
@@ -592,102 +576,6 @@ const PAGE_SIZE = 20;
         left: 0;
       }
     }
-
-    /* ── Undo Toast ── */
-    .undo-toast {
-      position: fixed;
-      bottom: 32px;
-      right: 32px;
-      z-index: 100;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 14px 16px;
-      background: #1f1f23;
-      border-radius: 12px;
-      border-left: 3px solid #ba9eff;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-      animation: toast-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-      max-width: 400px;
-    }
-
-    @keyframes toast-in {
-      from {
-        opacity: 0;
-        transform: translateY(12px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .undo-toast-icon {
-      flex-shrink: 0;
-      color: #ba9eff;
-
-      .material-icons {
-        font-size: 22px;
-      }
-    }
-
-    .undo-toast-content {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      min-width: 0;
-    }
-
-    .undo-toast-title {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 13px;
-      font-weight: 700;
-      color: #f0edf1;
-    }
-
-    .undo-toast-subtitle {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 11px;
-      color: #767579;
-    }
-
-    .undo-toast-action {
-      flex-shrink: 0;
-      padding: 6px 14px;
-      border: 1px solid rgba(186, 158, 255, 0.3);
-      border-radius: 0.5rem;
-      background: transparent;
-      color: #ba9eff;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s;
-
-      &:hover {
-        background: rgba(186, 158, 255, 0.1);
-      }
-    }
-
-    .undo-toast-close {
-      flex-shrink: 0;
-      background: none;
-      border: none;
-      color: #767579;
-      cursor: pointer;
-      padding: 2px;
-      display: flex;
-      align-items: center;
-      transition: color 0.2s;
-
-      .material-icons {
-        font-size: 16px;
-      }
-
-      &:hover {
-        color: #f0edf1;
-      }
-    }
   `,
 })
 export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
@@ -709,9 +597,6 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
 
   protected nowPlaying = signal<Release | null>(null);
   protected dismissedPanelOpen = signal(false);
-  protected undoToast = signal(false);
-  private undoAlbumId: string | null = null;
-  private undoTimer: ReturnType<typeof setTimeout> | null = null;
 
   protected playerEmbedUrl = computed((): SafeResourceUrl | null => {
     const release = this.nowPlaying();
@@ -994,45 +879,25 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
   }
 
   protected onDismiss(albumId: string): void {
-    // Clear any existing undo toast and persist the previous dismiss
-    if (this.undoAlbumId) {
-      this.persistDismiss(this.undoAlbumId);
-    }
-    if (this.undoTimer) clearTimeout(this.undoTimer);
-
     this.store.addDismissedId(albumId);
-    this.undoAlbumId = albumId;
-    this.undoToast.set(true);
 
-    this.undoTimer = setTimeout(() => {
-      this.persistDismiss(albumId);
-      this.clearUndoToast();
-    }, 5000);
-  }
+    this.toast.showWithAction(
+      'Release Dismissed',
+      'Undo',
+      () => this.store.removeDismissedId(albumId),
+      5000,
+      'success',
+    );
 
-  protected undoDismiss(): void {
-    if (this.undoAlbumId) {
-      this.store.removeDismissedId(this.undoAlbumId);
-      this.undoAlbumId = null;
-    }
-    if (this.undoTimer) clearTimeout(this.undoTimer);
-    this.undoToast.set(false);
-  }
-
-  protected clearUndoToast(): void {
-    if (this.undoAlbumId) {
-      this.persistDismiss(this.undoAlbumId);
-    }
-    if (this.undoTimer) clearTimeout(this.undoTimer);
-    this.undoAlbumId = null;
-    this.undoToast.set(false);
-  }
-
-  private persistDismiss(albumId: string): void {
-    this.service.dismissRelease(this.userId, albumId).catch((err) => {
-      this.store.removeDismissedId(albumId);
-      this.toast.error(extractErrorMessage(err, 'Failed to dismiss release.'));
-    });
+    // Persist after a delay to allow undo
+    setTimeout(() => {
+      if (this.store.dismissedIds().has(albumId)) {
+        this.service.dismissRelease(this.userId, albumId).catch((err) => {
+          this.store.removeDismissedId(albumId);
+          this.toast.error(extractErrorMessage(err, 'Failed to dismiss release.'));
+        });
+      }
+    }, 5500);
   }
 
   protected async onUndismiss(albumId: string): Promise<void> {
