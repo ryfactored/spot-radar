@@ -115,9 +115,19 @@ Deno.serve(async (req) => {
 
     let checked = 0;
     const total = artistsToCheck.length;
+    const startTime = Date.now();
+    const MAX_RUNTIME_MS = 45_000; // Stop before 60s edge function timeout
 
     // Process in batches
     for (let i = 0; i < artistsToCheck.length; i += BATCH_SIZE) {
+      // Check if we're running low on time
+      if (Date.now() - startTime > MAX_RUNTIME_MS) {
+        return new Response(
+          JSON.stringify({ total, checked, remaining: total - checked, done: false }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+        );
+      }
+
       const batch = artistsToCheck.slice(i, i + BATCH_SIZE);
 
       const results = await Promise.allSettled(
@@ -184,7 +194,7 @@ Deno.serve(async (req) => {
       checked += batch.length;
     }
 
-    return new Response(JSON.stringify({ total, checked, releases: 'synced' }), {
+    return new Response(JSON.stringify({ total, checked, remaining: 0, done: true }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {

@@ -62,7 +62,10 @@ describe('ReleasesService', () => {
       from: vi.fn(),
       rpc: vi.fn(),
       functions: {
-        invoke: vi.fn().mockResolvedValue({ data: null, error: null }),
+        invoke: vi.fn().mockResolvedValue({
+          data: { total: 0, checked: 0, remaining: 0, done: true },
+          error: null,
+        }),
       },
     };
 
