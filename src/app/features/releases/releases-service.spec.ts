@@ -292,12 +292,12 @@ describe('ReleasesService', () => {
     });
   });
 
-  describe('triggerOnboardingSync', () => {
+  describe('triggerSync', () => {
     it('should invoke sync-releases function with userId', async () => {
-      await service.triggerOnboardingSync(userId);
+      await service.triggerSync(userId);
 
       expect(mockSupabaseClient.functions.invoke).toHaveBeenCalledWith('sync-releases', {
-        body: { userId },
+        body: { userId, skipRecent: true },
       });
     });
 
@@ -307,7 +307,7 @@ describe('ReleasesService', () => {
         error: new Error('Function error'),
       });
 
-      await expect(service.triggerOnboardingSync(userId)).rejects.toThrow('Something went wrong');
+      await expect(service.triggerSync(userId)).rejects.toThrow('Something went wrong');
     });
   });
 });

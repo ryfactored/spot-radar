@@ -18,7 +18,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { userId } = await req.json();
+    const { userId, skipRecent = true } = await req.json();
     if (!userId) {
       return new Response(JSON.stringify({ error: 'userId required' }), {
         status: 400,
@@ -100,15 +100,18 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Skip artists already checked in last 24h
-    const { data: recentlyChecked } = await supabase
-      .schema('spot_radar')
-      .from('artists')
-      .select('spotify_artist_id')
-      .gt('last_release_check', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString());
+    // Skip artists already checked in last 24h (only for background/cron syncs)
+    let artistsToCheck = artistRows;
+    if (skipRecent) {
+      const { data: recentlyChecked } = await supabase
+        .schema('spot_radar')
+        .from('artists')
+        .select('spotify_artist_id')
+        .gt('last_release_check', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString());
 
-    const recentIds = new Set((recentlyChecked ?? []).map((r: ArtistRow) => r.spotify_artist_id));
-    const artistsToCheck = artistRows.filter((r: ArtistRow) => !recentIds.has(r.spotify_artist_id));
+      const recentIds = new Set((recentlyChecked ?? []).map((r: ArtistRow) => r.spotify_artist_id));
+      artistsToCheck = artistRows.filter((r: ArtistRow) => !recentIds.has(r.spotify_artist_id));
+    }
 
     let checked = 0;
     const total = artistsToCheck.length;

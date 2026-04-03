@@ -665,7 +665,7 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
           );
 
           // Trigger the onboarding Edge Function and wait for it to finish
-          await this.service.triggerOnboardingSync(this.userId);
+          await this.service.triggerSync(this.userId);
           this.store.setSyncProgress({ total: 0, checked: 0, syncing: false, releasesFound: 0 });
           // Load the full feed now — Realtime may have missed some during sync
           await this.loadFeed(1);
@@ -820,7 +820,7 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
         syncing: true,
         releasesFound: 0,
       });
-      await this.service.triggerOnboardingSync(this.userId);
+      await this.service.triggerSync(this.userId, false);
       this.store.setSyncProgress({ total: 0, checked: 0, syncing: false, releasesFound: 0 });
       await this.loadFeed(1);
       this.toast.success(mode === 'full' ? 'Full sync complete.' : 'Sync complete.');
