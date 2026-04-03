@@ -553,7 +553,7 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
   protected playerEmbedUrl = computed((): SafeResourceUrl | null => {
     const release = this.nowPlaying();
     if (!release) return null;
-    const url = `https://open.spotify.com/embed/album/${release.spotify_album_id}?utm_source=generator&theme=0&autoplay=1`;
+    const url = `https://open.spotify.com/embed/album/${release.spotify_album_id}?utm_source=generator&theme=0`;
     return this.sanitizer.bypassSecurityTrustResourceUrl(url);
   });
 
