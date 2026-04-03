@@ -22,7 +22,6 @@ import { ToastService, EmptyState } from '@shared';
 import { ReleasesService, Release, FeedPreferences } from '../releases-service';
 import { ReleasesStore } from '../releases-store';
 import { ReleaseCard } from '../release-card';
-import { ReleaseCardCollapsed } from '../release-card-collapsed';
 import { ReleaseCardSkeleton } from '../release-card-skeleton';
 import { FeedFilterBar } from '../feed-filter-bar';
 import { SyncIndicator } from '../sync-indicator';
@@ -33,15 +32,7 @@ const PAGE_SIZE = 20;
 @Component({
   selector: 'app-releases-feed',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    DatePipe,
-    EmptyState,
-    ReleaseCard,
-    ReleaseCardCollapsed,
-    ReleaseCardSkeleton,
-    FeedFilterBar,
-    SyncIndicator,
-  ],
+  imports: [DatePipe, EmptyState, ReleaseCard, ReleaseCardSkeleton, FeedFilterBar, SyncIndicator],
   template: `
     <app-feed-filter-bar
       [releaseTypeFilter]="store.feedPreferences().release_type_filter"
