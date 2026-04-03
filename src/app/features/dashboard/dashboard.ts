@@ -335,7 +335,8 @@ export class Dashboard implements OnInit {
 
   readonly latestRelease = computed((): Release | null => {
     const releases = this.releasesStore.allReleases();
-    return releases.length > 0 ? releases[0] : null;
+    const dismissed = this.releasesStore.dismissedIds();
+    return releases.find((r) => !dismissed.has(r.spotify_album_id)) ?? null;
   });
 
   readonly artistCount = computed(() => this.releasesStore.followedArtistIds().length);
