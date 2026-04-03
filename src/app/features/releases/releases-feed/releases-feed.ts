@@ -98,24 +98,23 @@ const PAGE_SIZE = 20;
           }
         }
 
-        @for (release of remainingReleases(); track release.spotify_album_id) {
-          @if (store.dismissedIds().has(release.spotify_album_id)) {
+        @for (chunk of remainingChunks(); track $index) {
+          @if (chunk.type === 'dismissed') {
             <div class="dismissed-dot-cell">
-              <button
-                class="dismissed-dot"
-                (click)="onUndismiss(release.spotify_album_id)"
-                [title]="release.title + ' · ' + release.artist_name + ' (click to restore)'"
-              >
-                <img
-                  [src]="release.image_url || 'assets/placeholder-album.png'"
-                  [alt]="release.title"
-                />
-              </button>
+              @for (r of chunk.releases; track r.spotify_album_id) {
+                <button
+                  class="dismissed-dot"
+                  (click)="onUndismiss(r.spotify_album_id)"
+                  [title]="r.title + ' · ' + r.artist_name + ' (click to restore)'"
+                >
+                  <img [src]="r.image_url || 'assets/placeholder-album.png'" [alt]="r.title" />
+                </button>
+              }
             </div>
           } @else {
             <div class="grid-card">
               <app-release-card
-                [release]="release"
+                [release]="chunk.release"
                 (dismiss)="onDismiss($event)"
                 (playRelease)="onPlay($event)"
                 (showSavedAlbums)="onShowSavedAlbums($event)"
@@ -124,30 +123,29 @@ const PAGE_SIZE = 20;
           }
         }
 
-        @if (seenReleases().length > 0) {
+        @if (seenChunks().length > 0) {
           <div class="section-label seen">
             <span class="dot"></span>
             <span>Previously seen</span>
           </div>
 
-          @for (release of seenReleases(); track release.spotify_album_id) {
-            @if (store.dismissedIds().has(release.spotify_album_id)) {
+          @for (chunk of seenChunks(); track $index) {
+            @if (chunk.type === 'dismissed') {
               <div class="dismissed-dot-cell">
-                <button
-                  class="dismissed-dot"
-                  (click)="onUndismiss(release.spotify_album_id)"
-                  [title]="release.title + ' · ' + release.artist_name + ' (click to restore)'"
-                >
-                  <img
-                    [src]="release.image_url || 'assets/placeholder-album.png'"
-                    [alt]="release.title"
-                  />
-                </button>
+                @for (r of chunk.releases; track r.spotify_album_id) {
+                  <button
+                    class="dismissed-dot"
+                    (click)="onUndismiss(r.spotify_album_id)"
+                    [title]="r.title + ' · ' + r.artist_name + ' (click to restore)'"
+                  >
+                    <img [src]="r.image_url || 'assets/placeholder-album.png'" [alt]="r.title" />
+                  </button>
+                }
               </div>
             } @else {
               <div class="grid-card">
                 <app-release-card
-                  [release]="release"
+                  [release]="chunk.release"
                   (dismiss)="onDismiss($event)"
                   (playRelease)="onPlay($event)"
                   (showSavedAlbums)="onShowSavedAlbums($event)"
@@ -274,8 +272,9 @@ const PAGE_SIZE = 20;
     .dismissed-dot-cell {
       grid-column: span 1;
       display: flex;
-      align-items: start;
-      justify-content: center;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
       padding-top: 4px;
     }
 
@@ -512,7 +511,32 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
     return grid.filter((r) => r.spotify_album_id !== secondary.spotify_album_id);
   });
 
+  protected remainingChunks = computed(() => this.groupByDismissed(this.remainingReleases()));
+  protected seenChunks = computed(() => this.groupByDismissed(this.seenReleases()));
+
   protected hasMore = computed(() => this.store.allReleases().length < this.store.totalCount());
+
+  private groupByDismissed(
+    releases: Release[],
+  ): ({ type: 'card'; release: Release } | { type: 'dismissed'; releases: Release[] })[] {
+    const chunks: (
+      | { type: 'card'; release: Release }
+      | { type: 'dismissed'; releases: Release[] }
+    )[] = [];
+    for (const r of releases) {
+      if (this.store.dismissedIds().has(r.spotify_album_id)) {
+        const last = chunks[chunks.length - 1];
+        if (last && last.type === 'dismissed') {
+          last.releases.push(r);
+        } else {
+          chunks.push({ type: 'dismissed', releases: [r] });
+        }
+      } else {
+        chunks.push({ type: 'card', release: r });
+      }
+    }
+    return chunks;
+  }
 
   constructor() {
     effect(() => {
