@@ -10,35 +10,11 @@ import { environment } from '@env';
   selector: 'app-root',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterOutlet],
-  template: `
-    <router-outlet />
-    @if (!isProd && isBrowser) {
-      <div class="dev-badge"><span class="material-icons">code</span></div>
-    }
-  `,
-  styles: `
-    .dev-badge {
-      position: fixed;
-      bottom: 8px;
-      left: 8px;
-      background: var(--mat-sys-primary, #03a9f4);
-      color: var(--mat-sys-on-primary, white);
-      padding: 6px;
-      border-radius: 4px;
-      z-index: 99999;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .dev-badge .material-icons {
-      font-size: 18px;
-    }
-  `,
+  template: `<router-outlet />`,
 })
 export class App {
   private preferences = inject(PreferencesService);
 
-  isProd = environment.production;
   readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private colorThemeClasses = COLOR_THEMES.map((t) => t.value);
 
