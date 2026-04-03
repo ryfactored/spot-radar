@@ -104,27 +104,12 @@ const PAGE_SIZE = 20;
           }
         }
 
-        @for (
-          release of activeRemainingReleases();
-          track release.spotify_album_id;
-          let i = $index
-        ) {
-          <div class="grid-card">
-            <app-release-card
-              [release]="release"
-              (dismiss)="onDismiss($event)"
-              (showSavedAlbums)="onShowSavedAlbums($event)"
-            />
-          </div>
-        }
-
-        @if (activeSeenReleases().length > 0) {
-          <div class="section-label seen">
-            <span class="dot"></span>
-            <span>Previously seen</span>
-          </div>
-
-          @for (release of activeSeenReleases(); track release.spotify_album_id) {
+        @for (release of remainingReleases(); track release.spotify_album_id) {
+          @if (store.dismissedIds().has(release.spotify_album_id)) {
+            <div class="grid-card dismissed-inline">
+              <app-release-card-collapsed [release]="release" (expand)="onUndismiss($event)" />
+            </div>
+          } @else {
             <div class="grid-card">
               <app-release-card
                 [release]="release"
@@ -135,18 +120,27 @@ const PAGE_SIZE = 20;
           }
         }
 
-        @if (dismissedNewReleases().length > 0 || dismissedSeenReleases().length > 0) {
-          <div class="dismissed-section">
-            <span class="section-label seen">Dismissed</span>
-            <div class="dismissed-list">
-              @for (release of dismissedNewReleases(); track release.spotify_album_id) {
-                <app-release-card-collapsed [release]="release" (expand)="onUndismiss($event)" />
-              }
-              @for (release of dismissedSeenReleases(); track release.spotify_album_id) {
-                <app-release-card-collapsed [release]="release" (expand)="onUndismiss($event)" />
-              }
-            </div>
+        @if (seenReleases().length > 0) {
+          <div class="section-label seen">
+            <span class="dot"></span>
+            <span>Previously seen</span>
           </div>
+
+          @for (release of seenReleases(); track release.spotify_album_id) {
+            @if (store.dismissedIds().has(release.spotify_album_id)) {
+              <div class="grid-card dismissed-inline">
+                <app-release-card-collapsed [release]="release" (expand)="onUndismiss($event)" />
+              </div>
+            } @else {
+              <div class="grid-card">
+                <app-release-card
+                  [release]="release"
+                  (dismiss)="onDismiss($event)"
+                  (showSavedAlbums)="onShowSavedAlbums($event)"
+                />
+              </div>
+            }
+          }
         }
 
         <div class="scroll-sentinel" #scrollSentinel></div>
@@ -233,16 +227,13 @@ const PAGE_SIZE = 20;
       color: #767579;
     }
 
-    .dismissed-section {
-      grid-column: span 12;
-      margin-top: 16px;
-    }
+    .dismissed-inline {
+      opacity: 0.5;
+      transition: opacity 0.2s;
 
-    .dismissed-list {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      max-width: 500px;
+      &:hover {
+        opacity: 0.8;
+      }
     }
 
     .scroll-sentinel {
@@ -327,13 +318,8 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
   protected gridReleases = computed(() => {
     const releases = this.newReleases();
     const featured = this.featuredRelease();
-    if (!featured)
-      return releases.filter((r) => !this.store.dismissedIds().has(r.spotify_album_id));
-    return releases.filter(
-      (r) =>
-        r.spotify_album_id !== featured.spotify_album_id &&
-        !this.store.dismissedIds().has(r.spotify_album_id),
-    );
+    if (!featured) return releases;
+    return releases.filter((r) => r.spotify_album_id !== featured.spotify_album_id);
   });
 
   protected remainingReleases = computed(() => {
@@ -342,22 +328,6 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
     if (!featured || grid.length === 0) return grid;
     return grid.slice(1);
   });
-
-  protected activeRemainingReleases = computed(() =>
-    this.remainingReleases().filter((r) => !this.store.dismissedIds().has(r.spotify_album_id)),
-  );
-
-  protected activeSeenReleases = computed(() =>
-    this.seenReleases().filter((r) => !this.store.dismissedIds().has(r.spotify_album_id)),
-  );
-
-  protected dismissedNewReleases = computed(() =>
-    this.newReleases().filter((r) => this.store.dismissedIds().has(r.spotify_album_id)),
-  );
-
-  protected dismissedSeenReleases = computed(() =>
-    this.seenReleases().filter((r) => this.store.dismissedIds().has(r.spotify_album_id)),
-  );
 
   protected hasMore = computed(() => this.store.allReleases().length < this.store.totalCount());
 
