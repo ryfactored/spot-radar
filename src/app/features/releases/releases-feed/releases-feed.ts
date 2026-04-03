@@ -98,35 +98,24 @@ const PAGE_SIZE = 20;
           }
         }
 
-        @for (chunk of remainingChunks(); track $index) {
-          @if (chunk.type === 'dismissed') {
-            <div class="dismissed-cluster">
-              <div class="dismissed-thumbs">
-                @for (r of chunk.releases; track r.spotify_album_id) {
-                  <img
-                    class="dismissed-thumb"
-                    [src]="r.image_url || 'assets/placeholder-album.png'"
-                    [alt]="r.title"
-                  />
-                }
-              </div>
-              <span class="dismissed-text"> {{ chunk.releases.length }} dismissed </span>
-              <div class="dismissed-actions">
-                @for (r of chunk.releases; track r.spotify_album_id) {
-                  <button
-                    class="dismissed-restore"
-                    (click)="onUndismiss(r.spotify_album_id)"
-                    [title]="'Restore ' + r.title"
-                  >
-                    {{ r.title }}
-                  </button>
-                }
-              </div>
+        @for (release of remainingReleases(); track release.spotify_album_id) {
+          @if (store.dismissedIds().has(release.spotify_album_id)) {
+            <div class="dismissed-dot-cell">
+              <button
+                class="dismissed-dot"
+                (click)="onUndismiss(release.spotify_album_id)"
+                [title]="release.title + ' · ' + release.artist_name + ' (click to restore)'"
+              >
+                <img
+                  [src]="release.image_url || 'assets/placeholder-album.png'"
+                  [alt]="release.title"
+                />
+              </button>
             </div>
           } @else {
             <div class="grid-card">
               <app-release-card
-                [release]="chunk.release"
+                [release]="release"
                 (dismiss)="onDismiss($event)"
                 (playRelease)="onPlay($event)"
                 (showSavedAlbums)="onShowSavedAlbums($event)"
@@ -135,42 +124,32 @@ const PAGE_SIZE = 20;
           }
         }
 
-        @if (seenChunks().length > 0) {
+        @if (seenReleases().length > 0) {
           <div class="section-label seen">
             <span class="dot"></span>
             <span>Previously seen</span>
           </div>
 
-          @for (chunk of seenChunks(); track $index) {
-            @if (chunk.type === 'dismissed') {
-              <div class="dismissed-cluster">
-                <div class="dismissed-thumbs">
-                  @for (r of chunk.releases; track r.spotify_album_id) {
-                    <img
-                      class="dismissed-thumb"
-                      [src]="r.image_url || 'assets/placeholder-album.png'"
-                      [alt]="r.title"
-                    />
-                  }
-                </div>
-                <span class="dismissed-text"> {{ chunk.releases.length }} dismissed </span>
-                <div class="dismissed-actions">
-                  @for (r of chunk.releases; track r.spotify_album_id) {
-                    <button
-                      class="dismissed-restore"
-                      (click)="onUndismiss(r.spotify_album_id)"
-                      [title]="'Restore ' + r.title"
-                    >
-                      {{ r.title }}
-                    </button>
-                  }
-                </div>
+          @for (release of seenReleases(); track release.spotify_album_id) {
+            @if (store.dismissedIds().has(release.spotify_album_id)) {
+              <div class="dismissed-dot-cell">
+                <button
+                  class="dismissed-dot"
+                  (click)="onUndismiss(release.spotify_album_id)"
+                  [title]="release.title + ' · ' + release.artist_name + ' (click to restore)'"
+                >
+                  <img
+                    [src]="release.image_url || 'assets/placeholder-album.png'"
+                    [alt]="release.title"
+                  />
+                </button>
               </div>
             } @else {
               <div class="grid-card">
                 <app-release-card
-                  [release]="chunk.release"
+                  [release]="release"
                   (dismiss)="onDismiss($event)"
+                  (playRelease)="onPlay($event)"
                   (showSavedAlbums)="onShowSavedAlbums($event)"
                 />
               </div>
@@ -292,75 +271,36 @@ const PAGE_SIZE = 20;
       color: #767579;
     }
 
-    .dismissed-cluster {
-      grid-column: span 12;
+    .dismissed-dot-cell {
+      grid-column: span 1;
       display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 8px 16px;
-      border-radius: 0.5rem;
-      background: rgba(25, 25, 29, 0.4);
-      opacity: 0.5;
-      transition: opacity 0.2s;
-
-      &:hover {
-        opacity: 0.8;
-      }
+      align-items: start;
+      justify-content: center;
+      padding-top: 4px;
     }
 
-    .dismissed-thumbs {
-      display: flex;
-      flex-shrink: 0;
-    }
-
-    .dismissed-thumb {
-      width: 28px;
-      height: 28px;
-      border-radius: 4px;
-      object-fit: cover;
-      border: 2px solid #1f1f23;
-      margin-left: -8px;
-
-      &:first-child {
-        margin-left: 0;
-      }
-    }
-
-    .dismissed-text {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 11px;
-      font-weight: 600;
-      color: #767579;
-      white-space: nowrap;
-    }
-
-    .dismissed-actions {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      flex: 1;
-      min-width: 0;
-    }
-
-    .dismissed-restore {
-      background: transparent;
-      border: 1px solid rgba(72, 72, 71, 0.2);
-      border-radius: 1rem;
-      padding: 3px 10px;
-      color: #acaaae;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 10px;
-      font-weight: 600;
-      cursor: pointer;
-      white-space: nowrap;
+    .dismissed-dot {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: none;
+      padding: 0;
       overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 140px;
-      transition: all 0.2s;
+      cursor: pointer;
+      opacity: 0.35;
+      transition:
+        opacity 0.2s,
+        transform 0.2s;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
 
       &:hover {
-        border-color: rgba(186, 158, 255, 0.3);
-        color: #ba9eff;
+        opacity: 0.9;
+        transform: scale(1.2);
       }
     }
 
@@ -378,9 +318,12 @@ const PAGE_SIZE = 20;
       .featured-section,
       .section-label,
       .footer-section,
-      .scroll-sentinel,
-      .dismissed-cluster {
+      .scroll-sentinel {
         grid-column: span 6;
+      }
+
+      .dismissed-dot-cell {
+        grid-column: span 1;
       }
 
       .secondary-section {
@@ -569,34 +512,7 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
     return grid.filter((r) => r.spotify_album_id !== secondary.spotify_album_id);
   });
 
-  /** Groups consecutive dismissed releases into collapsed clusters. */
-  protected remainingChunks = computed(() => this.groupByDismissed(this.remainingReleases()));
-
-  protected seenChunks = computed(() => this.groupByDismissed(this.seenReleases()));
-
   protected hasMore = computed(() => this.store.allReleases().length < this.store.totalCount());
-
-  private groupByDismissed(
-    releases: Release[],
-  ): ({ type: 'card'; release: Release } | { type: 'dismissed'; releases: Release[] })[] {
-    const chunks: (
-      | { type: 'card'; release: Release }
-      | { type: 'dismissed'; releases: Release[] }
-    )[] = [];
-    for (const r of releases) {
-      if (this.store.dismissedIds().has(r.spotify_album_id)) {
-        const last = chunks[chunks.length - 1];
-        if (last && last.type === 'dismissed') {
-          last.releases.push(r);
-        } else {
-          chunks.push({ type: 'dismissed', releases: [r] });
-        }
-      } else {
-        chunks.push({ type: 'card', release: r });
-      }
-    }
-    return chunks;
-  }
 
   constructor() {
     effect(() => {
