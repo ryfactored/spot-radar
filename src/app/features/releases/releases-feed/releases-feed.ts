@@ -864,38 +864,10 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
         syncing: true,
         releasesFound: 0,
       });
-
-      // Ensure realtime subscription is active to catch new INSERTs
-      if (!this.unsubscribeRealtime) {
-        this.unsubscribeRealtime = this.service.subscribeToNewReleases(artistIds, (release) =>
-          this.store.addRelease(release),
-        );
-      }
-
-      // Subscribe to real-time progress before triggering
-      const unsubProgress = this.service.subscribeSyncProgress(this.userId, (progress) => {
-        // Preserve client-side releasesFound (from realtime INSERTs) — don't overwrite with server count
-        const currentNew = this.store.syncProgress().releasesFound;
-        this.store.setSyncProgress({
-          checked: progress.checked,
-          total: progress.total,
-          syncing: true,
-          releasesFound: currentNew,
-        });
-      });
-
       await this.service.triggerSync(this.userId, false);
-      unsubProgress();
-      const newFound = this.store.syncProgress().releasesFound;
       this.store.setSyncProgress({ total: 0, checked: 0, syncing: false, releasesFound: 0 });
       await this.loadFeed(1);
-      if (newFound > 0) {
-        this.toast.success(
-          `Sync complete — ${newFound} new ${newFound === 1 ? 'release' : 'releases'} added!`,
-        );
-      } else {
-        this.toast.success('Sync complete — your feed is up to date.');
-      }
+      this.toast.success(mode === 'full' ? 'Full sync complete.' : 'Sync complete.');
     } catch (err) {
       this.store.setSyncProgress({ total: 0, checked: 0, syncing: false, releasesFound: 0 });
       this.toast.error(extractErrorMessage(err, 'Sync failed.'));
