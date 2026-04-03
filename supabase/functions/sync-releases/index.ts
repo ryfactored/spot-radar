@@ -117,31 +117,25 @@ Deno.serve(async (req) => {
     let releasesFound = 0;
     const total = artistsToCheck.length;
 
-    // Set up Realtime broadcast channel for progress updates
-    const channel = supabase.channel(`sync-progress:${userId}`);
-
-    // Wait for subscription to be fully established
-    await new Promise<void>((resolve) => {
-      channel.subscribe((status) => {
-        if (status === 'SUBSCRIBED') resolve();
-      });
-      // Timeout fallback — don't block sync if Realtime fails
-      setTimeout(resolve, 3000);
-    });
-
-    const broadcastProgress = () => {
-      // Fire and forget — don't await, don't block sync on broadcast failures
-      channel
-        .send({
-          type: 'broadcast',
-          event: 'progress',
-          payload: { checked, total, releasesFound },
-        })
-        .catch(() => {});
-    };
-
-    // Broadcast initial state
-    broadcastProgress();
+    // Set up Realtime broadcast for progress updates (best-effort, never blocks sync)
+    let broadcastProgress = () => {};
+    try {
+      const channel = supabase.channel(`sync-progress:${userId}`);
+      channel.subscribe();
+      broadcastProgress = () => {
+        try {
+          channel.send({
+            type: 'broadcast',
+            event: 'progress',
+            payload: { checked, total, releasesFound },
+          });
+        } catch {
+          /* ignore */
+        }
+      };
+    } catch {
+      /* Realtime unavailable — sync proceeds without progress updates */
+    }
 
     // Process in batches
     for (let i = 0; i < artistsToCheck.length; i += BATCH_SIZE) {
@@ -212,9 +206,6 @@ Deno.serve(async (req) => {
       releasesFound += releases.length;
       broadcastProgress();
     }
-
-    // Clean up channel
-    supabase.removeChannel(channel).catch(() => {});
 
     return new Response(JSON.stringify({ total, checked, releasesFound }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
