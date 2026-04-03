@@ -12,6 +12,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Overlay, OverlayRef } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
 
@@ -89,6 +90,7 @@ const PAGE_SIZE = 20;
               [release]="featured"
               [featured]="true"
               (dismiss)="onDismiss($event)"
+              (playRelease)="onPlay($event)"
               (showSavedAlbums)="onShowSavedAlbums($event)"
             />
           </div>
@@ -192,6 +194,35 @@ const PAGE_SIZE = 20;
         }
       </div>
     }
+
+    @if (nowPlaying()) {
+      <div class="player-bar">
+        <div class="player-bar-info">
+          <img
+            class="player-bar-art"
+            [src]="nowPlaying()!.image_url || 'assets/placeholder-album.png'"
+            [alt]="nowPlaying()!.title"
+          />
+          <div class="player-bar-text">
+            <span class="player-bar-title">{{ nowPlaying()!.title }}</span>
+            <span class="player-bar-artist">{{ nowPlaying()!.artist_name }}</span>
+          </div>
+          <button class="player-bar-close" (click)="nowPlaying.set(null)" aria-label="Close player">
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+        <div class="player-bar-embed">
+          <iframe
+            [src]="playerEmbedUrl()"
+            width="100%"
+            height="80"
+            frameBorder="0"
+            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+            loading="lazy"
+          ></iframe>
+        </div>
+      </div>
+    }
   `,
   styles: `
     :host {
@@ -199,6 +230,7 @@ const PAGE_SIZE = 20;
       flex-direction: column;
       gap: 16px;
       background: radial-gradient(circle at 50% 0%, rgba(186, 158, 255, 0.06) 0%, transparent 60%);
+      padding-bottom: 120px;
     }
 
     .feed-container {
@@ -382,6 +414,100 @@ const PAGE_SIZE = 20;
         grid-column: span 1;
       }
     }
+
+    /* ── Player Bar ── */
+    .player-bar {
+      position: fixed;
+      bottom: 0;
+      left: 256px;
+      right: 0;
+      z-index: 50;
+      background: rgba(25, 25, 29, 0.95);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-top: 1px solid rgba(72, 72, 71, 0.15);
+      display: flex;
+      align-items: center;
+      padding: 8px 24px;
+      gap: 16px;
+    }
+
+    .player-bar-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 200px;
+      flex-shrink: 0;
+    }
+
+    .player-bar-art {
+      width: 48px;
+      height: 48px;
+      border-radius: 6px;
+      object-fit: cover;
+    }
+
+    .player-bar-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .player-bar-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: #f0edf1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .player-bar-artist {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 11px;
+      color: #ba9eff;
+    }
+
+    .player-bar-close {
+      background: none;
+      border: none;
+      color: #767579;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.2s;
+
+      &:hover {
+        color: #f0edf1;
+      }
+
+      .material-icons {
+        font-size: 18px;
+      }
+    }
+
+    .player-bar-embed {
+      flex: 1;
+      min-width: 0;
+      border-radius: 8px;
+      overflow: hidden;
+
+      iframe {
+        display: block;
+        border-radius: 8px;
+      }
+    }
+
+    @media (max-width: 1024px) {
+      .player-bar {
+        left: 0;
+      }
+    }
   `,
 })
 export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
@@ -391,6 +517,7 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
   private toast = inject(ToastService);
   private spotifyApi = inject(SpotifyApiService);
   private overlay = inject(Overlay);
+  private sanitizer = inject(DomSanitizer);
 
   private scrollSentinel = viewChild<ElementRef<HTMLDivElement>>('scrollSentinel');
 
@@ -399,6 +526,15 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
   private unsubscribeRealtime: (() => void) | null = null;
   private intersectionObserver: IntersectionObserver | null = null;
   private popoverRef: OverlayRef | null = null;
+
+  protected nowPlaying = signal<Release | null>(null);
+
+  protected playerEmbedUrl = computed((): SafeResourceUrl | null => {
+    const release = this.nowPlaying();
+    if (!release) return null;
+    const url = `https://open.spotify.com/embed/album/${release.spotify_album_id}?utm_source=generator&theme=0`;
+    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+  });
 
   protected newReleases = computed(() => {
     const lastChecked = this.store.lastCheckedAt();
@@ -705,6 +841,15 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
     } catch (err) {
       this.store.addDismissedId(albumId);
       this.toast.error(extractErrorMessage(err, 'Failed to restore release.'));
+    }
+  }
+
+  protected onPlay(release: Release): void {
+    const current = this.nowPlaying();
+    if (current?.spotify_album_id === release.spotify_album_id) {
+      this.nowPlaying.set(null);
+    } else {
+      this.nowPlaying.set(release);
     }
   }
 
