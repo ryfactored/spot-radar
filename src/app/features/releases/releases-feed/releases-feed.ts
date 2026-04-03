@@ -93,10 +93,10 @@ const PAGE_SIZE = 20;
             />
           </div>
 
-          @if (gridReleases().length > 0) {
+          @if (secondaryRelease(); as secondary) {
             <div class="secondary-section">
               <app-release-card
-                [release]="gridReleases()[0]"
+                [release]="secondary"
                 (dismiss)="onDismiss($event)"
                 (showSavedAlbums)="onShowSavedAlbums($event)"
               />
@@ -426,11 +426,18 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
     return releases.filter((r) => r.spotify_album_id !== featured.spotify_album_id);
   });
 
+  protected secondaryRelease = computed(() => {
+    const grid = this.gridReleases();
+    return grid.find((r) => !this.store.dismissedIds().has(r.spotify_album_id)) ?? null;
+  });
+
   protected remainingReleases = computed(() => {
     const grid = this.gridReleases();
+    const secondary = this.secondaryRelease();
     const featured = this.featuredRelease();
     if (!featured || grid.length === 0) return grid;
-    return grid.slice(1);
+    if (!secondary) return grid;
+    return grid.filter((r) => r.spotify_album_id !== secondary.spotify_album_id);
   });
 
   /** Groups consecutive dismissed releases into collapsed clusters. */
