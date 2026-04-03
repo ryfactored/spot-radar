@@ -37,9 +37,8 @@ describe('ThemePicker', () => {
   });
 
   it('should call setColorTheme when theme selected', () => {
-    const nonDefault = COLOR_THEMES.find((t) => t.value !== 'default')!;
-    component.selectTheme(nonDefault.value);
-    expect(preferencesMock.setColorTheme).toHaveBeenCalledWith(nonDefault.value);
+    component.selectTheme('default');
+    expect(preferencesMock.setColorTheme).toHaveBeenCalledWith('default');
   });
 
   it('should call toggleDarkMode when toggled', () => {
