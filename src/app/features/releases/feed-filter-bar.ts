@@ -382,13 +382,14 @@ import { TitleCasePipe } from '@angular/common';
       position: fixed;
       top: 0;
       right: 0;
-      height: 100%;
+      height: 100vh;
       width: 320px;
       background: #1f1f23;
       z-index: 60;
       transform: translateX(100%);
       transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
       box-shadow: -20px 0 60px rgba(0, 0, 0, 0.5);
+      overflow: hidden;
     }
 
     .filter-side-panel.open {
@@ -407,13 +408,16 @@ import { TitleCasePipe } from '@angular/common';
       display: flex;
       flex-direction: column;
       padding: 32px;
+      box-sizing: border-box;
+      overflow: hidden;
     }
 
     .panel-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 40px;
+      margin-bottom: 24px;
+      flex-shrink: 0;
     }
 
     .panel-title {
@@ -445,6 +449,7 @@ import { TitleCasePipe } from '@angular/common';
 
     .panel-body {
       flex: 1;
+      min-height: 0;
       display: flex;
       flex-direction: column;
       gap: 28px;
