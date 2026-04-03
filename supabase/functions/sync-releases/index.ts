@@ -1,7 +1,8 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const SPOTIFY_API = 'https://api.spotify.com/v1';
-const BATCH_SIZE = 10;
+const BATCH_SIZE = 5;
+const BATCH_DELAY_MS = 500;
 
 interface ArtistRow {
   spotify_artist_id: string;
@@ -192,6 +193,11 @@ Deno.serve(async (req) => {
         .in('spotify_artist_id', checkedIds);
 
       checked += batch.length;
+
+      // Pause between batches to avoid Spotify rate limits
+      if (i + BATCH_SIZE < artistsToCheck.length) {
+        await new Promise((r) => setTimeout(r, BATCH_DELAY_MS));
+      }
     }
 
     return new Response(JSON.stringify({ total, checked, remaining: 0, done: true }), {
