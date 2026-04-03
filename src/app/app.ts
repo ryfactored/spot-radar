@@ -4,13 +4,17 @@ import { Title } from '@angular/platform-browser';
 import { Router, NavigationEnd, ActivatedRoute, RouterOutlet } from '@angular/router';
 import { filter, map, take } from 'rxjs';
 import { PreferencesService, COLOR_THEMES } from '@core';
+import { ToastContainer } from '@shared';
 import { environment } from '@env';
 
 @Component({
   selector: 'app-root',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet],
-  template: `<router-outlet />`,
+  imports: [RouterOutlet, ToastContainer],
+  template: `
+    <router-outlet />
+    <app-toast-container />
+  `,
 })
 export class App {
   private preferences = inject(PreferencesService);
