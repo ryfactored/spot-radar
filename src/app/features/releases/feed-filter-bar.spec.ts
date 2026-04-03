@@ -25,15 +25,18 @@ describe('FeedFilterBar', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should emit releaseTypeChange when toggle group changes', () => {
+  it('should emit releaseTypeChange when segmented control is clicked', () => {
     const emitted: string[] = [];
     component.releaseTypeChange.subscribe((v: string) => emitted.push(v));
 
-    // The second toggle group is release type; get its toggle buttons
-    const toggleGroups = fixture.nativeElement.querySelectorAll('mat-button-toggle-group');
-    const releaseTypeToggles = toggleGroups[1].querySelectorAll('mat-button-toggle button');
-    // Click the "Albums" toggle (second one)
-    (releaseTypeToggles[1] as HTMLButtonElement).click();
+    // Open the filter panel first
+    component.openFilterPanel();
+    fixture.detectChanges();
+
+    // Find the release type segmented control (second .seg-control) and click "Albums"
+    const segControls = fixture.nativeElement.querySelectorAll('.seg-control');
+    const releaseTypeBtns = segControls[1].querySelectorAll('.seg-btn');
+    (releaseTypeBtns[1] as HTMLButtonElement).click();
     fixture.detectChanges();
 
     expect(emitted).toEqual(['album']);
