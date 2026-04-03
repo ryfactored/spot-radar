@@ -228,11 +228,12 @@ const PAGE_SIZE = 20;
     }
 
     .dismissed-inline {
-      opacity: 0.5;
+      grid-column: span 12 !important;
+      opacity: 0.4;
       transition: opacity 0.2s;
 
       &:hover {
-        opacity: 0.8;
+        opacity: 0.7;
       }
     }
 
@@ -250,7 +251,8 @@ const PAGE_SIZE = 20;
       .featured-section,
       .section-label,
       .footer-section,
-      .scroll-sentinel {
+      .scroll-sentinel,
+      .dismissed-inline {
         grid-column: span 6;
       }
 
