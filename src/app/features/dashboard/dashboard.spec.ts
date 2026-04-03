@@ -30,6 +30,7 @@ describe('Dashboard', () => {
       allReleases: signal([]),
       followedArtistIds: signal([]),
       totalCount: signal(0),
+      dismissedIds: signal(new Set<string>()),
       setArtistIds: vi.fn(),
       setReleases: vi.fn(),
     };
