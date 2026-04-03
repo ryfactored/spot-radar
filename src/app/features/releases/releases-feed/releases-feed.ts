@@ -16,6 +16,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Overlay, OverlayRef } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
 
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { AuthService, SpotifyApiService, extractErrorMessage } from '@core';
 import { ToastService, EmptyState } from '@shared';
 
@@ -49,6 +50,57 @@ const PAGE_SIZE = 20;
       (markAllSeen)="onMarkAllSeen()"
       (syncNow)="onSyncNow($event)"
     />
+
+    @if (dismissedReleases().length > 0) {
+      <button class="dismissed-panel-btn" (click)="dismissedPanelOpen.set(true)">
+        <span class="material-icons">visibility_off</span>
+        {{ dismissedReleases().length }} dismissed
+      </button>
+    }
+
+    @if (dismissedPanelOpen()) {
+      <div
+        class="panel-backdrop"
+        role="button"
+        tabindex="-1"
+        (click)="dismissedPanelOpen.set(false)"
+        (keydown.escape)="dismissedPanelOpen.set(false)"
+      ></div>
+    }
+    <div class="dismissed-panel" [class.open]="dismissedPanelOpen()">
+      <div class="dismissed-panel-inner">
+        <div class="dismissed-panel-header">
+          <h4 class="dismissed-panel-title">Dismissed</h4>
+          <button class="dismissed-panel-close" (click)="dismissedPanelOpen.set(false)">
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+        <div class="dismissed-panel-list">
+          @for (release of dismissedReleases(); track release.spotify_album_id) {
+            <div class="dismissed-item">
+              <img
+                class="dismissed-item-art"
+                [src]="release.image_url || 'assets/placeholder-album.png'"
+                [alt]="release.title"
+              />
+              <div class="dismissed-item-info">
+                <span class="dismissed-item-title">{{ release.title }}</span>
+                <span class="dismissed-item-artist">{{ release.artist_name }}</span>
+              </div>
+              <button
+                class="dismissed-item-restore"
+                (click)="onUndismiss(release.spotify_album_id)"
+              >
+                Restore
+              </button>
+            </div>
+          }
+          @if (dismissedReleases().length === 0) {
+            <p class="dismissed-empty">No dismissed releases</p>
+          }
+        </div>
+      </div>
+    </div>
 
     <app-sync-indicator [progress]="store.syncProgress()" />
 
@@ -98,60 +150,32 @@ const PAGE_SIZE = 20;
           }
         }
 
-        @for (chunk of remainingChunks(); track $index) {
-          @if (chunk.type === 'dismissed') {
-            <div class="dismissed-dot-cell">
-              @for (r of chunk.releases; track r.spotify_album_id) {
-                <button
-                  class="dismissed-dot"
-                  (click)="onUndismiss(r.spotify_album_id)"
-                  [title]="r.title + ' · ' + r.artist_name + ' (click to restore)'"
-                >
-                  <img [src]="r.image_url || 'assets/placeholder-album.png'" [alt]="r.title" />
-                </button>
-              }
-            </div>
-          } @else {
-            <div class="grid-card">
-              <app-release-card
-                [release]="chunk.release"
-                (dismiss)="onDismiss($event)"
-                (playRelease)="onPlay($event)"
-                (showSavedAlbums)="onShowSavedAlbums($event)"
-              />
-            </div>
-          }
+        @for (release of activeRemaining(); track release.spotify_album_id) {
+          <div class="grid-card">
+            <app-release-card
+              [release]="release"
+              (dismiss)="onDismiss($event)"
+              (playRelease)="onPlay($event)"
+              (showSavedAlbums)="onShowSavedAlbums($event)"
+            />
+          </div>
         }
 
-        @if (seenChunks().length > 0) {
+        @if (activeSeen().length > 0) {
           <div class="section-label seen">
             <span class="dot"></span>
             <span>Previously seen</span>
           </div>
 
-          @for (chunk of seenChunks(); track $index) {
-            @if (chunk.type === 'dismissed') {
-              <div class="dismissed-dot-cell">
-                @for (r of chunk.releases; track r.spotify_album_id) {
-                  <button
-                    class="dismissed-dot"
-                    (click)="onUndismiss(r.spotify_album_id)"
-                    [title]="r.title + ' · ' + r.artist_name + ' (click to restore)'"
-                  >
-                    <img [src]="r.image_url || 'assets/placeholder-album.png'" [alt]="r.title" />
-                  </button>
-                }
-              </div>
-            } @else {
-              <div class="grid-card">
-                <app-release-card
-                  [release]="chunk.release"
-                  (dismiss)="onDismiss($event)"
-                  (playRelease)="onPlay($event)"
-                  (showSavedAlbums)="onShowSavedAlbums($event)"
-                />
-              </div>
-            }
+          @for (release of activeSeen(); track release.spotify_album_id) {
+            <div class="grid-card">
+              <app-release-card
+                [release]="release"
+                (dismiss)="onDismiss($event)"
+                (playRelease)="onPlay($event)"
+                (showSavedAlbums)="onShowSavedAlbums($event)"
+              />
+            </div>
           }
         }
 
@@ -205,25 +229,25 @@ const PAGE_SIZE = 20;
 
     .feed-container {
       display: grid;
-      grid-template-columns: repeat(10, 1fr);
+      grid-template-columns: repeat(12, 1fr);
       gap: 40px;
       padding: 0 0 48px;
     }
 
     .featured-section {
-      grid-column: span 7;
+      grid-column: span 8;
     }
 
     .secondary-section {
-      grid-column: span 3;
+      grid-column: span 4;
     }
 
     .grid-card {
-      grid-column: span 3;
+      grid-column: span 4;
     }
 
     .section-label {
-      grid-column: span 10;
+      grid-column: span 12;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -254,7 +278,7 @@ const PAGE_SIZE = 20;
     }
 
     .footer-section {
-      grid-column: span 10;
+      grid-column: span 12;
       display: flex;
       justify-content: center;
       padding: 24px 0;
@@ -269,48 +293,194 @@ const PAGE_SIZE = 20;
       color: #767579;
     }
 
-    .dismissed-dot-cell {
-      grid-column: span 1;
+    /* ── Dismissed panel button ── */
+    .dismissed-panel-btn {
       display: flex;
-      flex-direction: column;
       align-items: center;
       gap: 6px;
-      padding-top: 4px;
-    }
-
-    .dismissed-dot {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      border: none;
-      padding: 0;
-      overflow: hidden;
+      padding: 6px 14px;
+      border: 1px solid rgba(72, 72, 71, 0.2);
+      border-radius: 1rem;
+      background: transparent;
+      color: #767579;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
       cursor: pointer;
-      opacity: 0.35;
-      transition:
-        opacity 0.2s,
-        transform 0.2s;
+      transition: all 0.2s;
+      align-self: flex-start;
 
-      img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
+      .material-icons {
+        font-size: 14px;
       }
 
       &:hover {
-        opacity: 0.9;
-        transform: scale(1.2);
+        border-color: rgba(186, 158, 255, 0.3);
+        color: #ba9eff;
       }
     }
 
+    /* ── Dismissed side panel ── */
+    .panel-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.3);
+      z-index: 59;
+    }
+
+    .dismissed-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      height: 100%;
+      width: 320px;
+      background: #1f1f23;
+      z-index: 60;
+      transform: translateX(100%);
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: -20px 0 60px rgba(0, 0, 0, 0.5);
+    }
+
+    .dismissed-panel.open {
+      transform: translateX(0);
+    }
+
+    .dismissed-panel-inner {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding: 32px;
+    }
+
+    .dismissed-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .dismissed-panel-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #f0edf1;
+      margin: 0;
+    }
+
+    .dismissed-panel-close {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      color: #acaaae;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.05);
+      }
+    }
+
+    .dismissed-panel-list {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      scrollbar-width: none;
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
+    }
+
+    .dismissed-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px;
+      border-radius: 0.5rem;
+      transition: background 0.2s;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.03);
+      }
+    }
+
+    .dismissed-item-art {
+      width: 40px;
+      height: 40px;
+      border-radius: 6px;
+      object-fit: cover;
+      flex-shrink: 0;
+      opacity: 0.6;
+    }
+
+    .dismissed-item-info {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .dismissed-item-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: #f0edf1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .dismissed-item-artist {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 11px;
+      color: #767579;
+    }
+
+    .dismissed-item-restore {
+      flex-shrink: 0;
+      padding: 4px 12px;
+      border: 1px solid rgba(72, 72, 71, 0.3);
+      border-radius: 1rem;
+      background: transparent;
+      color: #acaaae;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+
+      &:hover {
+        border-color: rgba(186, 158, 255, 0.3);
+        color: #ba9eff;
+      }
+    }
+
+    .dismissed-empty {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 13px;
+      color: #767579;
+      text-align: center;
+      padding: 24px 0;
+      margin: 0;
+    }
+
     .scroll-sentinel {
-      grid-column: span 10;
+      grid-column: span 12;
       height: 1px;
     }
 
     @media (max-width: 900px) {
       .feed-container {
-        grid-template-columns: repeat(7, 1fr);
+        grid-template-columns: repeat(6, 1fr);
         gap: 20px;
       }
 
@@ -318,15 +488,11 @@ const PAGE_SIZE = 20;
       .section-label,
       .footer-section,
       .scroll-sentinel {
-        grid-column: span 7;
+        grid-column: span 6;
       }
 
       .secondary-section {
-        grid-column: span 7;
-      }
-
-      .dismissed-dot-cell {
-        grid-column: span 1;
+        grid-column: span 6;
       }
 
       .grid-card {
@@ -336,23 +502,16 @@ const PAGE_SIZE = 20;
 
     @media (max-width: 600px) {
       .feed-container {
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: 1fr;
         gap: 16px;
       }
 
       .featured-section,
       .secondary-section,
+      .grid-card,
       .section-label,
       .footer-section,
       .scroll-sentinel {
-        grid-column: span 4;
-      }
-
-      .grid-card {
-        grid-column: span 3;
-      }
-
-      .dismissed-dot-cell {
         grid-column: span 1;
       }
     }
@@ -460,6 +619,7 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
   private spotifyApi = inject(SpotifyApiService);
   private overlay = inject(Overlay);
   private sanitizer = inject(DomSanitizer);
+  private snackBar = inject(MatSnackBar);
 
   private scrollSentinel = viewChild<ElementRef<HTMLDivElement>>('scrollSentinel');
 
@@ -470,6 +630,7 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
   private popoverRef: OverlayRef | null = null;
 
   protected nowPlaying = signal<Release | null>(null);
+  protected dismissedPanelOpen = signal(false);
 
   protected playerEmbedUrl = computed((): SafeResourceUrl | null => {
     const release = this.nowPlaying();
@@ -518,32 +679,19 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
     return grid.filter((r) => r.spotify_album_id !== secondary.spotify_album_id);
   });
 
-  protected remainingChunks = computed(() => this.groupByDismissed(this.remainingReleases()));
-  protected seenChunks = computed(() => this.groupByDismissed(this.seenReleases()));
+  protected activeRemaining = computed(() =>
+    this.remainingReleases().filter((r) => !this.store.dismissedIds().has(r.spotify_album_id)),
+  );
+
+  protected activeSeen = computed(() =>
+    this.seenReleases().filter((r) => !this.store.dismissedIds().has(r.spotify_album_id)),
+  );
+
+  protected dismissedReleases = computed(() =>
+    this.store.allReleases().filter((r) => this.store.dismissedIds().has(r.spotify_album_id)),
+  );
 
   protected hasMore = computed(() => this.store.allReleases().length < this.store.totalCount());
-
-  private groupByDismissed(
-    releases: Release[],
-  ): ({ type: 'card'; release: Release } | { type: 'dismissed'; releases: Release[] })[] {
-    const chunks: (
-      | { type: 'card'; release: Release }
-      | { type: 'dismissed'; releases: Release[] }
-    )[] = [];
-    for (const r of releases) {
-      if (this.store.dismissedIds().has(r.spotify_album_id)) {
-        const last = chunks[chunks.length - 1];
-        if (last && last.type === 'dismissed') {
-          last.releases.push(r);
-        } else {
-          chunks.push({ type: 'dismissed', releases: [r] });
-        }
-      } else {
-        chunks.push({ type: 'card', release: r });
-      }
-    }
-    return chunks;
-  }
 
   constructor() {
     effect(() => {
@@ -764,14 +912,28 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  protected async onDismiss(albumId: string): Promise<void> {
+  protected onDismiss(albumId: string): void {
     this.store.addDismissedId(albumId);
-    try {
-      await this.service.dismissRelease(this.userId, albumId);
-    } catch (err) {
+
+    const ref = this.snackBar.open('Release dismissed', 'Undo', {
+      duration: 5000,
+      horizontalPosition: 'end',
+      verticalPosition: 'bottom',
+      panelClass: ['toast-info'],
+    });
+
+    ref.onAction().subscribe(() => {
       this.store.removeDismissedId(albumId);
-      this.toast.error(extractErrorMessage(err, 'Failed to dismiss release.'));
-    }
+    });
+
+    ref.afterDismissed().subscribe((info) => {
+      if (!info.dismissedByAction) {
+        this.service.dismissRelease(this.userId, albumId).catch((err) => {
+          this.store.removeDismissedId(albumId);
+          this.toast.error(extractErrorMessage(err, 'Failed to dismiss release.'));
+        });
+      }
+    });
   }
 
   protected async onUndismiss(albumId: string): Promise<void> {
