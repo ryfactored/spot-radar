@@ -78,16 +78,6 @@
           <span>Files</span>
         </a>
       }
-      <a
-        class="nav-link"
-        routerLink="/profile"
-        routerLinkActive="active"
-        #rlaProfile="routerLinkActive"
-        [attr.aria-current]="rlaProfile.isActive ? 'page' : null"
-      >
-        <mat-icon>person</mat-icon>
-        <span>Profile</span>
-      </a>
       @if (featureFlags.isEnabled('components')) {
         <a
           class="nav-link"
@@ -190,9 +180,6 @@
         @if (featureFlags.isEnabled('themePicker')) {
           <app-theme-picker />
         }
-        <button class="top-bar-icon" aria-label="Notifications">
-          <mat-icon>notifications_none</mat-icon>
-        </button>
       </div>
     </header>
 
