@@ -201,7 +201,12 @@ import { TitleCasePipe } from '@angular/common';
   `,
   styles: `
     :host {
-      position: relative;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: #0e0e11;
+      padding: 16px 0 12px;
+      margin: -16px 0 0;
     }
 
     /* ── Header ── */
