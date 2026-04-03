@@ -269,30 +269,6 @@ export class ReleasesService {
   }
 
   /**
-   * Subscribe to real-time sync progress broadcasts from the edge function.
-   * Returns an unsubscribe function.
-   */
-  subscribeSyncProgress(
-    userId: string,
-    callback: (progress: { checked: number; total: number; releasesFound: number }) => void,
-  ): () => void {
-    const channel = this.supabase.client.channel(`sync-progress:${userId}`);
-    channel
-      .on('broadcast', { event: 'progress' }, (msg) => {
-        const payload = msg['payload'] as {
-          checked: number;
-          total: number;
-          releasesFound: number;
-        };
-        callback(payload);
-      })
-      .subscribe();
-    return () => {
-      this.supabase.client.removeChannel(channel);
-    };
-  }
-
-  /**
    * Invoke the sync-releases Edge Function.
    * @param skipRecent If false, re-checks all artists regardless of last check time.
    */
