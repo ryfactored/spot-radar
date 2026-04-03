@@ -185,20 +185,9 @@ const PAGE_SIZE = 20;
 
     @if (nowPlaying()) {
       <div class="player-bar">
-        <div class="player-bar-info">
-          <img
-            class="player-bar-art"
-            [src]="nowPlaying()!.image_url || 'assets/placeholder-album.png'"
-            [alt]="nowPlaying()!.title"
-          />
-          <div class="player-bar-text">
-            <span class="player-bar-title">{{ nowPlaying()!.title }}</span>
-            <span class="player-bar-artist">{{ nowPlaying()!.artist_name }}</span>
-          </div>
-          <button class="player-bar-close" (click)="nowPlaying.set(null)" aria-label="Close player">
-            <span class="material-icons">close</span>
-          </button>
-        </div>
+        <button class="player-bar-close" (click)="nowPlaying.set(null)" aria-label="Close player">
+          <span class="material-icons">close</span>
+        </button>
         <div class="player-bar-embed">
           <iframe
             [src]="playerEmbedUrl()"
@@ -500,45 +489,8 @@ const PAGE_SIZE = 20;
       gap: 16px;
     }
 
-    .player-bar-info {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      min-width: 200px;
-      flex-shrink: 0;
-    }
-
-    .player-bar-art {
-      width: 48px;
-      height: 48px;
-      border-radius: 6px;
-      object-fit: cover;
-    }
-
-    .player-bar-text {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      min-width: 0;
-    }
-
-    .player-bar-title {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 13px;
-      font-weight: 700;
-      color: #f0edf1;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .player-bar-artist {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 11px;
-      color: #ba9eff;
-    }
-
     .player-bar-close {
+      flex-shrink: 0;
       background: none;
       border: none;
       color: #767579;
