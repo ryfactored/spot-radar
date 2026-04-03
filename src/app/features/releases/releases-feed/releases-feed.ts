@@ -205,25 +205,25 @@ const PAGE_SIZE = 20;
 
     .feed-container {
       display: grid;
-      grid-template-columns: repeat(12, 1fr);
+      grid-template-columns: repeat(10, 1fr);
       gap: 40px;
       padding: 0 0 48px;
     }
 
     .featured-section {
-      grid-column: span 8;
+      grid-column: span 7;
     }
 
     .secondary-section {
-      grid-column: span 4;
+      grid-column: span 3;
     }
 
     .grid-card {
-      grid-column: span 4;
+      grid-column: span 3;
     }
 
     .section-label {
-      grid-column: span 12;
+      grid-column: span 10;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -254,7 +254,7 @@ const PAGE_SIZE = 20;
     }
 
     .footer-section {
-      grid-column: span 12;
+      grid-column: span 10;
       display: flex;
       justify-content: center;
       padding: 24px 0;
@@ -304,13 +304,13 @@ const PAGE_SIZE = 20;
     }
 
     .scroll-sentinel {
-      grid-column: span 12;
+      grid-column: span 10;
       height: 1px;
     }
 
     @media (max-width: 900px) {
       .feed-container {
-        grid-template-columns: repeat(6, 1fr);
+        grid-template-columns: repeat(7, 1fr);
         gap: 20px;
       }
 
@@ -318,15 +318,15 @@ const PAGE_SIZE = 20;
       .section-label,
       .footer-section,
       .scroll-sentinel {
-        grid-column: span 6;
+        grid-column: span 7;
+      }
+
+      .secondary-section {
+        grid-column: span 7;
       }
 
       .dismissed-dot-cell {
         grid-column: span 1;
-      }
-
-      .secondary-section {
-        grid-column: span 6;
       }
 
       .grid-card {
@@ -336,16 +336,23 @@ const PAGE_SIZE = 20;
 
     @media (max-width: 600px) {
       .feed-container {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(4, 1fr);
         gap: 16px;
       }
 
       .featured-section,
       .secondary-section,
-      .grid-card,
       .section-label,
       .footer-section,
       .scroll-sentinel {
+        grid-column: span 4;
+      }
+
+      .grid-card {
+        grid-column: span 3;
+      }
+
+      .dismissed-dot-cell {
         grid-column: span 1;
       }
     }
