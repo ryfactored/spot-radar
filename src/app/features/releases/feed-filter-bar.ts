@@ -308,6 +308,23 @@ import { MatTooltipModule } from '@angular/material/tooltip';
       --mat-standard-button-toggle-background-color: transparent;
       --mat-standard-button-toggle-shape: 12px;
       --mat-standard-button-toggle-divider-color: rgba(72, 72, 71, 0.15);
+
+      /* Material form field overrides */
+      --mdc-outlined-text-field-outline-color: rgba(72, 72, 71, 0.2);
+      --mdc-outlined-text-field-hover-outline-color: rgba(186, 158, 255, 0.3);
+      --mdc-outlined-text-field-focus-outline-color: #ba9eff;
+      --mdc-outlined-text-field-label-text-color: #767579;
+      --mdc-outlined-text-field-input-text-color: #f0edf1;
+      --mat-select-trigger-text-color: #f0edf1;
+      --mat-select-panel-background-color: #19191d;
+      --mat-option-label-text-color: #f0edf1;
+      --mat-option-selected-state-label-text-color: #ba9eff;
+
+      /* Slide toggle override */
+      --mdc-switch-selected-track-color: #ba9eff;
+      --mdc-switch-selected-handle-color: #f0edf1;
+      --mdc-switch-unselected-track-color: #48474b;
+      --mat-slide-toggle-label-text-color: #acaaae;
     }
 
     .panel-section {
@@ -323,8 +340,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.1em;
-      color: #767579;
+      color: #ba9eff;
       width: 100%;
+      margin-bottom: -4px;
     }
 
     .panel-actions {

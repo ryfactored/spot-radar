@@ -4,9 +4,7 @@ import { AuthService } from './auth/auth';
 import { environment } from '@env';
 
 export const COLOR_THEMES = [
-  { value: 'default', label: 'Default', colors: { primary: '#3b82f6', accent: '#38bdf8' } },
-  { value: 'teal', label: 'Teal', colors: { primary: '#14b8a6', accent: '#38bdf8' } },
-  { value: 'slate', label: 'Slate', colors: { primary: '#475569', accent: '#38bdf8' } },
+  { value: 'default', label: 'Nocturne', colors: { primary: '#ba9eff', accent: '#8553f3' } },
 ] as const;
 
 export type ColorTheme = (typeof COLOR_THEMES)[number]['value'];

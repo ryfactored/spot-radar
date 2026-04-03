@@ -43,11 +43,8 @@ describe('PreferencesService', () => {
   });
 
   it('should set color theme', () => {
-    service.setColorTheme('teal');
-    expect(service.colorTheme()).toBe('teal');
-
-    service.setColorTheme('slate');
-    expect(service.colorTheme()).toBe('slate');
+    service.setColorTheme('default');
+    expect(service.colorTheme()).toBe('default');
   });
 
   it('should toggle sidenav', () => {
@@ -59,13 +56,13 @@ describe('PreferencesService', () => {
   });
 
   it('should load stored preferences when user is set', () => {
-    const prefs = { colorTheme: 'teal', darkMode: false, sidenavOpened: false };
+    const prefs = { colorTheme: 'default', darkMode: false, sidenavOpened: false };
     localStorage.setItem(storageKey('user-1'), JSON.stringify(prefs));
 
     authMock.currentUser.set({ id: 'user-1' } as any);
     TestBed.flushEffects();
 
-    expect(service.colorTheme()).toBe('teal');
+    expect(service.colorTheme()).toBe('default');
     expect(service.darkMode()).toBe(false);
     expect(service.sidenavOpened()).toBe(false);
   });
@@ -93,10 +90,10 @@ describe('PreferencesService', () => {
     authMock.currentUser.set({ id: 'user-4' } as any);
     TestBed.flushEffects();
 
-    service.setColorTheme('slate');
+    service.setColorTheme('default');
     TestBed.flushEffects();
 
     const stored = JSON.parse(localStorage.getItem(storageKey('user-4'))!);
-    expect(stored.colorTheme).toBe('slate');
+    expect(stored.colorTheme).toBe('default');
   });
 });

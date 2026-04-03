@@ -50,7 +50,7 @@ export const environmentBase: Environment = {
     admin: true,
     breadcrumb: true,
     components: true,
-    themePicker: true,
+    themePicker: false,
     centerContent: true,
     releases: true,
     defaultChildNavMode: 'none', // 'none' | 'tabs' | 'sidenav'

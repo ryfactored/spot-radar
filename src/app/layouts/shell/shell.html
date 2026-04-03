@@ -185,10 +185,6 @@
       <button class="top-bar-menu" (click)="toggleSidenav()" aria-label="Toggle navigation menu">
         <mat-icon>menu</mat-icon>
       </button>
-      <div class="glass-search">
-        <mat-icon>search</mat-icon>
-        <span>Search...</span>
-      </div>
       <span class="spacer"></span>
       <div class="top-bar-icons">
         @if (featureFlags.isEnabled('themePicker')) {
@@ -197,14 +193,6 @@
         <button class="top-bar-icon" aria-label="Notifications">
           <mat-icon>notifications_none</mat-icon>
         </button>
-        <a
-          routerLink="/profile"
-          class="top-bar-icon"
-          matTooltip="Profile"
-          aria-label="Go to profile"
-        >
-          <mat-icon>account_circle</mat-icon>
-        </a>
       </div>
     </header>
 

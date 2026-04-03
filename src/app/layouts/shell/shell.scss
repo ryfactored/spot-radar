@@ -240,30 +240,6 @@ mat-sidenav {
   }
 }
 
-.glass-search {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 16px;
-  background: rgba(37, 37, 42, 0.4);
-  border-radius: 0.25rem;
-  color: $outline;
-  min-width: 240px;
-  pointer-events: none;
-
-  mat-icon {
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
-  }
-
-  span {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 13px;
-    font-weight: 500;
-  }
-}
-
 .spacer {
   flex: 1 1 auto;
 }
@@ -334,14 +310,6 @@ mat-sidenav {
 
   .top-bar-menu {
     display: flex;
-  }
-
-  .glass-search {
-    min-width: 120px;
-
-    span {
-      display: none;
-    }
   }
 
   .content {
