@@ -115,14 +115,32 @@ Deno.serve(async (req) => {
     }
 
     let checked = 0;
+    let releasesFound = 0;
     const total = artistsToCheck.length;
     const startTime = Date.now();
     const MAX_RUNTIME_MS = 45_000; // Stop before 60s edge function timeout
+
+    // Set up Realtime broadcast channel for progress updates
+    const channel = supabase.channel(`sync-progress:${userId}`);
+    await channel.subscribe();
+
+    const broadcastProgress = async () => {
+      await channel.send({
+        type: 'broadcast',
+        event: 'progress',
+        payload: { checked, total, releasesFound },
+      });
+    };
+
+    // Broadcast initial state
+    await broadcastProgress();
 
     // Process in batches
     for (let i = 0; i < artistsToCheck.length; i += BATCH_SIZE) {
       // Check if we're running low on time
       if (Date.now() - startTime > MAX_RUNTIME_MS) {
+        await broadcastProgress();
+        await supabase.removeChannel(channel);
         return new Response(
           JSON.stringify({ total, checked, remaining: total - checked, done: false }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
@@ -193,12 +211,17 @@ Deno.serve(async (req) => {
         .in('spotify_artist_id', checkedIds);
 
       checked += batch.length;
+      releasesFound += releases.length;
+      await broadcastProgress();
 
       // Pause between batches to avoid Spotify rate limits
       if (i + BATCH_SIZE < artistsToCheck.length) {
         await new Promise((r) => setTimeout(r, BATCH_DELAY_MS));
       }
     }
+
+    // Clean up channel
+    await supabase.removeChannel(channel);
 
     return new Response(JSON.stringify({ total, checked, remaining: 0, done: true }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
