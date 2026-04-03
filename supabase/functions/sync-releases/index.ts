@@ -19,7 +19,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { userId, skipRecent = true } = await req.json();
+    const { userId } = await req.json();
     if (!userId) {
       return new Response(JSON.stringify({ error: 'userId required' }), {
         status: 400,
@@ -101,14 +101,15 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Skip artists already checked in last 24h (only for background/cron syncs)
+    // Skip artists already checked in last 8 hours
     let artistsToCheck = artistRows;
-    if (skipRecent) {
+    {
+      const SKIP_WINDOW_MS = 8 * 60 * 60 * 1000; // 8 hours
       const { data: recentlyChecked } = await supabase
         .schema('spot_radar')
         .from('artists')
         .select('spotify_artist_id')
-        .gt('last_release_check', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString());
+        .gt('last_release_check', new Date(Date.now() - SKIP_WINDOW_MS).toISOString());
 
       const recentIds = new Set((recentlyChecked ?? []).map((r: ArtistRow) => r.spotify_artist_id));
       artistsToCheck = artistRows.filter((r: ArtistRow) => !recentIds.has(r.spotify_artist_id));
