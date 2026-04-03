@@ -369,101 +369,19 @@ import { MatTooltipModule } from '@angular/material/tooltip';
       color: #acaaae;
     }
 
-    /* Segmented control — override mat-button-toggle-group */
+    /* Segmented control — basic layout */
     .segmented-control {
       mat-button-toggle-group {
         width: 100%;
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 0.75rem;
-        padding: 4px;
-        border: none !important;
-        gap: 4px;
-
-        --mat-standard-button-toggle-selected-state-background-color: #ba9eff;
-        --mat-standard-button-toggle-selected-state-text-color: #000;
-        --mat-standard-button-toggle-text-color: #acaaae;
-        --mat-standard-button-toggle-background-color: transparent;
-        --mat-standard-button-toggle-shape: 0.5rem;
-        --mat-standard-button-toggle-divider-color: transparent;
-        --mat-standard-button-toggle-height: 36px;
       }
-
       mat-button-toggle {
         flex: 1;
-        font-family: 'Plus Jakarta Sans', sans-serif;
-        font-size: 12px;
-        font-weight: 500;
-
-        &.mat-button-toggle-checked {
-          font-weight: 700;
-        }
       }
     }
 
-    /* Form field overrides — filled dark style matching Stitch */
+    /* Form field — basic layout */
     .panel-section mat-form-field {
       width: 100%;
-    }
-
-    .panel-section ::ng-deep {
-      /* Rounded filled background for outlined text field */
-      .mdc-text-field--outlined {
-        background: rgba(37, 37, 42, 0.6) !important;
-        border-radius: 0.75rem !important;
-      }
-
-      /* Rounded notched outline */
-      .mdc-notched-outline__leading {
-        border-radius: 0.75rem 0 0 0.75rem !important;
-        border-color: rgba(72, 72, 71, 0.3) !important;
-      }
-      .mdc-notched-outline__trailing {
-        border-radius: 0 0.75rem 0.75rem 0 !important;
-        border-color: rgba(72, 72, 71, 0.3) !important;
-      }
-      .mdc-notched-outline__notch {
-        border-color: rgba(72, 72, 71, 0.3) !important;
-      }
-
-      /* Hover state */
-      .mdc-text-field--outlined:hover .mdc-notched-outline__leading,
-      .mdc-text-field--outlined:hover .mdc-notched-outline__trailing,
-      .mdc-text-field--outlined:hover .mdc-notched-outline__notch {
-        border-color: rgba(186, 158, 255, 0.3) !important;
-      }
-
-      /* Focus state */
-      .mdc-text-field--outlined.mdc-text-field--focused .mdc-notched-outline__leading,
-      .mdc-text-field--outlined.mdc-text-field--focused .mdc-notched-outline__trailing,
-      .mdc-text-field--outlined.mdc-text-field--focused .mdc-notched-outline__notch {
-        border-color: rgba(186, 158, 255, 0.5) !important;
-      }
-
-      /* Hide the floating label */
-      .mdc-floating-label,
-      .mat-mdc-floating-label {
-        display: none !important;
-      }
-
-      /* Select trigger text */
-      .mat-mdc-select-trigger {
-        color: #f0edf1 !important;
-        font-family: 'Plus Jakarta Sans', sans-serif !important;
-        font-size: 14px !important;
-        font-weight: 500 !important;
-      }
-
-      /* Select arrow */
-      .mat-mdc-select-arrow {
-        color: #acaaae !important;
-      }
-
-      /* Container height */
-      .mat-mdc-form-field-infix {
-        padding-top: 12px !important;
-        padding-bottom: 12px !important;
-        min-height: 48px !important;
-      }
     }
 
     /* Toggle section */
@@ -491,65 +409,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
       font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: 10px;
       color: #acaaae;
-    }
-
-    /* Slide toggle overrides — rounded pill style */
-    .toggle-section ::ng-deep {
-      /* Track */
-      .mdc-switch__track {
-        border-radius: 999px !important;
-        height: 20px !important;
-        width: 40px !important;
-      }
-
-      /* Handle */
-      .mdc-switch__handle {
-        border-radius: 999px !important;
-        width: 14px !important;
-        height: 14px !important;
-      }
-
-      .mdc-switch__handle-track {
-        width: calc(100% - 14px) !important;
-      }
-
-      /* Hide icon inside handle */
-      .mdc-switch__icons {
-        display: none !important;
-      }
-
-      /* Remove the ripple / state layer for cleaner look */
-      .mdc-switch__ripple,
-      .mat-mdc-slide-toggle-ripple {
-        display: none !important;
-      }
-
-      /* Unselected state */
-      .mdc-switch:not(.mdc-switch--selected) .mdc-switch__track::before {
-        background: #25252a !important;
-      }
-      .mdc-switch:not(.mdc-switch--selected) .mdc-switch__track::after {
-        background: #25252a !important;
-      }
-      .mdc-switch:not(.mdc-switch--selected) .mdc-switch__handle::after {
-        background: #f0edf1 !important;
-      }
-
-      /* Selected state */
-      .mdc-switch--selected .mdc-switch__track::before {
-        background: #ba9eff !important;
-      }
-      .mdc-switch--selected .mdc-switch__track::after {
-        background: #ba9eff !important;
-      }
-      .mdc-switch--selected .mdc-switch__handle::after {
-        background: #f0edf1 !important;
-      }
-
-      /* Remove the shadow/elevation on handle */
-      .mdc-switch__shadow {
-        display: none !important;
-      }
     }
 
     /* Panel footer */
