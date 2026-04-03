@@ -27,7 +27,7 @@
         #rlaDashboard="routerLinkActive"
         [attr.aria-current]="rlaDashboard.isActive ? 'page' : null"
       >
-        <mat-icon>dashboard</mat-icon>
+        <mat-icon>home</mat-icon>
         <span>Dashboard</span>
       </a>
       @if (featureFlags.isEnabled('releases')) {
@@ -78,18 +78,6 @@
           <span>Files</span>
         </a>
       }
-      @if (featureFlags.isEnabled('components')) {
-        <a
-          class="nav-link"
-          routerLink="/components"
-          routerLinkActive="active"
-          #rlaComponents="routerLinkActive"
-          [attr.aria-current]="rlaComponents.isActive ? 'page' : null"
-        >
-          <mat-icon>widgets</mat-icon>
-          <span>Components</span>
-        </a>
-      }
       @if (isAdmin() && featureFlags.isEnabled('admin')) {
         @if (hasExpandableGroups()) {
           <button
@@ -137,6 +125,18 @@
                 <mat-icon>toggle_on</mat-icon>
                 <span>Feature Flags</span>
               </a>
+              @if (featureFlags.isEnabled('components')) {
+                <a
+                  class="nav-link submenu-item"
+                  routerLink="/components"
+                  routerLinkActive="active"
+                  #rlaComponents="routerLinkActive"
+                  [attr.aria-current]="rlaComponents.isActive ? 'page' : null"
+                >
+                  <mat-icon>widgets</mat-icon>
+                  <span>Components</span>
+                </a>
+              }
             </div>
           }
         } @else {
