@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { SyncProgress } from './releases-store';
@@ -10,29 +10,18 @@ import { SyncProgress } from './releases-store';
   template: `
     @if (progress().syncing) {
       <div class="sync-indicator">
-        <div class="sync-row">
-          <p class="sync-text">
-            @if (progress().total === 0) {
-              Fetching your artists from Spotify...
-            } @else if (progress().checked === 0) {
-              Scanning {{ progress().total | number }} artists for new releases...
-            } @else {
-              Checked {{ progress().checked | number }} of {{ progress().total | number }} artists
-              @if (progress().releasesFound > 0) {
-                — {{ progress().releasesFound }}
-                {{ progress().releasesFound === 1 ? 'release' : 'releases' }} found
-              }
-            }
-          </p>
-          @if (progress().total > 0 && progress().checked > 0) {
-            <span class="sync-pct">{{ pct() }}%</span>
+        <p class="sync-text">
+          @if (progress().total === 0) {
+            Fetching your artists from Spotify...
+          } @else if (progress().releasesFound === 0) {
+            Scanning {{ progress().total | number }} artists for new releases...
+          } @else {
+            Found {{ progress().releasesFound | number }}
+            {{ progress().releasesFound === 1 ? 'release' : 'releases' }} so far across
+            {{ progress().total | number }} artists...
           }
-        </div>
-        @if (progress().total > 0 && progress().checked > 0) {
-          <mat-progress-bar mode="determinate" [value]="pct()" />
-        } @else {
-          <mat-progress-bar mode="indeterminate" />
-        }
+        </p>
+        <mat-progress-bar mode="indeterminate" />
       </div>
     }
   `,
@@ -52,35 +41,14 @@ import { SyncProgress } from './releases-store';
       --mdc-linear-progress-track-color: rgba(186, 158, 255, 0.1);
     }
 
-    .sync-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
-
     .sync-text {
       margin: 0;
       font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: 0.875rem;
       color: #acaaae;
     }
-
-    .sync-pct {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 0.875rem;
-      font-weight: 700;
-      color: #ba9eff;
-      flex-shrink: 0;
-    }
   `,
 })
 export class SyncIndicator {
   progress = input.required<SyncProgress>();
-
-  protected pct = computed(() => {
-    const p = this.progress();
-    if (p.total === 0) return 0;
-    return Math.round((p.checked / p.total) * 100);
-  });
 }

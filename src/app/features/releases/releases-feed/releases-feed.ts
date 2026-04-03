@@ -865,13 +865,7 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
         releasesFound: 0,
       });
 
-      // Subscribe to real-time progress before triggering
-      const unsubProgress = this.service.subscribeSyncProgress(this.userId, (progress) => {
-        this.store.setSyncProgress({ ...progress, syncing: true });
-      });
-
       await this.service.triggerSync(this.userId, false);
-      unsubProgress();
       this.store.setSyncProgress({ total: 0, checked: 0, syncing: false, releasesFound: 0 });
       await this.loadFeed(1);
       this.toast.success(mode === 'full' ? 'Full sync complete.' : 'Sync complete.');

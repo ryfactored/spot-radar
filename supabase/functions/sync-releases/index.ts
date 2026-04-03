@@ -114,23 +114,7 @@ Deno.serve(async (req) => {
     }
 
     let checked = 0;
-    let releasesFound = 0;
     const total = artistsToCheck.length;
-
-    // Set up Realtime broadcast channel for progress updates
-    const channel = supabase.channel(`sync-progress:${userId}`);
-    await channel.subscribe();
-
-    const broadcastProgress = async () => {
-      await channel.send({
-        type: 'broadcast',
-        event: 'progress',
-        payload: { checked, total, releasesFound },
-      });
-    };
-
-    // Broadcast initial state
-    await broadcastProgress();
 
     // Process in batches
     for (let i = 0; i < artistsToCheck.length; i += BATCH_SIZE) {
@@ -198,14 +182,9 @@ Deno.serve(async (req) => {
         .in('spotify_artist_id', checkedIds);
 
       checked += batch.length;
-      releasesFound += releases.length;
-      await broadcastProgress();
     }
 
-    // Clean up channel
-    await supabase.removeChannel(channel);
-
-    return new Response(JSON.stringify({ total, checked, releasesFound }), {
+    return new Response(JSON.stringify({ total, checked, releases: 'synced' }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {
