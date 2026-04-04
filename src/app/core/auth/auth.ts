@@ -1,5 +1,4 @@
-import { Injectable, PLATFORM_ID, inject, signal } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { SupabaseService } from '../supabase/supabase';
 import { RealtimeService } from '../supabase/realtime';
@@ -31,7 +30,6 @@ export class AuthService {
   private router = inject(Router);
   private toast = inject(ToastService);
   private spotifyAuth = inject(SpotifyAuthService);
-  private isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   currentUser = signal<User | null>(null);
   loading = signal(true);
@@ -86,7 +84,7 @@ export class AuthService {
     const { error } = await this.supabase.client.auth.signInWithOAuth({
       provider: provider as Provider,
       options: {
-        redirectTo: `${this.getRedirectOrigin()}/dashboard`,
+        redirectTo: `${this.getRedirectOrigin()}/auth/callback`,
         scopes: provider === 'spotify' ? 'user-follow-read user-library-read' : undefined,
       },
     });
@@ -125,13 +123,10 @@ export class AuthService {
 
   /**
    * Returns the origin for auth redirect URLs.
-   * Browser: uses window.location.origin (works from any hostname)
+   * Uses environment.siteUrl to ensure correct redirects when hosted on a subpath.
    * SSR: uses configured siteUrl
    */
   private getRedirectOrigin(): string {
-    if (this.isBrowser) {
-      return window.location.origin;
-    }
     return environment.siteUrl;
   }
 }

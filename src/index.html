@@ -4,8 +4,10 @@
     <script>
       // Hide prerendered landing page when served as SPA fallback on non-root routes,
       // or during OAuth callbacks. Angular restores visibility after first navigation.
+      var base = document.querySelector('base');
+      var basePath = base ? base.getAttribute('href') : '/';
       if (
-        location.pathname !== '/' ||
+        (location.pathname !== '/' && location.pathname !== basePath) ||
         location.search.includes('code=') ||
         location.hash.includes('access_token')
       ) {

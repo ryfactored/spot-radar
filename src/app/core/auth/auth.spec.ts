@@ -143,12 +143,12 @@ describe('AuthService', () => {
   });
 
   describe('signInWithProvider', () => {
-    it('should redirect to /dashboard after OAuth', async () => {
+    it('should redirect to /auth/callback after OAuth', async () => {
       await service.signInWithProvider('google');
 
       expect(supabaseMock.client.auth.signInWithOAuth).toHaveBeenCalledWith({
         provider: 'google',
-        options: { redirectTo: expect.stringContaining('/dashboard') },
+        options: { redirectTo: expect.stringContaining('/auth/callback') },
       });
     });
   });
