@@ -227,6 +227,7 @@ const PAGE_SIZE = 20;
 
     .grid-card {
       grid-column: span 4;
+      min-width: 0;
     }
 
     .section-label {
@@ -458,16 +459,20 @@ const PAGE_SIZE = 20;
 
     @media (max-width: 600px) {
       .feed-container {
-        grid-template-columns: 1fr;
-        gap: 16px;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        align-items: start;
       }
 
       .featured-section,
       .secondary-section,
-      .grid-card,
       .section-label,
       .footer-section,
       .scroll-sentinel {
+        grid-column: span 2;
+      }
+
+      .grid-card {
         grid-column: span 1;
       }
     }
@@ -528,6 +533,17 @@ const PAGE_SIZE = 20;
         left: 0;
       }
     }
+
+    @media (max-width: 600px) {
+      .player-bar {
+        padding: 4px 8px;
+        gap: 8px;
+      }
+
+      .player-bar-embed iframe {
+        height: 80px;
+      }
+    }
   `,
 })
 export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
@@ -561,14 +577,20 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
     const lastChecked = this.store.lastCheckedAt();
     if (!lastChecked) return this.store.allReleases();
     const cutoff = new Date(lastChecked);
-    return this.store.allReleases().filter((r) => new Date(r.release_date) > cutoff);
+    return this.store.allReleases().filter((r) => {
+      const date = new Date(r.created_at ?? r.release_date);
+      return date > cutoff;
+    });
   });
 
   protected seenReleases = computed(() => {
     const lastChecked = this.store.lastCheckedAt();
     if (!lastChecked) return [];
     const cutoff = new Date(lastChecked);
-    return this.store.allReleases().filter((r) => new Date(r.release_date) <= cutoff);
+    return this.store.allReleases().filter((r) => {
+      const date = new Date(r.created_at ?? r.release_date);
+      return date <= cutoff;
+    });
   });
 
   protected featuredRelease = computed(() => {
