@@ -13,6 +13,7 @@ export class SupabaseService {
   constructor() {
     this.supabase = createClient(environment.supabaseUrl, environment.supabaseAnonKey, {
       auth: {
+        flowType: 'pkce',
         persistSession: this.isBrowser,
         autoRefreshToken: this.isBrowser,
       },

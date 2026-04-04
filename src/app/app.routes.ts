@@ -170,6 +170,12 @@ export const routes: Routes = [
     component: AuthLayout,
     children: [
       {
+        path: 'auth/callback',
+        data: { title: 'Signing In' },
+        loadComponent: () =>
+          import('./features/auth/auth-callback/auth-callback').then((m) => m.AuthCallback),
+      },
+      {
         path: 'reset-password',
         data: { title: 'Set New Password' },
         loadComponent: () =>
