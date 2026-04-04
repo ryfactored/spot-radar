@@ -14,6 +14,7 @@ export interface Release {
   image_url: string | null;
   track_count: number;
   artist_source: 'followed' | 'saved';
+  created_at?: string;
 }
 
 export interface FeedPreferences {
