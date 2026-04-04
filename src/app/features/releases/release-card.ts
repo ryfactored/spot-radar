@@ -463,6 +463,55 @@ import { Release } from './releases-service';
       .featured-overlay {
         padding: 16px;
       }
+
+      .card {
+        gap: 8px;
+        padding: 4px;
+        overflow: hidden;
+      }
+
+      .content {
+        gap: 2px;
+        padding: 0 2px 2px;
+      }
+
+      .title {
+        font-size: 12px;
+      }
+
+      .title-row {
+        gap: 4px;
+      }
+
+      .artist-row {
+        gap: 4px;
+      }
+
+      .artist {
+        font-size: 10px;
+      }
+
+      .bottom-row {
+        margin-top: 2px;
+      }
+
+      .date {
+        font-size: 9px;
+      }
+
+      .spotify-link {
+        font-size: 8px;
+      }
+
+      .type-chip {
+        font-size: 7px;
+        padding: 1px 5px;
+      }
+
+      .source-chip {
+        font-size: 7px;
+        padding: 1px 5px;
+      }
     }
   `,
 })

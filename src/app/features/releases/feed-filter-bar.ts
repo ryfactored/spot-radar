@@ -705,15 +705,40 @@ import { TitleCasePipe } from '@angular/common';
     @media (max-width: 600px) {
       .header-bar {
         flex-direction: column;
-        gap: 16px;
+        gap: 8px;
+      }
+
+      .curated-label {
+        font-size: 11px;
+        letter-spacing: 0.2em;
       }
 
       .feed-title {
-        font-size: 2.25rem;
+        font-size: 1.75rem;
+      }
+
+      .feed-subtitle {
+        display: none;
       }
 
       .pills-area {
         justify-content: flex-start;
+        gap: 6px;
+      }
+
+      .filter-pill {
+        font-size: 8px;
+        padding: 4px 10px;
+      }
+
+      .dismissed-pill {
+        font-size: 10px;
+        padding: 4px 10px;
+      }
+
+      .tune-btn {
+        width: 32px;
+        height: 32px;
       }
     }
   `,
