@@ -126,8 +126,10 @@ const PAGE_SIZE = 20;
             <app-release-card
               [release]="featured"
               [featured]="true"
+              [isSaved]="savedAlbumIds().has(featured.spotify_album_id)"
               (dismiss)="onDismiss($event)"
               (playRelease)="onPlay($event)"
+              (saveAlbum)="onSaveAlbum($event)"
               (showSavedAlbums)="onShowSavedAlbums($event)"
             />
           </div>
@@ -136,8 +138,10 @@ const PAGE_SIZE = 20;
             <div class="secondary-section">
               <app-release-card
                 [release]="secondary"
+                [isSaved]="savedAlbumIds().has(secondary.spotify_album_id)"
                 (dismiss)="onDismiss($event)"
                 (playRelease)="onPlay($event)"
+                (saveAlbum)="onSaveAlbum($event)"
                 (showSavedAlbums)="onShowSavedAlbums($event)"
               />
             </div>
@@ -148,8 +152,10 @@ const PAGE_SIZE = 20;
           <div class="grid-card">
             <app-release-card
               [release]="release"
+              [isSaved]="savedAlbumIds().has(release.spotify_album_id)"
               (dismiss)="onDismiss($event)"
               (playRelease)="onPlay($event)"
+              (saveAlbum)="onSaveAlbum($event)"
               (showSavedAlbums)="onShowSavedAlbums($event)"
             />
           </div>
@@ -165,8 +171,10 @@ const PAGE_SIZE = 20;
             <div class="grid-card">
               <app-release-card
                 [release]="release"
+                [isSaved]="savedAlbumIds().has(release.spotify_album_id)"
                 (dismiss)="onDismiss($event)"
                 (playRelease)="onPlay($event)"
+                (saveAlbum)="onSaveAlbum($event)"
                 (showSavedAlbums)="onShowSavedAlbums($event)"
               />
             </div>
@@ -565,6 +573,7 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
 
   protected nowPlaying = signal<Release | null>(null);
   protected dismissedPanelOpen = signal(false);
+  protected savedAlbumIds = signal<Set<string>>(new Set());
 
   protected playerEmbedUrl = computed((): SafeResourceUrl | null => {
     const release = this.nowPlaying();
@@ -665,11 +674,13 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
 
   private async loadInitialData(): Promise<void> {
     try {
-      const [prefs, dismissedIds, artistIds] = await Promise.all([
+      const [prefs, dismissedIds, artistIds, savedIds] = await Promise.all([
         this.service.getPreferences(this.userId),
         this.service.getDismissedIds(this.userId),
         this.service.getUserArtistIds(this.userId),
+        this.spotifyApi.getAllSavedAlbumIds().catch(() => new Set<string>()),
       ]);
+      this.savedAlbumIds.set(savedIds);
 
       this.store.setPreferences(prefs);
       this.store.setDismissedIds(dismissedIds);
@@ -890,6 +901,16 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
       this.nowPlaying.set(null);
     } else {
       this.nowPlaying.set(release);
+    }
+  }
+
+  protected async onSaveAlbum(albumId: string): Promise<void> {
+    try {
+      await this.spotifyApi.saveAlbum(albumId);
+      this.savedAlbumIds.update((ids) => new Set([...ids, albumId]));
+      this.toast.success('Saved to your library');
+    } catch (err) {
+      this.toast.error(extractErrorMessage(err, 'Failed to save album.'));
     }
   }
 
