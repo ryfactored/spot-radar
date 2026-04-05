@@ -40,6 +40,8 @@ export class SpotifyApiService {
   private auth = inject(AuthService);
   private spotifyAuth = inject(SpotifyAuthService);
   private savedAlbumCache = new Map<string, SpotifyAlbum[]>();
+  private savedAlbumIdsCache: { ids: Set<string>; fetchedAt: number } | null = null;
+  private static CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
   // ---------------------------------------------------------------------------
   // Private helpers
@@ -167,6 +169,80 @@ export class SpotifyApiService {
    * Fetches the artist's catalog, then checks which are in the user's library.
    * Results are cached per artist for the session.
    */
+  /**
+   * Checks which of the given album IDs are saved in the user's library.
+   * Returns the set of saved album IDs. Processes in batches of 20 (API limit).
+   */
+  /**
+   * Returns all album IDs from the user's saved library.
+   */
+  /**
+   * Save an album to the user's Spotify library.
+   */
+  async saveAlbum(albumId: string): Promise<void> {
+    const userId = this.getUserId();
+    const accessToken = await this.spotifyAuth.getAccessToken(userId);
+    const url = `${SPOTIFY_API_BASE}/me/albums`;
+
+    const response = await fetch(url, {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ ids: [albumId] }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Spotify API error: ${response.status} ${response.statusText}`);
+    }
+
+    // Invalidate saved album cache
+    this.savedAlbumIdsCache = null;
+  }
+
+  async getAllSavedAlbumIds(): Promise<Set<string>> {
+    if (
+      this.savedAlbumIdsCache &&
+      Date.now() - this.savedAlbumIdsCache.fetchedAt < SpotifyApiService.CACHE_TTL_MS
+    ) {
+      return this.savedAlbumIdsCache.ids;
+    }
+
+    const ids = new Set<string>();
+    let url: string | null = `${SPOTIFY_API_BASE}/me/albums?limit=50`;
+
+    while (url) {
+      const data = (await this.fetchWithAuth(url)) as {
+        items: { album: { id: string } }[];
+        next: string | null;
+      };
+      for (const item of data.items) {
+        ids.add(item.album.id);
+      }
+      url = data.next;
+    }
+
+    this.savedAlbumIdsCache = { ids, fetchedAt: Date.now() };
+    return ids;
+  }
+
+  async checkSavedAlbums(albumIds: string[]): Promise<Set<string>> {
+    const savedSet = new Set<string>();
+
+    for (let i = 0; i < albumIds.length; i += 20) {
+      const batch = albumIds.slice(i, i + 20);
+      const ids = batch.join(',');
+      const url = `${SPOTIFY_API_BASE}/me/albums/contains?ids=${ids}`;
+      const result = (await this.fetchWithAuth(url)) as boolean[];
+      batch.forEach((id, idx) => {
+        if (result[idx]) savedSet.add(id);
+      });
+    }
+
+    return savedSet;
+  }
+
   async getSavedAlbumsByArtist(artistId: string): Promise<SpotifyAlbum[]> {
     const cached = this.savedAlbumCache.get(artistId);
     if (cached) return cached;

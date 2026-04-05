@@ -49,7 +49,7 @@ import { Release } from './releases-service';
         </div>
       </div>
     } @else {
-      <div class="card">
+      <div class="card" [class.saved]="isSaved()">
         <div class="art-wrapper">
           <img
             class="album-art"
@@ -64,6 +64,11 @@ import { Release } from './releases-service';
           <button class="dismiss-btn btn-dismiss" (click)="onDismiss()" aria-label="Dismiss">
             <span>&#x2715;</span>
           </button>
+          @if (!isSaved()) {
+            <button class="save-btn" (click)="onSave()" aria-label="Save to library">
+              <span class="material-icons">add</span>
+            </button>
+          }
         </div>
         <div class="content">
           <div class="title-row">
@@ -203,6 +208,47 @@ import { Release } from './releases-service';
     }
 
     .card:hover .dismiss-btn {
+      opacity: 1;
+    }
+
+    .card.saved {
+      opacity: 0.45;
+      transition: opacity 0.3s ease;
+    }
+
+    .card.saved:hover {
+      opacity: 0.7;
+    }
+
+    .save-btn {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(109, 245, 225, 0.9);
+      color: #000;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition:
+        transform 0.2s,
+        opacity 0.3s;
+      opacity: 0;
+
+      .material-icons {
+        font-size: 18px;
+      }
+
+      &:hover {
+        transform: scale(1.1);
+      }
+    }
+
+    .card:hover .save-btn {
       opacity: 1;
     }
 
@@ -518,8 +564,10 @@ import { Release } from './releases-service';
 export class ReleaseCard {
   release = input.required<Release>();
   featured = input(false);
+  isSaved = input(false);
   dismiss = output<string>();
   playRelease = output<Release>();
+  saveAlbum = output<string>();
   showSavedAlbums = output<{ artistId: string; triggerElement: HTMLElement }>();
 
   readonly spotifyUrl = computed(
@@ -532,6 +580,10 @@ export class ReleaseCard {
 
   onPlay(): void {
     this.playRelease.emit(this.release());
+  }
+
+  onSave(): void {
+    this.saveAlbum.emit(this.release().spotify_album_id);
   }
 
   onShowSavedAlbums(event: MouseEvent): void {
