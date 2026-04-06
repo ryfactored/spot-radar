@@ -29,6 +29,7 @@ export interface FeedPreferences {
 export interface ArtistRow {
   spotify_artist_id: string;
   artist_name: string;
+  artist_image_url?: string | null;
 }
 
 const DEFAULT_PREFERENCES: FeedPreferences = {
@@ -195,10 +196,16 @@ export class ReleasesService {
 
       unwrap(
         await this.supabase.client.from('artists').upsert(
-          chunk.map((a) => ({
-            spotify_artist_id: a.spotify_artist_id,
-            artist_name: a.artist_name,
-          })),
+          chunk.map((a) => {
+            const row: Record<string, unknown> = {
+              spotify_artist_id: a.spotify_artist_id,
+              artist_name: a.artist_name,
+            };
+            if (a.artist_image_url) {
+              row['artist_image_url'] = a.artist_image_url;
+            }
+            return row;
+          }),
         ),
       );
 

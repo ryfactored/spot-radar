@@ -34,6 +34,12 @@ export const routes: Routes = [
         canActivate: [featureFlagGuard('releases')],
       },
       {
+        path: 'artists',
+        data: { title: 'My Artists' },
+        loadComponent: () => import('./features/artists/artists').then((m) => m.Artists),
+        canActivate: [featureFlagGuard('releases')],
+      },
+      {
         path: 'profile',
         data: { title: 'Profile' },
         loadComponent: () => import('./features/profile/profile').then((m) => m.Profile),
