@@ -42,6 +42,18 @@
           <span>New Releases</span>
         </a>
       }
+      @if (featureFlags.isEnabled('releases')) {
+        <a
+          class="nav-link"
+          routerLink="/artists"
+          routerLinkActive="active"
+          #rlaArtists="routerLinkActive"
+          [attr.aria-current]="rlaArtists.isActive ? 'page' : null"
+        >
+          <mat-icon>people</mat-icon>
+          <span>My Artists</span>
+        </a>
+      }
       @if (featureFlags.isEnabled('notes')) {
         <a
           class="nav-link"

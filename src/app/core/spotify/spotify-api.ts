@@ -149,6 +149,25 @@ export class SpotifyApiService {
   }
 
   /**
+   * Batch-fetch full artist profiles by IDs (up to 50 per call).
+   * Returns a map of artistId → SpotifyArtist with images.
+   */
+  async getArtistsByIds(ids: string[]): Promise<Map<string, SpotifyArtist>> {
+    const result = new Map<string, SpotifyArtist>();
+
+    for (let i = 0; i < ids.length; i += 50) {
+      const batch = ids.slice(i, i + 50);
+      const url = `${SPOTIFY_API_BASE}/artists?ids=${batch.join(',')}`;
+      const data = (await this.fetchWithAuth(url)) as { artists: SpotifyArtist[] };
+      for (const artist of data.artists) {
+        if (artist) result.set(artist.id, artist);
+      }
+    }
+
+    return result;
+  }
+
+  /**
    * Returns recent albums/singles for the given artist.
    * @param artistId Spotify artist ID
    * @param limit    Maximum number of releases to return (default 5)

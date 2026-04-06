@@ -17,6 +17,7 @@ import { Overlay, OverlayRef } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
 
 import { AuthService, SpotifyApiService, extractErrorMessage } from '@core';
+import type { SpotifyArtist } from '@core';
 import { ToastService, EmptyState } from '@shared';
 
 import { ReleasesService, Release, FeedPreferences } from '../releases-service';
@@ -741,11 +742,32 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
       this.spotifyApi.getFollowedArtists(),
       this.spotifyApi.getSavedAlbumArtists(),
     ]);
+
+    // Followed artists already have images
+    const followedImageMap = new Map<string, string>();
+    for (const a of followedArtists) {
+      if (a.images?.[0]?.url) followedImageMap.set(a.id, a.images[0].url);
+    }
+
+    // Saved artists that aren't also followed need images fetched
+    const savedOnlyIds = savedArtists.filter((a) => !followedImageMap.has(a.id)).map((a) => a.id);
+
+    let savedImageMap = new Map<string, SpotifyArtist>();
+    if (savedOnlyIds.length > 0) {
+      savedImageMap = await this.spotifyApi.getArtistsByIds(savedOnlyIds).catch(() => new Map());
+    }
+
     const followedRows = followedArtists.map((a) => ({
       spotify_artist_id: a.id,
       artist_name: a.name,
+      artist_image_url: a.images?.[0]?.url ?? null,
     }));
-    const savedRows = savedArtists.map((a) => ({ spotify_artist_id: a.id, artist_name: a.name }));
+    const savedRows = savedArtists.map((a) => ({
+      spotify_artist_id: a.id,
+      artist_name: a.name,
+      artist_image_url:
+        followedImageMap.get(a.id) ?? savedImageMap.get(a.id)?.images?.[0]?.url ?? null,
+    }));
     await this.service.syncArtists(this.userId, savedRows, 'saved');
     await this.service.syncArtists(this.userId, followedRows, 'followed');
     const allActiveIds = [
