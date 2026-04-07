@@ -151,12 +151,15 @@ Deno.serve(async (req) => {
       artistsToCheck = artistRows.filter((r: ArtistRow) => !recentIds.has(r.spotify_artist_id));
     }
 
-    sendStatus(`Loading artist names...`, 0, artistsToCheck.length);
-
     // Fetch artist names for progress reporting
     const artistNameMap = new Map<string, string>();
     const artistIdList = artistsToCheck.map((r: ArtistRow) => r.spotify_artist_id);
     for (let i = 0; i < artistIdList.length; i += 500) {
+      sendStatus(
+        `Loading artist names... ${Math.min(i + 500, artistIdList.length)}/${artistIdList.length}`,
+        0,
+        artistsToCheck.length,
+      );
       const chunk = artistIdList.slice(i, i + 500);
       const { data: artistData } = await supabase
         .schema('spot_radar')
