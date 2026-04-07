@@ -110,6 +110,26 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Set up Realtime broadcast channel early so we can report progress during setup
+    const channelName = `sync-progress:${userId}`;
+    const channel = supabase.channel(channelName);
+    await new Promise<void>((resolve) => {
+      channel.subscribe((status) => {
+        if (status === 'SUBSCRIBED') resolve();
+      });
+      setTimeout(resolve, 2000);
+    });
+
+    const sendStatus = (artistName: string, checked: number, total: number) => {
+      channel.send({
+        type: 'broadcast',
+        event: 'artist-progress',
+        payload: { artistName, checked, total },
+      });
+    };
+
+    sendStatus(`Found ${artistRows.length} artists, filtering...`, 0, artistRows.length);
+
     // Skip artists already checked in last 24h (only for background/cron syncs)
     let artistsToCheck = artistRows;
     if (skipRecent) {
@@ -131,6 +151,8 @@ Deno.serve(async (req) => {
       artistsToCheck = artistRows.filter((r: ArtistRow) => !recentIds.has(r.spotify_artist_id));
     }
 
+    sendStatus(`Loading artist names...`, 0, artistsToCheck.length);
+
     // Fetch artist names for progress reporting
     const artistNameMap = new Map<string, string>();
     const artistIdList = artistsToCheck.map((r: ArtistRow) => r.spotify_artist_id);
@@ -147,16 +169,6 @@ Deno.serve(async (req) => {
         }
       }
     }
-
-    // Set up Realtime broadcast channel for progress
-    const channelName = `sync-progress:${userId}`;
-    const channel = supabase.channel(channelName);
-    await new Promise<void>((resolve) => {
-      channel.subscribe((status) => {
-        if (status === 'SUBSCRIBED') resolve();
-      });
-      setTimeout(resolve, 2000);
-    });
 
     let checked = 0;
     const total = artistsToCheck.length;
@@ -230,14 +242,8 @@ Deno.serve(async (req) => {
         // Broadcast progress for each artist in this batch
         for (const row of batch) {
           checked++;
-          // Look up artist name from the releases we just fetched, or use the ID
           const artistName = artistNameMap.get(row.spotify_artist_id) ?? row.spotify_artist_id;
-
-          channel.send({
-            type: 'broadcast',
-            event: 'artist-progress',
-            payload: { artistName, checked, total },
-          });
+          sendStatus(artistName, checked, total);
         }
       }
 
