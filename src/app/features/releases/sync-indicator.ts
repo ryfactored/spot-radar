@@ -11,7 +11,9 @@ import { SyncProgress } from './releases-store';
     @if (progress().syncing) {
       <div class="sync-indicator">
         <p class="sync-text">
-          @if (progress().total === 0) {
+          @if (progress().total === 0 && progress().currentArtist) {
+            {{ progress().currentArtist }}
+          } @else if (progress().total === 0) {
             Fetching your artists from Spotify...
           } @else if (progress().currentArtist) {
             Checking {{ progress().currentArtist }}...
