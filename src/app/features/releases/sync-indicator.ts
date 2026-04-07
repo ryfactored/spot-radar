@@ -11,15 +11,13 @@ import { SyncProgress } from './releases-store';
     @if (progress().syncing) {
       <div class="sync-indicator">
         <p class="sync-text">
-          @if (progress().total === 0 && progress().currentArtist) {
-            {{ progress().currentArtist }}
-          } @else if (progress().total === 0) {
-            Fetching your artists from Spotify...
-          } @else if (progress().currentArtist) {
+          @if (progress().total > 0 && progress().checked > 0) {
             Checking {{ progress().currentArtist }}...
             <span class="sync-count">{{ progress().checked }}/{{ progress().total | number }}</span>
+          } @else if (progress().currentArtist) {
+            {{ progress().currentArtist }}
           } @else {
-            Scanning {{ progress().total | number }} artists for new releases...
+            Fetching your artists from Spotify...
           }
         </p>
         <mat-progress-bar [mode]="progressMode()" [value]="progressPercent()" />
