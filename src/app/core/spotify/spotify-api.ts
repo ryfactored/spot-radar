@@ -147,7 +147,7 @@ export class SpotifyApiService {
    */
   async getArtistsByIds(
     ids: string[],
-    onProgress?: (count: number, total: number) => void,
+    onProgress?: (processed: number, total: number) => void,
   ): Promise<Map<string, SpotifyArtist>> {
     const result = new Map<string, SpotifyArtist>();
 
@@ -162,7 +162,7 @@ export class SpotifyApiService {
       } catch {
         // Skip failed batch — partial results are better than none
       }
-      onProgress?.(result.size, ids.length);
+      onProgress?.(Math.min(i + 50, ids.length), ids.length);
     }
 
     return result;
