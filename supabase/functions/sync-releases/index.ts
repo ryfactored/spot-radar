@@ -87,15 +87,24 @@ Deno.serve(async (req) => {
         .eq('user_id', userId);
     }
 
-    // Get user's artist IDs (override default 1000-row limit)
-    const { data: artistRows } = await supabase
-      .schema('spot_radar')
-      .from('user_artists')
-      .select('spotify_artist_id')
-      .eq('user_id', userId)
-      .limit(10000);
+    // Get user's artist IDs (paginate past PostgREST 1000-row limit)
+    const artistRows: ArtistRow[] = [];
+    const PAGE_SIZE = 1000;
+    let from = 0;
+    while (true) {
+      const { data } = await supabase
+        .schema('spot_radar')
+        .from('user_artists')
+        .select('spotify_artist_id')
+        .eq('user_id', userId)
+        .range(from, from + PAGE_SIZE - 1);
+      if (!data || data.length === 0) break;
+      artistRows.push(...(data as ArtistRow[]));
+      if (data.length < PAGE_SIZE) break;
+      from += PAGE_SIZE;
+    }
 
-    if (!artistRows || artistRows.length === 0) {
+    if (artistRows.length === 0) {
       return new Response(JSON.stringify({ message: 'No artists to sync' }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -104,14 +113,21 @@ Deno.serve(async (req) => {
     // Skip artists already checked in last 24h (only for background/cron syncs)
     let artistsToCheck = artistRows;
     if (skipRecent) {
-      const { data: recentlyChecked } = await supabase
-        .schema('spot_radar')
-        .from('artists')
-        .select('spotify_artist_id')
-        .gt('last_release_check', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
-        .limit(10000);
+      const recentIds = new Set<string>();
+      let rFrom = 0;
+      while (true) {
+        const { data: recentlyChecked } = await supabase
+          .schema('spot_radar')
+          .from('artists')
+          .select('spotify_artist_id')
+          .gt('last_release_check', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
+          .range(rFrom, rFrom + PAGE_SIZE - 1);
+        if (!recentlyChecked || recentlyChecked.length === 0) break;
+        for (const r of recentlyChecked) recentIds.add((r as ArtistRow).spotify_artist_id);
+        if (recentlyChecked.length < PAGE_SIZE) break;
+        rFrom += PAGE_SIZE;
+      }
 
-      const recentIds = new Set((recentlyChecked ?? []).map((r: ArtistRow) => r.spotify_artist_id));
       artistsToCheck = artistRows.filter((r: ArtistRow) => !recentIds.has(r.spotify_artist_id));
     }
 
