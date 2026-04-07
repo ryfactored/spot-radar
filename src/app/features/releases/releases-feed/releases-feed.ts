@@ -822,13 +822,9 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
     let savedImageMap = new Map<string, SpotifyArtist>();
     if (savedOnlyIds.length > 0) {
       this.setSyncStatus(`Loading images... 0/${savedOnlyIds.length}`);
-      try {
-        savedImageMap = await this.spotifyApi.getArtistsByIds(savedOnlyIds, (done, total) =>
-          this.setSyncStatus(`Loading images... ${done}/${total}`),
-        );
-      } catch {
-        this.setSyncStatus(`Image loading failed, continuing without images...`);
-      }
+      savedImageMap = await this.spotifyApi.getArtistsByIds(savedOnlyIds, (done, total) =>
+        this.setSyncStatus(`Loading images... ${done}/${total}`),
+      );
     }
 
     const followedRows = followedArtists.map((a) => ({

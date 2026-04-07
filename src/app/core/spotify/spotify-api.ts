@@ -154,9 +154,13 @@ export class SpotifyApiService {
     for (let i = 0; i < ids.length; i += 50) {
       const batch = ids.slice(i, i + 50);
       const url = `${SPOTIFY_API_BASE}/artists?ids=${batch.join(',')}`;
-      const data = (await this.fetchWithAuth(url)) as { artists: SpotifyArtist[] };
-      for (const artist of data.artists) {
-        if (artist) result.set(artist.id, artist);
+      try {
+        const data = (await this.fetchWithAuth(url)) as { artists: SpotifyArtist[] };
+        for (const artist of data.artists) {
+          if (artist) result.set(artist.id, artist);
+        }
+      } catch {
+        // Skip failed batch — partial results are better than none
       }
       onProgress?.(result.size, ids.length);
     }
