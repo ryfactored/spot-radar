@@ -807,7 +807,7 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
 
     this.setSyncStatus(`Loading saved albums...`);
     const savedArtists = await this.spotifyApi.getSavedAlbumArtists((count) =>
-      this.setSyncStatus(`Loading saved albums... ${count} artists found`),
+      this.setSyncStatus(`Scanning saved albums... ${count} unique artists so far`),
     );
 
     // Followed artists already have images
