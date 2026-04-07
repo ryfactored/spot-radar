@@ -87,12 +87,13 @@ Deno.serve(async (req) => {
         .eq('user_id', userId);
     }
 
-    // Get user's artist IDs
+    // Get user's artist IDs (override default 1000-row limit)
     const { data: artistRows } = await supabase
       .schema('spot_radar')
       .from('user_artists')
       .select('spotify_artist_id')
-      .eq('user_id', userId);
+      .eq('user_id', userId)
+      .limit(10000);
 
     if (!artistRows || artistRows.length === 0) {
       return new Response(JSON.stringify({ message: 'No artists to sync' }), {
@@ -107,7 +108,8 @@ Deno.serve(async (req) => {
         .schema('spot_radar')
         .from('artists')
         .select('spotify_artist_id')
-        .gt('last_release_check', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString());
+        .gt('last_release_check', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
+        .limit(10000);
 
       const recentIds = new Set((recentlyChecked ?? []).map((r: ArtistRow) => r.spotify_artist_id));
       artistsToCheck = artistRows.filter((r: ArtistRow) => !recentIds.has(r.spotify_artist_id));
