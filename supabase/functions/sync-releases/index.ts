@@ -113,6 +113,22 @@ Deno.serve(async (req) => {
       artistsToCheck = artistRows.filter((r: ArtistRow) => !recentIds.has(r.spotify_artist_id));
     }
 
+    // Set up Realtime broadcast channel for progress
+    const channelName = `sync-progress:${userId}`;
+    const channel = supabase.channel(channelName);
+
+    // Wait for client 'ready' signal (2s timeout)
+    let channelReady = false;
+    const readyPromise = new Promise<void>((resolve) => {
+      channel.on('broadcast', { event: 'ready' }, () => {
+        channelReady = true;
+        resolve();
+      });
+      channel.subscribe();
+      setTimeout(resolve, 2000);
+    });
+    await readyPromise;
+
     let checked = 0;
     const total = artistsToCheck.length;
 
@@ -181,8 +197,37 @@ Deno.serve(async (req) => {
         .update({ last_release_check: new Date().toISOString() })
         .in('spotify_artist_id', checkedIds);
 
-      checked += batch.length;
+      // Broadcast progress for each artist in this batch
+      for (const row of batch) {
+        checked++;
+        // Look up artist name from the releases we just fetched, or use the ID
+        const artistName =
+          releases.find(
+            (r: { spotify_artist_id: string; artist_name: string }) =>
+              r.spotify_artist_id === row.spotify_artist_id,
+          )?.artist_name ?? row.spotify_artist_id;
+
+        if (channelReady) {
+          channel.send({
+            type: 'broadcast',
+            event: 'artist-progress',
+            payload: { artistName, checked, total },
+          });
+        }
+      }
     }
+
+    // Broadcast completion and clean up channel
+    if (channelReady) {
+      channel.send({
+        type: 'broadcast',
+        event: 'sync-complete',
+        payload: { checked, releasesFound: 0 },
+      });
+    }
+    // Small delay to let the final broadcast flush before unsubscribing
+    await new Promise((r) => setTimeout(r, 200));
+    supabase.removeChannel(channel);
 
     return new Response(JSON.stringify({ total, checked, releases: 'synced' }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
