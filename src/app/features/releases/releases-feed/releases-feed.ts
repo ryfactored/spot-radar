@@ -942,18 +942,18 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
         );
       }
 
+      // Subscribe to progress channel before triggering sync
+      const { ready, unsubscribe } = this.subscribeSyncProgress(this.userId);
+      unsubProgress = unsubscribe;
+      await ready;
+
       this.store.setSyncProgress({
         total: artistIds.length,
         checked: 0,
         syncing: true,
         releasesFound: 0,
-        currentArtist: '',
+        currentArtist: `Preparing to scan ${artistIds.length} artists...`,
       });
-
-      // Subscribe to progress channel before triggering sync
-      const { ready, unsubscribe } = this.subscribeSyncProgress(this.userId);
-      unsubProgress = unsubscribe;
-      await ready;
 
       await this.service.triggerSync(this.userId, false);
 
