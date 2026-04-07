@@ -800,15 +800,24 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private async doFullArtistSync(): Promise<string[]> {
-    this.setSyncStatus('Loading followed artists...');
-    const followedArtists = await this.spotifyApi.getFollowedArtists((count) =>
-      this.setSyncStatus(`Loading followed artists... ${count} found`),
-    );
+    this.setSyncStatus('Loading artists from Spotify...');
+    let followedCount = 0;
+    let savedCount = 0;
+    const updateArtistProgress = () =>
+      this.setSyncStatus(
+        `Loading artists... ${followedCount} followed, ${savedCount} from library`,
+      );
 
-    this.setSyncStatus(`Loading saved albums...`);
-    const savedArtists = await this.spotifyApi.getSavedAlbumArtists((count) =>
-      this.setSyncStatus(`Scanning saved albums... ${count} unique artists so far`),
-    );
+    const [followedArtists, savedArtists] = await Promise.all([
+      this.spotifyApi.getFollowedArtists((count) => {
+        followedCount = count;
+        updateArtistProgress();
+      }),
+      this.spotifyApi.getSavedAlbumArtists((count) => {
+        savedCount = count;
+        updateArtistProgress();
+      }),
+    ]);
 
     // Followed artists already have images
     const followedImageMap = new Map<string, string>();
