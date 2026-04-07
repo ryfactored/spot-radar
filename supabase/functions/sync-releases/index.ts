@@ -113,6 +113,23 @@ Deno.serve(async (req) => {
       artistsToCheck = artistRows.filter((r: ArtistRow) => !recentIds.has(r.spotify_artist_id));
     }
 
+    // Fetch artist names for progress reporting
+    const artistNameMap = new Map<string, string>();
+    const artistIdList = artistsToCheck.map((r: ArtistRow) => r.spotify_artist_id);
+    for (let i = 0; i < artistIdList.length; i += 500) {
+      const chunk = artistIdList.slice(i, i + 500);
+      const { data: artistData } = await supabase
+        .schema('spot_radar')
+        .from('artists')
+        .select('spotify_artist_id, artist_name')
+        .in('spotify_artist_id', chunk);
+      if (artistData) {
+        for (const a of artistData) {
+          artistNameMap.set(a.spotify_artist_id, a.artist_name);
+        }
+      }
+    }
+
     // Set up Realtime broadcast channel for progress
     const channelName = `sync-progress:${userId}`;
     const channel = supabase.channel(channelName);
@@ -132,102 +149,101 @@ Deno.serve(async (req) => {
     let checked = 0;
     const total = artistsToCheck.length;
 
-    // Process in batches
-    for (let i = 0; i < artistsToCheck.length; i += BATCH_SIZE) {
-      const batch = artistsToCheck.slice(i, i + BATCH_SIZE);
+    try {
+      // Process in batches
+      for (let i = 0; i < artistsToCheck.length; i += BATCH_SIZE) {
+        const batch = artistsToCheck.slice(i, i + BATCH_SIZE);
 
-      const results = await Promise.allSettled(
-        batch.map(async (row: ArtistRow) => {
-          const url = `${SPOTIFY_API}/artists/${row.spotify_artist_id}/albums?include_groups=album,single&limit=5`;
-          const resp = await fetch(url, {
-            headers: { Authorization: `Bearer ${accessToken}` },
-          });
-
-          if (resp.status === 429) {
-            const retryAfter = parseInt(resp.headers.get('Retry-After') || '5', 10);
-            await new Promise((r) => setTimeout(r, retryAfter * 1000));
-            const retryResp = await fetch(url, {
+        const results = await Promise.allSettled(
+          batch.map(async (row: ArtistRow) => {
+            const url = `${SPOTIFY_API}/artists/${row.spotify_artist_id}/albums?include_groups=album,single&limit=5`;
+            const resp = await fetch(url, {
               headers: { Authorization: `Bearer ${accessToken}` },
             });
-            if (!retryResp.ok) return [];
-            const retryData = await retryResp.json();
-            return retryData.items;
-          }
 
-          if (!resp.ok) return [];
-          const data = await resp.json();
-          return data.items;
-        }),
-      );
+            if (resp.status === 429) {
+              const retryAfter = parseInt(resp.headers.get('Retry-After') || '5', 10);
+              await new Promise((r) => setTimeout(r, retryAfter * 1000));
+              const retryResp = await fetch(url, {
+                headers: { Authorization: `Bearer ${accessToken}` },
+              });
+              if (!retryResp.ok) return [];
+              const retryData = await retryResp.json();
+              return retryData.items;
+            }
 
-      const cutoffYear = new Date().getFullYear() - 1;
+            if (!resp.ok) return [];
+            const data = await resp.json();
+            return data.items;
+          }),
+        );
 
-      // deno-lint-ignore no-explicit-any
-      const releases = results
-        .filter((r): r is PromiseFulfilledResult<unknown[]> => r.status === 'fulfilled')
-        .flatMap((r) => r.value)
-        .filter(Boolean)
+        const cutoffYear = new Date().getFullYear() - 1;
+
         // deno-lint-ignore no-explicit-any
-        .filter((album: any) => parseInt(album.release_date.substring(0, 4), 10) >= cutoffYear)
-        // deno-lint-ignore no-explicit-any
-        .map((album: any) => ({
-          spotify_album_id: album.id,
-          spotify_artist_id: album.artists[0]?.id ?? '',
-          artist_name: album.artists[0]?.name ?? 'Unknown',
-          title: album.name,
-          release_type: album.album_type ?? 'album',
-          release_date: album.release_date,
-          image_url: album.images?.[0]?.url ?? null,
-          track_count: album.total_tracks ?? 0,
-        }));
+        const releases = results
+          .filter((r): r is PromiseFulfilledResult<unknown[]> => r.status === 'fulfilled')
+          .flatMap((r) => r.value)
+          .filter(Boolean)
+          // deno-lint-ignore no-explicit-any
+          .filter((album: any) => parseInt(album.release_date.substring(0, 4), 10) >= cutoffYear)
+          // deno-lint-ignore no-explicit-any
+          .map((album: any) => ({
+            spotify_album_id: album.id,
+            spotify_artist_id: album.artists[0]?.id ?? '',
+            artist_name: album.artists[0]?.name ?? 'Unknown',
+            title: album.name,
+            release_type: album.album_type ?? 'album',
+            release_date: album.release_date,
+            image_url: album.images?.[0]?.url ?? null,
+            track_count: album.total_tracks ?? 0,
+          }));
 
-      // Upsert releases
-      if (releases.length > 0) {
+        // Upsert releases
+        if (releases.length > 0) {
+          await supabase
+            .schema('spot_radar')
+            .from('releases')
+            .upsert(releases, { onConflict: 'spotify_album_id' });
+        }
+
+        // Update last_release_check on shared artists table
+        const checkedIds = batch.map((r: ArtistRow) => r.spotify_artist_id);
         await supabase
           .schema('spot_radar')
-          .from('releases')
-          .upsert(releases, { onConflict: 'spotify_album_id' });
-      }
+          .from('artists')
+          .update({ last_release_check: new Date().toISOString() })
+          .in('spotify_artist_id', checkedIds);
 
-      // Update last_release_check on shared artists table
-      const checkedIds = batch.map((r: ArtistRow) => r.spotify_artist_id);
-      await supabase
-        .schema('spot_radar')
-        .from('artists')
-        .update({ last_release_check: new Date().toISOString() })
-        .in('spotify_artist_id', checkedIds);
+        // Broadcast progress for each artist in this batch
+        for (const row of batch) {
+          checked++;
+          // Look up artist name from the releases we just fetched, or use the ID
+          const artistName = artistNameMap.get(row.spotify_artist_id) ?? row.spotify_artist_id;
 
-      // Broadcast progress for each artist in this batch
-      for (const row of batch) {
-        checked++;
-        // Look up artist name from the releases we just fetched, or use the ID
-        const artistName =
-          releases.find(
-            (r: { spotify_artist_id: string; artist_name: string }) =>
-              r.spotify_artist_id === row.spotify_artist_id,
-          )?.artist_name ?? row.spotify_artist_id;
-
-        if (channelReady) {
-          channel.send({
-            type: 'broadcast',
-            event: 'artist-progress',
-            payload: { artistName, checked, total },
-          });
+          if (channelReady) {
+            channel.send({
+              type: 'broadcast',
+              event: 'artist-progress',
+              payload: { artistName, checked, total },
+            });
+          }
         }
       }
-    }
 
-    // Broadcast completion and clean up channel
-    if (channelReady) {
-      channel.send({
-        type: 'broadcast',
-        event: 'sync-complete',
-        payload: { checked, releasesFound: 0 },
-      });
+      // Broadcast completion
+      if (channelReady) {
+        channel.send({
+          type: 'broadcast',
+          event: 'sync-complete',
+          payload: { checked, releasesFound: 0 },
+        });
+      }
+    } finally {
+      // Small delay to let the final broadcast flush before unsubscribing
+      await new Promise((r) => setTimeout(r, 200));
+      supabase.removeChannel(channel);
     }
-    // Small delay to let the final broadcast flush before unsubscribing
-    await new Promise((r) => setTimeout(r, 200));
-    supabase.removeChannel(channel);
 
     return new Response(JSON.stringify({ total, checked, releases: 'synced' }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
