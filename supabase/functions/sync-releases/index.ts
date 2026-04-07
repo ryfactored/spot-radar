@@ -133,18 +133,12 @@ Deno.serve(async (req) => {
     // Set up Realtime broadcast channel for progress
     const channelName = `sync-progress:${userId}`;
     const channel = supabase.channel(channelName);
-
-    // Wait for client 'ready' signal (2s timeout)
-    let channelReady = false;
-    const readyPromise = new Promise<void>((resolve) => {
-      channel.on('broadcast', { event: 'ready' }, () => {
-        channelReady = true;
-        resolve();
+    await new Promise<void>((resolve) => {
+      channel.subscribe((status) => {
+        if (status === 'SUBSCRIBED') resolve();
       });
-      channel.subscribe();
       setTimeout(resolve, 2000);
     });
-    await readyPromise;
 
     let checked = 0;
     const total = artistsToCheck.length;
@@ -221,24 +215,20 @@ Deno.serve(async (req) => {
           // Look up artist name from the releases we just fetched, or use the ID
           const artistName = artistNameMap.get(row.spotify_artist_id) ?? row.spotify_artist_id;
 
-          if (channelReady) {
-            channel.send({
-              type: 'broadcast',
-              event: 'artist-progress',
-              payload: { artistName, checked, total },
-            });
-          }
+          channel.send({
+            type: 'broadcast',
+            event: 'artist-progress',
+            payload: { artistName, checked, total },
+          });
         }
       }
 
       // Broadcast completion
-      if (channelReady) {
-        channel.send({
-          type: 'broadcast',
-          event: 'sync-complete',
-          payload: { checked, releasesFound: 0 },
-        });
-      }
+      channel.send({
+        type: 'broadcast',
+        event: 'sync-complete',
+        payload: { checked, releasesFound: 0 },
+      });
     } finally {
       // Small delay to let the final broadcast flush before unsubscribing
       await new Promise((r) => setTimeout(r, 200));

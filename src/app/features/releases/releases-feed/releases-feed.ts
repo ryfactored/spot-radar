@@ -781,11 +781,6 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
         .subscribe((status) => {
           if (status === 'SUBSCRIBED') {
             clearTimeout(timeout);
-            channel.send({
-              type: 'broadcast',
-              event: 'ready',
-              payload: {},
-            });
             resolve();
           }
         });
