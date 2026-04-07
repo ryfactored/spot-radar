@@ -105,7 +105,7 @@ export class SpotifyApiService {
   /**
    * Returns all artists the current user follows via cursor-based pagination.
    */
-  async getFollowedArtists(): Promise<SpotifyArtist[]> {
+  async getFollowedArtists(onProgress?: (count: number) => void): Promise<SpotifyArtist[]> {
     const artists: SpotifyArtist[] = [];
     let url: string | null = `${SPOTIFY_API_BASE}/me/following?type=artist&limit=50`;
 
@@ -114,6 +114,7 @@ export class SpotifyApiService {
         artists: { items: SpotifyArtist[]; next: string | null };
       };
       artists.push(...data.artists.items);
+      onProgress?.(artists.length);
       url = data.artists.next;
     }
 
@@ -123,7 +124,7 @@ export class SpotifyApiService {
   /**
    * Returns unique artists from the current user's saved albums.
    */
-  async getSavedAlbumArtists(): Promise<SpotifyArtist[]> {
+  async getSavedAlbumArtists(onProgress?: (count: number) => void): Promise<SpotifyArtist[]> {
     const artistMap = new Map<string, SpotifyArtist>();
     let url: string | null = `${SPOTIFY_API_BASE}/me/albums?limit=50`;
 
@@ -142,6 +143,7 @@ export class SpotifyApiService {
         }
       }
 
+      onProgress?.(artistMap.size);
       url = data.next;
     }
 
@@ -152,7 +154,10 @@ export class SpotifyApiService {
    * Batch-fetch full artist profiles by IDs (up to 50 per call).
    * Returns a map of artistId → SpotifyArtist with images.
    */
-  async getArtistsByIds(ids: string[]): Promise<Map<string, SpotifyArtist>> {
+  async getArtistsByIds(
+    ids: string[],
+    onProgress?: (count: number, total: number) => void,
+  ): Promise<Map<string, SpotifyArtist>> {
     const result = new Map<string, SpotifyArtist>();
 
     for (let i = 0; i < ids.length; i += 50) {
@@ -162,6 +167,7 @@ export class SpotifyApiService {
       for (const artist of data.artists) {
         if (artist) result.set(artist.id, artist);
       }
+      onProgress?.(result.size, ids.length);
     }
 
     return result;

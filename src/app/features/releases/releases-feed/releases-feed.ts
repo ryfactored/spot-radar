@@ -801,10 +801,14 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
 
   private async doFullArtistSync(): Promise<string[]> {
     this.setSyncStatus('Loading followed artists...');
-    const followedArtists = await this.spotifyApi.getFollowedArtists();
+    const followedArtists = await this.spotifyApi.getFollowedArtists((count) =>
+      this.setSyncStatus(`Loading followed artists... ${count} found`),
+    );
 
-    this.setSyncStatus(`Loading saved albums (${followedArtists.length} followed)...`);
-    const savedArtists = await this.spotifyApi.getSavedAlbumArtists();
+    this.setSyncStatus(`Loading saved albums...`);
+    const savedArtists = await this.spotifyApi.getSavedAlbumArtists((count) =>
+      this.setSyncStatus(`Loading saved albums... ${count} artists found`),
+    );
 
     // Followed artists already have images
     const followedImageMap = new Map<string, string>();
@@ -817,8 +821,12 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
 
     let savedImageMap = new Map<string, SpotifyArtist>();
     if (savedOnlyIds.length > 0) {
-      this.setSyncStatus(`Loading images for ${savedOnlyIds.length} artists...`);
-      savedImageMap = await this.spotifyApi.getArtistsByIds(savedOnlyIds).catch(() => new Map());
+      this.setSyncStatus(`Loading images... 0/${savedOnlyIds.length}`);
+      savedImageMap = await this.spotifyApi
+        .getArtistsByIds(savedOnlyIds, (done, total) =>
+          this.setSyncStatus(`Loading images... ${done}/${total}`),
+        )
+        .catch(() => new Map());
     }
 
     const followedRows = followedArtists.map((a) => ({
