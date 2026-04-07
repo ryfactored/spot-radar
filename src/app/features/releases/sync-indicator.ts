@@ -64,6 +64,6 @@ export class SyncIndicator {
 
   protected progressMode = computed(() => {
     const p = this.progress();
-    return p.total > 0 && p.checked > 0 ? 'determinate' : 'indeterminate';
+    return p.total > 0 ? 'determinate' : 'indeterminate';
   });
 }
