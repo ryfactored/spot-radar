@@ -792,11 +792,19 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
     };
   }
 
+  private setSyncStatus(status: string): void {
+    this.store.setSyncProgress({
+      ...this.store.syncProgress(),
+      currentArtist: status,
+    });
+  }
+
   private async doFullArtistSync(): Promise<string[]> {
-    const [followedArtists, savedArtists] = await Promise.all([
-      this.spotifyApi.getFollowedArtists(),
-      this.spotifyApi.getSavedAlbumArtists(),
-    ]);
+    this.setSyncStatus('Loading followed artists...');
+    const followedArtists = await this.spotifyApi.getFollowedArtists();
+
+    this.setSyncStatus(`Loading saved albums (${followedArtists.length} followed)...`);
+    const savedArtists = await this.spotifyApi.getSavedAlbumArtists();
 
     // Followed artists already have images
     const followedImageMap = new Map<string, string>();
@@ -809,6 +817,7 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
 
     let savedImageMap = new Map<string, SpotifyArtist>();
     if (savedOnlyIds.length > 0) {
+      this.setSyncStatus(`Loading images for ${savedOnlyIds.length} artists...`);
       savedImageMap = await this.spotifyApi.getArtistsByIds(savedOnlyIds).catch(() => new Map());
     }
 
@@ -823,6 +832,10 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
       artist_image_url:
         followedImageMap.get(a.id) ?? savedImageMap.get(a.id)?.images?.[0]?.url ?? null,
     }));
+
+    const total = new Set([...followedRows, ...savedRows].map((r) => r.spotify_artist_id)).size;
+    this.setSyncStatus(`Syncing ${total} artists to database...`);
+
     await this.service.syncArtists(this.userId, savedRows, 'saved');
     await this.service.syncArtists(this.userId, followedRows, 'followed');
     const allActiveIds = [
