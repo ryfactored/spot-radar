@@ -764,6 +764,7 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
     const channel = this.supabaseService.client.channel(channelName);
 
     const ready = new Promise<void>((resolve) => {
+      const timeout = setTimeout(resolve, 3000);
       channel
         .on('broadcast', { event: 'artist-progress' }, ({ payload }) => {
           this.store.setSyncProgress({
@@ -779,6 +780,7 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
         })
         .subscribe((status) => {
           if (status === 'SUBSCRIBED') {
+            clearTimeout(timeout);
             channel.send({
               type: 'broadcast',
               event: 'ready',
