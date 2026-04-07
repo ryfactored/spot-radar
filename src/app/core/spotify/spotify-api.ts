@@ -57,7 +57,7 @@ export class SpotifyApiService {
    * - Retries once on 401 (Unauthorized) after refreshing the access token,
    *   covering the race where the token expires between DB read and API call.
    */
-  private async fetchWithAuth(url: string, retries = 3): Promise<unknown> {
+  private async fetchWithAuth(url: string, retries = 5): Promise<unknown> {
     const userId = this.getUserId();
     const accessToken = await this.spotifyAuth.getAccessToken(userId);
 
