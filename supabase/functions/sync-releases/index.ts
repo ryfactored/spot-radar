@@ -155,11 +155,7 @@ Deno.serve(async (req) => {
     const artistNameMap = new Map<string, string>();
     const artistIdList = artistsToCheck.map((r: ArtistRow) => r.spotify_artist_id);
     for (let i = 0; i < artistIdList.length; i += 500) {
-      sendStatus(
-        `Loading artist names... ${Math.min(i + 500, artistIdList.length)}/${artistIdList.length}`,
-        0,
-        artistsToCheck.length,
-      );
+      sendStatus(`Loading artist names... ${i}/${artistIdList.length}`, 0, artistsToCheck.length);
       const chunk = artistIdList.slice(i, i + 500);
       const { data: artistData } = await supabase
         .schema('spot_radar')
