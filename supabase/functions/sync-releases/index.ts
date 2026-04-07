@@ -2,6 +2,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const SPOTIFY_API = 'https://api.spotify.com/v1';
 const BATCH_SIZE = 10;
+const BATCH_DELAY_MS = 300;
 
 interface ArtistRow {
   spotify_artist_id: string;
@@ -238,6 +239,11 @@ Deno.serve(async (req) => {
             event: 'artist-progress',
             payload: { artistName, checked, total },
           });
+        }
+
+        // Delay between batches to avoid Spotify 429 rate limits
+        if (i + BATCH_SIZE < artistsToCheck.length) {
+          await new Promise((r) => setTimeout(r, BATCH_DELAY_MS));
         }
       }
 

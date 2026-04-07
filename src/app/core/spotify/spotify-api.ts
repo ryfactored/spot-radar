@@ -57,45 +57,36 @@ export class SpotifyApiService {
    * - Retries once on 401 (Unauthorized) after refreshing the access token,
    *   covering the race where the token expires between DB read and API call.
    */
-  private async fetchWithAuth(url: string): Promise<unknown> {
+  private async fetchWithAuth(url: string, retries = 3): Promise<unknown> {
     const userId = this.getUserId();
     const accessToken = await this.spotifyAuth.getAccessToken(userId);
 
-    const response = await fetch(url, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
+    let token = accessToken;
 
-    if (response.status === 429) {
-      const retryAfter = Number(response.headers.get('Retry-After') ?? '1');
-      await new Promise((resolve) => setTimeout(resolve, retryAfter * 1000));
-
-      const retryResponse = await fetch(url, {
-        headers: { Authorization: `Bearer ${accessToken}` },
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      const response = await fetch(url, {
+        headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (!retryResponse.ok) {
-        throw new Error(`Spotify API error: ${retryResponse.status} ${retryResponse.statusText}`);
+      if (response.status === 429) {
+        const retryAfter = Number(response.headers.get('Retry-After') ?? '2');
+        await new Promise((resolve) => setTimeout(resolve, retryAfter * 1000));
+        continue;
       }
-      return retryResponse.json();
-    }
 
-    if (response.status === 401) {
-      // Token expired between our DB read and Spotify receiving the request — refresh and retry once
-      const freshToken = await this.spotifyAuth.refreshToken(userId);
-      const retryResponse = await fetch(url, {
-        headers: { Authorization: `Bearer ${freshToken}` },
-      });
-      if (!retryResponse.ok) {
-        throw new Error(`Spotify API error: ${retryResponse.status} ${retryResponse.statusText}`);
+      if (response.status === 401 && attempt === 0) {
+        token = await this.spotifyAuth.refreshToken(userId);
+        continue;
       }
-      return retryResponse.json();
+
+      if (!response.ok) {
+        throw new Error(`Spotify API error: ${response.status} ${response.statusText}`);
+      }
+
+      return response.json();
     }
 
-    if (!response.ok) {
-      throw new Error(`Spotify API error: ${response.status} ${response.statusText}`);
-    }
-
-    return response.json();
+    throw new Error('Spotify API error: max retries exceeded');
   }
 
   // ---------------------------------------------------------------------------
