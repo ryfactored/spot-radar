@@ -57,45 +57,36 @@ export class SpotifyApiService {
    * - Retries once on 401 (Unauthorized) after refreshing the access token,
    *   covering the race where the token expires between DB read and API call.
    */
-  private async fetchWithAuth(url: string): Promise<unknown> {
+  private async fetchWithAuth(url: string, retries = 5): Promise<unknown> {
     const userId = this.getUserId();
     const accessToken = await this.spotifyAuth.getAccessToken(userId);
 
-    const response = await fetch(url, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
+    let token = accessToken;
 
-    if (response.status === 429) {
-      const retryAfter = Number(response.headers.get('Retry-After') ?? '1');
-      await new Promise((resolve) => setTimeout(resolve, retryAfter * 1000));
-
-      const retryResponse = await fetch(url, {
-        headers: { Authorization: `Bearer ${accessToken}` },
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      const response = await fetch(url, {
+        headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (!retryResponse.ok) {
-        throw new Error(`Spotify API error: ${retryResponse.status} ${retryResponse.statusText}`);
+      if (response.status === 429) {
+        const retryAfter = Number(response.headers.get('Retry-After') ?? '2');
+        await new Promise((resolve) => setTimeout(resolve, retryAfter * 1000));
+        continue;
       }
-      return retryResponse.json();
-    }
 
-    if (response.status === 401) {
-      // Token expired between our DB read and Spotify receiving the request — refresh and retry once
-      const freshToken = await this.spotifyAuth.refreshToken(userId);
-      const retryResponse = await fetch(url, {
-        headers: { Authorization: `Bearer ${freshToken}` },
-      });
-      if (!retryResponse.ok) {
-        throw new Error(`Spotify API error: ${retryResponse.status} ${retryResponse.statusText}`);
+      if (response.status === 401 && attempt === 0) {
+        token = await this.spotifyAuth.refreshToken(userId);
+        continue;
       }
-      return retryResponse.json();
+
+      if (!response.ok) {
+        throw new Error(`Spotify API error: ${response.status} ${response.statusText}`);
+      }
+
+      return response.json();
     }
 
-    if (!response.ok) {
-      throw new Error(`Spotify API error: ${response.status} ${response.statusText}`);
-    }
-
-    return response.json();
+    throw new Error('Spotify API error: max retries exceeded');
   }
 
   // ---------------------------------------------------------------------------
@@ -105,7 +96,7 @@ export class SpotifyApiService {
   /**
    * Returns all artists the current user follows via cursor-based pagination.
    */
-  async getFollowedArtists(): Promise<SpotifyArtist[]> {
+  async getFollowedArtists(onProgress?: (count: number) => void): Promise<SpotifyArtist[]> {
     const artists: SpotifyArtist[] = [];
     let url: string | null = `${SPOTIFY_API_BASE}/me/following?type=artist&limit=50`;
 
@@ -114,6 +105,7 @@ export class SpotifyApiService {
         artists: { items: SpotifyArtist[]; next: string | null };
       };
       artists.push(...data.artists.items);
+      onProgress?.(artists.length);
       url = data.artists.next;
     }
 
@@ -123,7 +115,7 @@ export class SpotifyApiService {
   /**
    * Returns unique artists from the current user's saved albums.
    */
-  async getSavedAlbumArtists(): Promise<SpotifyArtist[]> {
+  async getSavedAlbumArtists(onProgress?: (count: number) => void): Promise<SpotifyArtist[]> {
     const artistMap = new Map<string, SpotifyArtist>();
     let url: string | null = `${SPOTIFY_API_BASE}/me/albums?limit=50`;
 
@@ -142,6 +134,7 @@ export class SpotifyApiService {
         }
       }
 
+      onProgress?.(artistMap.size);
       url = data.next;
     }
 
@@ -152,16 +145,24 @@ export class SpotifyApiService {
    * Batch-fetch full artist profiles by IDs (up to 50 per call).
    * Returns a map of artistId → SpotifyArtist with images.
    */
-  async getArtistsByIds(ids: string[]): Promise<Map<string, SpotifyArtist>> {
+  async getArtistsByIds(
+    ids: string[],
+    onProgress?: (processed: number, total: number) => void,
+  ): Promise<Map<string, SpotifyArtist>> {
     const result = new Map<string, SpotifyArtist>();
 
     for (let i = 0; i < ids.length; i += 50) {
       const batch = ids.slice(i, i + 50);
       const url = `${SPOTIFY_API_BASE}/artists?ids=${batch.join(',')}`;
-      const data = (await this.fetchWithAuth(url)) as { artists: SpotifyArtist[] };
-      for (const artist of data.artists) {
-        if (artist) result.set(artist.id, artist);
+      try {
+        const data = (await this.fetchWithAuth(url)) as { artists: SpotifyArtist[] };
+        for (const artist of data.artists) {
+          if (artist) result.set(artist.id, artist);
+        }
+      } catch {
+        // Skip failed batch — partial results are better than none
       }
+      onProgress?.(Math.min(i + 50, ids.length), ids.length);
     }
 
     return result;

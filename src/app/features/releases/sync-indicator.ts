@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { SyncProgress } from './releases-store';
@@ -11,17 +11,16 @@ import { SyncProgress } from './releases-store';
     @if (progress().syncing) {
       <div class="sync-indicator">
         <p class="sync-text">
-          @if (progress().total === 0) {
-            Fetching your artists from Spotify...
-          } @else if (progress().releasesFound === 0) {
-            Scanning {{ progress().total | number }} artists for new releases...
+          @if (progress().total > 0 && progress().checked > 0) {
+            Checking {{ progress().currentArtist }}...
+            <span class="sync-count">{{ progress().checked }}/{{ progress().total | number }}</span>
+          } @else if (progress().currentArtist) {
+            {{ progress().currentArtist }}
           } @else {
-            Found {{ progress().releasesFound | number }}
-            {{ progress().releasesFound === 1 ? 'release' : 'releases' }} so far across
-            {{ progress().total | number }} artists...
+            Fetching your artists from Spotify...
           }
         </p>
-        <mat-progress-bar mode="indeterminate" />
+        <mat-progress-bar [mode]="progressMode()" [value]="progressPercent()" />
       </div>
     }
   `,
@@ -47,8 +46,24 @@ import { SyncProgress } from './releases-store';
       font-size: 0.875rem;
       color: #acaaae;
     }
+
+    .sync-count {
+      color: #ba9eff;
+      font-weight: 600;
+    }
   `,
 })
 export class SyncIndicator {
   progress = input.required<SyncProgress>();
+
+  protected progressPercent = computed(() => {
+    const p = this.progress();
+    if (p.total === 0) return 0;
+    return (p.checked / p.total) * 100;
+  });
+
+  protected progressMode = computed(() => {
+    const p = this.progress();
+    return p.total > 0 ? 'determinate' : 'indeterminate';
+  });
 }

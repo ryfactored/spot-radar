@@ -6,6 +6,7 @@ export interface SyncProgress {
   checked: number;
   syncing: boolean;
   releasesFound: number;
+  currentArtist: string;
 }
 
 const DEFAULT_PREFERENCES: FeedPreferences = {
@@ -17,7 +18,13 @@ const DEFAULT_PREFERENCES: FeedPreferences = {
   last_checked_at: null,
 };
 
-const DEFAULT_SYNC: SyncProgress = { total: 0, checked: 0, syncing: false, releasesFound: 0 };
+const DEFAULT_SYNC: SyncProgress = {
+  total: 0,
+  checked: 0,
+  syncing: false,
+  releasesFound: 0,
+  currentArtist: '',
+};
 
 @Injectable({
   providedIn: 'root',
