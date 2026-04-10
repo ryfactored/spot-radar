@@ -248,6 +248,7 @@ describe('ReleasesService', () => {
       const chainable: any = {};
       chainable.select = vi.fn().mockReturnValue(chainable);
       chainable.eq = vi.fn().mockReturnValue(chainable);
+      chainable.range = vi.fn().mockReturnValue(chainable);
       chainable.then = (resolve: any) =>
         Promise.resolve({
           data: [{ spotify_artist_id: 'artist-1' }, { spotify_artist_id: 'artist-2' }],
@@ -258,6 +259,32 @@ describe('ReleasesService', () => {
       const result = await service.getUserArtistIds(userId);
 
       expect(result).toEqual(['artist-1', 'artist-2']);
+    });
+
+    it('should paginate across multiple 1000-row batches', async () => {
+      const batch1 = Array.from({ length: 1000 }, (_, i) => ({
+        spotify_artist_id: `artist-${i}`,
+      }));
+      const batch2 = Array.from({ length: 500 }, (_, i) => ({
+        spotify_artist_id: `artist-${1000 + i}`,
+      }));
+
+      const chainable: any = {};
+      chainable.select = vi.fn().mockReturnValue(chainable);
+      chainable.eq = vi.fn().mockReturnValue(chainable);
+      let call = 0;
+      chainable.range = vi.fn().mockReturnValue(chainable);
+      chainable.then = (resolve: any) => {
+        const data = call++ === 0 ? batch1 : batch2;
+        return Promise.resolve({ data, error: null }).then(resolve);
+      };
+      mockSupabaseClient.from.mockReturnValue(chainable);
+
+      const result = await service.getUserArtistIds(userId);
+
+      expect(result.length).toBe(1500);
+      expect(chainable.range).toHaveBeenCalledWith(0, 999);
+      expect(chainable.range).toHaveBeenCalledWith(1000, 1999);
     });
   });
 
