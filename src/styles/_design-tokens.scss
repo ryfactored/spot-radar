@@ -119,31 +119,38 @@
   --app-toast-fg: white;
 }
 
-// Default theme dark mode
+// Default theme dark mode — Midnight Studio (Obsidian palette)
+// Source: docs/stitch/DESIGN2.md
 .theme-default.dark-mode,
-.dark-mode:not(.theme-teal):not(.theme-slate) {
+.dark-mode {
   // ============================================
-  // Dark Mode Brand Colors
+  // Obsidian Surface Hierarchy
   // ============================================
-  --color-dark-bg: #0e0e11;
-  --color-dark-surface: #19191d;
-  --color-dark-border: #48474b;
-  --color-dark-border-hover: #767579;
-  --color-dark-inset: #1f1f23;
-  --color-dark-divider: #25252a;
+  --color-background: #131314; // Base: "the void"
+  --color-surface: #1c1b1c; // surface-container-low (sectioning)
+  --color-surface-high: #2a2a2b; // surface-container-high (prominent cards)
+  --color-inset: #0e0e0f; // surface-container-lowest (sunken track lists)
+  --color-divider: rgba(193, 199, 207, 0.15); // outline-variant ghost border at 15%
+  --color-border: transparent; // No-line rule
+  --color-border-hover: #2a2a2b; // Hover via tonal shift
 
   // ============================================
-  // Dark Mode Semantic Tokens
+  // Color Roles
   // ============================================
-  --color-primary: #ba9eff;
-  --color-background: var(--color-dark-bg);
-  --color-surface: var(--color-dark-surface);
-  --color-border: var(--color-dark-border);
-  --color-border-hover: var(--color-dark-border-hover);
-  --color-inset: var(--color-dark-inset);
-  --color-divider: var(--color-dark-divider);
-  --color-text-primary: #f0edf1;
-  --color-text-secondary: #acaaae;
+  --color-primary: #a4c9ff; // Highlight slate blue
+  --color-primary-light: #60a5fa; // Primary container (gradient target)
+  --color-tertiary: #fabd34; // Gold accent
+
+  // ============================================
+  // Typography / Text
+  // ============================================
+  --color-text-primary: #e5e2e3; // on-surface (never pure white)
+  --color-text-secondary: #c1c7d3; // on-surface-variant
+
+  // ============================================
+  // Effects
+  // ============================================
+  --shadow-ambient: 0 24px 48px rgba(0, 0, 0, 0.4);
 
   // ============================================
   // Dark Mode Toast Colors

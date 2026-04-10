@@ -62,3 +62,4 @@ src/environments/environment.docker.local.ts
 
 # Docker secrets
 docker/.env
+docs/stitch/

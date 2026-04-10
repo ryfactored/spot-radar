@@ -211,7 +211,7 @@ import { environment } from '@env';
       height: 106px;
       border-radius: 50%;
       cursor: pointer;
-      background: linear-gradient(135deg, #ba9eff, #8553f3);
+      background: linear-gradient(135deg, #a4c9ff, #60a5fa);
       padding: 3px;
       box-sizing: border-box;
     }
@@ -265,7 +265,7 @@ import { environment } from '@env';
       color: #ff6e84 !important;
     }
     button[mat-raised-button][color='primary'] {
-      background: linear-gradient(135deg, #ba9eff, #8553f3) !important;
+      background: linear-gradient(135deg, #a4c9ff, #60a5fa) !important;
       color: #000 !important;
     }
   `,

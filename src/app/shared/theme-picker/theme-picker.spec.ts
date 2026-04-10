@@ -14,6 +14,7 @@ describe('ThemePicker', () => {
     preferencesMock = {
       colorTheme: signal('default'),
       darkMode: signal(false),
+      darkModeToggleDisabled: signal(true),
       setColorTheme: vi.fn(),
       toggleDarkMode: vi.fn(),
     };
@@ -44,5 +45,28 @@ describe('ThemePicker', () => {
   it('should call toggleDarkMode when toggled', () => {
     component.toggleDarkMode();
     expect(preferencesMock.toggleDarkMode).toHaveBeenCalled();
+  });
+
+  it('should include Midnight Studio as a selectable theme option', () => {
+    const labels = component.themes.map((t) => t.label);
+    expect(labels).toContain('Midnight Studio');
+  });
+
+  it('should disable the dark-mode toggle menu item (dark-only app)', async () => {
+    // Open the menu trigger to render menu content into the overlay
+    const trigger = fixture.nativeElement.querySelector(
+      'button[mat-icon-button]',
+    ) as HTMLButtonElement;
+    trigger.click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const menuItems = document.querySelectorAll<HTMLButtonElement>(
+      '.mat-mdc-menu-panel button[mat-menu-item]',
+    );
+    const darkModeToggle = menuItems[menuItems.length - 1];
+
+    expect(darkModeToggle).toBeTruthy();
+    expect(darkModeToggle.disabled).toBe(true);
   });
 });

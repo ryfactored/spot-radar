@@ -89,10 +89,10 @@ import { ToastService } from './toast';
     }
 
     .toast-info .toast-accent {
-      background: #ba9eff;
+      background: #a4c9ff;
     }
     .toast-info .toast-icon {
-      color: #ba9eff;
+      color: #a4c9ff;
     }
 
     .toast-icon {
@@ -126,10 +126,10 @@ import { ToastService } from './toast';
     .toast-action {
       flex-shrink: 0;
       padding: 6px 14px;
-      border: 1px solid rgba(186, 158, 255, 0.3);
+      border: 1px solid rgba(164, 201, 255, 0.3);
       border-radius: 0.5rem;
       background: transparent;
-      color: #ba9eff;
+      color: #a4c9ff;
       font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: 12px;
       font-weight: 700;
@@ -137,7 +137,7 @@ import { ToastService } from './toast';
       transition: background 0.2s;
 
       &:hover {
-        background: rgba(186, 158, 255, 0.1);
+        background: rgba(164, 201, 255, 0.1);
       }
     }
 

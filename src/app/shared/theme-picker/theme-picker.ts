@@ -49,6 +49,9 @@ import { PreferencesService, COLOR_THEMES, ColorTheme } from '@core';
         (click)="toggleDarkMode()"
         role="menuitemcheckbox"
         [attr.aria-checked]="preferences.darkMode()"
+        [disabled]="preferences.darkModeToggleDisabled()"
+        matTooltip="Dark mode only"
+        matTooltipPosition="left"
       >
         <mat-icon aria-hidden="true">{{
           preferences.darkMode() ? 'light_mode' : 'dark_mode'

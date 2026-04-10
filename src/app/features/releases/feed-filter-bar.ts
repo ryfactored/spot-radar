@@ -246,7 +246,7 @@ import { TitleCasePipe } from '@angular/common';
       font-weight: 700;
       letter-spacing: 0.3em;
       text-transform: uppercase;
-      color: #ba9eff;
+      color: #a4c9ff;
     }
 
     .feed-title {
@@ -277,7 +277,7 @@ import { TitleCasePipe } from '@angular/common';
       }
 
       &:hover:not(:disabled) {
-        color: #ba9eff;
+        color: #a4c9ff;
       }
 
       &:disabled {
@@ -316,8 +316,8 @@ import { TitleCasePipe } from '@angular/common';
     }
 
     .filter-pill {
-      background: rgba(186, 158, 255, 0.12);
-      color: #ba9eff;
+      background: rgba(164, 201, 255, 0.12);
+      color: #a4c9ff;
       font-size: 9px;
       font-weight: 700;
       text-transform: uppercase;
@@ -333,9 +333,9 @@ import { TitleCasePipe } from '@angular/common';
       gap: 4px;
       padding: 6px 12px;
       border-radius: 1rem;
-      border: 1px solid rgba(186, 158, 255, 0.2);
-      background: rgba(186, 158, 255, 0.06);
-      color: #ba9eff;
+      border: 1px solid rgba(164, 201, 255, 0.2);
+      background: rgba(164, 201, 255, 0.06);
+      color: #a4c9ff;
       font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: 11px;
       font-weight: 700;
@@ -347,8 +347,8 @@ import { TitleCasePipe } from '@angular/common';
       }
 
       &:hover {
-        background: rgba(186, 158, 255, 0.12);
-        border-color: rgba(186, 158, 255, 0.4);
+        background: rgba(164, 201, 255, 0.12);
+        border-color: rgba(164, 201, 255, 0.4);
       }
     }
 
@@ -372,8 +372,8 @@ import { TitleCasePipe } from '@angular/common';
       }
 
       &:hover {
-        background: rgba(186, 158, 255, 0.12);
-        color: #ba9eff;
+        background: rgba(164, 201, 255, 0.12);
+        color: #a4c9ff;
       }
     }
 
@@ -504,7 +504,7 @@ import { TitleCasePipe } from '@angular/common';
       }
 
       &.active {
-        background: #ba9eff;
+        background: #a4c9ff;
         color: #000;
         font-weight: 700;
       }
@@ -532,11 +532,11 @@ import { TitleCasePipe } from '@angular/common';
       transition: border-color 0.2s;
 
       &:hover {
-        border-color: rgba(186, 158, 255, 0.3);
+        border-color: rgba(164, 201, 255, 0.3);
       }
 
       &:focus {
-        border-color: rgba(186, 158, 255, 0.5);
+        border-color: rgba(164, 201, 255, 0.5);
       }
 
       option {
@@ -594,7 +594,7 @@ import { TitleCasePipe } from '@angular/common';
       flex-shrink: 0;
 
       &.on {
-        background: #ba9eff;
+        background: #a4c9ff;
       }
     }
 
@@ -627,7 +627,7 @@ import { TitleCasePipe } from '@angular/common';
     .btn-apply {
       width: 100%;
       padding: 14px;
-      background: linear-gradient(135deg, #ba9eff, #8553f3);
+      background: linear-gradient(135deg, #a4c9ff, #60a5fa);
       color: #000;
       border: none;
       border-radius: 0.75rem;
@@ -635,7 +635,7 @@ import { TitleCasePipe } from '@angular/common';
       font-size: 14px;
       font-weight: 700;
       cursor: pointer;
-      box-shadow: 0 10px 20px rgba(186, 158, 255, 0.2);
+      box-shadow: 0 10px 20px rgba(164, 201, 255, 0.2);
       transition: transform 0.15s;
 
       &:hover {
@@ -692,7 +692,7 @@ import { TitleCasePipe } from '@angular/common';
       }
 
       &:hover {
-        border-color: rgba(186, 158, 255, 0.3);
+        border-color: rgba(164, 201, 255, 0.3);
         color: #f0edf1;
       }
 

@@ -35,11 +35,14 @@ describe('PreferencesService', () => {
     expect(service.darkMode()).toBe(true);
   });
 
-  it('should toggle dark mode', () => {
-    service.toggleDarkMode();
-    expect(service.darkMode()).toBe(false);
+  it('should no-op toggleDarkMode (dark-only app)', () => {
+    expect(service.darkMode()).toBe(true);
     service.toggleDarkMode();
     expect(service.darkMode()).toBe(true);
+  });
+
+  it('should always expose darkModeToggleDisabled as true', () => {
+    expect(service.darkModeToggleDisabled()).toBe(true);
   });
 
   it('should set color theme', () => {
@@ -55,7 +58,7 @@ describe('PreferencesService', () => {
     expect(service.sidenavOpened()).toBe(initial);
   });
 
-  it('should load stored preferences when user is set', () => {
+  it('should load stored preferences when user is set (forcing dark mode on)', () => {
     const prefs = { colorTheme: 'default', darkMode: false, sidenavOpened: false };
     localStorage.setItem(storageKey('user-1'), JSON.stringify(prefs));
 
@@ -63,7 +66,8 @@ describe('PreferencesService', () => {
     TestBed.flushEffects();
 
     expect(service.colorTheme()).toBe('default');
-    expect(service.darkMode()).toBe(false);
+    // Dark-only app: stored darkMode:false is ignored
+    expect(service.darkMode()).toBe(true);
     expect(service.sidenavOpened()).toBe(false);
   });
 
@@ -95,5 +99,10 @@ describe('PreferencesService', () => {
 
     const stored = JSON.parse(localStorage.getItem(storageKey('user-4'))!);
     expect(stored.colorTheme).toBe('default');
+  });
+
+  it('should keep dark mode on when setColorTheme is called', () => {
+    service.setColorTheme('default');
+    expect(service.darkMode()).toBe(true);
   });
 });

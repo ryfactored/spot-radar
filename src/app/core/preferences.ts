@@ -4,7 +4,11 @@ import { AuthService } from './auth/auth';
 import { environment } from '@env';
 
 export const COLOR_THEMES = [
-  { value: 'default', label: 'Nocturne', colors: { primary: '#ba9eff', accent: '#8553f3' } },
+  {
+    value: 'default',
+    label: 'Midnight Studio',
+    colors: { primary: '#a4c9ff', accent: '#60a5fa' },
+  },
 ] as const;
 
 export type ColorTheme = (typeof COLOR_THEMES)[number]['value'];
@@ -42,6 +46,8 @@ export class PreferencesService {
   readonly colorTheme = computed(() => this.preferences().colorTheme);
   readonly darkMode = computed(() => this.preferences().darkMode);
   readonly sidenavOpened = computed(() => this.preferences().sidenavOpened);
+  // Dark-only app: toggle is always disabled
+  readonly darkModeToggleDisabled = computed(() => true);
 
   constructor() {
     if (!this.isBrowser) return;
@@ -84,7 +90,8 @@ export class PreferencesService {
       const key = `${environment.appName}:preferences:${userId}`;
       const stored = localStorage.getItem(key);
       if (stored) {
-        return { ...DEFAULT_PREFERENCES, ...JSON.parse(stored) };
+        // Dark-only app: force darkMode true regardless of stored value
+        return { ...DEFAULT_PREFERENCES, ...JSON.parse(stored), darkMode: true };
       }
     } catch {
       // Invalid JSON, use defaults
@@ -93,14 +100,12 @@ export class PreferencesService {
   }
 
   setColorTheme(colorTheme: ColorTheme) {
-    this.preferences.update((prefs) => ({ ...prefs, colorTheme }));
+    this.preferences.update((prefs) => ({ ...prefs, colorTheme, darkMode: true }));
   }
 
+  // Dark-only app: toggling is a no-op. Method retained for API stability.
   toggleDarkMode() {
-    this.preferences.update((prefs) => ({
-      ...prefs,
-      darkMode: !prefs.darkMode,
-    }));
+    // intentionally empty
   }
 
   toggleSidenav() {

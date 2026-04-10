@@ -215,7 +215,7 @@ export interface UserArtist {
       }
 
       &:focus {
-        border-color: rgba(186, 158, 255, 0.4);
+        border-color: rgba(164, 201, 255, 0.4);
       }
     }
 
@@ -260,8 +260,8 @@ export interface UserArtist {
       transition: all 0.2s;
 
       &.active {
-        background: rgba(186, 158, 255, 0.12);
-        color: #ba9eff;
+        background: rgba(164, 201, 255, 0.12);
+        color: #a4c9ff;
       }
     }
 
@@ -287,8 +287,8 @@ export interface UserArtist {
       height: 28px;
       border: none;
       border-radius: 6px;
-      background: rgba(186, 158, 255, 0.08);
-      color: #ba9eff;
+      background: rgba(164, 201, 255, 0.08);
+      color: #a4c9ff;
       font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: 11px;
       font-weight: 700;
@@ -299,7 +299,7 @@ export interface UserArtist {
       justify-content: center;
 
       &:hover {
-        background: rgba(186, 158, 255, 0.2);
+        background: rgba(164, 201, 255, 0.2);
       }
     }
 
@@ -314,7 +314,7 @@ export interface UserArtist {
       font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: 16px;
       font-weight: 800;
-      color: #ba9eff;
+      color: #a4c9ff;
     }
 
     .letter-count {
@@ -363,7 +363,7 @@ export interface UserArtist {
       width: 40px;
       height: 40px;
       border-radius: 50%;
-      background: rgba(186, 158, 255, 0.1);
+      background: rgba(164, 201, 255, 0.1);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -371,7 +371,7 @@ export interface UserArtist {
 
       .material-icons {
         font-size: 20px;
-        color: #ba9eff;
+        color: #a4c9ff;
       }
     }
 
