@@ -16,7 +16,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Overlay, OverlayRef } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
 
-import { AuthService, SpotifyApiService, extractErrorMessage } from '@core';
+import { AuthService, SpotifyApiService, SupabaseService, extractErrorMessage } from '@core';
 import { ToastService, EmptyState } from '@shared';
 
 import { ReleasesService, Release, FeedPreferences } from '../releases-service';
@@ -552,6 +552,7 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
   private auth = inject(AuthService);
   private toast = inject(ToastService);
   private spotifyApi = inject(SpotifyApiService);
+  private supabaseService = inject(SupabaseService);
   private overlay = inject(Overlay);
   private sanitizer = inject(DomSanitizer);
 
@@ -677,7 +678,13 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
 
       if (artistIds.length === 0) {
         // First visit — sync artist list from Spotify
-        this.store.setSyncProgress({ total: 0, checked: 0, syncing: true, releasesFound: 0 });
+        this.store.setSyncProgress({
+          total: 0,
+          checked: 0,
+          syncing: true,
+          releasesFound: 0,
+          currentArtist: '',
+        });
         try {
           const newArtistIds = await this.doFullArtistSync();
 
@@ -688,12 +695,24 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
 
           // Trigger the onboarding Edge Function and wait for it to finish
           await this.service.triggerSync(this.userId);
-          this.store.setSyncProgress({ total: 0, checked: 0, syncing: false, releasesFound: 0 });
+          this.store.setSyncProgress({
+            total: 0,
+            checked: 0,
+            syncing: false,
+            releasesFound: 0,
+            currentArtist: '',
+          });
           // Load the full feed now — Realtime may have missed some during sync
           await this.loadFeed(1);
         } catch (err) {
           this.toast.error(extractErrorMessage(err, 'Failed to sync your Spotify library'));
-          this.store.setSyncProgress({ total: 0, checked: 0, syncing: false, releasesFound: 0 });
+          this.store.setSyncProgress({
+            total: 0,
+            checked: 0,
+            syncing: false,
+            releasesFound: 0,
+            currentArtist: '',
+          });
           await this.loadFeed(1);
         }
         return;
@@ -736,10 +755,67 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
     );
   }
 
+  private subscribeSyncProgress(userId: string): {
+    ready: Promise<void>;
+    unsubscribe: () => void;
+  } {
+    const channelName = `sync-progress:${userId}`;
+    const channel = this.supabaseService.client.channel(channelName);
+
+    const ready = new Promise<void>((resolve) => {
+      const timeout = setTimeout(resolve, 3000);
+      channel
+        .on('broadcast', { event: 'artist-progress' }, ({ payload }) => {
+          this.store.setSyncProgress({
+            total: payload['total'],
+            checked: payload['checked'],
+            syncing: true,
+            releasesFound: this.store.syncProgress().releasesFound,
+            currentArtist: payload['artistName'],
+          });
+        })
+        .on('broadcast', { event: 'sync-complete' }, () => {
+          // Handled by the caller after triggerSync resolves
+        })
+        .subscribe((status) => {
+          if (status === 'SUBSCRIBED') {
+            clearTimeout(timeout);
+            resolve();
+          }
+        });
+    });
+
+    return {
+      ready,
+      unsubscribe: () => this.supabaseService.client.removeChannel(channel),
+    };
+  }
+
+  private setSyncStatus(status: string): void {
+    this.store.setSyncProgress({
+      ...this.store.syncProgress(),
+      currentArtist: status,
+    });
+  }
+
   private async doFullArtistSync(): Promise<string[]> {
+    this.setSyncStatus('Loading artists from Spotify...');
+    let followedCount = 0;
+    let savedCount = 0;
+    const updateArtistProgress = () =>
+      this.setSyncStatus(
+        `Loading artists... ${followedCount} followed, ${savedCount} from library`,
+      );
+
     const [followedArtists, savedArtists] = await Promise.all([
-      this.spotifyApi.getFollowedArtists(),
-      this.spotifyApi.getSavedAlbumArtists(),
+      this.spotifyApi.getFollowedArtists((count) => {
+        followedCount = count;
+        updateArtistProgress();
+      }),
+      this.spotifyApi.getSavedAlbumArtists((count) => {
+        savedCount = count;
+        updateArtistProgress();
+      }),
     ]);
 
     // Build image map from followed artists (they come with images)
@@ -752,7 +828,10 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
     const savedOnlyIds = savedArtists.filter((a) => !imageMap.has(a.id)).map((a) => a.id);
 
     if (savedOnlyIds.length > 0) {
-      const fetched = await this.spotifyApi.getArtistsByIds(savedOnlyIds);
+      this.setSyncStatus(`Loading images... 0/${savedOnlyIds.length}`);
+      const fetched = await this.spotifyApi.getArtistsByIds(savedOnlyIds, (done, total) =>
+        this.setSyncStatus(`Loading images... ${done}/${total}`),
+      );
       for (const [id, artist] of fetched) {
         if (artist.images?.[0]?.url) imageMap.set(id, artist.images[0].url);
       }
@@ -768,6 +847,9 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
       artist_name: a.name,
       artist_image_url: imageMap.get(a.id) ?? null,
     }));
+
+    const total = new Set([...followedRows, ...savedRows].map((r) => r.spotify_artist_id)).size;
+    this.setSyncStatus(`Syncing ${total} artists to database...`);
 
     // Sync saved first, then followed — followed overwrites source for shared artists
     await this.service.syncArtists(this.userId, savedRows, 'saved');
@@ -848,12 +930,20 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
 
   protected async onSyncNow(mode: 'quick' | 'full'): Promise<void> {
     if (this.store.isSyncing()) return;
-    this.store.setSyncProgress({ total: 0, checked: 0, syncing: true, releasesFound: 0 });
+    this.store.setSyncProgress({
+      total: 0,
+      checked: 0,
+      syncing: true,
+      releasesFound: 0,
+      currentArtist: '',
+    });
+
+    let unsubProgress: (() => void) | null = null;
+
     try {
       let artistIds = this.store.followedArtistIds();
 
       if (mode === 'full') {
-        // Re-fetch artist lists from Spotify to pick up new follows/saves and fix sources
         artistIds = await this.doFullArtistSync();
         this.unsubscribeRealtime?.();
         this.unsubscribeRealtime = this.service.subscribeToNewReleases(artistIds, (release) =>
@@ -861,18 +951,46 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
         );
       }
 
+      // Subscribe to progress channel before triggering sync
+      const { ready, unsubscribe } = this.subscribeSyncProgress(this.userId);
+      unsubProgress = unsubscribe;
+      await ready;
+
       this.store.setSyncProgress({
         total: artistIds.length,
         checked: 0,
         syncing: true,
         releasesFound: 0,
+        currentArtist: `Preparing to scan ${artistIds.length} artists...`,
       });
+
       await this.service.triggerSync(this.userId, false);
-      this.store.setSyncProgress({ total: 0, checked: 0, syncing: false, releasesFound: 0 });
+
+      unsubProgress();
+      unsubProgress = null;
+
+      const syncState = this.store.syncProgress();
+      this.store.setSyncProgress({
+        total: 0,
+        checked: 0,
+        syncing: false,
+        releasesFound: 0,
+        currentArtist: '',
+      });
       await this.loadFeed(1);
-      this.toast.success(mode === 'full' ? 'Full sync complete.' : 'Sync complete.');
+
+      this.toast.success(
+        `Synced ${syncState.checked} artists, found ${syncState.releasesFound} new releases.`,
+      );
     } catch (err) {
-      this.store.setSyncProgress({ total: 0, checked: 0, syncing: false, releasesFound: 0 });
+      unsubProgress?.();
+      this.store.setSyncProgress({
+        total: 0,
+        checked: 0,
+        syncing: false,
+        releasesFound: 0,
+        currentArtist: '',
+      });
       this.toast.error(extractErrorMessage(err, 'Sync failed.'));
     }
   }
