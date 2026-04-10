@@ -28,8 +28,8 @@ import { routeAnimation } from '@shared';
       padding: 16px;
       box-sizing: border-box;
       background:
-        radial-gradient(ellipse at 20% 20%, rgba(186, 158, 255, 0.12) 0%, transparent 50%),
-        radial-gradient(ellipse at 80% 80%, rgba(186, 158, 255, 0.08) 0%, transparent 50%), #0e0e11;
+        radial-gradient(ellipse at 20% 20%, rgba(164, 201, 255, 0.12) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(164, 201, 255, 0.08) 0%, transparent 50%), #0e0e11;
     }
     .auth-card {
       background: rgba(25, 25, 29, 0.8);
@@ -39,7 +39,7 @@ import { routeAnimation } from '@shared';
       padding: 40px;
       border-radius: 0.75rem;
       border: 1px solid rgba(72, 72, 71, 0.15);
-      box-shadow: 0 40px 40px rgba(186, 158, 255, 0.06);
+      box-shadow: 0 40px 40px rgba(164, 201, 255, 0.06);
       width: 100%;
       max-width: 400px;
       box-sizing: border-box;
@@ -47,7 +47,7 @@ import { routeAnimation } from '@shared';
     .app-title {
       text-align: center;
       margin-bottom: 24px;
-      color: #ba9eff;
+      color: #a4c9ff;
       font-family: 'Plus Jakarta Sans', sans-serif;
       font-weight: 700;
       letter-spacing: -0.02em;

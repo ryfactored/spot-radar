@@ -149,7 +149,7 @@ import { environment } from '@env';
         135deg,
         #0e0e11 0%,
         #19191d 40%,
-        rgba(186, 158, 255, 0.08) 70%,
+        rgba(164, 201, 255, 0.08) 70%,
         #0e0e11 100%
       );
       background-size: 300% 300%;
@@ -165,7 +165,7 @@ import { environment } from '@env';
       width: 700px;
       height: 700px;
       border-radius: 50%;
-      background: radial-gradient(circle, #ba9eff 0%, transparent 70%);
+      background: radial-gradient(circle, #a4c9ff 0%, transparent 70%);
       opacity: 0.1;
       top: -200px;
       right: -200px;
@@ -178,7 +178,7 @@ import { environment } from '@env';
       width: 500px;
       height: 500px;
       border-radius: 50%;
-      background: radial-gradient(circle, #ba9eff 0%, transparent 70%);
+      background: radial-gradient(circle, #a4c9ff 0%, transparent 70%);
       opacity: 0.06;
       bottom: -150px;
       left: -150px;
@@ -226,7 +226,7 @@ import { environment } from '@env';
     .hero-cta-btn {
       --mdc-filled-button-container-color: transparent;
       --mdc-filled-button-label-text-color: #000;
-      background: linear-gradient(135deg, #ba9eff, #8553f3) !important;
+      background: linear-gradient(135deg, #a4c9ff, #60a5fa) !important;
       color: #000 !important;
       font-family: 'Plus Jakarta Sans', sans-serif;
       font-weight: 700;
@@ -266,7 +266,7 @@ import { environment } from '@env';
       display: block;
       width: 40px;
       height: 3px;
-      background: linear-gradient(135deg, #ba9eff, #8553f3);
+      background: linear-gradient(135deg, #a4c9ff, #60a5fa);
       margin: 16px auto 0;
       border-radius: 2px;
     }
@@ -297,7 +297,7 @@ import { environment } from '@env';
     }
 
     .feature-icon {
-      background: linear-gradient(135deg, #ba9eff, #8553f3);
+      background: linear-gradient(135deg, #a4c9ff, #60a5fa);
       color: white;
       width: 56px;
       height: 56px;

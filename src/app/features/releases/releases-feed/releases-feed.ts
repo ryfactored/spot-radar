@@ -206,7 +206,7 @@ const PAGE_SIZE = 20;
       display: flex;
       flex-direction: column;
       gap: 16px;
-      background: radial-gradient(circle at 50% 0%, rgba(186, 158, 255, 0.06) 0%, transparent 60%);
+      background: radial-gradient(circle at 50% 0%, rgba(164, 201, 255, 0.06) 0%, transparent 60%);
       padding-bottom: 120px;
     }
 
@@ -243,7 +243,7 @@ const PAGE_SIZE = 20;
     }
 
     .section-label.new {
-      color: #ba9eff;
+      color: #a4c9ff;
     }
 
     .section-label.seen {
@@ -416,8 +416,8 @@ const PAGE_SIZE = 20;
       transition: all 0.2s;
 
       &:hover {
-        border-color: rgba(186, 158, 255, 0.3);
-        color: #ba9eff;
+        border-color: rgba(164, 201, 255, 0.3);
+        color: #a4c9ff;
       }
     }
 
