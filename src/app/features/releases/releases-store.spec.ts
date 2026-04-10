@@ -181,7 +181,13 @@ describe('ReleasesStore', () => {
 
   describe('setSyncProgress', () => {
     it('should update sync progress', () => {
-      const progress: SyncProgress = { total: 100, checked: 50, syncing: true, releasesFound: 0 };
+      const progress: SyncProgress = {
+        total: 100,
+        checked: 50,
+        syncing: true,
+        releasesFound: 0,
+        currentArtist: '',
+      };
       store.setSyncProgress(progress);
 
       expect(store.syncProgress()).toEqual(progress);
@@ -239,13 +245,20 @@ describe('ReleasesStore', () => {
     });
 
     it('should reset sync progress', () => {
-      store.setSyncProgress({ total: 100, checked: 50, syncing: true, releasesFound: 0 });
+      store.setSyncProgress({
+        total: 100,
+        checked: 50,
+        syncing: true,
+        releasesFound: 0,
+        currentArtist: '',
+      });
       store.clear();
       expect(store.syncProgress()).toEqual({
         total: 0,
         checked: 0,
         syncing: false,
         releasesFound: 0,
+        currentArtist: '',
       });
       expect(store.isSyncing()).toBe(false);
     });
