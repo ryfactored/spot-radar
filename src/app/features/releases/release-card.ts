@@ -161,7 +161,7 @@ import { Release } from './releases-service';
       height: 48px;
       border-radius: 50%;
       border: none;
-      background: linear-gradient(135deg, #8455ef, #ba9eff);
+      background: linear-gradient(135deg, #60a5fa, #a4c9ff);
       color: #000;
       text-decoration: none;
       font-size: 18px;
@@ -240,8 +240,8 @@ import { Release } from './releases-service';
       text-transform: uppercase;
       padding: 2px 8px;
       border-radius: 20px;
-      background: rgba(186, 158, 255, 0.1);
-      color: #ba9eff;
+      background: rgba(164, 201, 255, 0.1);
+      color: #a4c9ff;
     }
 
     .artist-row {
@@ -306,7 +306,7 @@ import { Release } from './releases-service';
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      color: #ba9eff;
+      color: #a4c9ff;
       text-decoration: none;
       transition: opacity 0.2s;
 
@@ -371,8 +371,8 @@ import { Release } from './releases-service';
       letter-spacing: 0.1em;
       padding: 4px 12px;
       border-radius: 1rem;
-      background: rgba(186, 158, 255, 0.15);
-      color: #ba9eff;
+      background: rgba(164, 201, 255, 0.15);
+      color: #a4c9ff;
       width: fit-content;
     }
 
@@ -414,7 +414,7 @@ import { Release } from './releases-service';
       font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: 0.875rem;
       font-weight: 700;
-      background: linear-gradient(135deg, #8455ef, #ba9eff);
+      background: linear-gradient(135deg, #60a5fa, #a4c9ff);
       color: #000;
       cursor: pointer;
       transition: opacity 0.2s;

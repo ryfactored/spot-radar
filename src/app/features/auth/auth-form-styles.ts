@@ -15,7 +15,7 @@ export const AUTH_FORM_STYLES = `
     text-align: center;
     margin-top: 16px;
     a {
-      color: #ba9eff;
+      color: #a4c9ff;
       text-decoration: none;
       &:hover { text-decoration: underline; }
     }
@@ -27,7 +27,7 @@ export const AUTH_FORM_STYLES = `
   .social-buttons { margin-bottom: 16px; }
 
   [mat-raised-button][color="primary"] {
-    background: linear-gradient(135deg, #ba9eff, #8553f3) !important;
+    background: linear-gradient(135deg, #a4c9ff, #60a5fa) !important;
     color: #000 !important;
     border-radius: 0.5rem;
     font-family: 'Plus Jakarta Sans', sans-serif;

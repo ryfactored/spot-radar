@@ -47,7 +47,7 @@ import { LoadingSpinner } from '@shared';
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.06em;
-      color: #ba9eff;
+      color: #a4c9ff;
       margin-bottom: 8px;
     }
 
@@ -91,7 +91,7 @@ import { LoadingSpinner } from '@shared';
 
     .spotify-link {
       flex-shrink: 0;
-      color: #ba9eff;
+      color: #a4c9ff;
       text-decoration: none;
       font-size: 0.875rem;
       padding: 4px;

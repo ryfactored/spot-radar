@@ -5,10 +5,31 @@ import { signal } from '@angular/core';
 import { Dashboard } from './dashboard';
 import { AuthService, FeatureFlags } from '@core';
 import { ProfileStore } from '@features/profile/profile-store';
+import { ReleasesStore } from '@features/releases/releases-store';
+import { ReleasesService } from '@features/releases/releases-service';
 
 describe('Dashboard', () => {
   let component: Dashboard;
   let fixture: ComponentFixture<Dashboard>;
+
+  const releasesStoreMock = {
+    followedArtistIds: signal([] as string[]),
+    allReleases: signal([] as any[]),
+    totalCount: signal(0),
+    dismissedIds: signal(new Set<string>()),
+    setArtistIds: vi.fn(),
+    setReleases: vi.fn(),
+  };
+  const releasesServiceMock = {
+    getUserArtistIds: vi.fn().mockResolvedValue([]),
+    getPreferences: vi.fn().mockResolvedValue({
+      release_type_filter: 'everything',
+      min_track_count: 0,
+      recency_days: 90,
+      hide_live: false,
+    }),
+    getFeed: vi.fn().mockResolvedValue({ data: [], count: 0 }),
+  };
 
   async function setupTest(
     user: { id: string; email: string } | null = {
@@ -33,6 +54,8 @@ describe('Dashboard', () => {
         { provide: AuthService, useValue: authMock },
         { provide: FeatureFlags, useValue: featureFlagsMock },
         { provide: ProfileStore, useValue: profileStoreMock },
+        { provide: ReleasesStore, useValue: releasesStoreMock },
+        { provide: ReleasesService, useValue: releasesServiceMock },
       ],
     }).compileComponents();
 
@@ -53,42 +76,27 @@ describe('Dashboard', () => {
 
   it('should display welcome message with display name', async () => {
     await setupTest({ id: '1', email: 'jane@example.com' }, {}, 'Jane');
-    expect(fixture.nativeElement.textContent).toContain('Welcome back, Jane');
+    expect(fixture.nativeElement.textContent).toContain('Welcome, Jane');
   });
 
   it('should fall back to email when no display name', async () => {
     await setupTest({ id: '1', email: 'jane@example.com' }, {}, null);
-    expect(fixture.nativeElement.textContent).toContain('Welcome back, jane@example.com');
+    expect(fixture.nativeElement.textContent).toContain('Welcome, jane@example.com');
   });
 
-  it('should display dashboard heading', async () => {
+  it('should show Artists Tracked stat', async () => {
     await setupTest();
-    const heading = fixture.nativeElement.querySelector('h1');
-    expect(heading.textContent).toContain('Dashboard');
+    expect(fixture.nativeElement.textContent).toContain('Artists Tracked');
   });
 
-  it('should render all quick link cards', async () => {
+  it('should show Releases Found stat', async () => {
     await setupTest();
-    const cards = fixture.nativeElement.querySelectorAll('.link-card');
-    expect(cards.length).toBe(4);
+    expect(fixture.nativeElement.textContent).toContain('Releases Found');
   });
 
-  it('should have links to all feature pages', async () => {
+  it('should link to releases feed', async () => {
     await setupTest();
-    const links = fixture.nativeElement.querySelectorAll('.link-card');
-    const hrefs = Array.from(links).map((el: any) => el.getAttribute('href'));
-    expect(hrefs).toContain('/notes');
-    expect(hrefs).toContain('/chat');
-    expect(hrefs).toContain('/files');
-    expect(hrefs).toContain('/profile');
-  });
-
-  it('should display card titles', async () => {
-    await setupTest();
-    const text = fixture.nativeElement.textContent;
-    expect(text).toContain('Notes');
-    expect(text).toContain('Chat');
-    expect(text).toContain('Files');
-    expect(text).toContain('Profile');
+    const links = fixture.nativeElement.querySelectorAll('a[href="/releases"]');
+    expect(links.length).toBeGreaterThan(0);
   });
 });

@@ -174,16 +174,25 @@ export class ReleasesService {
 
   /**
    * Return all artist IDs the user follows.
+   *
+   * Paginated because PostgREST caps a single response at 1000 rows — users
+   * with more followed artists would otherwise be truncated.
    */
   async getUserArtistIds(userId: string): Promise<string[]> {
-    const result = unwrap(
-      await this.supabase.client
-        .from('user_artists')
-        .select('spotify_artist_id')
-        .eq('user_id', userId),
-    ) as { spotify_artist_id: string }[];
+    const ids: string[] = [];
+    for (let from = 0; ; from += 1000) {
+      const rows = unwrap(
+        await this.supabase.client
+          .from('user_artists')
+          .select('spotify_artist_id')
+          .eq('user_id', userId)
+          .range(from, from + 999),
+      ) as { spotify_artist_id: string }[];
 
-    return result.map((r) => r.spotify_artist_id);
+      ids.push(...rows.map((r) => r.spotify_artist_id));
+      if (rows.length < 1000) break;
+    }
+    return ids;
   }
 
   /**

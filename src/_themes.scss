@@ -39,37 +39,38 @@
 // Custom Palette Maps
 // ============================================
 
-// Blue (Tailwind Blue, primary: #3b82f6)
-// ⚠️ Sync with .theme-default in _design-tokens.scss
+// Midnight Studio — slate blue (primary: #60a5fa, highlight: #a4c9ff)
+// Source: docs/stitch/DESIGN2.md
+// ⚠️ Sync with .theme-default.dark-mode in _design-tokens.scss
 $blue-palette: (
   50: #eff6ff,
   100: #dbeafe,
   200: #bfdbfe,
   300: #93c5fd,
-  400: #60a5fa,
-  500: #3b82f6,
-  600: #2563eb,
-  700: #1d4ed8,
-  800: #1e40af,
+  400: #a4c9ff,
+  500: #60a5fa,
+  600: #3b82f6,
+  700: #2563eb,
+  800: #1d4ed8,
   900: #1e3a8a,
   A100: #bfdbfe,
-  A200: #60a5fa,
-  A400: #3b82f6,
-  A700: #1d4ed8,
+  A200: #a4c9ff,
+  A400: #60a5fa,
+  A700: #2563eb,
   contrast: (
     50: rgba(0, 0, 0, 0.87),
     100: rgba(0, 0, 0, 0.87),
     200: rgba(0, 0, 0, 0.87),
     300: rgba(0, 0, 0, 0.87),
-    400: white,
-    500: white,
+    400: rgba(0, 0, 0, 0.87),
+    500: rgba(0, 0, 0, 0.87),
     600: white,
     700: white,
     800: white,
     900: white,
     A100: rgba(0, 0, 0, 0.87),
     A200: rgba(0, 0, 0, 0.87),
-    A400: white,
+    A400: rgba(0, 0, 0, 0.87),
     A700: white,
   ),
 );

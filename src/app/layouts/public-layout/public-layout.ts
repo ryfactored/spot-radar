@@ -35,7 +35,7 @@ import { environment } from '@env';
     }
 
     .logo {
-      color: #ba9eff;
+      color: #a4c9ff;
       text-decoration: none;
       font-family: 'Plus Jakarta Sans', sans-serif;
       font-weight: 800;
@@ -53,7 +53,7 @@ import { environment } from '@env';
     }
 
     .toolbar-cta {
-      background: linear-gradient(135deg, #ba9eff, #8553f3) !important;
+      background: linear-gradient(135deg, #a4c9ff, #60a5fa) !important;
       color: #000 !important;
       border-radius: 0.5rem;
     }
