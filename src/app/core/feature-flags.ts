@@ -34,9 +34,9 @@ export class FeatureFlags {
     Object.entries(this.stringFlags()).map(([name, value]) => ({ name, value })),
   );
 
-  /** Returns true if the feature is enabled (defaults to true for unknown flags). */
+  /** Returns true if the feature is enabled (defaults to false for unknown flags). */
   isEnabled(feature: string): boolean {
-    return this.flags()[feature] ?? true;
+    return this.flags()[feature] ?? false;
   }
 
   /** Toggle a single boolean flag at runtime (session-scoped, resets on reload). */

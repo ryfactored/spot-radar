@@ -18,8 +18,22 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { userId } = await req.json();
-    if (!userId) return json({ error: 'userId required' }, 400);
+    // Identify the caller from their JWT — never trust a userId from the body.
+    // Returning another user's Spotify token would be an account takeover.
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) return json({ error: 'Unauthorized' }, 401);
+
+    const authClient = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_ANON_KEY')!,
+      { global: { headers: { Authorization: authHeader } } },
+    );
+    const {
+      data: { user },
+      error: userError,
+    } = await authClient.auth.getUser();
+    if (userError || !user) return json({ error: 'Unauthorized' }, 401);
+    const userId = user.id;
 
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,

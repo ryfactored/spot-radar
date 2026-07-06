@@ -1,4 +1,5 @@
 import { Injectable, signal, computed } from '@angular/core';
+import { resetOnSignOut } from '@core';
 import { type Profile } from '@features/profile/profile-service';
 import { environment } from '@env';
 
@@ -12,6 +13,10 @@ export class UsersStore {
   private totalCount = signal(0);
   private pageSize = signal(environment.pagination.defaultPageSize);
   private page = signal(1);
+
+  constructor() {
+    resetOnSignOut(() => this.clear());
+  }
 
   readonly allUsers = this.users.asReadonly();
   readonly isLoading = this.loading.asReadonly();

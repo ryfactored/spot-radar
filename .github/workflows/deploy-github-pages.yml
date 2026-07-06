@@ -31,6 +31,7 @@ jobs:
       - name: Build for GitHub Pages
         run: npm run build -- --configuration github-pages
         env:
+          REQUIRE_SUPABASE_ENV: '1'
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
           SITE_URL: https://ryfactored.github.io/spot-radar

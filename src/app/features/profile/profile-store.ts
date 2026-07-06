@@ -1,4 +1,5 @@
 import { Injectable, signal, computed } from '@angular/core';
+import { resetOnSignOut } from '@core';
 import { Profile } from './profile-service';
 
 @Injectable({
@@ -7,6 +8,10 @@ import { Profile } from './profile-service';
 export class ProfileStore {
   private profile = signal<Profile | null>(null);
   private loading = signal(false);
+
+  constructor() {
+    resetOnSignOut(() => this.clear());
+  }
 
   readonly currentProfile = this.profile.asReadonly();
   readonly isLoading = this.loading.asReadonly();

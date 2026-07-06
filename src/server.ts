@@ -13,6 +13,32 @@ const browserDistFolder = join(import.meta.dirname, '../browser');
 const app = express();
 const angularApp = new AngularNodeAppEngine();
 
+// Don't advertise the server implementation.
+app.disable('x-powered-by');
+
+/**
+ * Baseline security headers. These are cheap, safe defaults that don't depend
+ * on request contents. A tuned Content-Security-Policy is intentionally left
+ * out here — it must be validated against SSR hydration inline scripts and the
+ * Supabase/Spotify origins the app talks to; add it once verified end-to-end.
+ */
+app.use((_req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  next();
+});
+
+/**
+ * Liveness endpoint for container/orchestrator health checks. Returns before
+ * any Angular rendering so a wedged render engine can be detected.
+ */
+app.get('/health', (_req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
+
 /**
  * Example Express Rest API endpoints can be defined here.
  * Uncomment and define endpoints as necessary.
@@ -32,9 +58,18 @@ app.use(compression());
  */
 app.use(
   express.static(browserDistFolder, {
-    maxAge: '1y',
     index: false,
     redirect: false,
+    setHeaders: (res, path) => {
+      // Angular emits content-hashed filenames (e.g. main-AB12CD34.js) that can
+      // be cached forever; unhashed assets copied from public/ (favicon, robots)
+      // must not, or a changed favicon can be stale for up to a year.
+      if (/\.[0-9a-f]{8,}\.[a-z0-9]+$/i.test(path)) {
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      } else {
+        res.setHeader('Cache-Control', 'public, max-age=3600');
+      }
+    },
   }),
 );
 
@@ -50,7 +85,7 @@ app.use((req, res, next) => {
 
 /**
  * Start the server if this module is the main entry point, or it is ran via PM2.
- * The server listens on the port defined by the `PORT` environment variable, or defaults to 4000.
+ * The server listens on the port defined by the `PORT` environment variable, or defaults to 4200.
  */
 if (isMainModule(import.meta.url) || process.env['pm_id']) {
   const port = process.env['PORT'] || 4200;
