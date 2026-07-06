@@ -1,7 +1,10 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const SPOTIFY_API = 'https://api.spotify.com/v1';
-const BATCH_SIZE = 10;
+// Each artist needs its own Spotify /artists/{id}/albums call (no bulk endpoint),
+// so wall-clock scales with the number of sequential rounds. Higher concurrency
+// cuts rounds; 429s are handled per-request with Retry-After below.
+const BATCH_SIZE = 40;
 
 interface ArtistRow {
   spotify_artist_id: string;
@@ -253,25 +256,27 @@ Deno.serve(async (req) => {
             track_count: album.total_tracks ?? 0,
           }));
 
-        // Upsert releases
-        if (releases.length > 0) {
-          const { error: upsertError } = await supabase
-            .schema('spot_radar')
-            .from('releases')
-            .upsert(releases, { onConflict: 'spotify_album_id' });
-          if (upsertError) {
-            throw new Error(`Failed to save releases: ${upsertError.message}`);
-          }
-        }
-
-        // Only mark artists whose fetch succeeded as checked; failed ones stay
-        // stale so the next sync retries them instead of skipping for 24h.
-        if (succeededIds.length > 0) {
-          await supabase
-            .schema('spot_radar')
-            .from('artists')
-            .update({ last_release_check: new Date().toISOString() })
-            .in('spotify_artist_id', succeededIds);
+        // The two writes touch different tables and don't depend on each other,
+        // so run them concurrently rather than serially per batch.
+        const [releasesResult] = await Promise.all([
+          releases.length > 0
+            ? supabase
+                .schema('spot_radar')
+                .from('releases')
+                .upsert(releases, { onConflict: 'spotify_album_id' })
+            : Promise.resolve({ error: null }),
+          // Only mark artists whose fetch succeeded as checked; failed ones stay
+          // stale so the next sync retries them instead of skipping for 24h.
+          succeededIds.length > 0
+            ? supabase
+                .schema('spot_radar')
+                .from('artists')
+                .update({ last_release_check: new Date().toISOString() })
+                .in('spotify_artist_id', succeededIds)
+            : Promise.resolve({ error: null }),
+        ]);
+        if (releasesResult.error) {
+          throw new Error(`Failed to save releases: ${releasesResult.error.message}`);
         }
 
         // Broadcast progress for each artist in this batch

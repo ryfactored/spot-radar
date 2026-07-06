@@ -617,20 +617,23 @@ export class Artists implements OnInit {
         if (rows.length < 1000) break;
       }
 
+      // Fetch metadata only for THIS user's artists. The artists table is shared
+      // across all users, so a blind full-table scan is O(all artists in the app)
+      // and grows unbounded; filter by the user's own artist IDs instead.
+      const myArtistIds = userArtistsData.map((r) => r.spotify_artist_id);
       const artistsData: {
         spotify_artist_id: string;
         artist_name: string;
         artist_image_url: string | null;
       }[] = [];
-      for (let from = 0; ; from += 1000) {
+      for (let i = 0; i < myArtistIds.length; i += 1000) {
+        const idChunk = myArtistIds.slice(i, i + 1000);
         const { data, error } = await this.supabase.client
           .from('artists')
           .select('spotify_artist_id, artist_name, artist_image_url')
-          .range(from, from + 999);
+          .in('spotify_artist_id', idChunk);
         if (error) throw error;
-        const rows = data ?? [];
-        artistsData.push(...rows);
-        if (rows.length < 1000) break;
+        artistsData.push(...(data ?? []));
       }
 
       const artistMap = new Map<string, { name: string; image: string | null }>();

@@ -964,7 +964,9 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
         currentArtist: `Preparing to scan ${artistIds.length} artists...`,
       });
 
-      await this.service.triggerSync(this.userId, false);
+      // Quick sync skips artists already checked in the last 24h (near-instant
+      // when nothing is stale); a full sync forces a complete re-scan.
+      await this.service.triggerSync(this.userId, mode === 'quick');
 
       unsubProgress();
       unsubProgress = null;
