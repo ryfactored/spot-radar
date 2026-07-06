@@ -32,14 +32,17 @@ describe('FeatureFlags', () => {
   it('should return all flags from allFlags', () => {
     const flags = service.allFlags();
     expect(flags.length).toBeGreaterThan(0);
-    expect(flags.find((f) => f.name === 'notes')).toEqual({ name: 'notes', enabled: false });
-    expect(flags.find((f) => f.name === 'chat')).toEqual({ name: 'chat', enabled: false });
+    expect(flags.find((f) => f.name === 'releases')).toEqual({ name: 'releases', enabled: true });
+    expect(flags.find((f) => f.name === 'themePicker')).toEqual({
+      name: 'themePicker',
+      enabled: false,
+    });
   });
 
   it('should reflect setEnabled changes in allFlags', () => {
-    service.setEnabled('chat', false);
-    const chatFlag = service.allFlags().find((f) => f.name === 'chat');
-    expect(chatFlag?.enabled).toBe(false);
+    service.setEnabled('releases', false);
+    const releasesFlag = service.allFlags().find((f) => f.name === 'releases');
+    expect(releasesFlag?.enabled).toBe(false);
   });
 
   describe('string flags', () => {

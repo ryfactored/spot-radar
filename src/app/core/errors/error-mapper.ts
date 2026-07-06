@@ -48,12 +48,12 @@ export function mapToError(error: unknown): Error {
  *
  * @example
  * // Before (3 lines)
- * const { data, error } = await client.from('notes').select('*');
+ * const { data, error } = await client.from('releases').select('*');
  * if (error) throw mapToError(error);
  * return data;
  *
  * // After (1 line)
- * return unwrap(await client.from('notes').select('*'));
+ * return unwrap(await client.from('releases').select('*'));
  */
 export function unwrap<T>(result: { data: T | null; error: unknown }): T {
   if (result.error) throw mapToError(result.error);
@@ -64,7 +64,7 @@ export function unwrap<T>(result: { data: T | null; error: unknown }): T {
  * Unwraps a Supabase result that includes count (for paginated queries).
  *
  * @example
- * return unwrapWithCount(await client.from('notes').select('*', { count: 'exact' }));
+ * return unwrapWithCount(await client.from('releases').select('*', { count: 'exact' }));
  */
 export function unwrapWithCount<T>(result: {
   data: T | null;

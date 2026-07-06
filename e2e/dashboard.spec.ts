@@ -29,23 +29,13 @@ test.describe('Dashboard', () => {
     await expect(page.locator('.welcome')).toContainText(TEST_USER.email);
   });
 
-  test('should display quick-link cards', async ({ page }) => {
-    const quickLinks = page.locator('.quick-links');
-    await expect(quickLinks).toBeVisible();
-
-    await expect(quickLinks.locator('h3:has-text("Notes")')).toBeVisible();
-    await expect(quickLinks.locator('h3:has-text("Chat")')).toBeVisible();
-    await expect(quickLinks.locator('h3:has-text("Files")')).toBeVisible();
-    await expect(quickLinks.locator('h3:has-text("Profile")')).toBeVisible();
+  test('should display the releases hero and stats', async ({ page }) => {
+    await expect(page.locator('.hero-chip:has-text("New Releases")')).toBeVisible();
+    await expect(page.locator('.stat-title:has-text("Followed Artists")')).toBeVisible();
   });
 
-  test('should navigate to notes from quick link', async ({ page }) => {
-    await page.locator('.link-card:has-text("Notes")').click();
-    await expect(page).toHaveURL(/\/notes/, { timeout: 5000 });
-  });
-
-  test('should navigate to profile from quick link', async ({ page }) => {
-    await page.locator('.link-card:has-text("Profile")').click();
-    await expect(page).toHaveURL(/\/profile/, { timeout: 5000 });
+  test('should navigate to the releases feed', async ({ page }) => {
+    await page.locator('a:has-text("View Feed")').first().click();
+    await expect(page).toHaveURL(/\/releases/, { timeout: 5000 });
   });
 });
