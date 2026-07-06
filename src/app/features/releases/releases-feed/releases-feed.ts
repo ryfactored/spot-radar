@@ -685,6 +685,10 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
           releasesFound: 0,
           currentArtist: '',
         });
+        // Subscribe to the Edge Function's progress broadcasts up front so the
+        // (potentially minutes-long) first scan shows live per-artist progress
+        // instead of a static indeterminate bar.
+        const { unsubscribe: unsubProgress } = this.subscribeSyncProgress(this.userId);
         try {
           const newArtistIds = await this.doFullArtistSync();
 
@@ -695,6 +699,12 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
 
           // Trigger the onboarding Edge Function and wait for it to finish
           await this.service.triggerSync(this.userId);
+        } catch (err) {
+          this.toast.error(extractErrorMessage(err, 'Failed to sync your Spotify library'));
+        } finally {
+          // Stop listening before clearing state so a buffered late broadcast
+          // can't flip `syncing` back on after we've reset it.
+          unsubProgress();
           this.store.setSyncProgress({
             total: 0,
             checked: 0,
@@ -703,16 +713,6 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
             currentArtist: '',
           });
           // Load the full feed now — Realtime may have missed some during sync
-          await this.loadFeed(1);
-        } catch (err) {
-          this.toast.error(extractErrorMessage(err, 'Failed to sync your Spotify library'));
-          this.store.setSyncProgress({
-            total: 0,
-            checked: 0,
-            syncing: false,
-            releasesFound: 0,
-            currentArtist: '',
-          });
           await this.loadFeed(1);
         }
         return;
