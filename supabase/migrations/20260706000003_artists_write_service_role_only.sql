@@ -7,5 +7,5 @@
 -- write; authenticated users keep read access.
 set search_path to spot_radar, public;
 
-drop policy if exists "Authenticated users can insert artists" on artists;
-drop policy if exists "Authenticated users can update artists" on artists;
+drop policy if exists "Authenticated users can insert artists" on spot_radar.artists;
+drop policy if exists "Authenticated users can update artists" on spot_radar.artists;

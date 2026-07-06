@@ -8,7 +8,7 @@
 -- late was silently filed under "previously seen".
 set search_path to spot_radar, public;
 
-alter table releases
+alter table spot_radar.releases
   add column if not exists discovered_at timestamptz not null default now();
 
 -- Existing rows all defaulted to now() (migration time), which would flag the
@@ -16,13 +16,13 @@ alter table releases
 -- so only genuinely new syncs count as new going forward. New rows inserted by
 -- the sync jobs keep the now() default; the upsert doesn't touch discovered_at
 -- on conflict, so a release's first-seen time is preserved across re-syncs.
-update releases set discovered_at = release_date::timestamptz;
+update spot_radar.releases set discovered_at = release_date::timestamptz;
 
 -- Return discovered_at from the feed RPC (return-table shape changes, so drop
 -- and recreate rather than replace).
-drop function if exists get_user_feed(uuid, text, integer, integer, boolean, text, integer, integer);
+drop function if exists spot_radar.get_user_feed(uuid, text, integer, integer, boolean, text, integer, integer);
 
-create function get_user_feed(
+create function spot_radar.get_user_feed(
   p_user_id uuid,
   p_release_type text,
   p_min_track_count integer,
@@ -76,4 +76,4 @@ as $$
   offset p_offset
 $$;
 
-grant execute on function get_user_feed(uuid, text, integer, integer, boolean, text, integer, integer) to authenticated;
+grant execute on function spot_radar.get_user_feed(uuid, text, integer, integer, boolean, text, integer, integer) to authenticated;
