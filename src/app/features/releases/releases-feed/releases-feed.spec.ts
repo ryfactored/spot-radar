@@ -15,7 +15,7 @@ describe('ReleasesFeed', () => {
         {
           provide: ReleasesService,
           useValue: {
-            getFeed: vi.fn().mockResolvedValue({ data: [], count: 0 }),
+            getFeed: vi.fn().mockResolvedValue({ data: [], hasMore: false }),
             getPreferences: vi.fn().mockResolvedValue({
               release_type_filter: 'everything',
               min_track_count: 0,

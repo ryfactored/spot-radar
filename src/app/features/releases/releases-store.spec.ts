@@ -43,8 +43,8 @@ describe('ReleasesStore', () => {
       expect(store.isLoading()).toBe(false);
     });
 
-    it('should start with total 0', () => {
-      expect(store.totalCount()).toBe(0);
+    it('should start with canLoadMore false', () => {
+      expect(store.canLoadMore()).toBe(false);
     });
 
     it('should start with empty dismissed set', () => {
@@ -70,34 +70,42 @@ describe('ReleasesStore', () => {
 
   describe('setReleases', () => {
     it('should populate releases array', () => {
-      store.setReleases([mockRelease, mockRelease2], 2);
+      store.setReleases([mockRelease, mockRelease2], false);
       expect(store.allReleases()).toEqual([mockRelease, mockRelease2]);
     });
 
-    it('should set total count', () => {
-      store.setReleases([mockRelease], 42);
-      expect(store.totalCount()).toBe(42);
+    it('should set canLoadMore', () => {
+      store.setReleases([mockRelease], true);
+      expect(store.canLoadMore()).toBe(true);
     });
 
     it('should update isEmpty to false when releases exist', () => {
-      store.setReleases([mockRelease], 1);
+      store.setReleases([mockRelease], false);
       expect(store.isEmpty()).toBe(false);
     });
   });
 
   describe('appendReleases', () => {
     it('should append releases to existing list', () => {
-      store.setReleases([mockRelease], 2);
-      store.appendReleases([mockRelease2], 2);
+      store.setReleases([mockRelease], true);
+      store.appendReleases([mockRelease2], false);
 
       expect(store.allReleases()).toEqual([mockRelease, mockRelease2]);
     });
 
-    it('should update total count', () => {
-      store.setReleases([mockRelease], 5);
-      store.appendReleases([mockRelease2], 10);
+    it('should dedupe releases already present', () => {
+      store.setReleases([mockRelease], true);
+      // mockRelease re-served at the next page's boundary must not duplicate
+      store.appendReleases([mockRelease, mockRelease2], false);
 
-      expect(store.totalCount()).toBe(10);
+      expect(store.allReleases()).toEqual([mockRelease, mockRelease2]);
+    });
+
+    it('should update canLoadMore', () => {
+      store.setReleases([mockRelease], true);
+      store.appendReleases([mockRelease2], false);
+
+      expect(store.canLoadMore()).toBe(false);
     });
   });
 
@@ -108,7 +116,7 @@ describe('ReleasesStore', () => {
     });
 
     it('should not add a duplicate release', () => {
-      store.setReleases([mockRelease], 1);
+      store.setReleases([mockRelease], false);
       store.addRelease(mockRelease);
       expect(store.allReleases()).toHaveLength(1);
     });
@@ -119,7 +127,7 @@ describe('ReleasesStore', () => {
         spotify_album_id: 'album-old',
         release_date: '2023-06-01',
       };
-      store.setReleases([mockRelease], 1); // 2024-01-15
+      store.setReleases([mockRelease], false); // 2024-01-15
       store.addRelease(mockRelease2); // 2024-02-01 — should go first
       store.addRelease(older); // 2023-06-01 — should go last
 
@@ -221,15 +229,15 @@ describe('ReleasesStore', () => {
 
   describe('clear', () => {
     it('should reset releases to empty array', () => {
-      store.setReleases([mockRelease], 1);
+      store.setReleases([mockRelease], false);
       store.clear();
       expect(store.allReleases()).toEqual([]);
     });
 
-    it('should reset total to 0', () => {
-      store.setReleases([mockRelease], 42);
+    it('should reset canLoadMore to false', () => {
+      store.setReleases([mockRelease], true);
       store.clear();
-      expect(store.totalCount()).toBe(0);
+      expect(store.canLoadMore()).toBe(false);
     });
 
     it('should reset loading to false', () => {
@@ -284,7 +292,7 @@ describe('ReleasesStore', () => {
     });
 
     it('should make isEmpty true', () => {
-      store.setReleases([mockRelease], 1);
+      store.setReleases([mockRelease], false);
       store.clear();
       expect(store.isEmpty()).toBe(true);
     });
