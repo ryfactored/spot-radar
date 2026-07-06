@@ -6,8 +6,8 @@
 -- is removed: a direct insert must now claim the default 'user' role.
 set search_path to spot_radar, public;
 
-drop policy if exists "Users can insert own profile" on profiles;
+drop policy if exists "Users can insert own profile" on spot_radar.profiles;
 
 create policy "Users can insert own profile"
-  on profiles for insert
+  on spot_radar.profiles for insert
   with check (auth.uid() = id and role = 'user');
