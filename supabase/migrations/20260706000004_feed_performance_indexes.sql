@@ -13,12 +13,12 @@ set search_path to spot_radar, public;
 
 -- Serves the get_user_feed join (spotify_artist_id) and per-artist recency.
 create index if not exists idx_releases_artist_date
-  on releases (spotify_artist_id, release_date desc);
+  on spot_radar.releases (spotify_artist_id, release_date desc);
 
 -- Serves the global recency sort in get_user_feed.
 create index if not exists idx_releases_release_date
-  on releases (release_date desc);
+  on spot_radar.releases (release_date desc);
 
 -- Serves refresh-releases' staleness ordering and sync-releases' 24h skip filter.
 create index if not exists idx_artists_last_release_check
-  on artists (last_release_check nulls first);
+  on spot_radar.artists (last_release_check nulls first);

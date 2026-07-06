@@ -8,6 +8,6 @@
 -- separate storage migration) if you had uploaded objects to clean up.
 set search_path to spot_radar, public;
 
-drop table if exists messages cascade;
-drop table if exists files cascade;
-drop table if exists notes cascade;
+drop table if exists spot_radar.messages cascade;
+drop table if exists spot_radar.files cascade;
+drop table if exists spot_radar.notes cascade;

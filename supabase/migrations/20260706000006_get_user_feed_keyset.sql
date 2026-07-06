@@ -13,9 +13,9 @@
 -- the total_count column is dropped.
 set search_path to spot_radar, public;
 
-drop function if exists get_user_feed(uuid, text, integer, integer, boolean, text, integer, integer);
+drop function if exists spot_radar.get_user_feed(uuid, text, integer, integer, boolean, text, integer, integer);
 
-create function get_user_feed(
+create function spot_radar.get_user_feed(
   p_user_id uuid,
   p_release_type text,
   p_min_track_count integer,
@@ -72,12 +72,12 @@ as $$
   limit p_limit
 $$;
 
-grant execute on function get_user_feed(uuid, text, integer, integer, boolean, text, date, text, integer) to authenticated;
+grant execute on function spot_radar.get_user_feed(uuid, text, integer, integer, boolean, text, date, text, integer) to authenticated;
 
 -- Keyset pagination no longer returns a total_count. The dashboard still wants a
 -- "releases found" total, so expose a dedicated count that runs the same filter
 -- without the cursor/limit — called once for a stat, not per feed page.
-create function get_user_feed_count(
+create function spot_radar.get_user_feed_count(
   p_user_id uuid,
   p_release_type text,
   p_min_track_count integer,
@@ -103,4 +103,4 @@ as $$
     and (p_source_filter = 'all' or ua.source = p_source_filter)
 $$;
 
-grant execute on function get_user_feed_count(uuid, text, integer, integer, boolean, text) to authenticated;
+grant execute on function spot_radar.get_user_feed_count(uuid, text, integer, integer, boolean, text) to authenticated;
