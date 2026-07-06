@@ -19,7 +19,7 @@ import { ComponentPortal } from '@angular/cdk/portal';
 import { AuthService, SpotifyApiService, SupabaseService, extractErrorMessage } from '@core';
 import { ToastService, EmptyState } from '@shared';
 
-import { ReleasesService, Release, FeedPreferences } from '../releases-service';
+import { ReleasesService, Release, FeedPreferences, FeedCursor } from '../releases-service';
 import { ReleasesStore } from '../releases-store';
 import { ReleaseCard } from '../release-card';
 import { ReleaseCardSkeleton } from '../release-card-skeleton';
@@ -559,7 +559,6 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
   private scrollSentinel = viewChild<ElementRef<HTMLDivElement>>('scrollSentinel');
 
   private userId = '';
-  private currentPage = signal(1);
   private unsubscribeRealtime: (() => void) | null = null;
   private intersectionObserver: IntersectionObserver | null = null;
   private popoverRef: OverlayRef | null = null;
@@ -635,7 +634,7 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
     this.store.allReleases().filter((r) => this.store.dismissedIds().has(r.spotify_album_id)),
   );
 
-  protected hasMore = computed(() => this.store.allReleases().length < this.store.totalCount());
+  protected hasMore = this.store.canLoadMore;
 
   constructor() {
     effect(() => {
@@ -716,13 +715,13 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
             currentArtist: '',
           });
           // Load the full feed now — Realtime may have missed some during sync
-          await this.loadFeed(1);
+          await this.loadFeed(null);
         }
         return;
       }
 
       if (artistIds.length > 0) {
-        await this.loadFeed(1);
+        await this.loadFeed(null);
         this.subscribeToRealtime(artistIds);
       }
     } catch (err) {
@@ -730,18 +729,21 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  private async loadFeed(page: number): Promise<void> {
+  /**
+   * Load a feed page. Pass `null` to (re)load from the top; pass a cursor (the
+   * last release currently loaded) to append the next keyset page.
+   */
+  private async loadFeed(cursor: FeedCursor | null): Promise<void> {
     this.store.setLoading(true);
     try {
       const prefs = this.store.feedPreferences();
-      const { data, count } = await this.service.getFeed(this.userId, prefs, page, PAGE_SIZE);
+      const { data, hasMore } = await this.service.getFeed(this.userId, prefs, PAGE_SIZE, cursor);
 
-      if (page === 1) {
-        this.store.setReleases(data, count);
+      if (cursor === null) {
+        this.store.setReleases(data, hasMore);
       } else {
-        this.store.appendReleases(data, count);
+        this.store.appendReleases(data, hasMore);
       }
-      this.currentPage.set(page);
     } catch (err) {
       this.toast.error(extractErrorMessage(err, 'Failed to load releases.'));
     } finally {
@@ -880,7 +882,12 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
 
   protected async loadMore(): Promise<void> {
     if (!this.hasMore() || this.store.isLoading()) return;
-    await this.loadFeed(this.currentPage() + 1);
+    const last = this.store.allReleases().at(-1);
+    if (!last) return;
+    await this.loadFeed({
+      release_date: last.release_date,
+      spotify_album_id: last.spotify_album_id,
+    });
   }
 
   protected onReleaseTypeChange(value: string): Promise<void> {
@@ -911,7 +918,7 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
     this.store.setPreferences(updated);
     try {
       await this.service.savePreferences(this.userId, updated);
-      await this.loadFeed(1);
+      await this.loadFeed(null);
     } catch (err) {
       this.toast.error(extractErrorMessage(err, 'Failed to save preferences.'));
     }
@@ -982,7 +989,7 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
         releasesFound: 0,
         currentArtist: '',
       });
-      await this.loadFeed(1);
+      await this.loadFeed(null);
 
       this.toast.success(
         `Synced ${syncState.checked} artists, found ${syncState.releasesFound} new releases.`,
