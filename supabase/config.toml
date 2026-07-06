@@ -10,7 +10,8 @@ enabled = true
 port = 54321
 # Schemas to expose in your API. Tables, views and stored procedures in this schema will get API
 # endpoints. `public` and `graphql_public` schemas are included by default.
-schemas = ["public", "graphql_public"]
+# spot_radar holds all app tables — it MUST be exposed or every .from()/.rpc() 404s.
+schemas = ["public", "graphql_public", "spot_radar"]
 # Extra schemas to add to the search_path of every request.
 extra_search_path = ["public", "extensions"]
 # The maximum number of rows returns from a view, table, or stored procedure. Limits payload size
@@ -150,10 +151,16 @@ max_indexes = 5
 [auth]
 enabled = true
 # The base URL of your website. Used as an allow-list for redirects and for constructing URLs used
-# in emails.
-site_url = "http://127.0.0.1:3000"
-# A list of *exact* URLs that auth providers are permitted to redirect to post authentication.
-additional_redirect_urls = ["https://127.0.0.1:3000"]
+# in emails. Pushed to the cloud project by scripts/supabase-bootstrap.sh — edit if your domain changes.
+site_url = "https://radar.ryfactored.com"
+# A list of *exact* URLs (wildcards allowed) that auth providers may redirect to post authentication.
+# Must cover both the production site and the local dev server, since both use this same project.
+additional_redirect_urls = [
+  "https://radar.ryfactored.com",
+  "https://radar.ryfactored.com/**",
+  "http://localhost:4200",
+  "http://localhost:4200/**",
+]
 # How long tokens are valid for, in seconds. Defaults to 3600 (1 hour), maximum 604,800 (1 week).
 jwt_expiry = 3600
 # JWT issuer URL. If not set, defaults to the local API URL (http://127.0.0.1:<port>/auth/v1).
@@ -318,6 +325,14 @@ url = ""
 skip_nonce_check = false
 # If enabled, it will allow the user to successfully authenticate when the provider does not return an email address.
 email_optional = false
+
+# Spotify OAuth — the only provider spot-radar uses. Credentials come from env so
+# they are never committed; scripts/supabase-bootstrap.sh exports them before
+# `supabase config push`, which enables this provider on the cloud project.
+[auth.external.spotify]
+enabled = true
+client_id = "env(SUPABASE_AUTH_EXTERNAL_SPOTIFY_CLIENT_ID)"
+secret = "env(SUPABASE_AUTH_EXTERNAL_SPOTIFY_SECRET)"
 
 # Allow Solana wallet holders to sign in to your project via the Sign in with Solana (SIWS, EIP-4361) standard.
 # You can configure "web3" rate limit in the [auth.rate_limit] section and set up [auth.captcha] if self-hosting.

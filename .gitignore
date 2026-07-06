@@ -63,3 +63,6 @@ src/environments/environment.docker.local.ts
 # Docker secrets
 docker/.env
 docs/stitch/
+
+# Supabase bootstrap secrets (Spotify creds, cron secret, db password)
+.env.supabase
