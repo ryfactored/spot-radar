@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { AuthService, FeatureFlags } from '@core';
@@ -340,7 +347,8 @@ export class Dashboard implements OnInit {
   });
 
   readonly artistCount = computed(() => this.releasesStore.followedArtistIds().length);
-  readonly releaseCount = computed(() => this.releasesStore.totalCount());
+  private readonly releaseCountSig = signal(0);
+  readonly releaseCount = this.releaseCountSig.asReadonly();
 
   async ngOnInit(): Promise<void> {
     const userId = this.auth.currentUser()?.id;
@@ -356,13 +364,17 @@ export class Dashboard implements OnInit {
       }
     }
 
-    // Load latest release if not already loaded
+    // Load the latest release (for the hero) and the total release count (stat).
     if (this.releasesStore.allReleases().length === 0) {
       try {
         const prefs = await this.releasesService.getPreferences(userId);
-        const { data, count } = await this.releasesService.getFeed(userId, prefs, 1, 1);
+        const [{ data, hasMore }, count] = await Promise.all([
+          this.releasesService.getFeed(userId, prefs, 1),
+          this.releasesService.getReleaseCount(userId, prefs),
+        ]);
+        this.releaseCountSig.set(count);
         if (data.length > 0) {
-          this.releasesStore.setReleases(data, count);
+          this.releasesStore.setReleases(data, hasMore);
         }
       } catch {
         // Silent

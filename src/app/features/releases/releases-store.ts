@@ -33,7 +33,7 @@ const DEFAULT_SYNC: SyncProgress = {
 export class ReleasesStore {
   private releases = signal<Release[]>([]);
   private loading = signal(false);
-  private total = signal(0);
+  private hasMore = signal(false);
   private dismissed = signal<Set<string>>(new Set());
   private sync = signal<SyncProgress>({ ...DEFAULT_SYNC });
   private preferences = signal<FeedPreferences>({ ...DEFAULT_PREFERENCES });
@@ -46,7 +46,7 @@ export class ReleasesStore {
   // Public readonly accessors
   readonly allReleases = this.releases.asReadonly();
   readonly isLoading = this.loading.asReadonly();
-  readonly totalCount = this.total.asReadonly();
+  readonly canLoadMore = this.hasMore.asReadonly();
   readonly dismissedIds = this.dismissed.asReadonly();
   readonly syncProgress = this.sync.asReadonly();
   readonly feedPreferences = this.preferences.asReadonly();
@@ -59,14 +59,21 @@ export class ReleasesStore {
 
   // --- Mutation methods ---
 
-  setReleases(releases: Release[], total: number): void {
+  setReleases(releases: Release[], hasMore: boolean): void {
     this.releases.set(releases);
-    this.total.set(total);
+    this.hasMore.set(hasMore);
   }
 
-  appendReleases(releases: Release[], total: number): void {
-    this.releases.update((existing) => [...existing, ...releases]);
-    this.total.set(total);
+  appendReleases(releases: Release[], hasMore: boolean): void {
+    // Dedupe against what's already loaded. A realtime insert can prepend a row
+    // that a later keyset page also returns at its boundary; without this the
+    // same album renders twice and Angular's @for track hits NG0955.
+    this.releases.update((existing) => {
+      const seen = new Set(existing.map((r) => r.spotify_album_id));
+      const fresh = releases.filter((r) => !seen.has(r.spotify_album_id));
+      return [...existing, ...fresh];
+    });
+    this.hasMore.set(hasMore);
   }
 
   /**
@@ -122,7 +129,7 @@ export class ReleasesStore {
   clear(): void {
     this.releases.set([]);
     this.loading.set(false);
-    this.total.set(0);
+    this.hasMore.set(false);
     this.dismissed.set(new Set());
     this.sync.set({ ...DEFAULT_SYNC });
     this.preferences.set({ ...DEFAULT_PREFERENCES });

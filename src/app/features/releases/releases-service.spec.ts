@@ -86,39 +86,61 @@ describe('ReleasesService', () => {
   });
 
   describe('getFeed', () => {
-    it('should call get_user_feed RPC with correct params', async () => {
-      const row = { ...mockRelease, total_count: 1 };
-      mockSupabaseClient.rpc.mockResolvedValue({ data: [row], error: null });
+    it('should call get_user_feed RPC with a null cursor for the first page', async () => {
+      mockSupabaseClient.rpc.mockResolvedValue({ data: [mockRelease], error: null });
 
-      const result = await service.getFeed(userId, mockPreferences, 1, 10);
+      const result = await service.getFeed(userId, mockPreferences, 10);
 
       expect(mockSupabaseClient.rpc).toHaveBeenCalledWith(
         'get_user_feed',
-        expect.objectContaining({ p_user_id: userId, p_offset: 0, p_limit: 10 }),
+        expect.objectContaining({
+          p_user_id: userId,
+          p_cursor_release_date: null,
+          p_cursor_album_id: null,
+          p_limit: 10,
+        }),
       );
       expect(result.data).toEqual([mockRelease]);
-      expect(result.count).toBe(1);
+    });
+
+    it('should pass the cursor for subsequent pages', async () => {
+      mockSupabaseClient.rpc.mockResolvedValue({ data: [], error: null });
+
+      await service.getFeed(userId, mockPreferences, 10, {
+        release_date: '2024-01-15',
+        spotify_album_id: 'album-1',
+      });
+
+      expect(mockSupabaseClient.rpc).toHaveBeenCalledWith(
+        'get_user_feed',
+        expect.objectContaining({
+          p_cursor_release_date: '2024-01-15',
+          p_cursor_album_id: 'album-1',
+        }),
+      );
+    });
+
+    it('should report hasMore true only when a full page is returned', async () => {
+      mockSupabaseClient.rpc.mockResolvedValue({
+        data: Array.from({ length: 10 }, () => mockRelease),
+        error: null,
+      });
+      const full = await service.getFeed(userId, mockPreferences, 10);
+      expect(full.hasMore).toBe(true);
+
+      mockSupabaseClient.rpc.mockResolvedValue({ data: [mockRelease], error: null });
+      const partial = await service.getFeed(userId, mockPreferences, 10);
+      expect(partial.hasMore).toBe(false);
     });
 
     it('should pass release type filter to RPC', async () => {
       mockSupabaseClient.rpc.mockResolvedValue({ data: [], error: null });
 
-      await service.getFeed(userId, { ...mockPreferences, release_type_filter: 'album' }, 1, 10);
+      await service.getFeed(userId, { ...mockPreferences, release_type_filter: 'album' }, 10);
 
       expect(mockSupabaseClient.rpc).toHaveBeenCalledWith(
         'get_user_feed',
         expect.objectContaining({ p_release_type: 'album' }),
-      );
-    });
-
-    it('should pass "everything" filter to RPC unchanged', async () => {
-      mockSupabaseClient.rpc.mockResolvedValue({ data: [], error: null });
-
-      await service.getFeed(userId, mockPreferences, 1, 10);
-
-      expect(mockSupabaseClient.rpc).toHaveBeenCalledWith(
-        'get_user_feed',
-        expect.objectContaining({ p_release_type: 'everything' }),
       );
     });
   });
