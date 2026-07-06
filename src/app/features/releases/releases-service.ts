@@ -196,29 +196,39 @@ export class ReleasesService {
   }
 
   /**
-   * Batch upsert artists into the shared artists table, then into user_artists.
-   * Processes in chunks of 500 to avoid request size limits.
+   * Upsert artist name/image into the shared `artists` table via the
+   * upsert-artists Edge Function.
+   *
+   * The `artists` table is shared across all users and is no longer writable by
+   * clients (RLS) — writing it directly would let any user overwrite another
+   * artist's name/image. The Edge Function performs the write with the service
+   * role after verifying the caller is authenticated.
+   */
+  async upsertArtistMetadata(artists: ArtistRow[]): Promise<void> {
+    if (artists.length === 0) return;
+    const payload = artists.map((a) => ({
+      spotify_artist_id: a.spotify_artist_id,
+      artist_name: a.artist_name,
+      artist_image_url: a.artist_image_url ?? null,
+    }));
+    const { error } = await this.supabase.client.functions.invoke('upsert-artists', {
+      body: { artists: payload },
+    });
+    if (error) throw new Error('Failed to save artist details. Please try again.');
+  }
+
+  /**
+   * Persist the user's artist list: shared artist metadata via the Edge
+   * Function, then the per-user associations (owner-scoped, writable directly).
+   * Processes user_artists in chunks of 500 to avoid request size limits.
    */
   async syncArtists(userId: string, artists: ArtistRow[], source: string): Promise<void> {
+    await this.upsertArtistMetadata(artists);
+
     for (let i = 0; i < artists.length; i += CHUNK_SIZE) {
       const chunk = artists.slice(i, i + CHUNK_SIZE);
 
-      unwrap(
-        await this.supabase.client.from('artists').upsert(
-          chunk.map((a) => {
-            const row: Record<string, unknown> = {
-              spotify_artist_id: a.spotify_artist_id,
-              artist_name: a.artist_name,
-            };
-            if (a.artist_image_url) {
-              row['artist_image_url'] = a.artist_image_url;
-            }
-            return row;
-          }),
-        ),
-      );
-
-      // Then upsert user-artist associations (no artist metadata — join artists table for that)
+      // Per-user associations (no artist metadata — join artists table for that)
       unwrap(
         await this.supabase.client.from('user_artists').upsert(
           chunk.map((a) => ({
