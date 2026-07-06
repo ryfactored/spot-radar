@@ -62,7 +62,7 @@ touch supabase/migrations/20260215120000_add_tags_table.sql
 Set the search path at the top, then write your schema changes:
 
 ```sql
-set search_path to angular_starter, public;
+set search_path to spot_radar, public;
 
 CREATE TABLE IF NOT EXISTS tags (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -103,6 +103,6 @@ Or, on a fresh database, re-run `finalize.sh` to apply everything from scratch.
 - **Use `IF NOT EXISTS` / `IF EXISTS`** for tables, indexes, and triggers to make migrations safer to re-run.
 - **Use `CREATE OR REPLACE`** for functions.
 - **Use `DROP POLICY IF EXISTS` before `CREATE POLICY`** since policies don't support `CREATE OR REPLACE`.
-- **Set `search_path`** at the top of each migration: `set search_path to angular_starter, public;`
-- **All app tables go in the `angular_starter` schema**, not `public`.
+- **Set `search_path`** at the top of each migration: `set search_path to spot_radar, public;`
+- **All app tables go in the `spot_radar` schema**, not `public`.
 - **Grant permissions** explicitly — `authenticated` for user-facing tables, `service_role` for admin access.

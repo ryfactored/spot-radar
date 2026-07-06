@@ -5,7 +5,7 @@ FROM node:20-alpine
 WORKDIR /app
 
 # Copy pre-built artifacts and package files
-COPY dist/angular-starter ./dist/angular-starter
+COPY dist/spot-radar ./dist/spot-radar
 COPY package*.json ./
 
 # Install production dependencies only (--ignore-scripts skips husky setup)
@@ -17,4 +17,4 @@ ENV PORT=4200
 ENV NODE_ENV=production
 
 # Start SSR server
-CMD ["node", "dist/angular-starter/server/server.mjs"]
+CMD ["node", "dist/spot-radar/server/server.mjs"]

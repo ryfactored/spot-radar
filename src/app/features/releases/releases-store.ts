@@ -1,4 +1,5 @@
 import { Injectable, signal, computed } from '@angular/core';
+import { resetOnSignOut } from '@core';
 import { Release, FeedPreferences } from './releases-service';
 
 export interface SyncProgress {
@@ -37,6 +38,10 @@ export class ReleasesStore {
   private sync = signal<SyncProgress>({ ...DEFAULT_SYNC });
   private preferences = signal<FeedPreferences>({ ...DEFAULT_PREFERENCES });
   private artistIds = signal<string[]>([]);
+
+  constructor() {
+    resetOnSignOut(() => this.clear());
+  }
 
   // Public readonly accessors
   readonly allReleases = this.releases.asReadonly();

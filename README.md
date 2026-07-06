@@ -1,31 +1,39 @@
-# Angular Starter Template
+# Spot Radar
 
-A production-ready Angular 21 starter template with Supabase backend, signal-based state management, SSR, theming, and a comprehensive testing setup.
+Your personal new-releases feed. Spot Radar connects to your Spotify account, tracks the artists you follow, and surfaces what they just dropped — built on Angular 21 (zoneless) with a Supabase backend, signal-based state, and SSR.
 
 ## Features
 
-- **Authentication** — Email/password + social OAuth (Google, GitHub, Spotify, Apple, Discord) via Supabase
-- **Notes CRUD** — Create, read, update, delete with pagination, search, and realtime updates
-- **Chat** — Realtime messaging with Supabase Realtime and presence indicators
-- **File Management** — Upload, download, and manage files with Supabase Storage
-- **User Profile** — Avatar upload, bio, display name, password change, and account deletion
-- **Admin Panel** — Role-based admin page with user management
-- **Theming** — Three color themes (Default, Teal, Slate) with dark/light mode toggle
+- **Spotify sign-in** — OAuth via Supabase; imports the artists you follow
+- **New Releases feed** — Albums and singles from your artists, grouped into "new since you last checked" and "previously seen", with type/recency/source filters and infinite scroll
+- **My Artists** — Search and filter the artists you track, by source (followed vs. saved)
+- **Sync** — On-demand and scheduled background syncs against the Spotify API, with live progress
+- **Dashboard** — At-a-glance latest release and follow/release counts
+- **User Profile** — Avatar upload, display name, bio, password change, and account deletion
+- **Admin Panel** — Role-gated user management and runtime feature flags
+- **Theming** — Light/dark mode with color themes
 - **SSR** — Server-side rendering with Express and client hydration
-- **Accessibility** — WCAG 2.1 AA compliant with full keyboard navigation and screen reader support
 - **Zoneless** — No zone.js; all reactivity driven by Angular Signals
+
+> The Notes, Chat, and Files areas are dormant scaffolding from the starter this
+> project was built on. They are disabled by feature flags (and off in production);
+> see [docs/feature-removal.md](docs/feature-removal.md) to remove them entirely.
 
 ## Quick Start
 
 1. **Clone and install**
 
    ```bash
-   git clone <repository-url> my-app
-   cd my-app
+   git clone <repository-url> spot-radar
+   cd spot-radar
    npm install
    ```
 
-2. **Configure Supabase** — Update `src/environments/environment.ts` with your project URL and anon key
+2. **Configure Supabase** — Copy `src/environments/environment.local.example.ts` to
+   `src/environments/environment.local.ts` and fill in your Supabase project URL and
+   anon key. This file is gitignored, so real credentials never get committed — do
+   **not** put them in the tracked `environment.ts`. (In CI/hosting, the same values
+   are injected from `SUPABASE_URL` / `SUPABASE_ANON_KEY` env vars via `scripts/set-env.js`.)
 
 3. **Run the dev server**
 
@@ -33,7 +41,7 @@ A production-ready Angular 21 starter template with Supabase backend, signal-bas
    npm start
    ```
 
-See [docs/setup.md](docs/setup.md) for the full setup guide including database migrations, OAuth configuration, and deployment.
+See [docs/setup.md](docs/setup.md) for the full setup guide including database migrations, Spotify OAuth configuration, edge-function deployment, and hosting.
 
 ## Commands
 
