@@ -26,6 +26,11 @@ export class SpotifyAuthService {
   // Deduplicates concurrent refresh calls for the same user
   private readonly refreshInFlight = new Map<string, Promise<string>>();
 
+  // In-memory access-token cache (token + expiry epoch ms). getAccessToken is
+  // called once per Spotify API request; during a full sync that's hundreds of
+  // calls, each of which otherwise did a DB round-trip for the token.
+  private readonly tokenCache = new Map<string, { token: string; expiresAt: number }>();
+
   /**
    * Upserts Spotify tokens for the given user into `user_spotify_tokens`.
    */
@@ -48,6 +53,12 @@ export class SpotifyAuthService {
         { onConflict: 'user_id' },
       ),
     );
+
+    // Freshly stored token supersedes anything cached for this user.
+    this.tokenCache.set(userId, {
+      token: accessToken,
+      expiresAt: new Date(expiresAt).getTime(),
+    });
   }
 
   /**
@@ -55,6 +66,11 @@ export class SpotifyAuthService {
    * automatically if it has expired.
    */
   async getAccessToken(userId: string): Promise<string> {
+    const cached = this.tokenCache.get(userId);
+    if (cached && cached.expiresAt > Date.now()) {
+      return cached.token;
+    }
+
     const row = unwrap(
       await this.supabase.client
         .from('user_spotify_tokens')
@@ -63,10 +79,12 @@ export class SpotifyAuthService {
         .single(),
     ) as Pick<SpotifyTokenRow, 'access_token' | 'expires_at'>;
 
-    if (new Date(row.expires_at) <= new Date()) {
+    const expiresAt = new Date(row.expires_at).getTime();
+    if (expiresAt <= Date.now()) {
       return this.refreshToken(userId);
     }
 
+    this.tokenCache.set(userId, { token: row.access_token, expiresAt });
     return row.access_token;
   }
 
@@ -83,7 +101,14 @@ export class SpotifyAuthService {
       .then(({ data, error }) => {
         if (error) throw error;
         if (!data?.access_token) throw new Error('Token refresh failed');
-        return data.access_token as string;
+        const token = data.access_token as string;
+        if (data.expires_at) {
+          this.tokenCache.set(userId, {
+            token,
+            expiresAt: new Date(data.expires_at).getTime(),
+          });
+        }
+        return token;
       })
       .finally(() => this.refreshInFlight.delete(userId));
 

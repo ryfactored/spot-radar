@@ -2,7 +2,8 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const SPOTIFY_API = 'https://api.spotify.com/v1';
 const BATCH_LIMIT = 200;
-const CONCURRENT = 10;
+// One Spotify call per artist; higher concurrency means fewer sequential rounds.
+const CONCURRENT = 20;
 
 Deno.serve(async (req) => {
   try {
