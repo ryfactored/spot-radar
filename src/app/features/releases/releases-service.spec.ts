@@ -289,15 +289,24 @@ describe('ReleasesService', () => {
   });
 
   describe('syncArtists', () => {
-    it('should upsert into artists then user_artists', async () => {
+    it('should upsert artist metadata via the Edge Function and user_artists directly', async () => {
       const upsertMock = vi.fn().mockResolvedValue({ data: null, error: null });
       mockSupabaseClient.from.mockReturnValue({ upsert: upsertMock });
+      mockSupabaseClient.functions.invoke.mockResolvedValue({ data: null, error: null });
 
       const artists = [{ spotify_artist_id: 'artist-1', artist_name: 'Artist 1' }];
 
       await service.syncArtists(userId, artists, 'spotify');
 
-      expect(mockSupabaseClient.from).toHaveBeenCalledWith('artists');
+      // Shared artists table is written server-side, never directly by the client
+      expect(mockSupabaseClient.functions.invoke).toHaveBeenCalledWith('upsert-artists', {
+        body: {
+          artists: [
+            { spotify_artist_id: 'artist-1', artist_name: 'Artist 1', artist_image_url: null },
+          ],
+        },
+      });
+      expect(mockSupabaseClient.from).not.toHaveBeenCalledWith('artists');
       expect(mockSupabaseClient.from).toHaveBeenCalledWith('user_artists');
     });
   });

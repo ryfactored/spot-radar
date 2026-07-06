@@ -9,6 +9,7 @@ import {
 
 import { AuthService, SupabaseService, SpotifyApiService, extractErrorMessage } from '@core';
 import { ToastService, EmptyState } from '@shared';
+import { ReleasesService } from '@features/releases/releases-service';
 
 export interface UserArtist {
   spotify_artist_id: string;
@@ -529,6 +530,7 @@ export class Artists implements OnInit {
   private auth = inject(AuthService);
   private toast = inject(ToastService);
   private spotifyApi = inject(SpotifyApiService);
+  private releasesService = inject(ReleasesService);
 
   protected allArtists = signal<UserArtist[]>([]);
   protected loading = signal(false);
@@ -675,9 +677,10 @@ export class Artists implements OnInit {
             artist_image_url: a.images?.[0]?.url ?? null,
           }));
 
-          // Update DB for future loads
+          // Update DB for future loads (shared artists table is written
+          // server-side — clients can't write it directly).
           if (upsertRows.length > 0) {
-            await this.supabase.client.from('artists').upsert(upsertRows);
+            await this.releasesService.upsertArtistMetadata(upsertRows);
           }
 
           // Update local state immediately
