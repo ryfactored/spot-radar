@@ -15,9 +15,10 @@ Your personal new-releases feed. Spot Radar connects to your Spotify account, tr
 - **SSR** — Server-side rendering with Express and client hydration
 - **Zoneless** — No zone.js; all reactivity driven by Angular Signals
 
-> The Notes, Chat, and Files areas are dormant scaffolding from the starter this
-> project was built on. They are disabled by feature flags (and off in production);
-> see [docs/feature-removal.md](docs/feature-removal.md) to remove them entirely.
+> This project was built on an Angular/Supabase starter. The starter's example
+> areas (Notes, Chat, Files, and the component playground) have been removed;
+> [docs/feature-removal.md](docs/feature-removal.md) documents that process for
+> reference.
 
 ## Quick Start
 
