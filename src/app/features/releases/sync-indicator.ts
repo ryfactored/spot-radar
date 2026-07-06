@@ -28,6 +28,9 @@ import { SyncProgress } from './releases-store';
             <span class="sync-pct">{{ pct() }}%</span>
           }
         </div>
+        @if (progress().currentArtist) {
+          <p class="sync-subtext">{{ progress().currentArtist }}</p>
+        }
         @if (progress().total > 0 && progress().checked > 0) {
           <mat-progress-bar mode="determinate" [value]="pct()" />
         } @else {
@@ -64,6 +67,16 @@ import { SyncProgress } from './releases-store';
       font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: 0.875rem;
       color: #acaaae;
+    }
+
+    .sync-subtext {
+      margin: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.75rem;
+      color: #767579;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .sync-pct {
