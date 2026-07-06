@@ -14,7 +14,9 @@ export interface Release {
   image_url: string | null;
   track_count: number;
   artist_source: 'followed' | 'saved';
-  created_at?: string;
+  // When a sync first discovered this release (distinct from release_date).
+  // Drives the "new since you last checked" vs "previously seen" split.
+  discovered_at?: string;
 }
 
 export interface FeedPreferences {
