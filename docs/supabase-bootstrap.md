@@ -28,9 +28,22 @@ click through the dashboard each time.
 
 ## Every time a project expires
 
+**macOS / Linux** (needs `jq`):
+
 ```bash
 npm run supabase:bootstrap
 ```
+
+**Windows** — use the PowerShell version (no WSL and no `jq` needed; runs in
+Windows PowerShell 5.1 or PowerShell 7+):
+
+```powershell
+npm run supabase:bootstrap:win
+```
+
+> On Windows the Bash script fails with "Windows Subsystem for Linux has no
+> installed distributions" because `bash` is routed to WSL. Use the `:win`
+> script instead — it's a native PowerShell port with identical behavior.
 
 That single command:
 
