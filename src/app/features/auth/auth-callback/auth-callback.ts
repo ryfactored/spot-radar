@@ -27,19 +27,23 @@ export class AuthCallback implements OnInit {
   private router = inject(Router);
   message = signal('Completing sign in...');
 
+  // toObservable() must run in an injection context (a field initializer),
+  // never inside ngOnInit — calling it in the lifecycle hook throws NG0203
+  // ("inject() must be called from an injection context") and crashes the
+  // OAuth callback so sign-in never completes.
+  private authSettled$ = toObservable(this.auth.loading).pipe(
+    filter((loading) => !loading),
+    take(1),
+  );
+
   ngOnInit() {
-    toObservable(this.auth.loading)
-      .pipe(
-        filter((loading) => !loading),
-        take(1),
-      )
-      .subscribe(() => {
-        if (this.auth.currentUser()) {
-          this.router.navigate(['/dashboard']);
-        } else {
-          this.message.set('Sign in failed. Redirecting...');
-          setTimeout(() => this.router.navigate(['/login']), 2000);
-        }
-      });
+    this.authSettled$.subscribe(() => {
+      if (this.auth.currentUser()) {
+        this.router.navigate(['/dashboard']);
+      } else {
+        this.message.set('Sign in failed. Redirecting...');
+        setTimeout(() => this.router.navigate(['/login']), 2000);
+      }
+    });
   }
 }
