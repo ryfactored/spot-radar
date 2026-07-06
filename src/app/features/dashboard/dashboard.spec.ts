@@ -15,7 +15,7 @@ describe('Dashboard', () => {
   const releasesStoreMock = {
     followedArtistIds: signal([] as string[]),
     allReleases: signal([] as any[]),
-    totalCount: signal(0),
+    canLoadMore: signal(false),
     dismissedIds: signal(new Set<string>()),
     setArtistIds: vi.fn(),
     setReleases: vi.fn(),
@@ -28,7 +28,8 @@ describe('Dashboard', () => {
       recency_days: 90,
       hide_live: false,
     }),
-    getFeed: vi.fn().mockResolvedValue({ data: [], count: 0 }),
+    getFeed: vi.fn().mockResolvedValue({ data: [], hasMore: false }),
+    getReleaseCount: vi.fn().mockResolvedValue(0),
   };
 
   async function setupTest(

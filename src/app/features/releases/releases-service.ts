@@ -34,6 +34,12 @@ export interface ArtistRow {
   artist_image_url?: string | null;
 }
 
+/** Keyset cursor: the last release seen, used to fetch the next page. */
+export interface FeedCursor {
+  release_date: string;
+  spotify_album_id: string;
+}
+
 const DEFAULT_PREFERENCES: FeedPreferences = {
   release_type_filter: 'everything',
   min_track_count: 0,
@@ -53,17 +59,21 @@ export class ReleasesService {
   private realtime = inject(RealtimeService);
 
   /**
-   * Fetch paginated releases for the given artists matching the user's filters.
+   * Fetch a page of releases for the user's artists matching their filters,
+   * using keyset (seek) pagination. Pass the last release from the previous page
+   * as the cursor to fetch the next page; omit it for the first page.
+   *
+   * Returns `hasMore: true` when a full page came back (there may be more).
+   * Keyset paging is immune to realtime inserts shifting offsets, so pages never
+   * duplicate or skip rows.
    */
   async getFeed(
     userId: string,
     filters: FeedPreferences,
-    page: number,
     pageSize: number,
-  ): Promise<{ data: Release[]; count: number }> {
-    const offset = (page - 1) * pageSize;
-
-    const result = unwrap(
+    cursor?: FeedCursor | null,
+  ): Promise<{ data: Release[]; hasMore: boolean }> {
+    const data = unwrap(
       await this.supabase.client.rpc('get_user_feed', {
         p_user_id: userId,
         p_release_type: filters.release_type_filter,
@@ -71,15 +81,32 @@ export class ReleasesService {
         p_recency_days: filters.recency_days,
         p_hide_live: filters.hide_live,
         p_source_filter: filters.source_filter,
-        p_offset: offset,
+        p_cursor_release_date: cursor?.release_date ?? null,
+        p_cursor_album_id: cursor?.spotify_album_id ?? null,
         p_limit: pageSize,
       }),
-    ) as (Release & { total_count: number })[];
+    ) as Release[];
 
-    const count = result[0]?.total_count ?? 0;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const data = result.map(({ total_count, ...release }) => release as Release);
-    return { data, count };
+    return { data, hasMore: data.length === pageSize };
+  }
+
+  /**
+   * Total number of releases matching the user's filters (no pagination).
+   * Used for the dashboard "releases found" stat, which keyset pagination no
+   * longer provides via the feed query.
+   */
+  async getReleaseCount(userId: string, filters: FeedPreferences): Promise<number> {
+    const count = unwrap(
+      await this.supabase.client.rpc('get_user_feed_count', {
+        p_user_id: userId,
+        p_release_type: filters.release_type_filter,
+        p_min_track_count: filters.min_track_count,
+        p_recency_days: filters.recency_days,
+        p_hide_live: filters.hide_live,
+        p_source_filter: filters.source_filter,
+      }),
+    );
+    return Number(count) || 0;
   }
 
   /**
