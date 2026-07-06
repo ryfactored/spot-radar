@@ -100,17 +100,17 @@ export class SpotifyAuthService {
       throw new Error('No Spotify provider token found in current session');
     }
 
-    // Spotify tokens expire in 3600s — use the session expiry as a close
-    // approximation; fall back to 1 hour if unavailable.
-    const expiresInSeconds = session.expires_at
-      ? Math.max(0, session.expires_at - Math.floor(Date.now() / 1000))
-      : 3600;
+    // Supabase only returns `provider_refresh_token` on the initial OAuth
+    // sign-in. Later SIGNED_IN events (session restore, multi-tab) can carry a
+    // stale `provider_token` with no refresh token — storing that would clobber
+    // the good refresh token we already have and brick refreshes an hour later.
+    // Without a refresh token there is nothing durable worth persisting, so skip.
+    if (!session.provider_refresh_token) {
+      return;
+    }
 
-    await this.storeTokens(
-      userId,
-      session.provider_token,
-      session.provider_refresh_token ?? '',
-      expiresInSeconds,
-    );
+    // Spotify access tokens always expire in 3600s regardless of the Supabase
+    // session lifetime, so don't derive expiry from the session expiry.
+    await this.storeTokens(userId, session.provider_token, session.provider_refresh_token, 3600);
   }
 }

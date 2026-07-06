@@ -67,4 +67,4 @@ APP_PORT=3000 docker compose -f docker/docker-compose.yml up -d --build
 - **Credentials are compile-time** — changing `supabaseUrl` or `supabaseAnonKey` requires a rebuild.
 - **Build before deploy** — `Dockerfile.app` expects `dist/` to already exist.
 - **SQL files are app-specific only** — base Supabase infrastructure is managed by `supabase-shared`.
-- **Database schema** — App tables live in the `angular_starter` schema (not `public`). PostgREST in `supabase-shared` must expose this schema: set `PGRST_DB_SCHEMAS: "public,angular_starter"` on the PostgREST service. Realtime replication must also be enabled for the `angular_starter` schema.
+- **Database schema** — App tables live in the `spot_radar` schema (not `public`). PostgREST in `supabase-shared` must expose this schema: set `PGRST_DB_SCHEMAS: "public,spot_radar"` on the PostgREST service. Realtime replication must also be enabled for the `spot_radar` schema.

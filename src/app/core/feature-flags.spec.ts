@@ -17,8 +17,8 @@ describe('FeatureFlags', () => {
     expect(service.isEnabled('admin')).toBe(true);
   });
 
-  it('should default to true for unknown flags', () => {
-    expect(service.isEnabled('unknown-feature')).toBe(true);
+  it('should default to false for unknown flags', () => {
+    expect(service.isEnabled('unknown-feature')).toBe(false);
   });
 
   it('should toggle a flag via setEnabled', () => {

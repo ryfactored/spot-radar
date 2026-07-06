@@ -4,8 +4,21 @@ const SPOTIFY_API = 'https://api.spotify.com/v1';
 const BATCH_LIMIT = 200;
 const CONCURRENT = 10;
 
-Deno.serve(async () => {
+Deno.serve(async (req) => {
   try {
+    // This is a scheduled job, not a user endpoint. Require a shared secret so
+    // random callers can't drain the Spotify rate-limit budget or mass-write
+    // the releases table. Set CRON_SECRET and send it on the cron invocation.
+    const cronSecret = Deno.env.get('CRON_SECRET');
+    if (cronSecret) {
+      const provided =
+        req.headers.get('x-cron-secret') ??
+        req.headers.get('Authorization')?.replace(/^Bearer\s+/i, '');
+      if (provided !== cronSecret) {
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
+      }
+    }
+
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
@@ -111,14 +124,15 @@ Deno.serve(async () => {
           (r): r is PromiseFulfilledResult<{ artistId: string; items: unknown[] } | null> =>
             r.status === 'fulfilled' && r.value !== null,
         )
+        // Attribute each album to the artist we queried, not album.artists[0],
+        // so collaborations key to a followed artist and show up in the feed.
+        .flatMap((r) => r.value!.items.map((album) => ({ artistId: r.value!.artistId, album })))
+        .filter(({ album }) => Boolean(album))
         // deno-lint-ignore no-explicit-any
-        .flatMap((r) => (r.value as any).items)
-        .filter(Boolean)
-        // deno-lint-ignore no-explicit-any
-        .map((album: any) => ({
+        .map(({ artistId, album }: any) => ({
           spotify_album_id: album.id,
-          spotify_artist_id: album.artists[0]?.id ?? '',
-          artist_name: album.artists[0]?.name ?? 'Unknown',
+          spotify_artist_id: artistId,
+          artist_name: album.artists?.[0]?.name ?? 'Unknown',
           title: album.name,
           release_type: album.album_type ?? 'album',
           release_date: album.release_date,
