@@ -44,12 +44,8 @@ export const environmentBase: Environment = {
   loadingBarDelayMs: 300,
   supabaseDbSchema: 'spot_radar',
   featureFlags: {
-    notes: false,
-    chat: false,
-    files: false,
     admin: true,
     breadcrumb: true,
-    components: true,
     themePicker: false,
     centerContent: true,
     releases: true,

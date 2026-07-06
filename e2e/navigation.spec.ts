@@ -8,8 +8,8 @@ test.describe('Navigation', () => {
     await expect(page).toHaveURL(/login/);
   });
 
-  test('should redirect unauthenticated user from notes to login', async ({ page }) => {
-    await page.goto('/notes');
+  test('should redirect unauthenticated user from releases to login', async ({ page }) => {
+    await page.goto('/releases');
 
     // Should redirect to login
     await expect(page).toHaveURL(/login/);

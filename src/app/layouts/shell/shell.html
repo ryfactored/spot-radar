@@ -54,42 +54,6 @@
           <span>My Artists</span>
         </a>
       }
-      @if (featureFlags.isEnabled('notes')) {
-        <a
-          class="nav-link"
-          routerLink="/notes"
-          routerLinkActive="active"
-          #rlaNotes="routerLinkActive"
-          [attr.aria-current]="rlaNotes.isActive ? 'page' : null"
-        >
-          <mat-icon>note</mat-icon>
-          <span>Notes</span>
-        </a>
-      }
-      @if (featureFlags.isEnabled('chat')) {
-        <a
-          class="nav-link"
-          routerLink="/chat"
-          routerLinkActive="active"
-          #rlaChat="routerLinkActive"
-          [attr.aria-current]="rlaChat.isActive ? 'page' : null"
-        >
-          <mat-icon>chat</mat-icon>
-          <span>Chat</span>
-        </a>
-      }
-      @if (featureFlags.isEnabled('files')) {
-        <a
-          class="nav-link"
-          routerLink="/files"
-          routerLinkActive="active"
-          #rlaFiles="routerLinkActive"
-          [attr.aria-current]="rlaFiles.isActive ? 'page' : null"
-        >
-          <mat-icon>folder</mat-icon>
-          <span>Files</span>
-        </a>
-      }
       @if (isAdmin() && featureFlags.isEnabled('admin')) {
         @if (hasExpandableGroups()) {
           <button
@@ -137,18 +101,6 @@
                 <mat-icon>toggle_on</mat-icon>
                 <span>Feature Flags</span>
               </a>
-              @if (featureFlags.isEnabled('components')) {
-                <a
-                  class="nav-link submenu-item"
-                  routerLink="/components"
-                  routerLinkActive="active"
-                  #rlaComponents="routerLinkActive"
-                  [attr.aria-current]="rlaComponents.isActive ? 'page' : null"
-                >
-                  <mat-icon>widgets</mat-icon>
-                  <span>Components</span>
-                </a>
-              }
             </div>
           }
         } @else {

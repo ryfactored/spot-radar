@@ -48,8 +48,8 @@ describe('FeatureFlagsPage', () => {
     await setupTest();
     const flagNames = fixture.nativeElement.querySelectorAll('.flag-name');
     const names = Array.from(flagNames).map((el: any) => el.textContent.trim());
-    expect(names).toContain('notes');
-    expect(names).toContain('chat');
+    expect(names).toContain('releases');
+    expect(names).toContain('admin');
   });
 
   it('should call setEnabled when toggle is changed', async () => {

@@ -20,8 +20,8 @@ export interface RealtimePayload<T> {
  *
  * Usage:
  * ```typescript
- * const cleanup = this.realtime.subscribeToTable<Note>(
- *   'notes',
+ * const cleanup = this.realtime.subscribeToTable<Release>(
+ *   'releases',
  *   (payload) => console.log(payload.eventType, payload.new),
  *   `user_id=eq.${userId}`
  * );
