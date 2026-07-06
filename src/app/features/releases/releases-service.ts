@@ -274,12 +274,16 @@ export class ReleasesService {
    * Returns an unsubscribe function.
    */
   subscribeToNewReleases(artistIds: string[], callback: (release: Release) => void): () => void {
+    // The realtime subscription receives every release INSERT app-wide, so this
+    // predicate runs on a hot path — use a Set for O(1) membership instead of a
+    // linear scan of a potentially thousands-long artist array per event.
+    const artistIdSet = new Set(artistIds);
     return this.realtime.subscribeToTable<Release>(
       'releases',
       (payload: RealtimePayload<Release>) => {
         if (payload.eventType === 'INSERT') {
           const release = payload.new as Release;
-          if (artistIds.includes(release.spotify_artist_id)) {
+          if (artistIdSet.has(release.spotify_artist_id)) {
             callback(release);
           }
         }
