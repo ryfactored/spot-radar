@@ -578,21 +578,24 @@ export class ReleasesFeed implements OnInit, AfterViewInit, OnDestroy {
     const lastChecked = this.store.lastCheckedAt();
     if (!lastChecked) return this.store.allReleases();
     const cutoff = new Date(lastChecked);
-    return this.store.allReleases().filter((r) => {
-      const date = new Date(r.created_at ?? r.release_date);
-      return date > cutoff;
-    });
+    return this.store.allReleases().filter((r) => this.discoveredAt(r) > cutoff);
   });
 
   protected seenReleases = computed(() => {
     const lastChecked = this.store.lastCheckedAt();
     if (!lastChecked) return [];
     const cutoff = new Date(lastChecked);
-    return this.store.allReleases().filter((r) => {
-      const date = new Date(r.created_at ?? r.release_date);
-      return date <= cutoff;
-    });
+    return this.store.allReleases().filter((r) => this.discoveredAt(r) <= cutoff);
   });
+
+  /**
+   * When a release was discovered by a sync — the basis for the new/seen split.
+   * Falls back to release_date only for legacy rows synced before discovered_at
+   * existed (the migration backfills those, so this is belt-and-braces).
+   */
+  private discoveredAt(r: Release): Date {
+    return new Date(r.discovered_at ?? r.release_date);
+  }
 
   protected featuredRelease = computed(() => {
     const releases = this.newReleases();
