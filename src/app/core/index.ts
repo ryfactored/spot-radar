@@ -30,3 +30,4 @@ export { unsavedChangesGuard } from './unsaved-changes-guard';
 export type { HasUnsavedChanges } from './unsaved-changes-guard';
 export { FeatureFlags } from './feature-flags';
 export { featureFlagGuard } from './feature-flag-guard';
+export { resetOnSignOut } from './reset-on-sign-out';

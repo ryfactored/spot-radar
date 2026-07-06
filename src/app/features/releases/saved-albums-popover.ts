@@ -10,6 +10,8 @@ import { LoadingSpinner } from '@shared';
   template: `
     @if (loading()) {
       <app-loading-spinner [diameter]="24" />
+    } @else if (error()) {
+      <p class="empty">Couldn't load saved albums. Please try again.</p>
     } @else if (albums().length === 0) {
       <p class="empty">No saved albums found — run a full sync to update</p>
     } @else {
@@ -115,6 +117,7 @@ export class SavedAlbumsPopover implements OnInit {
   artistId = input.required<string>();
 
   protected loading = signal(true);
+  protected error = signal(false);
   protected albums = signal<SpotifyAlbum[]>([]);
 
   private spotifyApi = inject(SpotifyApiService);
@@ -124,6 +127,9 @@ export class SavedAlbumsPopover implements OnInit {
       const result = await this.spotifyApi.getSavedAlbumsByArtist(this.artistId());
       this.albums.set(result);
     } catch {
+      // Distinguish a failed lookup from a genuinely empty result — otherwise an
+      // expired token shows the misleading "run a full sync" empty state.
+      this.error.set(true);
       this.albums.set([]);
     } finally {
       this.loading.set(false);

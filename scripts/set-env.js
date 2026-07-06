@@ -55,19 +55,36 @@ for (const [envVar, value] of Object.entries(process.env)) {
 
 // 2. ENV_ prefixed vars map directly by name (override auto-matched if both exist)
 // e.g. ENV_supabaseUrl=https://... → supabaseUrl: 'https://...'
+// Keys not present in the Environment interface are ignored — CI/hosting
+// environments often carry unrelated ENV_* vars that would otherwise
+// produce a file that fails typechecking.
 const PREFIX = 'ENV_';
 for (const [key, value] of Object.entries(process.env)) {
-  if (key.startsWith(PREFIX)) {
-    overrides[key.slice(PREFIX.length)] = value;
+  if (!key.startsWith(PREFIX)) continue;
+  const name = key.slice(PREFIX.length);
+  if (stringKeys.includes(name)) {
+    overrides[name] = value;
+  } else {
+    console.warn(`Ignoring ${key}: '${name}' is not a string property of Environment.`);
   }
 }
 
 if (!overrides.supabaseUrl || !overrides.supabaseAnonKey) {
-  console.warn('Warning: supabaseUrl or supabaseAnonKey not set.');
+  const message =
+    'supabaseUrl or supabaseAnonKey not set — the build will ship placeholder ' +
+    'credentials and every Supabase call will fail.';
+  // Deploy pipelines set REQUIRE_SUPABASE_ENV so a missing/misnamed secret fails
+  // the build loudly instead of silently publishing a broken app. Plain CI
+  // compile-checks leave it unset and only get a warning.
+  if (process.env.REQUIRE_SUPABASE_ENV) {
+    console.error(`Error: ${message}`);
+    process.exit(1);
+  }
+  console.warn(`Warning: ${message}`);
 }
 
 const entries = Object.entries(overrides)
-  .map(([key, value]) => `  ${key}: '${value}',`)
+  .map(([key, value]) => `  ${key}: ${JSON.stringify(value)},`)
   .join('\n');
 
 const content = `import { Environment } from './environment.interface';

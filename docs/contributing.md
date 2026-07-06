@@ -9,7 +9,7 @@
 
 ```bash
 git clone <repository-url>
-cd angular-starter
+cd spot-radar
 npm install
 npm start          # Dev server at http://localhost:4200
 ```

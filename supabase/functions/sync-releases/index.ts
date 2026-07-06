@@ -18,13 +18,33 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { userId, skipRecent = true } = await req.json();
-    if (!userId) {
-      return new Response(JSON.stringify({ error: 'userId required' }), {
-        status: 400,
+    // Identify the caller from their JWT — never trust a userId from the body,
+    // or any unauthenticated caller could sync (and enumerate) arbitrary users.
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
+    const authClient = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_ANON_KEY')!,
+      { global: { headers: { Authorization: authHeader } } },
+    );
+    const {
+      data: { user },
+      error: userError,
+    } = await authClient.auth.getUser();
+    if (userError || !user) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+    const userId = user.id;
+
+    const { skipRecent = true } = await req.json().catch(() => ({}));
 
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,
@@ -179,42 +199,53 @@ Deno.serve(async (req) => {
 
         const results = await Promise.allSettled(
           batch.map(async (row: ArtistRow) => {
-            const url = `${SPOTIFY_API}/artists/${row.spotify_artist_id}/albums?include_groups=album,single&limit=5`;
-            const resp = await fetch(url, {
-              headers: { Authorization: `Bearer ${accessToken}` },
-            });
+            const artistId = row.spotify_artist_id;
+            const url = `${SPOTIFY_API}/artists/${artistId}/albums?include_groups=album,single&limit=5`;
+            const fetchAlbums = () =>
+              fetch(url, { headers: { Authorization: `Bearer ${accessToken}` } });
 
+            let resp = await fetchAlbums();
             if (resp.status === 429) {
               const retryAfter = parseInt(resp.headers.get('Retry-After') || '5', 10);
               await new Promise((r) => setTimeout(r, retryAfter * 1000));
-              const retryResp = await fetch(url, {
-                headers: { Authorization: `Bearer ${accessToken}` },
-              });
-              if (!retryResp.ok) return [];
-              const retryData = await retryResp.json();
-              return retryData.items;
+              resp = await fetchAlbums();
             }
 
-            if (!resp.ok) return [];
+            // Report ok:false so a failed fetch doesn't get marked "checked"
+            // and silently suppressed from re-checking for the next 24h.
+            if (!resp.ok) return { artistId, ok: false, items: [] as unknown[] };
             const data = await resp.json();
-            return data.items;
+            return { artistId, ok: true, items: (data.items ?? []) as unknown[] };
           }),
         );
 
         const cutoffYear = new Date().getFullYear() - 1;
+        const succeededIds: string[] = [];
 
         // deno-lint-ignore no-explicit-any
         const releases = results
-          .filter((r): r is PromiseFulfilledResult<unknown[]> => r.status === 'fulfilled')
-          .flatMap((r) => r.value)
-          .filter(Boolean)
+          .filter(
+            (r): r is PromiseFulfilledResult<{ artistId: string; ok: boolean; items: unknown[] }> =>
+              r.status === 'fulfilled',
+          )
+          .flatMap((r) => {
+            if (r.value.ok) succeededIds.push(r.value.artistId);
+            // Attribute each album to the artist we actually queried, not
+            // album.artists[0] — on a collaboration the followed artist may be
+            // listed second, which would key the release to an artist the user
+            // doesn't follow and hide it from their feed entirely.
+            return r.value.items.map((album) => ({ artistId: r.value.artistId, album }));
+          })
           // deno-lint-ignore no-explicit-any
-          .filter((album: any) => parseInt(album.release_date.substring(0, 4), 10) >= cutoffYear)
+          .filter(({ album }: any) => {
+            const year = parseInt(String(album?.release_date ?? '').substring(0, 4), 10);
+            return Number.isFinite(year) && year >= cutoffYear;
+          })
           // deno-lint-ignore no-explicit-any
-          .map((album: any) => ({
+          .map(({ artistId, album }: any) => ({
             spotify_album_id: album.id,
-            spotify_artist_id: album.artists[0]?.id ?? '',
-            artist_name: album.artists[0]?.name ?? 'Unknown',
+            spotify_artist_id: artistId,
+            artist_name: artistNameMap.get(artistId) ?? album.artists?.[0]?.name ?? 'Unknown',
             title: album.name,
             release_type: album.album_type ?? 'album',
             release_date: album.release_date,
@@ -224,19 +255,24 @@ Deno.serve(async (req) => {
 
         // Upsert releases
         if (releases.length > 0) {
-          await supabase
+          const { error: upsertError } = await supabase
             .schema('spot_radar')
             .from('releases')
             .upsert(releases, { onConflict: 'spotify_album_id' });
+          if (upsertError) {
+            throw new Error(`Failed to save releases: ${upsertError.message}`);
+          }
         }
 
-        // Update last_release_check on shared artists table
-        const checkedIds = batch.map((r: ArtistRow) => r.spotify_artist_id);
-        await supabase
-          .schema('spot_radar')
-          .from('artists')
-          .update({ last_release_check: new Date().toISOString() })
-          .in('spotify_artist_id', checkedIds);
+        // Only mark artists whose fetch succeeded as checked; failed ones stay
+        // stale so the next sync retries them instead of skipping for 24h.
+        if (succeededIds.length > 0) {
+          await supabase
+            .schema('spot_radar')
+            .from('artists')
+            .update({ last_release_check: new Date().toISOString() })
+            .in('spotify_artist_id', succeededIds);
+        }
 
         // Broadcast progress for each artist in this batch
         for (const row of batch) {

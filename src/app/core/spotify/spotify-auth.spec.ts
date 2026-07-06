@@ -215,5 +215,16 @@ describe('SpotifyAuthService', () => {
         service.captureTokensFromSession('user-1', { ...mockSession, provider_token: null }),
       ).rejects.toThrow('No Spotify provider token found in current session');
     });
+
+    it('should not store (clobber) tokens when the session has no refresh token', async () => {
+      const { upsert } = makeUpsertChain({ data: null, error: null });
+
+      await service.captureTokensFromSession('user-1', {
+        ...mockSession,
+        provider_refresh_token: null,
+      });
+
+      expect(upsert).not.toHaveBeenCalled();
+    });
   });
 });
